@@ -8,7 +8,13 @@ import tietkiem from "../../images/tietkiem.png";
 import ec3 from "../../images/ec3.png";
 import ec6 from "../../images/ec6.png";
 import ec7 from "../../images/ec7.png";
+import { LoginDialog } from "./components/LoginDialog";
+import { RegisterDialog } from "./components/RegisterDialog";
+import { useState } from "react";
+
 function HomePage() {
+  const [openLogin, setOpenLogin] = useState(false);
+  const [openRegister, setOpenRegister] = useState(false);
   return (
     <div className="bg-gray-100 min-h-screen">
       {/* Header */}
@@ -45,9 +51,21 @@ function HomePage() {
             Liên hệ
           </a>
         </nav>
-        <Button className="bg-green-500 text-white px-7 py-6 rounded-full">
-          Đăng nhập
-        </Button>
+        <LoginDialog
+          open={openLogin}
+          onOpenChange={setOpenLogin}
+          onSwitchToRegister={() => {
+            setOpenRegister(true);
+          }}
+        >
+          <Button
+            className="text-md bg-green-500 text-white px-6 py-6 rounded-full"
+            onClick={() => setOpenLogin(true)}
+          >
+            Đăng nhập
+          </Button>
+        </LoginDialog>
+        <RegisterDialog open={openRegister} onOpenChange={setOpenRegister} />
       </header>
       <section className="relative w-full h-[650px] flex items-center justify-center overflow-hidden p-0 m-0">
         <img
