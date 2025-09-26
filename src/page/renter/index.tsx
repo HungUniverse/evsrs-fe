@@ -5,6 +5,9 @@ import tienloi from "../../images/tienloi.png";
 import thanthien from "../../images/thanthien.png";
 import sacTien from "../../images/sactienloi.png";
 import tietkiem from "../../images/tietkiem.png";
+import ec3 from "../../images/ec3.png";
+import ec6 from "../../images/ec6.png";
+import ec7 from "../../images/ec7.png";
 function HomePage() {
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -103,6 +106,251 @@ function HomePage() {
             <p>Hệ thống trạm sạc phủ rộng, hỗ trợ 24/7.</p>
           </div>
         </div>
+      </section>
+      {/* Thue Xe tu lai */}
+      <section className="bg-[#f3f4f6] py-14 md:py-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-8 md:mb-10">
+            <h2 className="text-1xl md:text-2xl font-bold text-gray-900">
+              Thuê xe tự lái
+            </h2>
+            <p className="mt-4 text-black-600 max-w-3xl mx-auto leading-7">
+              Với{" "}
+              <span className="text-emerald-600 font-semibold">EcoRent</span>,
+              bạn hoàn toàn chủ động trong mọi chuyến đi. Dịch vụ thuê xe tự lái
+              mang đến sự linh hoạt, riêng tư và tiết kiệm. Chỉ với vài thao tác
+              đặt xe, bạn đã có thể nhận xe tại trạm gần nhất và bắt đầu hành
+              trình xanh cùng chúng tôi.
+            </p>
+            <Button className="mt-6 rounded-full px-6 md:px-8 py-5 text-base md:text-lg bg-white text-gray-900 border border-gray-300 hover:bg-gray-50 shadow-sm">
+              Xem chi tiết
+            </Button>
+          </div>
+
+          {/* Hiển thị 3 card xe */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {/* EC3 */}
+            <div className="rounded-2xl p-6 bg-[#454545] text-white shadow-lg ">
+              <p className="text-2xl ml-2 font-semibold mb-2 opacity-90">
+                Ecofast EC3
+              </p>
+              <div className="rounded-xl bg-black/10 overflow-hidden grid place-items-center mb-4">
+                <img
+                  src={ec3}
+                  alt="Ecofast EC3"
+                  className="object-contain h-full w-full"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <div>
+                    <p className="font-semibold">Minicar</p>
+                    <p className="font-semibold">4 chỗ</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div>
+                    <p className="font-semibold">210km (NEDC)</p>
+                    <p className="font-semibold">Dung tích cọp 28SL</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* EC6 */}
+            <div className="rounded-2xl p-6 bg-[#454545] text-white shadow-lg">
+              <p className="text-2xl ml-2 font-semibold mb-2 opacity-90">
+                Ecofast EC6
+              </p>
+              <div className="rounded-xl bg-black/10 overflow-hidden grid place-items-center mb-4">
+                <img
+                  src={ec6}
+                  alt="Ecofast EC6"
+                  className="object-contain h-full w-full"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <div>
+                    <p className="font-semibold">Sedan</p>
+                    <p className="font-semibold">5 chỗ</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div>
+                    <p className="font-semibold">~480km (NEDC)</p>
+                    <p className="font-semibold">Dung tích cọp 42SL</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* EC7 */}
+            <div className="rounded-2xl p-6 bg-[#454545] text-white shadow-lg">
+              <p className="text-2xl ml-2 font-semibold mb-2 opacity-90">
+                Ecofast EC7
+              </p>
+              <div className="rounded-xl bg-black/10 overflow-hidden grid place-items-center mb-4">
+                <img
+                  src={ec7}
+                  alt="Ecofast EC7"
+                  className="object-contain h-full w-full"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <div>
+                    <p className="font-semibold">SUV</p>
+                    <p className="font-semibold ">5 chỗ</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div>
+                    <p className="font-semibold">498km (NEDC)</p>
+                    <p className="font-semibold ">Dung tích cọp 537L</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      {/* Footer End */}
+      <section>
+        {/* ====== Footer ====== */}
+        <footer className="bg-[#0b1625] text-slate-200">
+          {/* Top: links */}
+          <div className="max-w-6xl mx-auto px-4 py-14 grid grid-cols-1 md:grid-cols-3 gap-10">
+            {/* Product */}
+            <div>
+              <h4 className="text-slate-100 font-semibold mb-4">Sản phẩm</h4>
+              <ul className="space-y-3 text-slate-300">
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Thuê xe tự lái
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Thuê theo ngày
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Bảng giá
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Information */}
+            <div>
+              <h4 className="text-slate-100 font-semibold mb-4">Thông tin</h4>
+              <ul className="space-y-3 text-slate-300">
+                <li>
+                  <a href="#" className="hover:text-white">
+                    FAQ
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Blog
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Hỗ trợ
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Chính sách &amp; Điều khoản
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Chính sách bảo mật dữ liệu
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Company */}
+            <div>
+              <h4 className="text-slate-100 font-semibold mb-4">Công ty</h4>
+              <ul className="space-y-3 text-slate-300">
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Về chúng tôi
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Tuyển dụng
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Liên hệ
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Đối tác
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="max-w-6xl mx-auto px-4">
+            <hr className="border-white/10" />
+          </div>
+
+          {/* Divider */}
+          <div className="max-w-6xl mx-auto px-4">
+            <hr className="border-white/10" />
+          </div>
+
+          {/* Bottom: company details */}
+          <div className="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 gap-8 text-slate-300">
+            <div className="space-y-2">
+              <p>© Công ty Cổ phần EcoRent</p>
+              <p>
+                <span className="text-slate-400">Số GCNĐKKD:</span> 04328823232
+              </p>
+              <p>
+                <span className="text-slate-400">Ngày cấp:</span> 24-09-2025
+              </p>
+              <p>
+                <span className="text-slate-400">Nơi cấp:</span> Sở Kế hoạch và
+                Đầu tư TPHCM
+              </p>
+            </div>
+            <div className="space-y-2">
+              <p>
+                <span className="text-slate-400">Địa chỉ:</span> 7 Đ. D1, Long
+                Thạnh Mỹ, Thủ Đức, Hồ Chí Minh 700000, Việt Nam
+              </p>
+              <p>
+                <span className="text-slate-400">Email:</span>{" "}
+                support@ecorent.vn
+              </p>
+              <p>
+                <span className="text-slate-400">Số điện thoại:</span> 0900 000
+                000
+              </p>
+              <p>
+                <span className="text-slate-400">Tên TK:</span> CTCP ECORENT
+                &nbsp;&nbsp;
+                <span className="text-slate-400">Số TK:</span> 0912332223
+                &nbsp;&nbsp;
+                <span className="text-slate-400">Ngân hàng:</span> MBank
+              </p>
+            </div>
+          </div>
+        </footer>
       </section>
     </div>
   );
