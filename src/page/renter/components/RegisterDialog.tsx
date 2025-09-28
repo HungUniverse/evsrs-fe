@@ -1,14 +1,14 @@
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import logo from "../../../images/logo.png";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -105,7 +105,7 @@ export function RegisterDialog({
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">
-              Số điện thoại
+              Phone number
             </label>
             <Input
               type="text"
