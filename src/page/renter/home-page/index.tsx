@@ -1,7 +1,7 @@
 import Header from "../components/layout/header";
-import Hero from "../components/layout/hero";
-import WhyEcoRent from "../components/layout/whyEco";
-import SelfDriveSection from "../components/layout/selfDrive";
+import Hero from "./components/hero";
+import WhyEcoRent from "./components/whyEco";
+import SelfDriveSection from "./components/selfDrive";
 import Footer from "../components/layout/footer";
 
 export default function HomePage() {

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import logo from "../../../../../images/logo.png";
+import logo from "../../../../images/logo.png";
 import { LoginDialog } from "@/page/renter/components/LoginDialog";
 import { RegisterDialog } from "@/page/renter/components/RegisterDialog";
 import { useState } from "react";
