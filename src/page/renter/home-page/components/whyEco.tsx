@@ -9,8 +9,8 @@ export default function WhyEcoRent() {
       <h2 className="text-xl font-bold text-center mb-8">
         Vì sao chọn EcoRent?
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-0 max-w-3xl mx-auto">
-        <div className="flex flex-col items-center text-left">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-3xl mx-auto">
+        <div className="flex flex-col items-center text-center">
           <img src={tienloi} alt="Tiện lợi" className="h-40 mb-2" />
           <h3 className="text-2xl font-semibold mb-1">Tiện lợi</h3>
           <p>

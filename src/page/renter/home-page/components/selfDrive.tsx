@@ -2,8 +2,10 @@ import { Button } from "@/components/ui/button";
 import ec3 from "../../../../images/ec3.png";
 import ec6 from "../../../../images/ec6.png";
 import ec7 from "../../../../images/ec7.png";
+import { useNavigate } from "react-router-dom";
 
 export default function SelfDriveSection() {
+  const navigate = useNavigate();
   return (
     <section className="bg-[#f3f4f6] py-14 md:py-16">
       <div className="max-w-6xl mx-auto px-4">
@@ -18,7 +20,8 @@ export default function SelfDriveSection() {
             đặt xe, bạn đã có thể nhận xe tại trạm gần nhất và bắt đầu hành
             trình xanh cùng chúng tôi.
           </p>
-          <Button className="mt-6 rounded-full px-6 md:px-8 py-5 text-base md:text-lg bg-white text-gray-900 border border-gray-300 hover:bg-gray-50 shadow-sm">
+          <Button className="mt-6 rounded-full px-6 md:px-8 py-5 text-base md:text-lg bg-white text-gray-900 border border-gray-300 hover:bg-gray-50 shadow-sm" 
+          onClick={() => navigate("/searchCar")}>
             Xem chi tiết
           </Button>
         </div>
