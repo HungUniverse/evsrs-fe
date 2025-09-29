@@ -1,1 +1,5 @@
 export {default as DashBoardPage} from './dashboard'
+export {default as FleetManagementPage} from './fleet-management'
+export {default as CustomerManagementPage} from './customer-management'
+export {default as StaffManagementPage} from './staff-management'
+export {default as ReportsPage} from './reports'

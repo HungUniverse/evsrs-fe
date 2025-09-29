@@ -1,8 +1,15 @@
 import AppLayout from "@/layouts/app.layout";
-import { DashBoardPage} from "@/page/admin";
+import AdminLayout from "@/layouts/admin.layout";
+import { 
+  DashBoardPage,
+  FleetManagementPage,
+  CustomerManagementPage,
+  StaffManagementPage,
+  ReportsPage
+} from "@/page/admin";
 import { HomePage, SearchCar } from "@/page/renter";
 
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
 export const router = createBrowserRouter([
   {
@@ -16,9 +23,35 @@ export const router = createBrowserRouter([
         path: "/searchCar",
         element: <SearchCar />,
       },
+    ],
+  },
+  {
+    path: "/admin",
+    element: <AdminLayout />,
+    children: [
       {
-        path: "/admin/dashboard",
+        index: true,
+        element: <Navigate to="/admin/dashboard" replace />,
+      },
+      {
+        path: "dashboard",
         element: <DashBoardPage />,
+      },
+      {
+        path: "fleet-management",
+        element: <FleetManagementPage />,
+      },
+      {
+        path: "customer-management",
+        element: <CustomerManagementPage />,
+      },
+      {
+        path: "staff-management",
+        element: <StaffManagementPage />,
+      },
+      {
+        path: "reports",
+        element: <ReportsPage />,
       },
     ],
   },
