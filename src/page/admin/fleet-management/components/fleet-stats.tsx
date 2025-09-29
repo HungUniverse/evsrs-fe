@@ -36,7 +36,7 @@ export function FleetStats() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{totalCars}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{totalCars}</div>
           <p className="text-xs text-muted-foreground">
             {availableCars} xe có sẵn
           </p>
@@ -61,7 +61,7 @@ export function FleetStats() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{totalLocations}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{totalLocations}</div>
           <p className="text-xs text-muted-foreground">
             {activeLocations} đang hoạt động
           </p>
@@ -90,7 +90,7 @@ export function FleetStats() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{topBrands[0]?.[0] || 'N/A'}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{topBrands[0]?.[0] || 'N/A'}</div>
           <p className="text-xs text-muted-foreground">
             {topBrands[0]?.[1] || 0} xe
           </p>
@@ -114,7 +114,7 @@ export function FleetStats() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>
             {Math.round((availableCars / totalCars) * 100)}%
           </div>
           <p className="text-xs text-muted-foreground">

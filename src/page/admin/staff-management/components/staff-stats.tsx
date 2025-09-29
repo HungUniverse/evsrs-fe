@@ -4,7 +4,6 @@ import { mockStaff } from "@/mockdata/mock-admin";
 export function StaffStats() {
   const totalStaff = mockStaff.length;
   const activeStaff = mockStaff.filter(staff => staff.status === 'active').length;
-  const inactiveStaff = mockStaff.filter(staff => staff.status === 'inactive').length;
   
   const totalSalary = mockStaff.reduce((sum, staff) => sum + staff.salary, 0);
   const averageSalary = totalSalary / totalStaff;
@@ -44,7 +43,7 @@ export function StaffStats() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{totalStaff}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{totalStaff}</div>
           <p className="text-xs text-muted-foreground">
             {activeStaff} đang hoạt động
           </p>
@@ -68,7 +67,7 @@ export function StaffStats() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-green-600">{activeStaff}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{activeStaff}</div>
           <p className="text-xs text-muted-foreground">
             {Math.round((activeStaff / totalStaff) * 100)}% tổng số
           </p>
@@ -92,7 +91,7 @@ export function StaffStats() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(totalSalary)}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{formatCurrency(totalSalary)}</div>
           <p className="text-xs text-muted-foreground">
             Trung bình: {formatCurrency(averageSalary)}
           </p>
@@ -118,7 +117,7 @@ export function StaffStats() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{Object.keys(departmentStats).length}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{Object.keys(departmentStats).length}</div>
           <p className="text-xs text-muted-foreground">
             Phòng ban trong hệ thống
           </p>

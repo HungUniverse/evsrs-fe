@@ -71,7 +71,7 @@ export function BookingStats() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{totalBookings}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{totalBookings}</div>
           <p className="text-xs text-muted-foreground">
             Gần đây
           </p>
@@ -96,7 +96,7 @@ export function BookingStats() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-green-600">{completedBookings}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{completedBookings}</div>
           <p className="text-xs text-muted-foreground">
             {Math.round((completedBookings / totalBookings) * 100)}% tổng số
           </p>
@@ -123,7 +123,7 @@ export function BookingStats() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-yellow-600">{ongoingBookings}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{ongoingBookings}</div>
           <p className="text-xs text-muted-foreground">
             Đang hoạt động
           </p>
@@ -147,7 +147,7 @@ export function BookingStats() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(averageBookingValue)}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{formatCurrency(averageBookingValue)}</div>
           <p className="text-xs text-muted-foreground">
             Mỗi đơn đặt
           </p>

@@ -51,7 +51,7 @@ export function RecentBookings() {
           {mockRecentBookings.map((booking) => (
             <div key={booking.id} className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{backgroundColor: '#E8F5E8'}}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -60,7 +60,8 @@ export function RecentBookings() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
-                    className="h-5 w-5 text-blue-600"
+                    style={{color: '#00D166'}}
+                    className="h-5 w-5"
                   >
                     <path d="M8 17h8M8 17a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v6a4 4 0 0 1-4 4M8 17v-4h8v4" />
                   </svg>

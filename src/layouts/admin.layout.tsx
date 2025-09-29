@@ -87,14 +87,14 @@ export default function AdminLayout() {
           <div className="flex items-center justify-between p-4 border-b">
             {!sidebarCollapsed && (
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{backgroundColor: '#00D166'}}>
                   <Car className="h-5 w-5 text-white" />
                 </div>
                 <span className="text-xl font-bold text-gray-900">EVSRS</span>
               </div>
             )}
             {sidebarCollapsed && (
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mx-auto">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center mx-auto" style={{backgroundColor: '#00D166'}}>
                 <Car className="h-5 w-5 text-white" />
               </div>
             )}
@@ -120,9 +120,10 @@ export default function AdminLayout() {
                   to={item.href}
                   className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${
                     isActive
-                      ? 'bg-blue-50 text-blue-700'
+                      ? 'text-white'
                       : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                   }`}
+                  style={isActive ? {backgroundColor: '#00D166'} : {}}
                   onClick={() => setSidebarOpen(false)}
                   title={sidebarCollapsed ? item.name : ''}
                 >
@@ -231,7 +232,7 @@ export default function AdminLayout() {
                         <div>
                           <p className="text-sm font-medium text-gray-900">Admin User</p>
                           <p className="text-xs text-gray-500">admin@evsrs.com</p>
-                          <p className="text-xs text-blue-600">Quản trị viên</p>
+                          <p className="text-xs" style={{color: '#00D166'}}>Quản trị viên</p>
                         </div>
                       </div>
                     </div>

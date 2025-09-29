@@ -38,7 +38,7 @@ export function CustomerStats() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{totalCustomers}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{totalCustomers}</div>
           <p className="text-xs text-muted-foreground">
             {activeCustomers} đang hoạt động
           </p>
@@ -62,7 +62,7 @@ export function CustomerStats() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{activeCustomers}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{activeCustomers}</div>
           <p className="text-xs text-muted-foreground">
             {Math.round((activeCustomers / totalCustomers) * 100)}% tổng số
           </p>
@@ -86,7 +86,7 @@ export function CustomerStats() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(totalRevenue)}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{formatCurrency(totalRevenue)}</div>
           <p className="text-xs text-muted-foreground">
             Trung bình: {formatCurrency(averageSpending)}
           </p>
@@ -113,7 +113,7 @@ export function CustomerStats() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-green-600">{activeCustomers}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{activeCustomers}</div>
           <p className="text-xs text-muted-foreground">
             {inactiveCustomers} không hoạt động, {bannedCustomers} bị khóa
           </p>

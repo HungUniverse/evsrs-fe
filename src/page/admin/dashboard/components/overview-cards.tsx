@@ -35,7 +35,7 @@ export function OverviewCards() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(stats.totalRevenue)}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{formatCurrency(stats.totalRevenue)}</div>
           <p className="text-xs text-muted-foreground">
             +20.1% so với tháng trước
           </p>
@@ -60,7 +60,7 @@ export function OverviewCards() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatNumber(stats.totalBookings)}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{formatNumber(stats.totalBookings)}</div>
           <p className="text-xs text-muted-foreground">
             +180 so với tháng trước
           </p>
@@ -83,7 +83,7 @@ export function OverviewCards() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatNumber(stats.totalCars)}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{formatNumber(stats.totalCars)}</div>
           <p className="text-xs text-muted-foreground">
             {formatNumber(stats.availableCars)} xe có sẵn
           </p>
@@ -108,7 +108,7 @@ export function OverviewCards() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatNumber(stats.totalCustomers)}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{formatNumber(stats.totalCustomers)}</div>
           <p className="text-xs text-muted-foreground">
             +44 khách hàng mới
           </p>
