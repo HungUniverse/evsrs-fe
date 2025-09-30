@@ -21,7 +21,7 @@ export default function Hero() {
         </p>
 
         <Button
-          onClick={() => navigate("/searchCar")}
+          onClick={() => navigate("/search-car")}
           className="bg-green-500 hover:bg-green-700 text-white px-20 py-8 rounded-full shadow-lg text-3xl font-bold"
         >
           Thuê xe

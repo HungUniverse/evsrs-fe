@@ -1,16 +1,21 @@
+// @/@types/car.ts
 export type Car = {
   id: string;
   name: string;
   image: string;
   model: string;
-  pricePerDay: number; // giá gốc 1 ngày (chưa giảm)
+  pricePerDay: number;
   seats: 4 | 5 | 7;
-  rating?: number;
-  trips?: number;
-  batteryKwh?: number;
-  rangeKm?: number;
-  province?: string;
-  freeDeposit?: boolean; // true = miễn thế chấp
-  discount?: number;
-  // % giảm giá, ví dụ 15 = giảm 15%
+  rating: number;
+  trips: number;
+  freeDeposit: boolean;
+  discount: number;
+  province: "TP. Hồ Chí Minh" | "Hà Nội" | "Đà Nẵng" | "Cần Thơ";
+  rangeKm: number;
+
+  horsepower: number; // HP
+  trunkLiters: number; // dung tích cốp (L)
+  bodyType: "Mini" | "Hatchback" | "Sedan" | "CUV" | "SUV" | "MPV" | "Pickup";
+  dailyKmLimit: number; // giới hạn km/ngày
+  amenities?: string[]; // tiện nghi khác
 };

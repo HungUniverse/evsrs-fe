@@ -1,8 +1,8 @@
 import { useState } from "react";
-import SearchHeader from "../components/layout/headerLite";
 import CarResult from "./components/layout/car-result";
 import CategoryChip from "./components/layout/category-chip";
 import SearchBar from "./components/layout/search-bar";
+import HeaderLite from "../components/layout/headerLite";
 
 export type Filters = {
   seat?: number[];
@@ -17,7 +17,7 @@ export default function SearchCar() {
   const [filters, setFilters] = useState<Filters>({});
   return (
     <>
-      <SearchHeader />
+      <HeaderLite />
       <SearchBar
         onSearch={(f) => {
           setFilters((prev) => ({ ...prev, province: f.location }));

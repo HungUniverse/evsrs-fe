@@ -1,13 +1,13 @@
 import AppLayout from "@/layouts/app.layout";
 import AdminLayout from "@/layouts/admin.layout";
-import { 
+import {
   DashBoardPage,
   FleetManagementPage,
   CustomerManagementPage,
   StaffManagementPage,
-  ReportsPage
+  ReportsPage,
 } from "@/page/admin";
-import { HomePage, SearchCar } from "@/page/renter";
+import { BookCar, HomePage, SearchCar } from "@/page/renter";
 
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
@@ -20,8 +20,12 @@ export const router = createBrowserRouter([
         element: <HomePage />,
       },
       {
-        path: "/searchCar",
+        path: "/search-car",
         element: <SearchCar />,
+      },
+      {
+        path: "/book-car/:id",
+        element: <BookCar />,
       },
     ],
   },

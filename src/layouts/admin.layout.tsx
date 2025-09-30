@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useLocation, Outlet } from "react-router-dom";
+import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import { 
   LayoutDashboard, 
   Car, 
@@ -10,7 +11,7 @@ import {
   BarChart3,
   Menu,
   X,
-  LogOut,
+  LogOut, 
   Search,
   Bell,
   Settings,
@@ -53,6 +54,20 @@ export default function AdminLayout() {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, isAuthenticated, clear } = useAuthStore();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleLogout = () => {
+    clear();
+    navigate("/");
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {

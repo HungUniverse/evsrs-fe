@@ -3,15 +3,17 @@ import logo from "../../../../images/logo.png";
 import { LoginDialog } from "@/page/renter/components/LoginDialog";
 import { RegisterDialog } from "@/page/renter/components/RegisterDialog";
 import { useState } from "react";
-export default function SearchHeader() {
+export default function HeaderLite() {
   const [openLogin, setOpenLogin] = useState(false);
   const [openRegister, setOpenRegister] = useState(false);
 
   return (
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b">
       <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
-        <div className="flex items-center gap-1 cursor-pointer"
-          onClick={() => window.location.href = "/"}>
+        <div
+          className="flex items-center gap-1 cursor-pointer"
+          onClick={() => (window.location.href = "/")}
+        >
           <img src={logo} alt="EcoRent" className="h-16" />
           <span className="font-bold text-emerald-600 text-2xl mt-3">
             EcoRent
@@ -44,7 +46,7 @@ export default function SearchHeader() {
           >
             <Button
               variant="outline"
-              className=" font-semibold rounded-full px-5 h-10 border-slate-300 hover:bg-slate-50"
+              className=" font-semibold rounded-b-sm px-5 h-10 border-slate-800 hover:bg-slate-50"
               onClick={() => setOpenLogin(true)}
             >
               Đăng Nhập
