@@ -20,7 +20,7 @@ export default function Header() {
       <nav className="text-lg flex gap-8">
         <a
           href="/"
-          className="font-semibold text-green-400 font-bold hover:text-green-300 transition-colors"
+          className="font-semibold text-green-400 hover:text-green-300 transition-colors"
         >
           Trang chủ
         </a>
