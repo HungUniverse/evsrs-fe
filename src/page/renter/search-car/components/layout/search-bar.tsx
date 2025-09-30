@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, MapPin, Search } from "lucide-react";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { SelectGroup, SelectLabel } from "@radix-ui/react-select";
 // format date d/m/y
 function toLocalDatetimeValue(d = new Date()) {
   const pad = (n: number) => n.toString().padStart(2, "0");
@@ -46,22 +53,31 @@ export default function SearchBar({ onSearch }: Props) {
         {/* Địa điểm */}
         <div className="flex-1 flex items-center gap-3 px-4 py-3 border-b md:border-b-0 md:border-r">
           <MapPin className="w-5 h-5 text-emerald-600" />
+
           <div className="flex-1">
             <label className="text-lg text-slate-400 block mb-1">
               Địa điểm
             </label>
-            <select
-              className="text-lg w-full font-medium outline-none"
+            <Select
               value={form.location}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, location: e.target.value }))
+              onValueChange={(value) =>
+                setForm((f) => ({ ...f, location: value }))
               }
             >
-              <option>TP. Hồ Chí Minh</option>
-              <option>Hà Nội</option>
-              <option>Đà Nẵng</option>
-              <option>Cần Thơ</option>
-            </select>
+              <SelectTrigger className="w-full text-lg font-medium border-0 shadow-none focus:ring-0">
+                <SelectValue placeholder="Chọn địa điểm" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="TP. Hồ Chí Minh">
+                    TP. Hồ Chí Minh
+                  </SelectItem>
+                  <SelectItem value="Hà Nội">Hà Nội</SelectItem>
+                  <SelectItem value="Đà Nẵng">Đà Nẵng</SelectItem>
+                  <SelectItem value="Cần Thơ">Cần Thơ</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
