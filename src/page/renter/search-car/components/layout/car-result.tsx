@@ -2,13 +2,14 @@ import type { Car } from "@/@types/car";
 import { mockCars } from "@/mockdata/mock-car";
 import CarCard from "./car-card";
 
-type Filters = {
+export type Filters = {
   seat?: number[];
   minPrice?: number;
   maxPrice?: number;
   model?: string;
   province?: string;
   sale?: boolean;
+  dailyKmLimit?: number;
 };
 type Props = {
   filters: Filters;
@@ -45,6 +46,10 @@ export default function CarResult({ filters }: Props) {
       return filters.sale ? d > 0 : d === 0;
     });
   }
+  if (filters.dailyKmLimit !== undefined) {
+    cars = cars.filter((c) => (c.dailyKmLimit ?? 0) >= filters.dailyKmLimit!);
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {cars.length > 0 ? (

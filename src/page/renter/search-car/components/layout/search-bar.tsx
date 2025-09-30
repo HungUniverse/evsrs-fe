@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SelectGroup, SelectLabel } from "@radix-ui/react-select";
+import { SelectGroup } from "@radix-ui/react-select";
 // format date d/m/y
 function toLocalDatetimeValue(d = new Date()) {
   const pad = (n: number) => n.toString().padStart(2, "0");
@@ -72,9 +72,15 @@ export default function SearchBar({ onSearch }: Props) {
                   <SelectItem value="TP. Hồ Chí Minh">
                     TP. Hồ Chí Minh
                   </SelectItem>
-                  <SelectItem value="Hà Nội">Hà Nội</SelectItem>
-                  <SelectItem value="Đà Nẵng">Đà Nẵng</SelectItem>
-                  <SelectItem value="Cần Thơ">Cần Thơ</SelectItem>
+                  <SelectItem className="text-md" value="Hà Nội">
+                    Hà Nội
+                  </SelectItem>
+                  <SelectItem className="text-md" value="Đà Nẵng">
+                    Đà Nẵng
+                  </SelectItem>
+                  <SelectItem className="text-md" value="Cần Thơ">
+                    Cần Thơ
+                  </SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>

@@ -10,6 +10,7 @@ type Props = {
   onPriceFilter?: (min: number, max: number) => void;
   onBrandFilter?: (brand?: string) => void; // undefined = bỏ filter
   onSaleFilter?: (hasSale: boolean) => void; // true = chỉ xe có giảm
+  onDailyKmFilter?: (dailyKm: number) => void;
 };
 
 export default function CategoryChip({
@@ -17,6 +18,7 @@ export default function CategoryChip({
   onPriceFilter,
   onBrandFilter,
   onSaleFilter,
+  onDailyKmFilter,
 }: Props) {
   const base = "rounded-md px-8 py-6 text-md";
   const [openModel, setOpenModel] = useState(false);
@@ -75,8 +77,9 @@ export default function CategoryChip({
       <FilterModal
         open={openFilter}
         onOpenChange={setOpenFilter}
-        onApply={({ priceMin, priceMax }) => {
+        onApply={({ priceMin, priceMax, kmLimit }) => {
           onPriceFilter?.(priceMin, priceMax);
+          if (kmLimit !== undefined) onDailyKmFilter?.(kmLimit);
         }}
       >
         <Button

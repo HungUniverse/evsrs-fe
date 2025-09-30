@@ -3,15 +3,7 @@ import CarResult from "./components/layout/car-result";
 import CategoryChip from "./components/layout/category-chip";
 import SearchBar from "./components/layout/search-bar";
 import HeaderLite from "../components/layout/headerLite";
-
-export type Filters = {
-  seat?: number[];
-  minPrice?: number;
-  maxPrice?: number;
-  model?: string;
-  province?: string;
-  sale?: boolean;
-};
+import type { Filters } from "./components/layout/car-result";
 
 export default function SearchCar() {
   const [filters, setFilters] = useState<Filters>({});
@@ -38,6 +30,9 @@ export default function SearchCar() {
         }
         onSaleFilter={(hasSale) =>
           setFilters((prev) => ({ ...prev, sale: hasSale }))
+        }
+        onDailyKmFilter={(km) =>
+          setFilters((prev) => ({ ...prev, dailyKmLimit: km }))
         }
       />
       <CarResult filters={filters} />

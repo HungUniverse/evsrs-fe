@@ -21,7 +21,7 @@ type Props = {
     priceMax: number;
     kmLimit: number;
   }) => void;
-  // tuỳ chọn: cấu hình mặc định
+
   defaultPrice?: { min: number; max: number; step?: number };
   defaultKm?: { min: number; max: number; step?: number; value?: number };
 };
@@ -34,7 +34,7 @@ export default function FilterModal({
   onOpenChange,
   onApply,
   defaultPrice = { min: 200_000, max: 2_000_000, step: 50_000 },
-  defaultKm = { min: 0, max: 300, step: 10, value: 50 },
+  defaultKm = { min: 0, max: 400, step: 10, value: 50 },
 }: Props) {
   const [price, setPrice] = useState<[number, number]>([
     defaultPrice.min,
