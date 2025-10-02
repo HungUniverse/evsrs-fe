@@ -1,6 +1,6 @@
 // Role: 1 = Admin, 2 = Staff, 3 = User
 export type RoleCode = 1 | 2 | 3;
-import type { Customer } from "./customer";
+import type { User } from "./customer";
 
 // Dữ liệu form login
 export type LoginRequest = {
@@ -11,5 +11,5 @@ export type LoginRequest = {
 // Backend (hoặc mock) trả về khi login thành công
 export type LoginResponse = {
   accessToken: string; // token giả hoặc token từ backend
-  user: Customer; // thông tin user kèm role
+  user: User; // thông tin user kèm role
 };
