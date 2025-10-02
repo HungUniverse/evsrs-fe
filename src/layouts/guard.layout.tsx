@@ -1,9 +1,8 @@
-// src/components/auth/AuthGuard.tsx
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
 
-// 1=Admin, 2=Staff, 3=User
+//1 admin, 2 staff, 3 user
 export default function AuthGuard({
   children,
   requiredRole,

@@ -1,19 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
-import logo from "../../../../images/logo.png";
+import logo from "../images/logo.png";
 import { Button } from "@/components/ui/button";
-import { LoginDialog } from "@/page/renter/components/LoginDialog";
-import { RegisterDialog } from "@/page/renter/components/RegisterDialog";
-import { Bell, Settings, User, LogOut, IdCard } from "lucide-react";
+
+import { Bell, Settings, LogOut, IdCard } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { LoginDialog } from "@/page/renter/components/LoginDialog";
+import { RegisterDialog } from "@/page/renter/components/RegisterDialog";
 
 export default function HeaderLite() {
   const navigate = useNavigate();
@@ -82,10 +82,13 @@ export default function HeaderLite() {
                   >
                     <div className="h-7 w-7 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden">
                       {/* Nếu có avatar thật, thay icon bằng <img src={user?.avatarUrl} className="h-7 w-7 rounded-full" /> */}
-                      <User className="h-4 w-4 text-slate-600" />
+                      <img
+                        src={user?.profilePicture}
+                        className="h-7 w-7 rounded-full"
+                      />
                     </div>
                     <span className="text-sm font-medium truncate max-w-[140px]">
-                      {user?.name || "Người dùng"}
+                      {user?.userName || "Người dùng"}
                     </span>
                   </button>
                 </DropdownMenuTrigger>

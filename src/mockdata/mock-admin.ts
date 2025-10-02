@@ -19,7 +19,7 @@ export interface Customer {
   avatar: string;
   totalBookings: number;
   totalSpent: number;
-  status: 'active' | 'inactive' | 'banned';
+  status: "active" | "inactive" | "banned";
   joinDate: string;
   lastBooking: string;
 }
@@ -32,7 +32,7 @@ export interface Staff {
   avatar: string;
   position: string;
   department: string;
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
   joinDate: string;
   salary: number;
 }
@@ -49,7 +49,7 @@ export interface RentalLocation {
     lng: number;
   };
   manager: string;
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
 }
 
 export interface RecentBooking {
@@ -59,7 +59,7 @@ export interface RecentBooking {
   startDate: string;
   endDate: string;
   totalAmount: number;
-  status: 'confirmed' | 'ongoing' | 'completed' | 'cancelled';
+  status: "confirmed" | "ongoing" | "completed" | "cancelled";
   location: string;
 }
 
@@ -80,7 +80,8 @@ export const mockCustomers: Customer[] = [
     name: "Nguyễn Văn An",
     email: "nguyenvanan@gmail.com",
     phone: "0123456789",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+    avatar:
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
     totalBookings: 12,
     totalSpent: 8500000,
     status: "active",
@@ -92,7 +93,8 @@ export const mockCustomers: Customer[] = [
     name: "Trần Thị Bình",
     email: "tranthibinh@gmail.com",
     phone: "0987654321",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
+    avatar:
+      "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
     totalBookings: 8,
     totalSpent: 6200000,
     status: "active",
@@ -104,7 +106,8 @@ export const mockCustomers: Customer[] = [
     name: "Lê Minh Cường",
     email: "leminhcuong@gmail.com",
     phone: "0369258147",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+    avatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
     totalBookings: 15,
     totalSpent: 11200000,
     status: "active",
@@ -116,7 +119,8 @@ export const mockCustomers: Customer[] = [
     name: "Phạm Thị Dung",
     email: "phamthidung@gmail.com",
     phone: "0741852963",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+    avatar:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
     totalBookings: 5,
     totalSpent: 3800000,
     status: "inactive",
@@ -128,7 +132,8 @@ export const mockCustomers: Customer[] = [
     name: "Hoàng Văn Em",
     email: "hoangvanem@gmail.com",
     phone: "0529637410",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
+    avatar:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
     totalBookings: 20,
     totalSpent: 15800000,
     status: "active",
@@ -143,7 +148,8 @@ export const mockStaff: Staff[] = [
     name: "Nguyễn Thị Admin",
     email: "admin@evsrs.com",
     phone: "0123456789",
-    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face",
+    avatar:
+      "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face",
     position: "Quản trị viên",
     department: "Quản lý",
     status: "active",
@@ -155,7 +161,8 @@ export const mockStaff: Staff[] = [
     name: "Trần Văn Manager",
     email: "manager@evsrs.com",
     phone: "0987654321",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+    avatar:
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
     position: "Quản lý đội xe",
     department: "Vận hành",
     status: "active",
@@ -167,7 +174,8 @@ export const mockStaff: Staff[] = [
     name: "Lê Thị Staff",
     email: "staff@evsrs.com",
     phone: "0369258147",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
+    avatar:
+      "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
     position: "Nhân viên chăm sóc khách hàng",
     department: "Dịch vụ",
     status: "active",
@@ -179,7 +187,8 @@ export const mockStaff: Staff[] = [
     name: "Phạm Văn Tech",
     email: "tech@evsrs.com",
     phone: "0741852963",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+    avatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
     position: "Kỹ thuật viên",
     department: "Kỹ thuật",
     status: "active",
@@ -191,7 +200,8 @@ export const mockStaff: Staff[] = [
     name: "Hoàng Thị Finance",
     email: "finance@evsrs.com",
     phone: "0529637410",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+    avatar:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
     position: "Kế toán",
     department: "Tài chính",
     status: "active",

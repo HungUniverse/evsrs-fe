@@ -1,7 +1,8 @@
 // src/lib/zustand/use-auth-store.ts
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { User, RoleCode } from "@/@types/auth.type";
+import type { RoleCode } from "@/@types/auth.type";
+import type { User } from "@/@types/customer";
 
 // 1 = Admin, 2 = Staff, 3 = User
 type AuthState = {

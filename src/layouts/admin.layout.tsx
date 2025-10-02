@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import {
   LayoutDashboard,
@@ -9,17 +8,9 @@ import {
   Users,
   UserCheck,
   BarChart3,
-  Menu,
   X,
-  LogOut,
-  Search,
-  Bell,
-  Settings,
-  User,
-  PanelRight,
-  ChevronDown,
 } from "lucide-react";
-import HeaderLite from "@/page/renter/components/layout/headerLite";
+import HeaderLite from "@/components/headerLite";
 
 const navigationItems = [
   {

@@ -4,8 +4,8 @@ import CarInfo from "./components/layouts/car-info";
 import RentalCondition from "./components/layouts/rental-condition";
 import type { Car } from "@/@types/car";
 import { mockCars } from "@/mockdata/mock-car";
-import HeaderLite from "../components/layout/headerLite";
 import Footer from "../components/layout/footer";
+import HeaderLite from "@/components/headerLite";
 
 export default function BookCar() {
   const location = useLocation();
@@ -13,7 +13,10 @@ export default function BookCar() {
 
   console.log("BookCar - ID:", id);
   console.log("BookCar - Location state:", location.state);
-  console.log("BookCar - Available cars:", mockCars.map(c => c.id));
+  console.log(
+    "BookCar - Available cars:",
+    mockCars.map((c) => c.id)
+  );
 
   const car =
     (location.state as { car: Car })?.car ||
