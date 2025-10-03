@@ -5,14 +5,10 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import type {
-  LoginRequest,
-  LoginResponse,
-  RoleCode,
-  User,
-} from "@/@types/auth.type";
+import type { LoginRequest, LoginResponse, RoleCode } from "@/@types/auth.type";
 import { api, apiAuth } from "@/lib/api";
 import { useNavigate } from "react-router-dom";
+import type { User } from "@/@types/customer";
 
 type AuthContextType = {
   user: User | null;
