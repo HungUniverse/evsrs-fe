@@ -13,11 +13,7 @@ export default function BookCar() {
 
   console.log("BookCar - ID:", id);
   console.log("BookCar - Location state:", location.state);
-  console.log(
-    "BookCar - Available cars:",
-    mockCars.map((c) => c.id)
-  );
-
+ 
   const car =
     (location.state as { car: Car })?.car ||
     mockCars.find((c) => c.id === id) ||
