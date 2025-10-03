@@ -1,19 +1,24 @@
-import * as React from "react"
+import type { ComponentProps } from "react"
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
 import { ChevronDownIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+// Wraps Radix's Accordion root. Use this as the top-level container.
+// Pass any Radix Root props (e.g., type="single"/"multiple", collapsible, defaultValue).
+// The data-slot attribute is used for consistent styling/testing hooks across the app.
 function Accordion({
   ...props
-}: React.ComponentProps<typeof AccordionPrimitive.Root>) {
+}: ComponentProps<typeof AccordionPrimitive.Root>) {
   return <AccordionPrimitive.Root data-slot="accordion" {...props} />
 }
 
+// Single accordion item (a panel). Adds a bottom border except on the last item.
+// Accepts all Radix Item props like value and disabled.
 function AccordionItem({
   className,
   ...props
-}: React.ComponentProps<typeof AccordionPrimitive.Item>) {
+}: ComponentProps<typeof AccordionPrimitive.Item>) {
   return (
     <AccordionPrimitive.Item
       data-slot="accordion-item"
@@ -23,11 +28,16 @@ function AccordionItem({
   )
 }
 
+// Clickable header that toggles the associated content.
+// Note the utility classes:
+// - focus-visible styles for accessible keyboard focus rings
+// - [&[data-state=open]>svg]:rotate-180 rotates the chevron when opened using Radix's data-state
+// Children render the trigger label; an icon is appended on the right.
 function AccordionTrigger({
   className,
   children,
   ...props
-}: React.ComponentProps<typeof AccordionPrimitive.Trigger>) {
+}: ComponentProps<typeof AccordionPrimitive.Trigger>) {
   return (
     <AccordionPrimitive.Header className="flex">
       <AccordionPrimitive.Trigger
@@ -45,11 +55,16 @@ function AccordionTrigger({
   )
 }
 
+// Collapsible content area associated with a trigger.
+// Uses Radix's data-state to animate open/close via Tailwind keyframes:
+// - data-[state=open]:animate-accordion-down
+// - data-[state=closed]:animate-accordion-up
+// The inner <div> applies vertical padding and merges custom className.
 function AccordionContent({
   className,
   children,
   ...props
-}: React.ComponentProps<typeof AccordionPrimitive.Content>) {
+}: ComponentProps<typeof AccordionPrimitive.Content>) {
   return (
     <AccordionPrimitive.Content
       data-slot="accordion-content"
