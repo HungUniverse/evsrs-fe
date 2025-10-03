@@ -104,6 +104,26 @@ export default function HeaderLite() {
                     <span>Trang cá nhân</span>
                   </DropdownMenuItem>
 
+                  {user?.role === 1 && (
+                    <DropdownMenuItem
+                      onClick={() => navigate('/admin')}
+                      className="cursor-pointer"
+                    >
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Admin Panel</span>
+                    </DropdownMenuItem>
+                  )}
+
+                  {user?.role === 2 && (
+                    <DropdownMenuItem
+                      onClick={() => navigate('/staff')}
+                      className="cursor-pointer"
+                    >
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Staff Panel</span>
+                    </DropdownMenuItem>
+                  )}
+
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={handleLogout}
