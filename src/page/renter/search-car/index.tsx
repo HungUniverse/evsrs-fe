@@ -7,12 +7,19 @@ import HeaderLite from "@/components/headerLite";
 
 export default function SearchCar() {
   const [filters, setFilters] = useState<Filters>({});
+  const [searchForm, setSearchForm] = useState({
+    location: "",
+    start: "",
+    end: "",
+  });
+
   return (
     <>
       <HeaderLite />
       <SearchBar
         onSearch={(f) => {
           setFilters((prev) => ({ ...prev, province: f.location }));
+          setSearchForm(f);
         }}
       />
       <CategoryChip
@@ -35,7 +42,7 @@ export default function SearchCar() {
           setFilters((prev) => ({ ...prev, dailyKmLimit: km }))
         }
       />
-      <CarResult filters={filters} />
+      <CarResult filters={filters} searchForm={searchForm} />
     </>
   );
 }

@@ -9,7 +9,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SelectGroup } from "@radix-ui/react-select";
-// format date d/m/y
 function toLocalDatetimeValue(d = new Date()) {
   const pad = (n: number) => n.toString().padStart(2, "0");
   const yyyy = d.getFullYear();
@@ -29,9 +28,7 @@ type SearchForm = {
 type Props = {
   onSearch?: (values: SearchForm) => void;
 };
-
 export default function SearchBar({ onSearch }: Props) {
-  //set ngay df
   const [form, setForm] = useState<SearchForm>({
     location: "TP. Hồ Chí Minh",
     start: toLocalDatetimeValue(new Date()),
@@ -41,6 +38,7 @@ export default function SearchBar({ onSearch }: Props) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Search form:", form);
+
     onSearch?.(form);
   };
 
@@ -50,7 +48,6 @@ export default function SearchBar({ onSearch }: Props) {
         onSubmit={handleSubmit}
         className="bg-white rounded-2xl shadow-sm border flex flex-col md:flex-row md:items-stretch overflow-hidden"
       >
-        {/* Địa điểm */}
         <div className="flex-1 flex items-center gap-3 px-4 py-3 border-b md:border-b-0 md:border-r">
           <MapPin className="w-5 h-5 text-emerald-600" />
 
@@ -112,7 +109,7 @@ export default function SearchBar({ onSearch }: Props) {
               type="datetime-local"
               className="text-lg w-full font-medium outline-none"
               value={form.end}
-              min={form.start} // không cho chọn trước ngày bắt đầu
+              min={form.start}
               onChange={(e) => setForm((f) => ({ ...f, end: e.target.value }))}
             />
           </div>

@@ -42,20 +42,16 @@ export default function BookCar() {
     <div className="min-h-screen bg-gray-50">
       <HeaderLite />
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          {/* Left Side - Car Gallery */}
           <div className="flex justify-center lg:justify-start">
             <CarGallery car={car} />
           </div>
 
-          {/* Right Side - Car Info */}
           <div className="flex justify-center lg:justify-start">
-            <CarInfo car={car} />
+            <CarInfo />
           </div>
         </div>
 
-        {/* Rental Conditions */}
         <div className="mb-12">
           <RentalCondition />
         </div>

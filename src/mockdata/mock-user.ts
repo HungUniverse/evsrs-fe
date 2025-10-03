@@ -22,7 +22,7 @@ export const mockUsers: User[] = [
     dob: "1992-02-02",
     phoneNumber: "0900000002",
     profilePicture:
-      "https://images.unsplash.com/photo-1502767089025-6572583495b0?w=150&h=150&fit=crop&crop=face",
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
     role: 2,
   },
   {

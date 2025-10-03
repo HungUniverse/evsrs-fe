@@ -13,8 +13,9 @@ export type Filters = {
 };
 type Props = {
   filters: Filters;
+  searchForm: { location: string; start: string; end: string };
 };
-export default function CarResult({ filters }: Props) {
+export default function CarResult({ filters, searchForm }: Props) {
   let cars: Car[] = [...mockCars];
 
   if (filters.seat?.length) {
@@ -53,7 +54,7 @@ export default function CarResult({ filters }: Props) {
   return (
     <div className="max-w-7xl mx-auto px-4 mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {cars.length > 0 ? (
-        cars.map((c) => <CarCard key={c.id} car={c} />)
+        cars.map((c) => <CarCard key={c.id} car={c} searchForm={searchForm} />)
       ) : (
         <div className="col-span-full text-center py-10 text-slate-500">
           Không tìm thấy xe phù hợp

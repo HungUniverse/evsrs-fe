@@ -11,7 +11,7 @@ export default function AppLayout() {
         <ThemeProvider defaultTheme="light" storageKey="ui-theme">
           <AuthProvider>
             <Outlet />
-            <Toaster position="top-right" />
+            <Toaster position="top-center" />
           </AuthProvider>
         </ThemeProvider>
       </QueryProvider>

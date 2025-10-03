@@ -1,22 +1,40 @@
 import { Button } from "@/components/ui/button";
 import type { Car } from "@/@types/car";
+import { useLocation, useNavigate } from "react-router";
 
-interface CarInfoProps {
-  car: Car;
-}
-
-export default function CarInfo({ car }: CarInfoProps) {
+export default function CarInfo() {
+  const navigate = useNavigate();
+  const location = useLocation() as {
+    state?: { car: Car; location: string; start: string; end: string };
+  };
+  const car = location.state?.car;
+  const province = location.state?.location ?? "TP. Hồ Chí Minh";
+  const start = location.state?.start;
+  const end = location.state?.end;
+  if (!car) return <div>Không tìm thấy xe</div>;
   return (
     <div className="w-full max-w-md space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{car.name}</h1>
-        <div className="text-2xl font-bold text-green-600 mb-2">
-          {car.pricePerDay.toLocaleString()} VND/Ngày
-        </div>
-        {car.discount}
+      <div className="mb-2">
+        {car.discount ? (
+          <div className="flex items-center gap-2">
+            <span className="text-gray-400 line-through">
+              {car.pricePerDay.toLocaleString()}đ
+            </span>
+
+            <span className="text-green-600 font-bold text-xl">
+              {(car.pricePerDay * (1 - car.discount / 100)).toLocaleString()}
+              đ/ngày
+            </span>
+            <span className="text-red-500 font-semibold">-{car.discount}%</span>
+          </div>
+        ) : (
+          <div className="text-2xl font-bold text-green-600">
+            {car.pricePerDay.toLocaleString()} VND/Ngày
+          </div>
+        )}
       </div>
 
-      <div className="grid grid-cols-2 gap-4 bg-" >
+      <div className="grid grid-cols-2 gap-4 bg-">
         <div className="space-y-2">
           <div className="text-sm text-gray-600">{car.seats} chỗ</div>
           <div className="text-sm text-gray-600">{car.horsepower} HP</div>
@@ -33,6 +51,11 @@ export default function CarInfo({ car }: CarInfoProps) {
 
       <div className="space-y-3">
         <Button
+          onClick={() =>
+            navigate(`/pay-car/${car.id}`, {
+              state: { car, province, start, end },
+            })
+          }
           className="w-full bg-green-500 hover:bg-green-600 text-white py-3 text-lg font-semibold"
           size="lg"
         >

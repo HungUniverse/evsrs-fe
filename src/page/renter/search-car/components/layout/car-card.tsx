@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
 import type { Car } from "@/@types/car";
+import { vnd } from "@/lib/utils/currency";
+type Props = {
+  car: Car;
+  searchForm: { location: string; start: string; end: string };
+};
 
-type Props = { car: Car };
-
-const vnd = new Intl.NumberFormat("vi-VN");
-
-export default function CarCard({ car }: Props) {
+export default function CarCard({ car, searchForm }: Props) {
   const hasSale = (car.discount ?? 0) > 0;
   const finalPrice = hasSale
     ? Math.round(car.pricePerDay * (1 - (car.discount ?? 0) / 100))
@@ -14,7 +15,12 @@ export default function CarCard({ car }: Props) {
   return (
     <Link
       to={`/book-car/${car.id}`}
-      state={{ car }}
+      state={{
+        car,
+        province: searchForm.location,
+        start: searchForm.start,
+        end: searchForm.end,
+      }}
       className="group flex flex-col h-full rounded-2xl border border-slate-200 bg-white
                  shadow-sm hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-emerald-500"
     >
@@ -30,10 +36,10 @@ export default function CarCard({ car }: Props) {
         {hasSale ? (
           <div className="text-sm md:text-base">
             <span className="line-through text-slate-400 mr-2">
-              {vnd.format(car.pricePerDay)} đ
+              {vnd(car.pricePerDay)} đ
             </span>
             <span className="text-emerald-600 font-semibold">
-              {vnd.format(finalPrice)}đ/ngày
+              {vnd(finalPrice)}đ/ngày
             </span>
             <span className="ml-2 text-xs md:text-sm text-red-500">
               -{car.discount}%
@@ -41,7 +47,7 @@ export default function CarCard({ car }: Props) {
           </div>
         ) : (
           <div className="text-sm md:text-base font-semibold">
-            {vnd.format(car.pricePerDay)} đ/ngày
+            {vnd(car.pricePerDay)} đ/ngày
           </div>
         )}
 
