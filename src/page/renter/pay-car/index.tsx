@@ -6,8 +6,8 @@ import HeaderLite from "@/components/headerLite";
 import Footer from "../components/layout/footer";
 
 function normalizeProvince(p?: string) {
-  if (!p) return "TP Hồ Chí Minh";
-  return p.replace("TP. ", "TP ");
+  if (!p) return "TP. Hồ Chí Minh";
+  return p;
 }
 
 export default function PayCar() {

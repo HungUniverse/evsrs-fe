@@ -8,7 +8,7 @@ import {
   StaffManagementPage,
   ReportsPage,
 } from "@/page/admin";
-import { BookCar, HomePage, PayCar, SearchCar } from "@/page/renter";
+import { BookCar, HomePage, PayCar, Payment, SearchCar } from "@/page/renter";
 import { StaffDashboard, OrderDetailsPage } from "@/page/staff";
 
 import { createBrowserRouter, Navigate } from "react-router-dom";
@@ -33,6 +33,10 @@ export const router = createBrowserRouter([
       {
         path: "/pay-car/:id",
         element: <PayCar />,
+      },
+      {
+        path: "/payment",
+        element: <Payment />,
       },
       {
         path: "/admin",

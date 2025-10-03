@@ -5,12 +5,23 @@ import { useLocation, useNavigate } from "react-router";
 export default function CarInfo() {
   const navigate = useNavigate();
   const location = useLocation() as {
-    state?: { car: Car; location: string; start: string; end: string };
+    state?: { 
+      car: Car; 
+      province: string; 
+      start: string; 
+      end: string;
+      searchForm?: {
+        location: string;
+        start: string;
+        end: string;
+      };
+    };
   };
   const car = location.state?.car;
-  const province = location.state?.location ?? "TP. Hồ Chí Minh";
+  const province = location.state?.province;
   const start = location.state?.start;
   const end = location.state?.end;
+  const searchForm = location.state?.searchForm;
   if (!car) return <div>Không tìm thấy xe</div>;
   return (
     <div className="w-full max-w-md space-y-6">
@@ -53,7 +64,7 @@ export default function CarInfo() {
         <Button
           onClick={() =>
             navigate(`/pay-car/${car.id}`, {
-              state: { car, province, start, end },
+              state: { car, province, start, end, searchForm },
             })
           }
           className="w-full bg-green-500 hover:bg-green-600 text-white py-3 text-lg font-semibold"

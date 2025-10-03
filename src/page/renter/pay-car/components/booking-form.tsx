@@ -17,6 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { vnd } from "@/lib/utils/currency";
 import { toast } from "sonner";
+import { useNavigate } from "react-router";
 
 type Props = {
   car: Car;
@@ -43,26 +44,25 @@ export default function BookingForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { deposit } = useBookingCalc(car.pricePerDay, start, end);
-
+  const navigate = useNavigate();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      console.log("Booking data:", {
-        car,
-        province,
-        start,
-        end,
-        depot: selectedDepot,
-        paymentMethod,
-        notes,
-        searchForm,
+      navigate("/payment", {
+        state: {
+          amount: deposit,
+          car,
+          province,
+          start,
+          end,
+          depot: selectedDepot,
+          paymentMethod,
+          notes,
+          searchForm,
+        },
       });
-
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      toast.success("Đặt xe thành công!");
     } catch (error) {
       console.error("Booking error:", error);
       toast.error("Có lỗi xảy ra khi đặt xe. Vui lòng thử lại.");
@@ -104,13 +104,9 @@ export default function BookingForm({
                     <SelectValue placeholder="Chọn phương thức thanh toán" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="credit-card">Thẻ tín dụng</SelectItem>
-                    <SelectItem value="debit-card">Thẻ ghi nợ</SelectItem>
                     <SelectItem value="bank-transfer">
-                      Chuyển khoản ngân hàng
+                      Chuyển khoản ngân hàng(SePay)
                     </SelectItem>
-                    <SelectItem value="momo">Ví MoMo</SelectItem>
-                    <SelectItem value="zalopay">Ví ZaloPay</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
