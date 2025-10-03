@@ -20,6 +20,7 @@ export default function CarCard({ car, searchForm }: Props) {
         province: searchForm.location,
         start: searchForm.start,
         end: searchForm.end,
+        searchForm,
       }}
       className="group flex flex-col h-full rounded-2xl border border-slate-200 bg-white
                  shadow-sm hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-emerald-500"

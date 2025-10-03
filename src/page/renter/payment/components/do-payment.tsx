@@ -1,4 +1,3 @@
-// pages/DoPayment.tsx
 import { useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { vnd } from "@/lib/utils/currency";
@@ -7,13 +6,18 @@ import bank from "@/images/bank.png";
 
 type PaymentState = {
   amount: number;
-  car: any;
-  province: string;
-  start: string;
-  end: string;
+  car: {
+    id: string;
+    name: string;
+  };
   depot: string;
   paymentMethod: string;
   notes?: string;
+  searchForm: {
+    location: string;
+    start: string;
+    end: string;
+  };
 };
 
 function randomTxn() {
@@ -38,9 +42,8 @@ export default function DoPayment() {
   }, [state, txnId, navigate]);
 
   if (!state?.amount) return null;
-
-  const { amount, car, province, start, end, depot, paymentMethod, notes } =
-    state;
+  //de keo zo db sau
+  const { amount, car, depot, paymentMethod, notes, searchForm } = state;
 
   return (
     <section className="max-w-5xl mx-auto p-6">

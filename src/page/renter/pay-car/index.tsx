@@ -5,10 +5,6 @@ import { mockCars } from "@/mockdata/mock-car";
 import HeaderLite from "@/components/headerLite";
 import Footer from "../components/layout/footer";
 
-function normalizeProvince(p?: string) {
-  if (!p) return "TP. Hồ Chí Minh";
-  return p;
-}
 
 export default function PayCar() {
   const { carId } = useParams();
@@ -16,9 +12,7 @@ export default function PayCar() {
   const location = useLocation() as {
     state?: {
       car: Car;
-      province: string;
-      start: string;
-      end: string;
+
       searchForm?: {
         location: string;
         start: string;
@@ -28,12 +22,8 @@ export default function PayCar() {
   };
 
   const car = location.state?.car;
-  const provinceRaw = location.state?.province;
-  const start = location.state?.start;
-  const end = location.state?.end;
-  const searchForm = location.state?.searchForm;
 
-  const province = normalizeProvince(provinceRaw);
+  const searchForm = location.state?.searchForm;
 
   // If no car data from state, try to find by carId
   const selectedCar = car || mockCars.find((c) => c.id === carId);
@@ -57,7 +47,7 @@ export default function PayCar() {
     );
   }
 
-  if (!province || !start || !end) {
+  if (!searchForm?.location || !searchForm.start || !searchForm.end) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
@@ -81,13 +71,10 @@ export default function PayCar() {
   return (
     <div className="min-h-screen bg-gray-100">
       <HeaderLite />
-      <BookingForm
-        car={selectedCar}
-        province={province}
-        start={start}
-        end={end}
-        searchForm={searchForm}
-      />
+        <BookingForm
+          car={selectedCar}
+          searchForm={searchForm}
+        />
       <Footer />
     </div>
   );

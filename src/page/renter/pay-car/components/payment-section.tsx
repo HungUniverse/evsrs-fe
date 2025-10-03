@@ -6,23 +6,23 @@ import { vnd } from "@/lib/utils/currency";
 
 type Props = {
   car: Car;
-  province: string;
-  start: string;
-  end: string;
+  searchForm: {
+    location: string;
+    start: string;
+    end: string;
+  };
   depotMapId?: string;
 };
 
 export default function PaymentSection({
   car,
-  province,
-  start,
-  end,
+  searchForm,
   depotMapId,
 }: Props) {
   const { days, baseTotal, deposit, salePrice } = useBookingCalc(
     car.pricePerDay,
-    start,
-    end,
+    searchForm.start,
+    searchForm.end,
     car.discount
   );
 
@@ -47,11 +47,11 @@ export default function PaymentSection({
 
       <div className="bg-white rounded-lg border p-4 space-y-2">
         <div className="font-medium text-gray-900">
-          {depot ? depot.province : province}
+          {depot ? depot.province : searchForm.location}
         </div>
         <div className="text-sm text-gray-600">
           {days} ngày •{" "}
-          {new Date(start).toLocaleString("vi-VN", {
+          {new Date(searchForm.start).toLocaleString("vi-VN", {
             hour: "2-digit",
             minute: "2-digit",
             day: "2-digit",
@@ -59,7 +59,7 @@ export default function PaymentSection({
             year: "numeric",
           })}
           {" → "}
-          {new Date(end).toLocaleString("vi-VN", {
+          {new Date(searchForm.end).toLocaleString("vi-VN", {
             hour: "2-digit",
             minute: "2-digit",
             day: "2-digit",

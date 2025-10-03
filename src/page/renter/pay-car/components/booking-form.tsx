@@ -21,10 +21,7 @@ import { useNavigate } from "react-router";
 
 type Props = {
   car: Car;
-  province: string;
-  start: string;
-  end: string;
-  searchForm?: {
+  searchForm: {
     location: string;
     start: string;
     end: string;
@@ -33,9 +30,6 @@ type Props = {
 
 export default function BookingForm({
   car,
-  province,
-  start,
-  end,
   searchForm,
 }: Props) {
   const [selectedDepot, setSelectedDepot] = useState<string>("");
@@ -43,7 +37,7 @@ export default function BookingForm({
   const [notes, setNotes] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { deposit } = useBookingCalc(car.pricePerDay, start, end);
+  const { deposit } = useBookingCalc(car.pricePerDay, searchForm.start, searchForm.end);
   const navigate = useNavigate();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,9 +48,6 @@ export default function BookingForm({
         state: {
           amount: deposit,
           car,
-          province,
-          start,
-          end,
           depot: selectedDepot,
           paymentMethod,
           notes,
@@ -89,7 +80,7 @@ export default function BookingForm({
               <div>
                 <h3 className="text-lg font-semibold mb-4">Nơi nhận xe</h3>
                 <AddressSelect
-                  province={province}
+                  province={searchForm.location}
                   value={selectedDepot}
                   onChange={setSelectedDepot}
                 />
@@ -159,9 +150,7 @@ export default function BookingForm({
           <div className="bg-gray-50 p-6">
             <PaymentSection
               car={car}
-              province={province}
-              start={start}
-              end={end}
+              searchForm={searchForm}
               depotMapId={selectedDepot}
             />
           </div>
