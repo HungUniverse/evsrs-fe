@@ -21,7 +21,7 @@ type AuthContextType = {
   login: (body: LoginRequest) => Promise<void>;
   logout: () => void;
   hasRole: (r: RoleCode) => boolean;
-  apiMe: <T>(path: string, init?: RequestInit) => Promise<T>; // call API có token
+  apiMe: <T>(path: string, init?: RequestInit) => Promise<T>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
