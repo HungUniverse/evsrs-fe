@@ -1,9 +1,17 @@
 import type { Contract } from "@/@types/contract";
 import { mockUsers } from "./mock-user";
+
 // Users — nguồn dữ liệu cho phần lessee + cccd/gplx
 const userU3 = mockUsers.find((u) => u.id === "u3")!;
 const userU4 = mockUsers.find((u) => u.id === "u4")!;
 const userU5 = mockUsers.find((u) => u.id === "u5")!;
+
+function calcDeposit(dailyRate: number, days: number, percent = 0.4) {
+  return Math.round(dailyRate * days * percent);
+}
+function calcRemaining(total: number, deposit: number) {
+  return Math.max(total - deposit, 0);
+}
 
 export const mockContracts: Contract[] = [
   {
@@ -16,12 +24,11 @@ export const mockContracts: Contract[] = [
     lessorPhone: "0900000001",
     lessorEmail: "info@ecorent.com",
 
-    // Lessee (map từ user u3)
     lessorId: userU3.id,
     lesseeFullName: userU3.fullName,
     lesseeIdNumber: userU3.cccd,
     lesseePhone: userU3.phoneNumber,
-    lesseeAddress: "", // user chưa có address → để rỗng
+    lesseeAddress: "",
     lesseeDateOfBirth: userU3.dob,
     lesseeEmail: userU3.email,
 
@@ -30,7 +37,7 @@ export const mockContracts: Contract[] = [
 
     vehicleCode: "VF8",
     licensePlates: "51H-123.45",
-    rentalDurationDays: 3,
+    rentalDays: 3,
     rentalStartDate: "2025-01-10",
     rentalEndDate: "2025-01-13",
     pickupAddress: "01 Nguyễn Trọng Quyền, Quận 7, TP.HCM",
@@ -38,8 +45,11 @@ export const mockContracts: Contract[] = [
     vatRate: 10,
     overMileageFee: "5.000 - 10.000 VNĐ/km",
     carWashFee: "50.000 - 200.000 VNĐ/lần",
-    depositAmount: 5000000,
+
+    depositAmount: calcDeposit(800000, 3),
     totalPayment: 2400000,
+    remainingAmount: calcRemaining(2400000, calcDeposit(800000, 3)),
+
     status: "cancelled",
     createdAt: "2025-01-10T10:00:00Z",
     updatedAt: "2025-01-10T10:00:00Z",
@@ -53,6 +63,7 @@ export const mockContracts: Contract[] = [
     lessorAddress: "01 Nguyễn Văn Việt, Quận 9, TP.HCM",
     lessorPhone: "0900000001",
     lessorEmail: "info@ecorent.com",
+
     lessorId: userU3.id,
     lesseeFullName: userU3.fullName,
     lesseeIdNumber: userU3.cccd,
@@ -66,7 +77,7 @@ export const mockContracts: Contract[] = [
 
     vehicleCode: "VF5",
     licensePlates: "51H-678.90",
-    rentalDurationDays: 7,
+    rentalDays: 7,
     rentalStartDate: "2025-01-11",
     rentalEndDate: "2025-01-18",
     pickupAddress: "02 Lê Văn Việt, Quận 9, TP.HCM",
@@ -74,8 +85,11 @@ export const mockContracts: Contract[] = [
     vatRate: 10,
     overMileageFee: "3.000 - 8.000 VNĐ/km",
     carWashFee: "30.000 - 150.000 VNĐ/lần",
-    depositAmount: 3000000,
+
+    depositAmount: calcDeposit(600000, 7),
     totalPayment: 4200000,
+    remainingAmount: calcRemaining(4200000, calcDeposit(600000, 7)),
+
     status: "confirmed",
     createdAt: "2025-01-11T09:00:00Z",
     updatedAt: "2025-01-11T09:00:00Z",
@@ -89,6 +103,7 @@ export const mockContracts: Contract[] = [
     lessorAddress: "01 Nguyễn Văn Việt, Quận 9, TP.HCM",
     lessorPhone: "0900000001",
     lessorEmail: "info@ecorent.com",
+
     lessorId: userU3.id,
     lesseeFullName: userU3.fullName,
     lesseeIdNumber: userU3.cccd,
@@ -102,7 +117,7 @@ export const mockContracts: Contract[] = [
 
     vehicleCode: "VF7",
     licensePlates: "51H-999.88",
-    rentalDurationDays: 1,
+    rentalDays: 1,
     rentalStartDate: "2025-01-12",
     rentalEndDate: "2025-01-13",
     pickupAddress: "03 Nguyễn Thị Minh Khai, Quận 1, TP.HCM",
@@ -110,8 +125,11 @@ export const mockContracts: Contract[] = [
     vatRate: 10,
     overMileageFee: "8.000 - 15.000 VNĐ/km",
     carWashFee: "80.000 - 300.000 VNĐ/lần",
-    depositAmount: 8000000,
-    totalPayment: 1100000,
+
+    depositAmount: calcDeposit(1000000, 1),
+    totalPayment: 1100000, // đã gồm VAT theo mock hiện tại
+    remainingAmount: calcRemaining(1100000, calcDeposit(1000000, 1)),
+
     status: "completed",
     createdAt: "2025-01-12T14:00:00Z",
     updatedAt: "2025-01-13T18:00:00Z",
@@ -125,6 +143,7 @@ export const mockContracts: Contract[] = [
     lessorAddress: "01 Nguyễn Văn Việt, Quận 9, TP.HCM",
     lessorPhone: "0900000001",
     lessorEmail: "info@ecorent.com",
+
     lessorId: userU3.id,
     lesseeFullName: userU3.fullName,
     lesseeIdNumber: userU3.cccd,
@@ -138,7 +157,7 @@ export const mockContracts: Contract[] = [
 
     vehicleCode: "VF9",
     licensePlates: "51H-888.77",
-    rentalDurationDays: 5,
+    rentalDays: 5,
     rentalStartDate: "2025-01-15",
     rentalEndDate: "2025-01-20",
     pickupAddress: "05 Phan Xích Long, Quận Phú Nhuận, TP.HCM",
@@ -146,8 +165,11 @@ export const mockContracts: Contract[] = [
     vatRate: 10,
     overMileageFee: "4.000 - 9.000 VNĐ/km",
     carWashFee: "40.000 - 180.000 VNĐ/lần",
-    depositAmount: 4000000,
-    totalPayment: 4950000,
+
+    depositAmount: calcDeposit(900000, 5),
+    totalPayment: 4950000, // đã gồm VAT theo mock hiện tại
+    remainingAmount: calcRemaining(4950000, calcDeposit(900000, 5)),
+
     status: "confirmed",
     createdAt: "2025-01-14T08:30:00Z",
     updatedAt: "2025-01-14T08:30:00Z",
@@ -162,6 +184,7 @@ export const mockContracts: Contract[] = [
     lessorAddress: "01 Nguyễn Văn Việt, Quận 9, TP.HCM",
     lessorPhone: "0900000001",
     lessorEmail: "info@ecorent.com",
+
     lessorId: userU4.id,
     lesseeFullName: userU4.fullName,
     lesseeIdNumber: userU4.cccd,
@@ -169,11 +192,13 @@ export const mockContracts: Contract[] = [
     lesseeAddress: "",
     lesseeDateOfBirth: userU4.dob,
     lesseeEmail: userU4.email,
+
     gplx: userU4.gplx,
     cccd: userU4.cccd,
+
     vehicleCode: "HONDA-CIVIC",
     licensePlates: "51H-111.22",
-    rentalDurationDays: 2,
+    rentalDays: 2,
     rentalStartDate: "2025-01-16",
     rentalEndDate: "2025-01-18",
     pickupAddress: "06 Lê Lợi, Quận 1, TP.HCM",
@@ -181,8 +206,11 @@ export const mockContracts: Contract[] = [
     vatRate: 10,
     overMileageFee: "6.000 - 12.000 VNĐ/km",
     carWashFee: "60.000 - 250.000 VNĐ/lần",
-    depositAmount: 6000000,
-    totalPayment: 1540000,
+
+    depositAmount: calcDeposit(700000, 2),
+    totalPayment: 1540000, // đã gồm VAT theo mock hiện tại
+    remainingAmount: calcRemaining(1540000, calcDeposit(700000, 2)),
+
     status: "completed",
     createdAt: "2025-01-16T11:00:00Z",
     updatedAt: "2025-01-16T11:00:00Z",
@@ -196,6 +224,7 @@ export const mockContracts: Contract[] = [
     lessorAddress: "01 Nguyễn Văn Việt, Quận 9, TP.HCM",
     lessorPhone: "0900000001",
     lessorEmail: "info@ecorent.com",
+
     lessorId: userU5.id,
     lesseeFullName: userU5.fullName,
     lesseeIdNumber: userU5.cccd,
@@ -203,11 +232,13 @@ export const mockContracts: Contract[] = [
     lesseeAddress: "",
     lesseeDateOfBirth: userU5.dob,
     lesseeEmail: userU5.email,
+
     gplx: userU5.gplx,
     cccd: userU5.cccd,
+
     vehicleCode: "TOYOTA-CAMRY",
     licensePlates: "51H-333.44",
-    rentalDurationDays: 4,
+    rentalDays: 4,
     rentalStartDate: "2025-01-17",
     rentalEndDate: "2025-01-21",
     pickupAddress: "07 Nguyễn Huệ, Quận 1, TP.HCM",
@@ -215,8 +246,11 @@ export const mockContracts: Contract[] = [
     vatRate: 10,
     overMileageFee: "10.000 - 20.000 VNĐ/km",
     carWashFee: "100.000 - 400.000 VNĐ/lần",
-    depositAmount: 10000000,
-    totalPayment: 5280000,
+
+    depositAmount: calcDeposit(1200000, 4),
+    totalPayment: 5280000, // đã gồm VAT theo mock hiện tại
+    remainingAmount: calcRemaining(5280000, calcDeposit(1200000, 4)),
+
     status: "completed",
     createdAt: "2025-01-17T13:30:00Z",
     updatedAt: "2025-01-21T16:00:00Z",
@@ -230,6 +264,7 @@ export const mockContracts: Contract[] = [
     lessorAddress: "01 Nguyễn Văn Việt, Quận 9, TP.HCM",
     lessorPhone: "0900000001",
     lessorEmail: "info@ecorent.com",
+
     lessorId: userU4.id,
     lesseeFullName: userU4.fullName,
     lesseeIdNumber: userU4.cccd,
@@ -237,11 +272,13 @@ export const mockContracts: Contract[] = [
     lesseeAddress: "",
     lesseeDateOfBirth: userU4.dob,
     lesseeEmail: userU4.email,
+
     gplx: userU4.gplx,
     cccd: userU4.cccd,
+
     vehicleCode: "HYUNDAI-ACCENT",
     licensePlates: "51H-555.66",
-    rentalDurationDays: 1,
+    rentalDays: 1,
     rentalStartDate: "2025-01-18",
     rentalEndDate: "2025-01-19",
     pickupAddress: "08 Điện Biên Phủ, Quận Bình Thạnh, TP.HCM",
@@ -249,8 +286,12 @@ export const mockContracts: Contract[] = [
     vatRate: 10,
     overMileageFee: "4.000 - 8.000 VNĐ/km",
     carWashFee: "40.000 - 150.000 VNĐ/lần",
-    depositAmount: 4000000,
-    totalPayment: 605000,
+
+    // ✅ sửa lại để dùng công thức
+    depositAmount: calcDeposit(550000, 1),
+    totalPayment: 605000, // đã gồm VAT theo mock hiện tại
+    remainingAmount: calcRemaining(605000, calcDeposit(550000, 1)),
+
     status: "cancelled",
     createdAt: "2025-01-18T09:15:00Z",
     updatedAt: "2025-01-18T14:30:00Z",

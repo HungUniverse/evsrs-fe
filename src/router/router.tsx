@@ -9,22 +9,28 @@ import {
   ReportsPage,
 } from "@/page/admin";
 import {
+  AccountProfile,
+  AccountTrips,
   BookCar,
+  ChangePassword,
   HomePage,
   PayCar,
   Payment,
   Profile,
   SearchCar,
+  TripDetails,
 } from "@/page/renter";
 
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import AuthGuard from "@/layouts/guard.layout";
-import TripDetails from "@/page/renter/profile/account-trips/details";
-import AccountTrips from "@/page/renter/profile/account-trips";
-import AccountProfile from "@/page/renter/profile/account-profile";
-import PasswordChange from "@/page/renter/profile/change-password";
 import { TripManagement } from "@/page/staff";
-import { Contract, HandoverInspection } from "@/page/paper";
+import StaffTripDetails from "@/page/staff/trip-management/components/trip-details";
+import { lazy } from "react";
+
+const ContractPage = lazy(() => import("@/page/paper/contract"));
+const HandoverInspectionPage = lazy(
+  () => import("@/page/paper/hand-over-inspection")
+);
 
 export const router = createBrowserRouter([
   {
@@ -64,14 +70,14 @@ export const router = createBrowserRouter([
             element: <AccountTrips />,
             children: [
               { path: ":orderId", element: <TripDetails /> },
-              { path: ":orderId/contract", element: <Contract /> },
+              { path: ":orderId/contract", element: <ContractPage /> },
               {
                 path: ":orderId/handover-inspection",
-                element: <HandoverInspection />,
+                element: <HandoverInspectionPage />,
               },
             ],
           },
-          { path: "change-password", element: <PasswordChange /> },
+          { path: "change-password", element: <ChangePassword /> },
         ],
       },
 
@@ -127,7 +133,15 @@ export const router = createBrowserRouter([
           },
           {
             path: "trip/:orderId",
-            element: <TripDetails />,
+            element: <StaffTripDetails />,
+          },
+          {
+            path: "trip/:orderId/contract",
+            element: <ContractPage />,
+          },
+          {
+            path: "trip/:orderId/handover-inspection",
+            element: <HandoverInspectionPage />,
           },
         ],
       },

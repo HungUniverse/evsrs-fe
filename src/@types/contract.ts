@@ -18,7 +18,7 @@ export type Contract = {
   gplx: string;
   cccd: string;
   licensePlates: string;
-  rentalDurationDays: number;
+  rentalDays: number;
   rentalStartDate: string;
   rentalEndDate: string;
   pickupAddress: string;
