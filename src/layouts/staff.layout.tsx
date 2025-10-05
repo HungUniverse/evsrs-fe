@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
-import { StaffSidebar } from "@/page/staff/components/layout";
 import HeaderLite from "@/components/headerLite";
+import StaffSidebar from "@/page/staff/components/layout/sidebar";
 
 const StaffLayout: React.FC = () => {
   return (

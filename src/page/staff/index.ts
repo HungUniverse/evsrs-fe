@@ -1,2 +1,1 @@
-export { default as StaffDashboard } from './dashboard';
-export { default as OrderDetailsPage } from './order-details';
+export { default as TripManagement } from "./trip-management";

@@ -9,4 +9,6 @@ export type User = {
   phoneNumber: string;
   profilePicture: string;
   role: number;
+  cccd: string;
+  gplx: string;
 };

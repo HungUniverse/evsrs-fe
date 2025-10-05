@@ -3,13 +3,13 @@ import { cn } from "@/lib/utils";
 import { UserRound, ScrollText, KeyRound } from "lucide-react";
 
 const items = [
-  { to: "/staff/my-profile", label: "Tài khoản của tôi", icon: UserRound },
-  { to: "/staff/trip", label: "Quản lý chuyến đi", icon: ScrollText },
+  { to: "/account/my-profile", label: "Tài khoản của tôi", icon: UserRound },
+  { to: "/account/my-trip", label: "Chuyến của tôi", icon: ScrollText },
 
-  { to: "/staff/change-password", label: "Đổi mật khẩu", icon: KeyRound },
+  { to: "/account/change-password", label: "Đổi mật khẩu", icon: KeyRound },
 ];
 
-export default function StaffSidebar() {
+export default function AccountSidebar() {
   return (
     <aside className="w-full lg:w-64 border-r bg-white">
       <div className="px-4 py-5">

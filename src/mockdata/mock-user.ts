@@ -1,5 +1,7 @@
+// mock data
 import type { LoginRequest, LoginResponse } from "@/@types/auth.type";
 import type { User } from "@/@types/customer";
+
 export const mockUsers: User[] = [
   {
     id: "u1",
@@ -12,6 +14,8 @@ export const mockUsers: User[] = [
     profilePicture:
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
     role: 1,
+    cccd: "001234567890",
+    gplx: "A1234567890",
   },
   {
     id: "u2",
@@ -24,6 +28,8 @@ export const mockUsers: User[] = [
     profilePicture:
       "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
     role: 2,
+    cccd: "002345678901",
+    gplx: "B2345678901",
   },
   {
     id: "u3",
@@ -36,6 +42,36 @@ export const mockUsers: User[] = [
     profilePicture:
       "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=150&h=150&fit=crop&crop=face",
     role: 3,
+    cccd: "003456789012",
+    gplx: "C3456789012",
+  },
+  {
+    id: "u4",
+    userName: "user1",
+    password: "123456",
+    fullName: "User One",
+    email: "user4@evsrs.com",
+    dob: "1998-04-04",
+    phoneNumber: "0900000004",
+    profilePicture:
+      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face",
+    role: 3,
+    cccd: "004567890123",
+    gplx: "D4567890123",
+  },
+  {
+    id: "u5",
+    userName: "user2",
+    password: "123456",
+    fullName: "User Two",
+    email: "user5@evsrs.com",
+    dob: "2000-05-05",
+    phoneNumber: "0900000005",
+    profilePicture:
+      "https://images.unsplash.com/photo-1603415526960-f7e0328d13f6?w=150&h=150&fit=crop&crop=face",
+    role: 3,
+    cccd: "005678901234",
+    gplx: "E5678901234",
   },
 ];
 
