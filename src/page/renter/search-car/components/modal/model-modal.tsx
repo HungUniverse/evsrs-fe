@@ -23,7 +23,6 @@ const RAW_OPTIONS: BrandOption[] = [
   { model: "Kia", count: 29 },
 ];
 
-// Gộp các hãng trùng tên
 function aggregateOptions(options: BrandOption[]): BrandOption[] {
   const map = new Map<string, number>();
   for (const o of options) {

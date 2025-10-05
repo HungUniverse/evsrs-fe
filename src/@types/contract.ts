@@ -3,9 +3,9 @@ export type Contract = {
   title: string;
   contractNumber: string;
   contractDate: string;
+  lessorId: string;
   lessorCompanyName: string;
   lessorAddress: string;
-  lessorTaxId: string;
   lessorPhone?: string;
   lessorEmail?: string;
   lesseeFullName: string;
@@ -13,10 +13,11 @@ export type Contract = {
   lesseePhone: string;
   lesseeAddress: string;
   lesseeDateOfBirth: string;
-  lesseeGender: "Nam" | "Nữ";
   lesseeEmail?: string;
   vehicleCode: string;
-  licensePlate: string;
+  gplx: string;
+  cccd: string;
+  licensePlates: string;
   rentalDurationDays: number;
   rentalStartDate: string;
   rentalEndDate: string;
@@ -27,7 +28,7 @@ export type Contract = {
   carWashFee: string;
   depositAmount: number;
   totalPayment: number;
-  status: "in_progress" | "completed" | "cancelled" | "confirmed";
+  status: "completed" | "cancelled" | "confirmed";
   createdAt: string;
   updatedAt: string;
 };

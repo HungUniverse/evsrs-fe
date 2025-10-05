@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 
 type Props = {
-  children: React.ReactElement; // nút mở modal
+  children: React.ReactElement; // nút mở modalm
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   onApply?: (values: {

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type { TripFilterValue } from "./components/trip-filter";
 import type { Contract } from "@/@types/contract";
 import { mockContracts } from "@/mockdata/mock-contract";
@@ -6,6 +7,7 @@ import StaffTripFilter from "./components/trip-filter";
 import ShowTrip from "./components/show-trip";
 
 export default function TripManagement() {
+  const navigate = useNavigate();
   const data: Contract[] = useMemo(() => mockContracts as Contract[], []);
 
   const [filter, setFilter] = useState<TripFilterValue>({
@@ -52,7 +54,7 @@ export default function TripManagement() {
       />
       <ShowTrip
         data={filtered}
-        onClickCode={(orderId) => console.log("open contract", orderId)}
+        onClickCode={(orderId) => navigate(`/staff/trip/${orderId}`)}
       />
     </div>
   );

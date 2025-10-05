@@ -24,6 +24,7 @@ import AccountTrips from "@/page/renter/profile/account-trips";
 import AccountProfile from "@/page/renter/profile/account-profile";
 import PasswordChange from "@/page/renter/profile/change-password";
 import { TripManagement } from "@/page/staff";
+import { Contract, HandoverInspection } from "@/page/paper";
 
 export const router = createBrowserRouter([
   {
@@ -61,11 +62,19 @@ export const router = createBrowserRouter([
           {
             path: "my-trip",
             element: <AccountTrips />,
-            children: [{ path: ":orderId", element: <TripDetails /> }],
+            children: [
+              { path: ":orderId", element: <TripDetails /> },
+              { path: ":orderId/contract", element: <Contract /> },
+              {
+                path: ":orderId/handover-inspection",
+                element: <HandoverInspection />,
+              },
+            ],
           },
           { path: "change-password", element: <PasswordChange /> },
         ],
       },
+
       {
         path: "/admin",
         element: (
@@ -115,6 +124,10 @@ export const router = createBrowserRouter([
           {
             path: "trip",
             element: <TripManagement />,
+          },
+          {
+            path: "trip/:orderId",
+            element: <TripDetails />,
           },
         ],
       },
