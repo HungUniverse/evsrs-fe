@@ -3,3 +3,8 @@ export { default as SearchCar } from "./search-car";
 export { default as BookCar } from "./book-car";
 export { default as PayCar } from "./pay-car";
 export { default as Payment } from "./payment";
+export { default as Profile } from "./profile";
+export { default as AccountTrips } from "./profile/account-trips";
+export { default as AccountProfile } from "./profile/account-profile";
+export { default as ChangePassword } from "./profile/change-password";
+export { default as TripDetails } from "./profile/account-trips/details";

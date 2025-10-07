@@ -5,7 +5,6 @@ import { mockCars } from "@/mockdata/mock-car";
 import HeaderLite from "@/components/headerLite";
 import Footer from "../components/layout/footer";
 
-
 export default function PayCar() {
   const { carId } = useParams();
   const navigate = useNavigate();
@@ -71,10 +70,7 @@ export default function PayCar() {
   return (
     <div className="min-h-screen bg-gray-100">
       <HeaderLite />
-        <BookingForm
-          car={selectedCar}
-          searchForm={searchForm}
-        />
+      <BookingForm car={selectedCar} searchForm={searchForm} />
       <Footer />
     </div>
   );

@@ -28,7 +28,7 @@ export default function HeaderLite() {
   };
 
   const goProfile = () => {
-    navigate("/profile");
+    navigate("/account/my-profile");
   };
 
   return (
@@ -96,17 +96,19 @@ export default function HeaderLite() {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuSeparator />
 
-                  <DropdownMenuItem
-                    onClick={goProfile}
-                    className="cursor-pointer"
-                  >
-                    <IdCard className="mr-2 h-4 w-4" />
-                    <span>Trang cá nhân</span>
-                  </DropdownMenuItem>
+                  {user?.role === 3 && (
+                    <DropdownMenuItem
+                      onClick={goProfile}
+                      className="cursor-pointer"
+                    >
+                      <IdCard className="mr-2 h-4 w-4" />
+                      <span>Trang cá nhân</span>
+                    </DropdownMenuItem>
+                  )}
 
                   {user?.role === 1 && (
                     <DropdownMenuItem
-                      onClick={() => navigate('/admin')}
+                      onClick={() => navigate("/admin")}
                       className="cursor-pointer"
                     >
                       <Settings className="mr-2 h-4 w-4" />
@@ -116,7 +118,7 @@ export default function HeaderLite() {
 
                   {user?.role === 2 && (
                     <DropdownMenuItem
-                      onClick={() => navigate('/staff')}
+                      onClick={() => navigate("/staff")}
                       className="cursor-pointer"
                     >
                       <Settings className="mr-2 h-4 w-4" />
