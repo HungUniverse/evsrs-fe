@@ -1,4 +1,3 @@
-// mock data
 import type { LoginRequest, LoginResponse } from "@/@types/auth.type";
 import type { User } from "@/@types/customer";
 

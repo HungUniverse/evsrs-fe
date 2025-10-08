@@ -1,25 +1,26 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "";
+import axios from "axios";
 
-export async function api<T>(
-  path: string,
-  options: RequestInit = {}
-): Promise<T> {
-  const res = await fetch(API_BASE_URL + path, {
-    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
-    ...options,
-  });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json() as Promise<T>;
-}
+export const api = axios.create({
+  baseURL: "https://api.ecorentt.me/api",
+  headers: { "Content-Type": "application/json" },
+});
 
-// Tự gắn Authorization nếu có token
-export function apiAuth<T>(
-  path: string,
-  token: string,
-  options: RequestInit = {}
-) {
-  return api<T>(path, {
-    ...options,
-    headers: { ...(options.headers || {}), Authorization: `Bearer ${token}` },
-  });
-}
+const AUTH_PATHS = [
+  "/Auth/sign-in",
+  "/Auth/send-otp",
+  "/Auth/verify-otp",
+  "/Auth/complete-register",
+];
+
+api.interceptors.request.use(
+  (config) => {
+    const url = (config.url || "").toLowerCase();
+    const isAuthCall = AUTH_PATHS.some((p) => url.endsWith(p.toLowerCase()));
+    if (!isAuthCall) {
+      const token = localStorage.getItem("token")?.replaceAll('"', "");
+      if (token) config.headers["Authorization"] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);

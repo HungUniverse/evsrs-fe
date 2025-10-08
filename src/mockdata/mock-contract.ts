@@ -127,8 +127,8 @@ export const mockContracts: Contract[] = [
     carWashFee: "80.000 - 300.000 VNĐ/lần",
 
     depositAmount: calcDeposit(1000000, 1),
-    totalPayment: 1100000, // đã gồm VAT theo mock hiện tại
-    remainingAmount: calcRemaining(1100000, calcDeposit(1000000, 1)),
+    totalPayment: 1000000, // đã gồm VAT theo mock hiện tại
+    remainingAmount: calcRemaining(1000000, calcDeposit(1000000, 1)),
 
     status: "completed",
     createdAt: "2025-01-12T14:00:00Z",

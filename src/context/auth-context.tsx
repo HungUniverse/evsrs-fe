@@ -4,9 +4,11 @@ import React, {
   useEffect,
   useMemo,
   useState,
+  useCallback,
 } from "react";
 import type { LoginRequest, LoginResponse, RoleCode } from "@/@types/auth.type";
-import { api, apiAuth } from "@/lib/api";
+import { apiAuth } from "@/lib/api";
+import authAPI from "@/apis/auth.api";
 import { useNavigate } from "react-router-dom";
 import type { User } from "@/@types/customer";
 
@@ -43,23 +45,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setUser(u);
     setToken(t);
     localStorage.setItem("auth", JSON.stringify({ user: u, token: t }));
+    // Align with axios interceptor which reads localStorage["token"]
+    localStorage.setItem("token", JSON.stringify(t));
   };
 
   const clearAuth = () => {
     setUser(null);
     setToken(null);
     localStorage.removeItem("auth");
+    localStorage.removeItem("token");
   };
 
-  const login = async (body: LoginRequest) => {
-    // Giả định backend trả đúng LoginResponse
-    const data = await api<LoginResponse>("/auth/signin", {
-      method: "POST",
-      body: JSON.stringify(body),
-    });
+  const login = useCallback(async (body: LoginRequest) => {
+    // Use axios-based API hitting correct backend endpoint
+    const resp = await authAPI.login(body);
+    const payload = resp.data; // ApiResp<LoginResponse>
+    if (!payload?.success || !payload?.data) {
+      throw new Error(payload?.message || "Đăng nhập thất bại");
+    }
+    const data: LoginResponse = payload.data;
     saveAuth(data.user, data.accessToken);
 
-    // Điều hướng theo role
     switch (data.user.role) {
       case 1:
         navigate("/admin", { replace: true });
@@ -70,21 +76,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       default:
         navigate("/", { replace: true });
     }
-  };
+  }, [navigate]);
 
-  const logout = () => {
-    // (Nếu cần gọi /auth/logout thì gọi ở đây, nhưng đồ án có thể bỏ)
+  const logout = useCallback(() => {
     clearAuth();
     navigate("/", { replace: true });
-  };
+  }, [navigate]);
 
-  const hasRole = (r: RoleCode) => !!user && user.role === r;
+  const hasRole = useCallback((r: RoleCode) => !!user && user.role === r, [user]);
 
-  // helper gọi API có token (đỡ lặp lại)
-  const apiMe = <T,>(path: string, init: RequestInit = {}) => {
+  const apiMe = useCallback(<T,>(path: string, init: RequestInit = {}) => {
     if (!token) throw new Error("Not authenticated");
     return apiAuth<T>(path, token, init);
-  };
+  }, [token]);
 
   const value = useMemo(
     () => ({
@@ -96,7 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       hasRole,
       apiMe,
     }),
-    [user, token]
+    [user, token, login, logout, hasRole, apiMe]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

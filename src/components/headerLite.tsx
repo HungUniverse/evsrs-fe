@@ -12,8 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LoginDialog } from "@/page/renter/components/LoginDialog";
-import { RegisterDialog } from "@/page/renter/components/RegisterDialog";
+import { LoginDialog } from "@/page/renter/components/login-dialog";
+import { RegisterDialog } from "@/page/renter/components/register-dialog";
 
 export default function HeaderLite() {
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ export default function HeaderLite() {
         {/* Logo + brand */}
         <div
           className="flex items-center gap-1 cursor-pointer"
-          onClick={() => (window.location.href = "/")}
+          onClick={() => navigate("/")}
         >
           <img src={logo} alt="EcoRent" className="h-16" />
           <span className="font-bold text-emerald-600 text-2xl mt-3">

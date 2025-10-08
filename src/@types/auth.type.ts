@@ -2,14 +2,24 @@
 export type RoleCode = 1 | 2 | 3;
 import type { User } from "./customer";
 
-// Dữ liệu form login
+// ✅ ĐÚNG: identifier (không phải "indentifier")
 export type LoginRequest = {
-  email: string;
+  identifier: string; // email HOẶC phone
   password: string;
 };
 
-// Backend (hoặc mock) trả về khi login thành công
+export type SendOtpRequest = { email: string; phoneNumber: string };
+export type VerifyOtpRequest = {
+  email: string;
+  code: string;
+  otpType: "REGISTER" | "RESET_PASSWORD";
+};
+
+export type CompleteRegisterRequest = SendOtpRequest & { password: string };
+
+export type ApiResp<T> = { success: boolean; message?: string; data?: T };
+
 export type LoginResponse = {
-  accessToken: string; // token giả hoặc token từ backend
-  user: User; // thông tin user kèm role
+  accessToken: string;
+  user: User;
 };
