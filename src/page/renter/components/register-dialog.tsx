@@ -14,8 +14,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import authAPI from "@/apis/auth.api";
 import { CompleteRegisterForm } from "./complete-register";
+import { authAPI } from "@/apis/auth.api";
 
 type Step = 1 | 2;
 

@@ -1,3 +1,4 @@
+// src/page/renter/components/login-dialog.tsx
 import React from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -14,14 +15,12 @@ import {
 } from "@/components/ui/dialog";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
-import authAPI from "@/apis/auth.api";
-import type { ApiResp, LoginResponse } from "@/@types/auth.type";
 import { toast } from "sonner";
-import type { RoleCode } from "@/@types/auth.type";
+import { authAPI } from "@/apis/auth.api";
 
 type LoginDialogProps = {
   children: React.ReactElement;
-  open?: boolean; 
+  open?: boolean;
   onOpenChange?: (open: boolean) => void;
   onSwitchToRegister?: () => void;
 };
@@ -48,101 +47,43 @@ export function LoginDialog({
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { loginSuccess } = useAuthStore();
+  const { save } = useAuthStore(); // ✅ dùng save() để lưu token & decode JWT
 
   const onSubmit = async (form: LoginForm) => {
     try {
       const res = await authAPI.login(form);
-      // API may return {code:"SUCCESS", statusCode:200, data:{accessToken, refreshToken}}
-      const payload = (res?.data ?? res) as Partial<
-        ApiResp<LoginResponse>
-      > & { code?: string; statusCode?: number };
+      const payload: any = res?.data ?? res;
       const ok =
         payload?.success === true ||
         payload?.code === "SUCCESS" ||
-        payload?.statusCode === 200;
+        payload?.statusCode === 200 ||
+        (payload?.data?.accessToken && !("success" in payload)); // trường hợp trả thẳng
+
       if (!ok || !payload?.data?.accessToken) {
         toast.error(payload?.message ?? "Đăng nhập thất bại!");
         return;
       }
 
       const accessToken: string = payload.data.accessToken;
-      localStorage.setItem("token", JSON.stringify(accessToken));
+      const refreshToken: string = payload.data.refreshToken ?? "";
 
-      // Decode JWT to build a minimal User for header (fallback khi BE chưa trả user)
-      const decodeJwt = (t: string) => {
-        try {
-          const base = t.split(".")[1];
-          const json = atob(base.replace(/-/g, "+").replace(/_/g, "/"));
-          return JSON.parse(json) as {
-            userId?: string;
-            username?: string;
-            name?: string;
-            email?: string;
-            role?: string;
-          };
-        } catch {
-          return {} as Record<string, unknown> as {
-            userId?: string;
-            username?: string;
-            name?: string;
-            email?: string;
-            role?: string;
-          };
-        }
-      };
+      // ✅ Lưu vào store (store sẽ tự decode -> có user & role 1|2|3)
+      save({ accessToken, refreshToken });
 
-      const claims = decodeJwt(accessToken);
-      const mapRole = (r?: string): RoleCode => {
-        switch ((r || "USER").toUpperCase()) {
-          case "ADMIN":
-            return 1;
-          case "STAFF":
-            return 2;
-          default:
-            return 3;
-        }
-      };
-
-      const normalizedUser: {
-        id: string;
-        userName: string;
-        password: string;
-        fullName: string;
-        email: string;
-        dob: string;
-        phoneNumber: string;
-        profilePicture: string;
-        role: RoleCode;
-        cccd: string;
-        gplx: string;
-      } = {
-        id: claims.userId || "",
-        userName:
-          claims.username || claims.name || (claims.email ? claims.email.split("@")[0] : "User"),
-        password: "",
-        fullName: claims.name || "",
-        email: claims.email || form.identifier,
-        dob: "",
-        phoneNumber: "",
-        profilePicture: "",
-        role: mapRole(claims.role),
-        cccd: "",
-        gplx: "",
-      };
-
-      // Lưu vào Zustand (kích hoạt header render lại)
-      loginSuccess({ token: accessToken, user: normalizedUser });
-
-      const from = (location.state as { from?: { pathname?: string } } | null | undefined)?.from?.pathname as
-        | string
-        | undefined;
-
-      // Close modal first, then navigate (ensure UI updates)
+      // ✅ Đóng modal trước khi điều hướng
       onOpenChange?.(false);
+
+      // ✅ Điều hướng theo role (đã decode trong store)
+      const state = useAuthStore.getState();
+      const role = state.user?.role;
+
+      const from =
+        (location.state as { from?: { pathname?: string } } | null | undefined)
+          ?.from?.pathname || undefined;
+
       setTimeout(() => {
-        if (normalizedUser.role === 1) navigate("/admin", { replace: true });
-        else if (normalizedUser.role === 2) navigate("/staff", { replace: true });
+        if (role === 1) navigate("/admin", { replace: true });
+        else if (role === 2) navigate("/staff", { replace: true });
         else if (from) navigate(from, { replace: true });
         else navigate("/", { replace: true });
       }, 0);
@@ -155,7 +96,6 @@ export function LoginDialog({
     }
   };
 
-  // 🧱 Giao diện
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -174,7 +114,6 @@ export function LoginDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-1">
-          {/* Identifier */}
           <div>
             <label className="block text-sm font-medium mb-1">
               Email/Username
@@ -194,7 +133,6 @@ export function LoginDialog({
             )}
           </div>
 
-          {/* Password */}
           <div>
             <label className="block text-sm font-medium mb-1">Mật khẩu</label>
             <Input
@@ -212,7 +150,6 @@ export function LoginDialog({
             )}
           </div>
 
-          {/* Footer */}
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="secondary">
@@ -225,7 +162,6 @@ export function LoginDialog({
           </DialogFooter>
         </form>
 
-        {/* Switch to Register */}
         <p className="mt-3 text-center text-sm flex justify-center items-center gap-2 whitespace-nowrap">
           Bạn chưa có tài khoản?
           <span

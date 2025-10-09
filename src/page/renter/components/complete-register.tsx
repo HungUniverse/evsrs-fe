@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import authAPI from "@/apis/auth.api";
+import { authAPI } from "@/apis/auth.api";
 
 type Props = {
   email: string;

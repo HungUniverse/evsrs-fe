@@ -1,66 +1,87 @@
-// src/lib/zustand/use-auth-store.ts
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { RoleCode } from "@/@types/auth.type";
-import type { User } from "@/@types/customer";
+import { decodeJwt, type JWTPayload } from "jose";
+import type { RoleCode, User } from "@/@types/auth.type";
 
-// 1 = Admin, 2 = Staff, 3 = User
-type AuthState = {
-  token: string | null;
-  user: User | null;
+interface AuthStoreState {
   isAuthenticated: boolean;
+  accessToken: string;
+  refreshToken: string;
+  user: User | null;
+  save: (tokens: { accessToken: string; refreshToken: string }) => void;
+  clear: () => void;
+}
 
-  // actions
-  loginSuccess: (payload: { token: string; user: User }) => void;
-  setUser: (user: User) => void;
-  updateUser: (patch: Partial<User>) => void;
-  setToken: (token: string | null) => void;
-  logout: () => void;
-  clear: () => void; // alias của logout cho tương thích code cũ
+function extractUserFromJWT(token: string): User {
+  const payload = decodeJwt(token) as JWTPayload & Record<string, any>;
 
-  // helpers
-  hasRole: (r: RoleCode) => boolean;
-};
+  // ID có thể nằm ở nhiều claim
+  const actualId =
+    payload.userId || payload.id || payload.sub || payload.nameid;
 
-export const useAuthStore = create<AuthState>()(
+  // Role trong demo hay là string số → ép về number 1|2|3
+  const roleNum = Number(payload.role) as RoleCode;
+
+  return {
+    id: actualId as string | undefined,
+    userId: actualId as string | undefined,
+    name: (payload.name || payload.unique_name || payload.given_name) as
+      | string
+      | undefined,
+    email: payload.email as string | undefined,
+    role: (roleNum || 3) as RoleCode, // fallback user
+  };
+}
+
+export const useAuthStore = create<AuthStoreState>()(
   persist(
-    (set, get) => ({
-      token: null,
-      user: null,
+    (set) => ({
       isAuthenticated: false,
-
-      // Gọi sau khi login API trả về { token, user }
-      loginSuccess: ({ token, user }) =>
-        set({ token, user, isAuthenticated: true }),
-
-      setUser: (user) => set({ user }),
-      updateUser: (patch) =>
-        set((s) => ({ user: s.user ? { ...s.user, ...patch } : s.user })),
-
-      setToken: (token) =>
-        set({ token, isAuthenticated: !!token && !!get().user }),
-
-      logout: () => set({ token: null, user: null, isAuthenticated: false }),
-      clear: () => set({ token: null, user: null, isAuthenticated: false }),
-
-      hasRole: (r) => get().user?.role === r,
+      accessToken: "",
+      refreshToken: "",
+      user: null,
+      save: ({ accessToken, refreshToken }) => {
+        try {
+          const user = extractUserFromJWT(accessToken);
+          set({ isAuthenticated: true, accessToken, refreshToken, user });
+        } catch (e) {
+          console.error("Decode JWT fail:", e);
+          set({
+            isAuthenticated: false,
+            accessToken: "",
+            refreshToken: "",
+            user: null,
+          });
+        }
+      },
+      clear: () =>
+        set({
+          isAuthenticated: false,
+          accessToken: "",
+          refreshToken: "",
+          user: null,
+        }),
     }),
     {
       name: "auth-storage",
-      version: 1,
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({
-        token: s.token,
-        user: s.user,
-        isAuthenticated: s.isAuthenticated,
+        accessToken: s.accessToken,
+        refreshToken: s.refreshToken,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state?.accessToken) {
+          try {
+            const user = extractUserFromJWT(state.accessToken);
+            state.isAuthenticated = true;
+            state.user = user;
+          } catch (e) {
+            console.error("Rehydrate decode JWT fail:", e);
+            state.isAuthenticated = false;
+            state.user = null;
+          }
+        }
+      },
     }
   )
 );
-
-// ——— Selectors tiện dùng (tuỳ chọn) ———
-export const selectUser = (s: AuthState) => s.user;
-export const selectToken = (s: AuthState) => s.token;
-export const selectIsAuthenticated = (s: AuthState) => s.isAuthenticated;
-export const selectHasRole = (r: RoleCode) => (s: AuthState) =>
-  s.user?.role === r;

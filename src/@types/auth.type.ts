@@ -1,25 +1,38 @@
-// Role: 1 = Admin, 2 = Staff, 3 = User
 export type RoleCode = 1 | 2 | 3;
-import type { User } from "./customer";
 
-// ✅ ĐÚNG: identifier (không phải "indentifier")
-export type LoginRequest = {
-  identifier: string; // email HOẶC phone
+//1 admin 3user
+export interface User {
+  id?: string; // optional: lấy từ nhiều claim khác nhau
+  userId?: string; // primary id
+  name?: string;
+  email?: string;
+  role: RoleCode;
+  avatar?: string;
+  username?: string;
+}
+
+export interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+}
+
+export interface LoginRequest {
+  // theo swagger: identifier + password
+  identifier: string;
   password: string;
-};
+  notificationToken?: string;
+}
 
-export type SendOtpRequest = { email: string; phoneNumber: string };
-export type VerifyOtpRequest = {
-  email: string;
-  code: string;
-  otpType: "REGISTER" | "RESET_PASSWORD";
-};
-
-export type CompleteRegisterRequest = SendOtpRequest & { password: string };
-
-export type ApiResp<T> = { success: boolean; message?: string; data?: T };
-
-export type LoginResponse = {
+export interface LoginResponse {
   accessToken: string;
-  user: User;
-};
+  refreshToken: string;
+}
+
+export interface RefreshTokenResponse {
+  accessToken: string;
+  refreshToken?: string; // BE có thể trả lại hoặc không
+}
+
+export interface LogoutBody {
+  refreshToken: string;
+}

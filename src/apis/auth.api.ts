@@ -1,23 +1,33 @@
 import { api } from "@/lib/axios/axios";
+import type { ItemBaseResponse } from "@/@types/response"; // nếu không có, bỏ wrapper này đi
 import type {
-  ApiResp,
-  SendOtpRequest,
-  VerifyOtpRequest,
-  CompleteRegisterRequest,
   LoginRequest,
   LoginResponse,
+  LogoutBody,
 } from "@/@types/auth.type";
 
-const authAPI = {
+export const authAPI = {
   login: (body: LoginRequest) =>
-    api.post<ApiResp<LoginResponse>>("/Auth/signin", body),
-  sendOtp: (body: SendOtpRequest) =>
-    api.post<ApiResp<null>>("/Auth/send-otp", body),
+    api.post<ItemBaseResponse<LoginResponse> | LoginResponse>(
+      "/api/Auth/signin",
+      body
+    ),
 
-  verifyOtp: (body: VerifyOtpRequest) =>
-    api.post<ApiResp<null>>("/Auth/verify-otp", body),
-  completeRegister: (body: CompleteRegisterRequest) =>
-    api.post<ApiResp<null>>("/Auth/complete-register", body),
+  logout: (body: LogoutBody) =>
+    api.post<ItemBaseResponse<null> | null>("/api/Auth/logout", body),
+
+  sendOtp: (data: { email?: string; phoneNumber?: string }) =>
+    api.post("/api/Auth/send-otp", data),
+  resendOtp: (data: { email?: string; phoneNumber?: string }) =>
+    api.post("/api/Auth/resend-otp", data),
+  verifyOtp: (data: {
+    email: string;
+    code: string;
+    otpType: "REGISTER" | "FORGOT_PASSWORD";
+  }) => api.post("/api/Auth/verify-otp", data),
+  completeRegister: (data: {
+    email: string;
+    phoneNumber: string;
+    password: string;
+  }) => api.post("/api/Auth/complete-register", data),
 };
-
-export default authAPI;
