@@ -1,6 +1,6 @@
 import { StaffStats } from "./components/staff-stats";
 import { StaffList } from "./components/staff-list";
-import { DepartmentOverview } from "./components/department-overview";
+
 
 export default function StaffManagementPage() {
   return (
@@ -11,17 +11,9 @@ export default function StaffManagementPage() {
           Quản lý thông tin nhân viên và phân bổ công việc trong hệ thống
         </p>
       </div>
-      
+
       <StaffStats />
-      
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <StaffList />
-        </div>
-        <div>
-          <DepartmentOverview />
-        </div>
-      </div>
+      <StaffList />
     </div>
   );
 }
