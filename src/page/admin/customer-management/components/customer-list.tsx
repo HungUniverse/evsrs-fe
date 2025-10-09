@@ -649,6 +649,7 @@ export function CustomerList() {
             <span className="text-sm text-muted-foreground">Filters:</span>
           </div>
 
+          {/* Verification Filter */}
           <div className="flex items-center gap-2">
             <Label htmlFor="verification-filter" className="text-sm text-muted-foreground whitespace-nowrap">
               Verification:
@@ -666,6 +667,7 @@ export function CustomerList() {
             </Select>
           </div>
 
+          {/* Risk Level Filter */}
           <div className="flex items-center gap-2">
             <Label htmlFor="risk-filter" className="text-sm text-muted-foreground whitespace-nowrap">
               Risk Level:
@@ -683,6 +685,7 @@ export function CustomerList() {
             </Select>
           </div>
 
+          {/* Status Filter */}
           <div className="flex items-center gap-2">
             <Label htmlFor="active-filter" className="text-sm text-muted-foreground whitespace-nowrap">
               Status:
@@ -699,6 +702,7 @@ export function CustomerList() {
             </Select>
           </div>
 
+          {/* Documents Filter */}
           <div className="flex items-center gap-2">
             <Label htmlFor="docs-filter" className="text-sm text-muted-foreground whitespace-nowrap">
               Documents:
@@ -717,6 +721,7 @@ export function CustomerList() {
             </Select>
           </div>
 
+          {/* Date Range Filter */}
           <div className="flex items-center gap-2">
             <Label htmlFor="date-filter" className="text-sm text-muted-foreground whitespace-nowrap">
               Date Range:
@@ -734,6 +739,7 @@ export function CustomerList() {
             </Select>
           </div>
 
+          {/* Sort by Filter */}
           <div className="flex items-center gap-2">
             <ArrowUpDown className="size-4 text-muted-foreground" />
             <Label htmlFor="sort-filter" className="text-sm text-muted-foreground whitespace-nowrap">
@@ -1196,41 +1202,6 @@ export function CustomerList() {
                                   </div>
                                 )}
                               </div>
-                            </div>
-
-                            {/* Complaints */}
-                            <div className="space-y-4">
-                              <h4 className="font-semibold flex items-center gap-2">
-                                <AlertTriangle className="size-4" />
-                                Khiếu nại ({c.complaints?.length || 0})
-                              </h4>
-                              {c.complaints && c.complaints.length > 0 ? (
-                                <div className="space-y-2">
-                                  {c.complaints.slice(0, 3).map((complaint) => (
-                                    <div key={complaint.complaintId} className="text-sm border rounded p-2">
-                                      <div className="flex justify-between items-start">
-                                        <span className="font-medium">{complaint.complaintId}</span>
-                                        <Badge variant={complaint.status === "Resolved" ? "default" : complaint.status === "Rejected" ? "destructive" : "outline"}>
-                                          {complaint.status}
-                                        </Badge>
-                                      </div>
-                                      <div className="text-muted-foreground text-xs mt-1">
-                                        {formatDate(complaint.date)}
-                                      </div>
-                                      <div className="text-xs mt-1 line-clamp-2">
-                                        {complaint.content}
-                                      </div>
-                                    </div>
-                                  ))}
-                                  {c.complaints.length > 3 && (
-                                    <div className="text-xs text-muted-foreground">
-                                      +{c.complaints.length - 3} khiếu nại khác
-                                    </div>
-                                  )}
-                                </div>
-                              ) : (
-                                <div className="text-sm text-muted-foreground">Không có khiếu nại</div>
-                              )}
                             </div>
                           </div>
                         </div>
