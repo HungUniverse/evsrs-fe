@@ -643,79 +643,107 @@ export function CustomerList() {
         </div>
 
         {/* Filters Row */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
             <Filter className="size-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">Filters:</span>
           </div>
 
-          <Select value={filters.verificationStatus} onValueChange={(v) => setFilters(prev => ({ ...prev, verificationStatus: v }))}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Verification" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">All</SelectItem>
-              <SelectItem value="Pending">Pending</SelectItem>
-              <SelectItem value="Verified">Verified</SelectItem>
-              <SelectItem value="Rejected">Rejected</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="verification-filter" className="text-sm text-muted-foreground whitespace-nowrap">
+              Verification:
+            </Label>
+            <Select value={filters.verificationStatus} onValueChange={(v) => setFilters(prev => ({ ...prev, verificationStatus: v }))}>
+              <SelectTrigger id="verification-filter" className="w-[140px]">
+                <SelectValue placeholder="Verification" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All</SelectItem>
+                <SelectItem value="Pending">Pending</SelectItem>
+                <SelectItem value="Verified">Verified</SelectItem>
+                <SelectItem value="Rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Select value={filters.riskLevel} onValueChange={(v) => setFilters(prev => ({ ...prev, riskLevel: v }))}>
-            <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="Risk" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">All</SelectItem>
-              <SelectItem value="Low">Low</SelectItem>
-              <SelectItem value="Medium">Medium</SelectItem>
-              <SelectItem value="High">High</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="risk-filter" className="text-sm text-muted-foreground whitespace-nowrap">
+              Risk Level:
+            </Label>
+            <Select value={filters.riskLevel} onValueChange={(v) => setFilters(prev => ({ ...prev, riskLevel: v }))}>
+              <SelectTrigger id="risk-filter" className="w-[120px]">
+                <SelectValue placeholder="Risk" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All</SelectItem>
+                <SelectItem value="Low">Low</SelectItem>
+                <SelectItem value="Medium">Medium</SelectItem>
+                <SelectItem value="High">High</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Select value={filters.active} onValueChange={(v) => setFilters(prev => ({ ...prev, active: v }))}>
-            <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="Active" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">All</SelectItem>
-              <SelectItem value="Active">Active</SelectItem>
-              <SelectItem value="Locked">Locked</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="active-filter" className="text-sm text-muted-foreground whitespace-nowrap">
+              Status:
+            </Label>
+            <Select value={filters.active} onValueChange={(v) => setFilters(prev => ({ ...prev, active: v }))}>
+              <SelectTrigger id="active-filter" className="w-[120px]">
+                <SelectValue placeholder="Active" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All</SelectItem>
+                <SelectItem value="Active">Active</SelectItem>
+                <SelectItem value="Locked">Locked</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Select value={filters.docs} onValueChange={(v) => setFilters(prev => ({ ...prev, docs: v }))}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Docs" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">All</SelectItem>
-              <SelectItem value="Has CCCD">Has CCCD</SelectItem>
-              <SelectItem value="Has GPLX">Has GPLX</SelectItem>
-              <SelectItem value="Complete">Complete</SelectItem>
-              <SelectItem value="Missing any">Missing any</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="docs-filter" className="text-sm text-muted-foreground whitespace-nowrap">
+              Documents:
+            </Label>
+            <Select value={filters.docs} onValueChange={(v) => setFilters(prev => ({ ...prev, docs: v }))}>
+              <SelectTrigger id="docs-filter" className="w-[140px]">
+                <SelectValue placeholder="Docs" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All</SelectItem>
+                <SelectItem value="Has CCCD">Has CCCD</SelectItem>
+                <SelectItem value="Has GPLX">Has GPLX</SelectItem>
+                <SelectItem value="Complete">Complete</SelectItem>
+                <SelectItem value="Missing any">Missing any</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Select value={filters.dateRange} onValueChange={(v) => setFilters(prev => ({ ...prev, dateRange: v }))}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Date range" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">All</SelectItem>
-              <SelectItem value="Last 7 days">Last 7 days</SelectItem>
-              <SelectItem value="Last 30 days">Last 30 days</SelectItem>
-              <SelectItem value="Last 90 days">Last 90 days</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="date-filter" className="text-sm text-muted-foreground whitespace-nowrap">
+              Date Range:
+            </Label>
+            <Select value={filters.dateRange} onValueChange={(v) => setFilters(prev => ({ ...prev, dateRange: v }))}>
+              <SelectTrigger id="date-filter" className="w-[140px]">
+                <SelectValue placeholder="Date range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All</SelectItem>
+                <SelectItem value="Last 7 days">Last 7 days</SelectItem>
+                <SelectItem value="Last 30 days">Last 30 days</SelectItem>
+                <SelectItem value="Last 90 days">Last 90 days</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <ArrowUpDown className="size-4 text-muted-foreground" />
+            <Label htmlFor="sort-filter" className="text-sm text-muted-foreground whitespace-nowrap">
+              Sort by:
+            </Label>
             <Select value={`${sortState.field}-${sortState.direction}`} onValueChange={(v) => {
               const [field, direction] = v.split('-');
               setSortState({ field, direction: direction as "asc" | "desc" });
             }}>
-              <SelectTrigger className="w-[160px]">
+              <SelectTrigger id="sort-filter" className="w-[160px]">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
