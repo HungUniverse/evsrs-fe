@@ -37,12 +37,7 @@ export default function TripDetails() {
         </div>
       </section>
 
-      <DetailPrice
-        contract={contract}
-        extras={[{ label: "Phụ phí cuối tuần", unitPrice: 100_000, qty: 1 }]}
-      />
-
-      <div className="pb-4" />
+      <DetailPrice contract={contract} />
     </div>
   );
 }

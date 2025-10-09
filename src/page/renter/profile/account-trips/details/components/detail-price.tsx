@@ -16,7 +16,7 @@ export default function DetailPrice({
     {
       label: "Cước phí niêm yết",
       unitPrice: contract.dailyRate,
-      qty: Math.max(1, contract.rentalDurationDays),
+      qty: Math.max(1, contract.rentalDays),
     },
     ...extras.map((e) => ({
       label: e.label,
@@ -38,7 +38,7 @@ export default function DetailPrice({
         <div className="grid grid-cols-[1.4fr_1fr_0.8fr_1fr] bg-emerald-100 text-emerald-900 text-sm font-medium">
           <div className="px-4 py-3">Loại</div>
           <div className="px-4 py-3">Đơn giá</div>
-          <div className="px-4 py-3">Số lượng</div>
+          <div className="px-4 py-3">Số ngày</div>
           <div className="px-4 py-3">Tổng</div>
         </div>
 
@@ -61,10 +61,6 @@ export default function DetailPrice({
             </div>
             <div className="px-4 py-3 col-span-2" />
             <div className="px-4 py-3">{vnd(contract.depositAmount)}</div>
-          </div>
-
-          <div className="px-4">
-            <div className="border-t" />
           </div>
 
           <div className="grid grid-cols-[1.4fr_1fr_0.8fr_1fr] text-sm font-semibold">
