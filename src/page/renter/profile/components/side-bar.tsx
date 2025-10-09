@@ -5,7 +5,7 @@ import { UserRound, ScrollText, KeyRound } from "lucide-react";
 type Item = {
   to: string;
   label: string;
-  icon: React.ComponentType<any>;
+  icon: LucideIcon;
   end?: boolean;
 };
 
