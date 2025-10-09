@@ -1,10 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Calendar, Clock, MapPin, Car, Search, Filter } from "lucide-react";
+// Removed unused imports after refactor
 import { useState } from "react";
+import StatsCards from "./components/StatsCards";
+import FilterBar from "./components/FilterBar";
+import RentalHistoryTable from "./components/RentalHistoryTable";
 
 // Mock data for rental history
 const mockRentalHistory = [
@@ -90,19 +88,7 @@ const mockRentalHistory = [
   },
 ];
 
-const statusColors = {
-  completed: "bg-green-100 text-green-800",
-  ongoing: "bg-blue-100 text-blue-800",
-  cancelled: "bg-red-100 text-red-800",
-  confirmed: "bg-yellow-100 text-yellow-800",
-};
-
-const statusLabels = {
-  completed: "Hoàn thành",
-  ongoing: "Đang thuê",
-  cancelled: "Đã hủy",
-  confirmed: "Đã xác nhận",
-};
+// Presentational constants moved into child components
 
 export default function RentalHistory() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -116,17 +102,7 @@ export default function RentalHistory() {
     return matchesSearch && matchesStatus;
   });
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('vi-VN');
-  };
+  // Formatting handled inside child components where needed
 
   return (
     <div className="space-y-6">
@@ -141,180 +117,18 @@ export default function RentalHistory() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tổng lượt thuê</CardTitle>
-            <Car className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold" style={{color: '#00D166'}}>{mockRentalHistory.length}</div>
-            <p className="text-xs text-muted-foreground">
-              {mockRentalHistory.filter(r => r.status === 'completed').length} đã hoàn thành
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Đang thuê</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold" style={{color: '#00D166'}}>
-              {mockRentalHistory.filter(r => r.status === 'ongoing').length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Xe đang được thuê
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Đã xác nhận</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold" style={{color: '#00D166'}}>
-              {mockRentalHistory.filter(r => r.status === 'confirmed').length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Chờ nhận xe
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tổng doanh thu</CardTitle>
-            <div className="h-4 w-4 text-muted-foreground">₫</div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold" style={{color: '#00D166'}}>
-              {formatCurrency(mockRentalHistory.reduce((sum, r) => sum + r.totalAmount, 0))}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Từ các giao dịch hoàn thành
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <StatsCards rentals={mockRentalHistory as any} />
 
       {/* Search and Filter */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Bộ lọc</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Tìm kiếm theo tên khách hàng, xe hoặc biển số..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-gray-400" />
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm"
-              >
-                <option value="all">Tất cả trạng thái</option>
-                <option value="completed">Hoàn thành</option>
-                <option value="ongoing">Đang thuê</option>
-                <option value="confirmed">Đã xác nhận</option>
-                <option value="cancelled">Đã hủy</option>
-              </select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <FilterBar
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+      />
 
       {/* Rental History Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Lịch sử thuê xe</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Mã thuê</TableHead>
-                  <TableHead>Khách hàng</TableHead>
-                  <TableHead>Xe thuê</TableHead>
-                  <TableHead>Thời gian</TableHead>
-                  <TableHead>Địa điểm</TableHead>
-                  <TableHead>Thành tiền</TableHead>
-                  <TableHead>Trạng thái</TableHead>
-                  <TableHead>Thao tác</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredHistory.map((rental) => (
-                  <TableRow key={rental.id}>
-                    <TableCell className="font-medium">{rental.id}</TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{rental.customerName}</div>
-                        <div className="text-sm text-muted-foreground">{rental.customerId}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{rental.carName}</div>
-                        <div className="text-sm text-muted-foreground">{rental.licensePlate}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="flex items-center gap-1 text-sm">
-                          <Calendar className="h-3 w-3" />
-                          {formatDate(rental.startDate)} - {formatDate(rental.endDate)}
-                        </div>
-                        <div className="text-sm text-muted-foreground">{rental.duration} ngày</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="flex items-center gap-1 text-sm">
-                          <MapPin className="h-3 w-3" />
-                          {rental.pickupLocation}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {formatCurrency(rental.totalAmount)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={statusColors[rental.status as keyof typeof statusColors]}>
-                        {statusLabels[rental.status as keyof typeof statusLabels]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
-                          Chi tiết
-                        </Button>
-                        {rental.status === 'ongoing' && (
-                          <Button size="sm" variant="destructive">
-                            Hủy
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+      <RentalHistoryTable rentals={filteredHistory as any} />
     </div>
   );
 }

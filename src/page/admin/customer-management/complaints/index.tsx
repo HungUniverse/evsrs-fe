@@ -1,10 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MessageSquare, Search, Filter, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+// Removed unused icon after refactor
 import { useState } from "react";
+import StatsCards from "./components/StatsCards";
+import FilterBar from "./components/FilterBar";
+import ComplaintsTable from "./components/ComplaintsTable";
 
 // Mock data for complaints
 const mockComplaints = [
@@ -105,39 +103,6 @@ const mockComplaints = [
   },
 ];
 
-const statusColors = {
-  pending: "bg-yellow-100 text-yellow-800",
-  in_progress: "bg-blue-100 text-blue-800",
-  resolved: "bg-green-100 text-green-800",
-  rejected: "bg-red-100 text-red-800",
-};
-
-const statusLabels = {
-  pending: "Chờ xử lý",
-  in_progress: "Đang xử lý",
-  resolved: "Đã giải quyết",
-  rejected: "Đã từ chối",
-};
-
-const priorityColors = {
-  low: "bg-gray-100 text-gray-800",
-  medium: "bg-orange-100 text-orange-800",
-  high: "bg-red-100 text-red-800",
-};
-
-const priorityLabels = {
-  low: "Thấp",
-  medium: "Trung bình",
-  high: "Cao",
-};
-
-const typeLabels = {
-  service: "Dịch vụ",
-  billing: "Thanh toán",
-  vehicle: "Phương tiện",
-  other: "Khác",
-};
-
 export default function ComplaintsManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -152,30 +117,7 @@ export default function ComplaintsManagement() {
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('vi-VN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return <Clock className="h-4 w-4" />;
-      case 'in_progress':
-        return <AlertCircle className="h-4 w-4" />;
-      case 'resolved':
-        return <CheckCircle className="h-4 w-4" />;
-      case 'rejected':
-        return <XCircle className="h-4 w-4" />;
-      default:
-        return <Clock className="h-4 w-4" />;
-    }
-  };
+  // Formatting and icons handled inside child components
 
   return (
     <div className="space-y-6">
@@ -190,193 +132,20 @@ export default function ComplaintsManagement() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tổng khiếu nại</CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold" style={{color: '#00D166'}}>{mockComplaints.length}</div>
-            <p className="text-xs text-muted-foreground">
-              {mockComplaints.filter(c => c.status === 'resolved').length} đã giải quyết
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Chờ xử lý</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold" style={{color: '#00D166'}}>
-              {mockComplaints.filter(c => c.status === 'pending').length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Cần xử lý ngay
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Đang xử lý</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold" style={{color: '#00D166'}}>
-              {mockComplaints.filter(c => c.status === 'in_progress').length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Đang được xử lý
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Đã giải quyết</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold" style={{color: '#00D166'}}>
-              {mockComplaints.filter(c => c.status === 'resolved').length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {Math.round((mockComplaints.filter(c => c.status === 'resolved').length / mockComplaints.length) * 100)}% tổng số
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <StatsCards complaints={mockComplaints as any} />
 
       {/* Search and Filter */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Bộ lọc</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Tìm kiếm theo tên khách hàng, tiêu đề hoặc mã khiếu nại..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-gray-400" />
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm"
-              >
-                <option value="all">Tất cả trạng thái</option>
-                <option value="pending">Chờ xử lý</option>
-                <option value="in_progress">Đang xử lý</option>
-                <option value="resolved">Đã giải quyết</option>
-                <option value="rejected">Đã từ chối</option>
-              </select>
-              <select
-                value={filterPriority}
-                onChange={(e) => setFilterPriority(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm"
-              >
-                <option value="all">Tất cả mức độ</option>
-                <option value="high">Cao</option>
-                <option value="medium">Trung bình</option>
-                <option value="low">Thấp</option>
-              </select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <FilterBar
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+        filterPriority={filterPriority}
+        setFilterPriority={setFilterPriority}
+      />
 
       {/* Complaints Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Danh sách khiếu nại</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Mã KN</TableHead>
-                  <TableHead>Khách hàng</TableHead>
-                  <TableHead>Loại</TableHead>
-                  <TableHead>Tiêu đề</TableHead>
-                  <TableHead>Mức độ</TableHead>
-                  <TableHead>Trạng thái</TableHead>
-                  <TableHead>Ngày tạo</TableHead>
-                  <TableHead>Thao tác</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredComplaints.map((complaint) => (
-                  <TableRow key={complaint.id}>
-                    <TableCell className="font-medium">{complaint.id}</TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{complaint.customerName}</div>
-                        <div className="text-sm text-muted-foreground">{complaint.customerEmail}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {typeLabels[complaint.type as keyof typeof typeLabels]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="max-w-xs">
-                        <div className="font-medium truncate">{complaint.title}</div>
-                        <div className="text-sm text-muted-foreground truncate">
-                          {complaint.description}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={priorityColors[complaint.priority as keyof typeof priorityColors]}>
-                        {priorityLabels[complaint.priority as keyof typeof priorityLabels]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(complaint.status)}
-                        <Badge className={statusColors[complaint.status as keyof typeof statusColors]}>
-                          {statusLabels[complaint.status as keyof typeof statusLabels]}
-                        </Badge>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {formatDate(complaint.complaintDate)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
-                          Chi tiết
-                        </Button>
-                        {complaint.status === 'pending' && (
-                          <Button size="sm" variant="default">
-                            Nhận xử lý
-                          </Button>
-                        )}
-                        {complaint.status === 'in_progress' && (
-                          <Button size="sm" variant="default">
-                            Giải quyết
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+      <ComplaintsTable complaints={filteredComplaints as any} />
     </div>
   );
 }
