@@ -1,7 +1,8 @@
 
 import { useMemo, useState, useEffect } from "react";
 import * as React from "react";
-import { mockCustomers, type Customer } from "@/mockdata/mock-admin";
+import { type Customer } from "@/mockdata/mock-admin";
+import { useCustomerStore } from "@/lib/zustand/use-customer-store";
 import type { VerificationAudit } from "@/mockdata/mock-admin";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -161,6 +162,8 @@ function updateUrlState(state: Record<string, string | number | boolean>) {
 }
 
 export function CustomerList() {
+  const customers = useCustomerStore((s) => s.customers);
+  const setCustomers = useCustomerStore((s) => s.setCustomers);
   const { user: currentUser } = useAuthStore();
   const [selected, setSelected] = useState<SelectionMap>({});
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
@@ -179,10 +182,8 @@ export function CustomerList() {
     "Nghi ngờ giả mạo",
     "Khác (ghi rõ)",
   ]);
-  const [data, setData] = useState<Customer[]>(mockCustomers);
-  // Keep auditMap for future Audit Log view
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [auditMap, setAuditMap] = useState<Record<string, VerificationAudit[]>>({});
+  // Keep auditMap for audit log
+  const [, setAuditMap] = useState<Record<string, VerificationAudit[]>>({});
   const [bulkActionDialog, setBulkActionDialog] = useState<{
     action: "export" | "reject" | "lock" | "assign" | null;
     selectedCustomers: Customer[];
@@ -226,7 +227,8 @@ export function CustomerList() {
   }, [query, filters, sortState]);
 
   const rows = useMemo(() => {
-    let filtered = data;
+    // Source rows from store to ensure realtime with stats
+    let filtered = customers;
 
     // Text search
     const q = query.trim().toLowerCase();
@@ -322,7 +324,7 @@ export function CustomerList() {
     });
 
     return filtered;
-  }, [query, filters, sortState, data]);
+  }, [query, filters, sortState, customers]);
 
   const allVisibleSelected = rows.length > 0 && rows.every((r) => selected[r.id]);
   const someVisibleSelected = rows.some((r) => selected[r.id]) && !allVisibleSelected;
@@ -381,14 +383,8 @@ export function CustomerList() {
     const { customerId, newStatus } = activeTogglePopover;
 
     // Update customer active status
-    setData((prev) =>
-      prev.map((c) => {
-        if (c.id !== customerId) return c;
-        return {
-          ...c,
-          isActive: newStatus,
-        };
-      })
+    setCustomers((prev) =>
+      prev.map((c) => (c.id === customerId ? { ...c, isActive: newStatus } : c))
     );
 
     // Close popover
@@ -444,20 +440,18 @@ export function CustomerList() {
     }
 
     // Apply update to local data
-    setData((prev) =>
+    setCustomers((prev) =>
       prev.map((c) => {
         if (c.id !== customer.id) return c;
-        // Removed Pending handling as it's no longer allowed
         if (newStatus === "Verified") {
           return {
             ...c,
             verificationStatus: "Verified",
             verifiedBy: currentUser?.userName || currentUser?.fullName || "Unknown",
             verifiedAt: now,
-            rejectedAt: undefined, // Clear rejected date when verified
+            rejectedAt: undefined,
           };
         }
-        // Rejected
         return {
           ...c,
           verificationStatus: "Rejected",

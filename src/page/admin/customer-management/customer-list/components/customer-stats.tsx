@@ -1,14 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockCustomers } from "@/mockdata/mock-admin";
+import { useCustomerStore } from "@/lib/zustand/use-customer-store";
 
 export function CustomerStats() {
-  const totalCustomers = mockCustomers.length;
-  const verifiedCustomers = mockCustomers.filter(customer => customer.verificationStatus === "Verified").length;
-  const pendingCustomers = mockCustomers.filter(customer => customer.verificationStatus === "Pending").length;
-  const bannedCustomers = mockCustomers.filter(customer => customer.isActive === false).length;
+  const customers = useCustomerStore((s) => s.customers);
+  const totalCustomers = customers.length;
+  const verifiedCustomers = customers.filter(customer => customer.verificationStatus === "Verified").length;
+  const pendingCustomers = customers.filter(customer => customer.verificationStatus === "Pending").length;
+  const bannedCustomers = customers.filter(customer => customer.isActive === false).length;
   
   // Since Customer interface doesn't have totalSpent, we'll use totalRentals as a proxy for activity
-  const totalRentals = mockCustomers.reduce((sum, customer) => sum + customer.totalRentals, 0);
+  const totalRentals = customers.reduce((sum, customer) => sum + customer.totalRentals, 0);
   const averageRentals = totalRentals / totalCustomers;
 
   return (
