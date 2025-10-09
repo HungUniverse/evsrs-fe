@@ -3,20 +3,13 @@ import { mockCustomers } from "@/mockdata/mock-admin";
 
 export function CustomerStats() {
   const totalCustomers = mockCustomers.length;
-  const activeCustomers = mockCustomers.filter(customer => customer.status === 'active').length;
-  const inactiveCustomers = mockCustomers.filter(customer => customer.status === 'inactive').length;
-  const bannedCustomers = mockCustomers.filter(customer => customer.status === 'banned').length;
+  const verifiedCustomers = mockCustomers.filter(customer => customer.verificationStatus === "Verified").length;
+  const pendingCustomers = mockCustomers.filter(customer => customer.verificationStatus === "Pending").length;
+  const bannedCustomers = mockCustomers.filter(customer => customer.isActive === false).length;
   
-  const totalRevenue = mockCustomers.reduce((sum, customer) => sum + customer.totalSpent, 0);
-  const averageSpending = totalRevenue / totalCustomers;
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
+  // Since Customer interface doesn't have totalSpent, we'll use totalRentals as a proxy for activity
+  const totalRentals = mockCustomers.reduce((sum, customer) => sum + customer.totalRentals, 0);
+  const averageRentals = totalRentals / totalCustomers;
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -40,14 +33,14 @@ export function CustomerStats() {
         <CardContent>
           <div className="text-2xl font-bold" style={{color: '#00D166'}}>{totalCustomers}</div>
           <p className="text-xs text-muted-foreground">
-            {activeCustomers} đang hoạt động
+            {verifiedCustomers} đã xác thực
           </p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Khách hàng hoạt động</CardTitle>
+          <CardTitle className="text-sm font-medium">Chờ xác thực</CardTitle>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -62,16 +55,16 @@ export function CustomerStats() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{activeCustomers}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{pendingCustomers}</div>
           <p className="text-xs text-muted-foreground">
-            {Math.round((activeCustomers / totalCustomers) * 100)}% tổng số
+            {Math.round((pendingCustomers / totalCustomers) * 100)}% tổng số
           </p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Doanh thu từ khách hàng</CardTitle>
+          <CardTitle className="text-sm font-medium">Tổng lượt thuê</CardTitle>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -86,9 +79,9 @@ export function CustomerStats() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{formatCurrency(totalRevenue)}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{totalRentals}</div>
           <p className="text-xs text-muted-foreground">
-            Trung bình: {formatCurrency(averageSpending)}
+            Trung bình: {averageRentals.toFixed(1)} lượt/khách
           </p>
         </CardContent>
       </Card>
@@ -113,9 +106,9 @@ export function CustomerStats() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{activeCustomers}</div>
+          <div className="text-2xl font-bold" style={{color: '#00D166'}}>{totalCustomers - bannedCustomers}</div>
           <p className="text-xs text-muted-foreground">
-            {inactiveCustomers} không hoạt động, {bannedCustomers} bị khóa
+            {bannedCustomers} bị khóa
           </p>
         </CardContent>
       </Card>
