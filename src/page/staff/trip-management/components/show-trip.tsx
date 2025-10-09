@@ -8,9 +8,10 @@ import {
 type Props = {
   data: Contract[];
   onClickCode?: (orderId: string) => void;
+  onClickUser?: (userId: string) => void;
 };
 const COLS = "grid-cols-[1.1fr_1fr_1fr_1fr_1fr_1.4fr_0.9fr]";
-export default function ShowTrip({ data, onClickCode }: Props) {
+export default function ShowTrip({ data, onClickCode, onClickUser }: Props) {
   return (
     <section className="rounded-xl overflow-hidden border">
       <div
@@ -31,7 +32,6 @@ export default function ShowTrip({ data, onClickCode }: Props) {
         ))}
       </div>
 
-      {/* BODY */}
       <div className="divide-y">
         {data.length === 0 && (
           <div className="px-4 py-8 text-center text-slate-500">
@@ -41,7 +41,6 @@ export default function ShowTrip({ data, onClickCode }: Props) {
 
         {data.map((c) => (
           <div key={c.orderId} className={`grid ${COLS} text-sm items-center`}>
-            {/* 1. Đơn hàng */}
             <div className="px-4 py-3">
               <button
                 className="text-sky-600 hover:underline"
@@ -57,12 +56,20 @@ export default function ShowTrip({ data, onClickCode }: Props) {
               {c.vehicleCode || c.title}
             </div>
 
-            {/* 3. Người thuê  ✅ THÊM CỘT NÀY */}
-            <div
-              className="px-4 py-3 text-slate-700 truncate"
-              title={c.lesseeFullName}
-            >
-              {c.lesseeFullName || "—"}
+            <div className="px-4 py-3">
+                {c.lesseeIdNumber ? (
+                <button
+                  className="text-sky-600 hover:underline truncate block w-full text-left"
+                  onClick={() => onClickUser?.(c.lesseeIdNumber)}
+                  title="Xem thông tin người thuê"
+                >
+                  {c.lesseeFullName || "—"}
+                </button>
+              ) : (
+                <span className="text-slate-700 truncate">
+                  {c.lesseeFullName || "—"}
+                </span>
+              )}
             </div>
 
             {/* 4. Thời gian nhận xe */}
