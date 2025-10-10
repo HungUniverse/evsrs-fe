@@ -1,4 +1,4 @@
-import type { Depot } from "@/@types/depot";
+import type { Depot } from "@/@types/car/depot";
 export const mockDepots: Depot[] = [
   {
     id: 1,

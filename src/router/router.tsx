@@ -84,7 +84,7 @@ export const router = createBrowserRouter([
       {
         path: "/admin",
         element: (
-          <AuthGuard requiredRole={1} fallbackPath="/">
+          <AuthGuard requiredRole={"ADMIN"} fallbackPath="/">
             <AdminLayout />
           </AuthGuard>
         ),
@@ -118,7 +118,7 @@ export const router = createBrowserRouter([
       {
         path: "/staff",
         element: (
-          <AuthGuard requiredRole={2} fallbackPath="/">
+          <AuthGuard requiredRole={"STAFF"} fallbackPath="/">
             <StaffLayout />
           </AuthGuard>
         ),

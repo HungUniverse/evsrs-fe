@@ -15,12 +15,8 @@ interface AuthStoreState {
 function extractUserFromJWT(token: string): User {
   const payload = decodeJwt(token) as JWTPayload & Record<string, any>;
 
-  // ID có thể nằm ở nhiều claim
   const actualId =
     payload.userId || payload.id || payload.sub || payload.nameid;
-
-  // Role trong demo hay là string số → ép về number 1|2|3
-  const roleNum = Number(payload.role) as RoleCode;
 
   return {
     id: actualId as string | undefined,
@@ -29,7 +25,7 @@ function extractUserFromJWT(token: string): User {
       | string
       | undefined,
     email: payload.email as string | undefined,
-    role: (roleNum || 3) as RoleCode, // fallback user
+    role: payload.role as RoleCode,
   };
 }
 

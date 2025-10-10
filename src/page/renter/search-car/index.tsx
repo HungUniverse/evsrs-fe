@@ -32,8 +32,8 @@ export default function SearchCar() {
         onPriceFilter={(min, max) =>
           setFilters((prev) => ({ ...prev, minPrice: min, maxPrice: max }))
         }
-        onBrandFilter={(brand) =>
-          setFilters((prev) => ({ ...prev, model: brand }))
+        onBrandFilter={(id) =>
+          setFilters((prev) => ({ ...prev, manufacture: id ?? undefined }))
         }
         onSaleFilter={(hasSale) =>
           setFilters((prev) => ({ ...prev, sale: hasSale }))

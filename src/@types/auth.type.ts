@@ -1,6 +1,5 @@
-export type RoleCode = 1 | 2 | 3;
+export type RoleCode = "ADMIN" | "USER" | "STAFF";
 
-//1 admin 3user
 export interface User {
   id?: string; // optional: lấy từ nhiều claim khác nhau
   userId?: string; // primary id
@@ -17,7 +16,6 @@ export interface AuthState {
 }
 
 export interface LoginRequest {
-  // theo swagger: identifier + password
   identifier: string;
   password: string;
   notificationToken?: string;
@@ -30,7 +28,7 @@ export interface LoginResponse {
 
 export interface RefreshTokenResponse {
   accessToken: string;
-  refreshToken?: string; // BE có thể trả lại hoặc không
+  refreshToken?: string;
 }
 
 export interface LogoutBody {

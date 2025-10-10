@@ -82,8 +82,8 @@ export function LoginDialog({
           ?.from?.pathname || undefined;
 
       setTimeout(() => {
-        if (role === 1) navigate("/admin", { replace: true });
-        else if (role === 2) navigate("/staff", { replace: true });
+        if (role === "ADMIN") navigate("/admin", { replace: true });
+        else if (role === "STAFF") navigate("/staff", { replace: true });
         else if (from) navigate(from, { replace: true });
         else navigate("/", { replace: true });
       }, 0);

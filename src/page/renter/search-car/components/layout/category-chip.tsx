@@ -1,15 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { Car, Globe, BadgePercent, SlidersHorizontal } from "lucide-react";
-
-import { useState } from "react";
+import { Globe, BadgePercent, SlidersHorizontal, CarIcon } from "lucide-react";
+import { useMemo, useState } from "react";
 import SeatModal from "../modal/seat-modal";
-import BrandModal from "../modal/model-modal";
 import FilterModal from "../modal/filter-modal";
+import { useManufactures } from "@/hooks/use-manufature";
+import BrandModal from "../modal/model-modal";
+
 type Props = {
   onSeatFilter?: (seat: number[]) => void;
   onPriceFilter?: (min: number, max: number) => void;
-  onBrandFilter?: (brand?: string) => void; // undefined = bỏ filter
-  onSaleFilter?: (hasSale: boolean) => void; // true = chỉ xe có giảm
+  onBrandFilter?: (manufacturerId?: string) => void;
+  onSaleFilter?: (hasSale: boolean) => void;
   onDailyKmFilter?: (dailyKm: number) => void;
 };
 
@@ -26,20 +27,36 @@ export default function CategoryChip({
   const [openSeat, setOpenSeat] = useState(false);
   const [saleActive, setSaleActive] = useState(false);
 
+  const { map: manuMap, list: brands } = useManufactures();
+  const [manufacturerId, setManufacturerId] = useState<string | undefined>();
+
+  const brandLabel = useMemo(() => {
+    if (!manufacturerId) return "Hãng xe";
+    const found = manuMap.get(manufacturerId);
+    return found
+      ? ((found as any).name ?? (found as any).manufacturerName ?? "Hãng xe")
+      : "Hãng xe";
+  }, [manufacturerId, manuMap]);
+
   return (
     <div className="flex flex-wrap justify-center mt-5 mx-auto gap-7">
-      {/* Hãng xe */}
       <BrandModal
         open={openModel}
         onOpenChange={setOpenModel}
-        onApply={({ brand }) => {
-          // brand === "all" thì clear filter
-          onBrandFilter?.(brand === "all" ? undefined : brand);
+        options={brands}
+        value={manufacturerId}
+        onApply={({ manufacturerId: id }) => {
+          setManufacturerId(id);
+          onBrandFilter?.(id);
         }}
       >
-        <Button variant="outline" className={base}>
-          <Car className="w-4 h-4 mr-2" />
-          Hãng xe
+        <Button
+          variant="outline"
+          className={base}
+          onClick={() => setOpenModel(true)}
+        >
+          <CarIcon className="w-4 h-4 mr-2" />
+          {brandLabel}
         </Button>
       </BrandModal>
 
@@ -59,7 +76,7 @@ export default function CategoryChip({
         </Button>
       </SeatModal>
 
-      {/* Giảm giá: toggle có/không */}
+      {/* Giảm giá toggle */}
       <Button
         variant={saleActive ? "default" : "outline"}
         className={base}
@@ -73,7 +90,7 @@ export default function CategoryChip({
         Giảm giá
       </Button>
 
-      {/* Bộ lọc nâng cao (giá + km) */}
+      {/* Bộ lọc nâng cao */}
       <FilterModal
         open={openFilter}
         onOpenChange={setOpenFilter}

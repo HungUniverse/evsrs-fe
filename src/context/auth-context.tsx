@@ -28,7 +28,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const login = useCallback(
     async (body: LoginRequest) => {
       const res = await authAPI.login(body);
-      // có thể là ItemBaseResponse bọc data, hoặc trả thẳng
       const payload: any = res.data;
       const data = payload?.data ?? payload;
 
@@ -39,9 +38,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       save({ accessToken: data.accessToken, refreshToken: data.refreshToken });
 
       const role = useAuthStore.getState().user?.role;
-      if (role === 1) navigate("/admin", { replace: true });
-      else if (role === 2) navigate("/staff", { replace: true });
-      else navigate("/", { replace: true });
+      if (role === "ADMIN") {
+        navigate("/admin", { replace: true });
+      } else if (role === "STAFF") {
+        navigate("/staff", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
     },
     [navigate, save]
   );

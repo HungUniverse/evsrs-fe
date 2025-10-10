@@ -20,7 +20,6 @@ export default function HeaderLite() {
   const navigate = useNavigate();
   const [openLogin, setOpenLogin] = useState(false);
   const [openRegister, setOpenRegister] = useState(false);
-
   // ✅ đọc từ store
   const { isAuthenticated, user, clear } = useAuthStore();
 
@@ -99,7 +98,7 @@ export default function HeaderLite() {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuSeparator />
 
-                  {user?.role === 3 && (
+                  {user?.role === "USER" && (
                     <DropdownMenuItem
                       onClick={goProfile}
                       className="cursor-pointer"
@@ -109,7 +108,7 @@ export default function HeaderLite() {
                     </DropdownMenuItem>
                   )}
 
-                  {user?.role === 1 && (
+                  {user?.role === "ADMIN" && (
                     <DropdownMenuItem
                       onClick={() => navigate("/admin")}
                       className="cursor-pointer"
@@ -119,7 +118,7 @@ export default function HeaderLite() {
                     </DropdownMenuItem>
                   )}
 
-                  {user?.role === 2 && (
+                  {user?.role === "STAFF" && (
                     <DropdownMenuItem
                       onClick={() => navigate("/staff")}
                       className="cursor-pointer"

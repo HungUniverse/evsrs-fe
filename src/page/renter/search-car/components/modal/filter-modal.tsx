@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 
 type Props = {
-  children: React.ReactElement; // nút mở modalm
+  children: React.ReactElement;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   onApply?: (values: {
@@ -33,7 +33,7 @@ export default function FilterModal({
   open,
   onOpenChange,
   onApply,
-  defaultPrice = { min: 200_000, max: 2_000_000, step: 50_000 },
+  defaultPrice = { min: 0, max: 2_000_000, step: 50_000 },
   defaultKm = { min: 0, max: 400, step: 10, value: 50 },
 }: Props) {
   const [price, setPrice] = useState<[number, number]>([
