@@ -28,6 +28,7 @@ export type Contract = {
   carWashFee: string;
   depositAmount: number;
   totalPayment: number;
+  remainingAmount: number;
   status: "completed" | "cancelled" | "confirmed";
   createdAt: string;
   updatedAt: string;

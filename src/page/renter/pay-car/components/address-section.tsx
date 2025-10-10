@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/select";
 
 import { mockDepots } from "@/mockdata/mock-location";
-import type { Depot } from "@/@types/depot";
+import type { Depot } from "@/@types/car/depot";
 
 export default function AddressSelect({
   province,

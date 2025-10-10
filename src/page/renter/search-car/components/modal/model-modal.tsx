@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTrigger,
@@ -10,50 +10,48 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { logoCar } from "@/images/logoCar/logoCar";
+export type BrandOption = {
+  id: string;
+  name: string;
+  logoUrl?: string;
+};
 
-type BrandOption = { model: string; count: number };
-
-const RAW_OPTIONS: BrandOption[] = [
-  { model: "Honda", count: 10 },
-  { model: "Vinfast", count: 92 },
-  { model: "Toyota", count: 50 },
-  { model: "Chevrolet", count: 31 },
-  { model: "Hyundai", count: 22 },
-  { model: "Kia", count: 29 },
-];
-
-function aggregateOptions(options: BrandOption[]): BrandOption[] {
-  const map = new Map<string, number>();
-  for (const o of options) {
-    map.set(o.model, (map.get(o.model) ?? 0) + o.count);
-  }
-  return [...map.entries()].map(([model, count]) => ({ model, count }));
-}
-
-export type BrandModalResult = { brand: string };
+export type BrandModalResult = {
+  manufacturerId?: string;
+};
 
 type Props = {
   children: React.ReactElement;
+  options: BrandOption[];
+  value?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   onApply?: (values: BrandModalResult) => void;
+  showAll?: boolean;
 };
 
 export default function BrandModal({
   children,
+  options,
+  value,
   open,
   onOpenChange,
   onApply,
+  showAll = true,
 }: Props) {
-  const OPTIONS = aggregateOptions(RAW_OPTIONS);
-  const total = OPTIONS.reduce((s, o) => s + o.count, 0);
+  const [selected, setSelected] = useState<string>(value ?? "all");
 
-  const [brand, setBrand] = useState<string>("all");
+  useEffect(() => {
+    setSelected(value ?? "all");
+  }, [value]);
 
   const handleSubmit = () => {
-    console.log("Lựa chọn hãng:", brand);
-    onApply?.({ brand });
+    onApply?.(
+      selected === "all"
+        ? { manufacturerId: undefined }
+        : { manufacturerId: selected }
+    );
+    console.log();
     onOpenChange?.(false);
   };
 
@@ -66,44 +64,50 @@ export default function BrandModal({
           <DialogTitle>Hãng xe</DialogTitle>
         </DialogHeader>
 
-        <RadioGroup
-          value={brand}
-          onValueChange={setBrand}
-          className="grid grid-cols-1 md:grid-cols-2 gap-x-8"
-        >
-          <label className="flex items-center gap-3 py-2 cursor-pointer">
-            <RadioGroupItem value="all" id="brand-all" />
-            <span className="font-medium">Tất cả</span>
-            <span className="ml-2 text-sm text-slate-500">({total} xe)</span>
-          </label>
-
-          {OPTIONS.map((o) => {
-            const id = `brand-${o.model}`;
-            const src = logoCar[o.model];
-            return (
-              <label
-                key={o.model}
-                htmlFor={id}
-                className="flex items-center gap-2 py-2 cursor-pointer"
-              >
-                <RadioGroupItem value={o.model} id={id} />
-                {src ? (
-                  <img
-                    src={src}
-                    alt={o.model}
-                    className="h-5 w-auto shrink-0"
-                  />
-                ) : (
-                  <span className="inline-block h-6 w-6" />
-                )}
-                <span className="font-medium">{o.model}</span>
-                <span className="ml-2 text-md text-slate-500">
-                  ({o.count} xe)
-                </span>
+        {options.length === 0 ? (
+          <div className="py-8 text-center text-sm text-muted-foreground">
+            Không có hãng nào để chọn.
+          </div>
+        ) : (
+          <RadioGroup
+            value={selected}
+            onValueChange={setSelected}
+            className="grid grid-cols-1 md:grid-cols-2 gap-x-8"
+          >
+            {showAll && (
+              <label className="flex items-center gap-3 py-2 cursor-pointer">
+                <RadioGroupItem value="all" id="brand-all" />
+                <span className="font-medium">Tất cả</span>
               </label>
-            );
-          })}
-        </RadioGroup>
+            )}
+
+            {options.map((o) => {
+              const id = `brand-${o.id}`;
+              const first = o.name?.trim()?.[0]?.toUpperCase() ?? "?";
+              return (
+                <label
+                  key={o.id}
+                  htmlFor={id}
+                  className="flex items-center gap-2 py-2 cursor-pointer rounded-md hover:bg-slate-50"
+                >
+                  <RadioGroupItem value={o.id} id={id} />
+                  {o.logoUrl ? (
+                    <img
+                      src={o.logoUrl}
+                      alt={o.name}
+                      className="h-5 w-auto shrink-0"
+                    />
+                  ) : (
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border text-[10px]">
+                      {first}
+                    </span>
+                  )}
+                  <span className="font-medium">{o.name}</span>
+                </label>
+              );
+            })}
+          </RadioGroup>
+        )}
 
         <DialogFooter className="mt-4">
           <DialogClose asChild>

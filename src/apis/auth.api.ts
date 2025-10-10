@@ -1,17 +1,33 @@
-import type { LoginRequest, LoginResponse } from "@/@types/auth.type";
-import { mockLogin } from "@/mockdata/mock-user";
+import { api } from "@/lib/axios/axios";
+import type { ItemBaseResponse } from "@/@types/response"; // nếu không có, bỏ wrapper này đi
+import type {
+  LoginRequest,
+  LoginResponse,
+  LogoutBody,
+} from "@/@types/auth.type";
 
 export const authAPI = {
-  async login(body: LoginRequest): Promise<LoginResponse> {
-    await new Promise((r) => setTimeout(r, 500));
+  login: (body: LoginRequest) =>
+    api.post<ItemBaseResponse<LoginResponse> | LoginResponse>(
+      "/api/Auth/signin",
+      body
+    ),
 
-    const res = mockLogin(body);
-    if (!res) throw new Error("Sai email hoặc mật khẩu");
-    return res;
-  },
+  logout: (body: LogoutBody) =>
+    api.post<ItemBaseResponse<null> | null>("/api/Auth/logout", body),
 
-  async logout(): Promise<void> {
-    await new Promise((r) => setTimeout(r, 200));
-    return;
-  },
+  sendOtp: (data: { email?: string; phoneNumber?: string }) =>
+    api.post("/api/Auth/send-otp", data),
+  resendOtp: (data: { email?: string; phoneNumber?: string }) =>
+    api.post("/api/Auth/resend-otp", data),
+  verifyOtp: (data: {
+    email: string;
+    code: string;
+    otpType: "REGISTER" | "FORGOT_PASSWORD";
+  }) => api.post("/api/Auth/verify-otp", data),
+  completeRegister: (data: {
+    email: string;
+    phoneNumber: string;
+    password: string;
+  }) => api.post("/api/Auth/complete-register", data),
 };

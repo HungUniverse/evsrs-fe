@@ -1,0 +1,5 @@
+Người dùng thao tác các "chip" (CategoryChip) để mở modal và chọn bộ lọc (hãng, loại chỗ, giá, km/ngày, giảm giá).
+CategoryChip gọi callback (onBrandFilter, onSeatFilter, onPriceFilter, onDailyKmFilter, onSaleFilter) để báo cho component cha cập nhật object filters.
+Component cha truyền filters và searchForm xuống CarResult.
+CarResult tải danh sách model (modelAPI.getAll), chuyển mỗi Model sang CarCardVM (toCarCardVM) — dùng map hãng từ useManufactures — rồi lọc theo filters và render danh sách CarCard.
+CarCard hiển thị thông tin xe (ảnh, tên model, giá có/không giảm giá, chỗ ngồi, tỉnh, giới hạn km) và link tới trang đặt xe kèm state tìm kiếm

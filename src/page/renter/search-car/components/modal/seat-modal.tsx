@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTrigger,
@@ -13,62 +13,55 @@ import { CarFront } from "lucide-react";
 import clsx from "clsx";
 
 const OPTIONS = [
-  { seat: 4, label: "4 chỗ (Mini)", count: 197 },
-  { seat: 5, label: "5 chỗ (CUV/Sedan)", count: 148 },
-  { seat: 7, label: "7 chỗ (SUV/MPV)", count: 129 },
+  { seat: 4, label: "4 chỗ (Mini)" },
+  { seat: 5, label: "5 chỗ (CUV/Sedan)" },
+  { seat: 7, label: "7 chỗ (SUV/MPV)" },
 ];
-function splitLabel(label: string) {
-  const m = label.match(/^\s*([^()]+?)\s*\(([^)]+)\)\s*$/);
-  if (m) return { main: m[1].trim(), desc: m[2].trim() };
-  return { main: label.trim(), desc: null as string | null };
-}
-//tach option ra
 
 export type SeatModalResult = { seats: number[] };
 
 type Props = {
   children: React.ReactElement; // nút mở modal
+  value?: number[]; // giá trị hiện tại (để hiển thị khi mở lại)
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  onApply?: (values: SeatModalResult) => void; //callback
+  onApply?: (values: SeatModalResult) => void; // callback trả seats
 };
 
 export default function SeatModal({
   children,
+  value,
   open,
   onOpenChange,
   onApply,
 }: Props) {
-  const [selected, setSelected] = useState<number[]>([]);
+  const [selected, setSelected] = useState<number[]>(value ?? []);
 
-  // toggle chon bo?
-  const toggle = (seat: number) => {
+  useEffect(() => {
+    setSelected(value ?? []);
+  }, [value]);
+
+  const toggle = (seat: number) =>
     setSelected((prev) =>
       prev.includes(seat) ? prev.filter((s) => s !== seat) : [...prev, seat]
     );
-  };
 
   const handleSubmit = () => {
-    console.log("Lua chon: ", { seat: selected });
-    onApply?.({ seats: selected });
+    onApply?.({ seats: selected }); // trả mảng [4] / [5,7] ...
     onOpenChange?.(false); // đóng modal
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-
-      <DialogContent className="sm:max-w-[900px] ">
+      <DialogContent className="sm:max-w-[900px]">
         <DialogHeader>
           <DialogTitle>Loại xe</DialogTitle>
         </DialogHeader>
 
-        {/* danh sách 4 button: 4, 5, 6, 7 chỗ */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {OPTIONS.map((o) => {
             const active = selected.includes(o.seat);
-            const { main, desc } = splitLabel(o.label);
-
             return (
               <button
                 key={o.seat}
@@ -87,13 +80,12 @@ export default function SeatModal({
                     active ? "text-emerald-600" : "text-slate-500"
                   )}
                 />
-                <div className="font-medium leading-tight">{main}</div>
-                {desc && (
-                  <div className="text-sm text-slate-800 leading-tight">
-                    ({desc})
-                  </div>
-                )}
-                <div className="text-xs text-slate-500 mt-1">{o.count} xe</div>
+                <div className="font-medium leading-tight">
+                  {o.label.split(" (")[0]}
+                </div>
+                <div className="text-sm text-slate-800 leading-tight">
+                  {o.label.includes("(") ? `(${o.label.split("(")[1]}` : ""}
+                </div>
               </button>
             );
           })}

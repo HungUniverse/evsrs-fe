@@ -1,24 +1,16 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import type { LoginRequest, LoginResponse, RoleCode } from "@/@types/auth.type";
-import { api, apiAuth } from "@/lib/api";
+import React, { createContext, useContext, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import type { User } from "@/@types/customer";
+import { useAuthStore } from "@/lib/zustand/use-auth-store";
+import type { LoginRequest, RoleCode } from "@/@types/auth.type";
+import { authAPI } from "@/apis/auth.api";
 
-type AuthContextType = {
-  user: User | null;
-  token: string | null;
+interface AuthContextType {
   isAuthenticated: boolean;
-  login: (body: LoginRequest) => Promise<void>;
-  logout: () => void;
+  user: ReturnType<typeof useAuthStore.getState>["user"];
   hasRole: (r: RoleCode) => boolean;
-  apiMe: <T>(path: string, init?: RequestInit) => Promise<T>;
-};
+  login: (body: LoginRequest) => Promise<void>;
+  logout: () => Promise<void>;
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -26,77 +18,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const { isAuthenticated, user, save, clear, refreshToken } = useAuthStore();
 
-  // Load từ localStorage khi mở trang
-  useEffect(() => {
-    const raw = localStorage.getItem("auth");
-    if (raw) {
-      const { user, token } = JSON.parse(raw) as { user: User; token: string };
-      setUser(user);
-      setToken(token);
-    }
-  }, []);
+  const hasRole = useCallback(
+    (r: RoleCode) => !!user && user.role === r,
+    [user]
+  );
 
-  const saveAuth = (u: User, t: string) => {
-    setUser(u);
-    setToken(t);
-    localStorage.setItem("auth", JSON.stringify({ user: u, token: t }));
-  };
+  const login = useCallback(
+    async (body: LoginRequest) => {
+      const res = await authAPI.login(body);
+      const payload: any = res.data;
+      const data = payload?.data ?? payload;
 
-  const clearAuth = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem("auth");
-  };
+      if (!data?.accessToken || !data?.refreshToken) {
+        throw new Error("Đăng nhập thất bại: thiếu token");
+      }
 
-  const login = async (body: LoginRequest) => {
-    // Giả định backend trả đúng LoginResponse
-    const data = await api<LoginResponse>("/auth/signin", {
-      method: "POST",
-      body: JSON.stringify(body),
-    });
-    saveAuth(data.user, data.accessToken);
+      save({ accessToken: data.accessToken, refreshToken: data.refreshToken });
 
-    // Điều hướng theo role
-    switch (data.user.role) {
-      case 1:
+      const role = useAuthStore.getState().user?.role;
+      if (role === "ADMIN") {
         navigate("/admin", { replace: true });
-        break;
-      case 2:
+      } else if (role === "STAFF") {
         navigate("/staff", { replace: true });
-        break;
-      default:
+      } else {
         navigate("/", { replace: true });
+      }
+    },
+    [navigate, save]
+  );
+
+  const logout = useCallback(async () => {
+    try {
+      if (refreshToken) await authAPI.logout({ refreshToken });
+    } finally {
+      clear();
+      navigate("/", { replace: true });
     }
-  };
+  }, [navigate, clear, refreshToken]);
 
-  const logout = () => {
-    // (Nếu cần gọi /auth/logout thì gọi ở đây, nhưng đồ án có thể bỏ)
-    clearAuth();
-    navigate("/", { replace: true });
-  };
-
-  const hasRole = (r: RoleCode) => !!user && user.role === r;
-
-  // helper gọi API có token (đỡ lặp lại)
-  const apiMe = <T,>(path: string, init: RequestInit = {}) => {
-    if (!token) throw new Error("Not authenticated");
-    return apiAuth<T>(path, token, init);
-  };
-
-  const value = useMemo(
-    () => ({
-      user,
-      token,
-      isAuthenticated: !!user && !!token,
-      login,
-      logout,
-      hasRole,
-      apiMe,
-    }),
-    [user, token]
+  const value = useMemo<AuthContextType>(
+    () => ({ isAuthenticated, user, hasRole, login, logout }),
+    [isAuthenticated, user, hasRole, login, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -104,6 +68,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
   return ctx;
 }

@@ -1,15 +1,36 @@
-// Role: 1 = Admin, 2 = Staff, 3 = User
-export type RoleCode = 1 | 2 | 3;
-import type { User } from "./customer";
+export type RoleCode = "ADMIN" | "USER" | "STAFF";
 
-// Dữ liệu form login
-export type LoginRequest = {
-  email: string;
+export interface User {
+  id?: string; // optional: lấy từ nhiều claim khác nhau
+  userId?: string; // primary id
+  name?: string;
+  email?: string;
+  role: RoleCode;
+  avatar?: string;
+  username?: string;
+}
+
+export interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+}
+
+export interface LoginRequest {
+  identifier: string;
   password: string;
-};
+  notificationToken?: string;
+}
 
-// Backend (hoặc mock) trả về khi login thành công
-export type LoginResponse = {
-  accessToken: string; // token giả hoặc token từ backend
-  user: User; // thông tin user kèm role
-};
+export interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface RefreshTokenResponse {
+  accessToken: string;
+  refreshToken?: string;
+}
+
+export interface LogoutBody {
+  refreshToken: string;
+}

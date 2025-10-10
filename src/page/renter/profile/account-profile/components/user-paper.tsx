@@ -1,4 +1,3 @@
-// src/page/renter/profile/account-profile/components/user-paper.tsx
 import { useState } from "react";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import { Button } from "@/components/ui/button";

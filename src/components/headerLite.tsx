@@ -1,10 +1,11 @@
+// src/layouts/headerLite.tsx (hoặc đúng path bạn đang đặt)
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import logo from "../images/logo.png";
 import { Button } from "@/components/ui/button";
 
-import { Bell, Settings, LogOut, IdCard } from "lucide-react";
+import { Bell, Settings, LogOut, IdCard, User as UserIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,24 +13,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LoginDialog } from "@/page/renter/components/LoginDialog";
-import { RegisterDialog } from "@/page/renter/components/RegisterDialog";
+import { LoginDialog } from "@/page/renter/components/login-dialog";
+import { RegisterDialog } from "@/page/renter/components/register-dialog";
 
 export default function HeaderLite() {
   const navigate = useNavigate();
   const [openLogin, setOpenLogin] = useState(false);
   const [openRegister, setOpenRegister] = useState(false);
-
-  const { isAuthenticated, user, logout } = useAuthStore();
+  // ✅ đọc từ store
+  const { isAuthenticated, user, clear } = useAuthStore();
 
   const handleLogout = () => {
-    logout();
+    clear(); // ✅ clear tokens + user
     navigate("/", { replace: true });
   };
 
-  const goProfile = () => {
-    navigate("/account/my-profile");
-  };
+  const goProfile = () => navigate("/account/my-profile");
+
+  const displayName = user?.name;
+
+  const avatarSrc = user?.avatar || "";
 
   return (
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b">
@@ -37,7 +40,7 @@ export default function HeaderLite() {
         {/* Logo + brand */}
         <div
           className="flex items-center gap-1 cursor-pointer"
-          onClick={() => (window.location.href = "/")}
+          onClick={() => navigate("/")}
         >
           <img src={logo} alt="EcoRent" className="h-16" />
           <span className="font-bold text-emerald-600 text-2xl mt-3">
@@ -58,7 +61,6 @@ export default function HeaderLite() {
 
           {isAuthenticated ? (
             <>
-              {/* Icons */}
               <button
                 aria-label="Thông báo"
                 className="inline-flex items-center justify-center rounded-md p-2 hover:bg-slate-100 transition"
@@ -81,14 +83,14 @@ export default function HeaderLite() {
                     aria-label="Tài khoản"
                   >
                     <div className="h-7 w-7 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden">
-                      {/* Nếu có avatar thật, thay icon bằng <img src={user?.avatarUrl} className="h-7 w-7 rounded-full" /> */}
-                      <img
-                        src={user?.profilePicture}
-                        className="h-7 w-7 rounded-full"
-                      />
+                      {avatarSrc ? (
+                        <img src={avatarSrc} className="h-7 w-7 rounded-full" />
+                      ) : (
+                        <UserIcon className="h-4 w-4 text-slate-500" />
+                      )}
                     </div>
                     <span className="text-sm font-medium truncate max-w-[140px]">
-                      {user?.userName || "Người dùng"}
+                      {displayName}
                     </span>
                   </button>
                 </DropdownMenuTrigger>
@@ -96,7 +98,7 @@ export default function HeaderLite() {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuSeparator />
 
-                  {user?.role === 3 && (
+                  {user?.role === "USER" && (
                     <DropdownMenuItem
                       onClick={goProfile}
                       className="cursor-pointer"
@@ -106,7 +108,7 @@ export default function HeaderLite() {
                     </DropdownMenuItem>
                   )}
 
-                  {user?.role === 1 && (
+                  {user?.role === "ADMIN" && (
                     <DropdownMenuItem
                       onClick={() => navigate("/admin")}
                       className="cursor-pointer"
@@ -116,7 +118,7 @@ export default function HeaderLite() {
                     </DropdownMenuItem>
                   )}
 
-                  {user?.role === 2 && (
+                  {user?.role === "STAFF" && (
                     <DropdownMenuItem
                       onClick={() => navigate("/staff")}
                       className="cursor-pointer"
@@ -151,7 +153,10 @@ export default function HeaderLite() {
               <LoginDialog
                 open={openLogin}
                 onOpenChange={setOpenLogin}
-                onSwitchToRegister={() => setOpenRegister(true)}
+                onSwitchToRegister={() => {
+                  setOpenLogin(false);
+                  setOpenRegister(true);
+                }}
               >
                 <Button
                   variant="outline"

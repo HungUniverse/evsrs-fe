@@ -87,7 +87,6 @@ export default function FilterModal({
           </div>
         </div>
 
-        {/* Giới hạn số km */}
         <div className="space-y-3 mt-6">
           <div className="flex items-center justify-between">
             <div className="font-medium">Giới hạn số km</div>

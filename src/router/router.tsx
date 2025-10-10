@@ -4,7 +4,7 @@ import StaffLayout from "@/layouts/staff.layout";
 import {
   DashBoardPage,
   FleetManagementPage,
-  CustomerManagementPage,
+  // CustomerManagementPage,
   StaffManagementPage,
   ReportsPage,
 } from "@/page/admin";
@@ -86,7 +86,7 @@ export const router = createBrowserRouter([
       {
         path: "/admin",
         element: (
-          <AuthGuard requiredRole={1} fallbackPath="/">
+          <AuthGuard requiredRole={"ADMIN"} fallbackPath="/">
             <AdminLayout />
           </AuthGuard>
         ),
@@ -103,10 +103,10 @@ export const router = createBrowserRouter([
             path: "fleet-management",
             element: <FleetManagementPage />,
           },
-          {
-            path: "customer-management",
-            element: <CustomerManagementPage />,
-          },
+          // {
+          //   path: "customer-management",
+          //   element: <CustomerManagementPage />,
+          // },
           {
             path: "customer-management/rental-history",
             element: <RentalHistoryPage />,
@@ -128,7 +128,7 @@ export const router = createBrowserRouter([
       {
         path: "/staff",
         element: (
-          <AuthGuard requiredRole={2} fallbackPath="/">
+          <AuthGuard requiredRole={"STAFF"} fallbackPath="/">
             <StaffLayout />
           </AuthGuard>
         ),

@@ -11,7 +11,7 @@ export default function UserInfo() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="text-sm text-slate-600">Tên người thuê *</label>
-          <Input value={user?.fullName ?? ""} readOnly />
+          <Input value={user?.name ?? ""} readOnly />
         </div>
         <div>
           <label className="text-sm text-slate-600">Số điện thoại *</label>
