@@ -15,6 +15,7 @@ export const mockUsers: User[] = [
     role: 1,
     cccd: "001234567890",
     gplx: "A1234567890",
+    gender: "Nam",
   },
   {
     id: "u2",
@@ -29,6 +30,7 @@ export const mockUsers: User[] = [
     role: 2,
     cccd: "002345678901",
     gplx: "B2345678901",
+    gender: "Nam",
   },
   {
     id: "u3",
@@ -43,6 +45,7 @@ export const mockUsers: User[] = [
     role: 3,
     cccd: "003456789012",
     gplx: "C3456789012",
+    gender: "Nam",
   },
   {
     id: "u4",
@@ -57,6 +60,7 @@ export const mockUsers: User[] = [
     role: 3,
     cccd: "004567890123",
     gplx: "D4567890123",
+    gender: "Nam",
   },
   {
     id: "u5",
@@ -71,6 +75,7 @@ export const mockUsers: User[] = [
     role: 3,
     cccd: "005678901234",
     gplx: "E5678901234",
+    gender: "Nữ",
   },
 ];
 

@@ -2,11 +2,27 @@ import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { UserRound, ScrollText, KeyRound } from "lucide-react";
 
-const items = [
-  { to: "/account/my-profile", label: "Tài khoản của tôi", icon: UserRound },
-  { to: "/account/my-trip", label: "Chuyến của tôi", icon: ScrollText },
+type Item = {
+  to: string;
+  label: string;
+  icon: LucideIcon;
+  end?: boolean;
+};
 
-  { to: "/account/change-password", label: "Đổi mật khẩu", icon: KeyRound },
+const items: Item[] = [
+  {
+    to: "/account/my-profile",
+    label: "Tài khoản của tôi",
+    icon: UserRound,
+    end: true,
+  },
+  { to: "/account/my-trip", label: "Chuyến của tôi", icon: ScrollText },
+  {
+    to: "/account/change-password",
+    label: "Đổi mật khẩu",
+    icon: KeyRound,
+    end: true,
+  },
 ];
 
 export default function AccountSidebar() {
@@ -17,10 +33,11 @@ export default function AccountSidebar() {
       </div>
 
       <nav className="px-2 pb-4 space-y-1">
-        {items.map(({ to, label, icon: Icon }) => (
+        {items.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}
+            end={end}
             className={({ isActive }) =>
               cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
@@ -30,7 +47,6 @@ export default function AccountSidebar() {
                   : "text-slate-600"
               )
             }
-            end={to === "/my-profile"}
           >
             <Icon className="h-5 w-5" />
             <span>{label}</span>

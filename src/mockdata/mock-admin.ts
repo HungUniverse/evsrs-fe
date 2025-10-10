@@ -12,29 +12,29 @@ export interface DashboardStats {
 }
 
 export interface Customer {
-  id: string; // ID khách hàng (UUID hoặc auto increment)
+  id: string;                     // ID khách hàng (UUID hoặc auto increment)
   fullName: string;
   userName: string;
   email?: string;
   phoneNumber: string;
   profilePicture?: string;
-  dob?: string; // YYYY-MM-DD
+  dob?: string;           // YYYY-MM-DD
   address?: string;
   gender?: "Male" | "Female" | "Other";
 
   // Giấy tờ & xác thực
-  cccd?: string; // CCCD / CMND
+  cccd?: string;          // CCCD / CMND
   gplx?: string;
-  cccdImageUrl?: string; // link ảnh CCCD/CMND
+  cccdImageUrl?: string;        // link ảnh CCCD/CMND
   gplxImageUrl?: string; // link ảnh GPLX
   verificationStatus: "Pending" | "Verified" | "Rejected";
-  verifiedBy?: string; // id admin hoặc staff đã xác thực
-  verifiedAt?: string; // ISO datetime
-  rejectedAt?: string; // ISO datetime khi bị từ chối
+  verifiedBy?: string;            // id admin hoặc staff đã xác thực
+  verifiedAt?: string;            // ISO datetime
+  rejectedAt?: string;            // ISO datetime khi bị từ chối
 
   // Lịch sử thuê & rủi ro
-  totalRentals: number; // tổng số lượt thuê
-  totalViolations: number; // số lần vi phạm (gây hư hỏng, trễ hạn,...)
+  totalRentals: number;          // tổng số lượt thuê
+  totalViolations: number;       // số lần vi phạm (gây hư hỏng, trễ hạn,...)
   riskLevel?: "Low" | "Medium" | "High"; // hệ thống tính từ behavior
   lastRentalDate?: string;
   lastComplaintDate?: string;
@@ -50,8 +50,9 @@ export interface Customer {
   // Metadata
   createdAt: string;
   updatedAt?: string;
-  isActive: boolean; // tài khoản bị khoá hay không
+  isActive: boolean;              // tài khoản bị khoá hay không
 }
+
 
 export interface Staff {
   id: string;
@@ -93,8 +94,8 @@ export interface RecentBooking {
 }
 
 export type VerificationAudit = {
-  at: string; // ISO datetime
-  by: string; // adminId
+  at: string;            // ISO datetime
+  by: string;            // adminId
   from: "Pending" | "Verified" | "Rejected";
   to: "Pending" | "Verified" | "Rejected";
   action:
@@ -115,6 +116,7 @@ export type VerificationAudit = {
     notRejected: boolean;
   };
 };
+
 
 export const mockDashboardStats: DashboardStats = {
   totalRevenue: 125000000,
@@ -141,10 +143,8 @@ export const mockCustomers: Customer[] = [
     gender: "Male",
     cccd: "079203001234",
     gplx: "790123456789",
-    cccdImageUrl:
-      "https://cdn.thuvienphapluat.vn/tintuc/uploads/image/2021/01/27/can-cuoc-cong-dan-gan-chip-2(1).jpg",
-    gplxImageUrl:
-      "https://xdcs.cdnchinhphu.vn/446259493575335936/2025/3/3/1-17410134386701821380489.jpg",
+    cccdImageUrl: "https://cdn.thuvienphapluat.vn/tintuc/uploads/image/2021/01/27/can-cuoc-cong-dan-gan-chip-2(1).jpg",
+    gplxImageUrl: "https://xdcs.cdnchinhphu.vn/446259493575335936/2025/3/3/1-17410134386701821380489.jpg",
     verificationStatus: "Pending",
     verifiedBy: "ADM-001",
     verifiedAt: "2024-11-10T09:23:11Z",
@@ -169,10 +169,8 @@ export const mockCustomers: Customer[] = [
     gender: "Female",
     cccd: "201903009876",
     gplx: "430987654321",
-    cccdImageUrl:
-      "https://cdn.thuvienphapluat.vn/tintuc/uploads/image/2021/01/27/can-cuoc-cong-dan-gan-chip-2(1).jpg",
-    gplxImageUrl:
-      "https://xdcs.cdnchinhphu.vn/446259493575335936/2025/3/3/1-17410134386701821380489.jpg",
+    cccdImageUrl: "https://cdn.thuvienphapluat.vn/tintuc/uploads/image/2021/01/27/can-cuoc-cong-dan-gan-chip-2(1).jpg",
+    gplxImageUrl: "https://xdcs.cdnchinhphu.vn/446259493575335936/2025/3/3/1-17410134386701821380489.jpg",
     verificationStatus: "Pending",
     verifiedBy: "STF-012",
     verifiedAt: "2025-01-03T12:45:30Z",
@@ -250,10 +248,8 @@ export const mockCustomers: Customer[] = [
     gender: "Male",
     cccd: "079297001919",
     gplx: "790199977777",
-    cccdImageUrl:
-      "https://cdn.thuvienphapluat.vn/tintuc/uploads/image/2021/01/27/can-cuoc-cong-dan-gan-chip-2(1).jpg",
-    gplxImageUrl:
-      "https://xdcs.cdnchinhphu.vn/446259493575335936/2025/3/3/1-17410134386701821380489.jpg",
+    cccdImageUrl: "https://cdn.thuvienphapluat.vn/tintuc/uploads/image/2021/01/27/can-cuoc-cong-dan-gan-chip-2(1).jpg",
+    gplxImageUrl: "https://xdcs.cdnchinhphu.vn/446259493575335936/2025/3/3/1-17410134386701821380489.jpg",
     verificationStatus: "Pending",
     verifiedBy: "STF-003",
     verifiedAt: "2025-05-12T08:00:00Z",
@@ -286,10 +282,8 @@ export const mockCustomers: Customer[] = [
     gender: "Female",
     cccd: "079293006543",
     gplx: "790165432109",
-    cccdImageUrl:
-      "https://cdn.thuvienphapluat.vn/tintuc/uploads/image/2021/01/27/can-cuoc-cong-dan-gan-chip-2(1).jpg",
-    gplxImageUrl:
-      "https://xdcs.cdnchinhphu.vn/446259493575335936/2025/3/3/1-17410134386701821380489.jpg",
+    cccdImageUrl: "https://cdn.thuvienphapluat.vn/tintuc/uploads/image/2021/01/27/can-cuoc-cong-dan-gan-chip-2(1).jpg",
+    gplxImageUrl: "https://xdcs.cdnchinhphu.vn/446259493575335936/2025/3/3/1-17410134386701821380489.jpg",
     verificationStatus: "Pending",
     verifiedBy: "ADM-003",
     verifiedAt: "2024-03-18T10:10:10Z",
@@ -379,10 +373,8 @@ export const mockCustomers: Customer[] = [
     gender: "Male",
     cccd: "079284003355",
     gplx: "790133559900",
-    cccdImageUrl:
-      "https://cdn.thuvienphapluat.vn/tintuc/uploads/image/2021/01/27/can-cuoc-cong-dan-gan-chip-2(1).jpg",
-    gplxImageUrl:
-      "https://xdcs.cdnchinhphu.vn/446259493575335936/2025/3/3/1-17410134386701821380489.jpg",
+    cccdImageUrl: "https://cdn.thuvienphapluat.vn/tintuc/uploads/image/2021/01/27/can-cuoc-cong-dan-gan-chip-2(1).jpg",
+    gplxImageUrl: "https://xdcs.cdnchinhphu.vn/446259493575335936/2025/3/3/1-17410134386701821380489.jpg",
     verificationStatus: "Pending",
     verifiedBy: "STF-020",
     verifiedAt: "2023-12-12T12:12:12Z",

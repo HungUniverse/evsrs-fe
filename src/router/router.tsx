@@ -8,6 +8,8 @@ import {
   StaffManagementPage,
   ReportsPage,
 } from "@/page/admin";
+import RentalHistoryPage from "@/page/admin/customer-management/rental-history";
+import ComplaintsPage from "@/page/admin/customer-management/complaints";
 import {
   AccountProfile,
   AccountTrips,
@@ -105,6 +107,14 @@ export const router = createBrowserRouter([
           //   path: "customer-management",
           //   element: <CustomerManagementPage />,
           // },
+          {
+            path: "customer-management/rental-history",
+            element: <RentalHistoryPage />,
+          },
+          {
+            path: "customer-management/complaints",
+            element: <ComplaintsPage />,
+          },
           {
             path: "staff-management",
             element: <StaffManagementPage />,
