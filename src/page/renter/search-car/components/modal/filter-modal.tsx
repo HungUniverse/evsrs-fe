@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 
 type Props = {
-  children: React.ReactElement;
+  children: React.ReactElement; // nút mở modalm
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   onApply?: (values: {
@@ -33,7 +33,7 @@ export default function FilterModal({
   open,
   onOpenChange,
   onApply,
-  defaultPrice = { min: 0, max: 2_000_000, step: 50_000 },
+  defaultPrice = { min: 200_000, max: 2_000_000, step: 50_000 },
   defaultKm = { min: 0, max: 400, step: 10, value: 50 },
 }: Props) {
   const [price, setPrice] = useState<[number, number]>([
@@ -87,7 +87,6 @@ export default function FilterModal({
           </div>
         </div>
 
-        {/* Giới hạn số km */}
         <div className="space-y-3 mt-6">
           <div className="flex items-center justify-between">
             <div className="font-medium">Giới hạn số km</div>

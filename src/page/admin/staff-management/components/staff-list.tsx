@@ -13,20 +13,34 @@ export function StaffList() {
   };
 
   const getStatusColor = (status: string) => {
-    return status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+    switch (status) {
+      case 'active':
+        return 'bg-green-100 text-green-800';
+      case 'inactive':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   };
 
   const getStatusText = (status: string) => {
-    return status === 'active' ? 'Hoạt động' : 'Không hoạt động';
+    switch (status) {
+      case 'active':
+        return 'Hoạt động';
+      case 'inactive':
+        return 'Không hoạt động';
+      default:
+        return 'Không hoạt động';
+    }
   };
 
   const getDepartmentColor = (department: string) => {
     const colors: Record<string, string> = {
-      'Quản lý': 'bg-blue-100 text-blue-800',
-      'Vận hành': 'bg-green-100 text-green-800',
-      'Dịch vụ': 'bg-yellow-100 text-yellow-800',
-      'Kỹ thuật': 'bg-purple-100 text-purple-800',
-      'Tài chính': 'bg-orange-100 text-orange-800',
+      "OPS": "bg-green-100 text-green-800",
+      "TECH": "bg-blue-100 text-blue-800",
+      "CS": "bg-yellow-100 text-yellow-800",
+      "LOG": "bg-purple-100 text-purple-800",
+      "FIN": "bg-orange-100 text-orange-800",
     };
     return colors[department] || 'bg-gray-100 text-gray-800';
   };

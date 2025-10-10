@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { mockUsers } from "@/mockdata/mock-user";
+import type { User } from "@/@types/customer";
 
 type Props = {
   open: boolean;
@@ -15,15 +16,15 @@ type Props = {
 };
 
 export default function UserInfoModal({ open, onOpenChange, userId }: Props) {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
     setLoading(true);
 
-    // tìm user trong mockUsers
-    const found = mockUsers.find((u) => u.id === userId);
+    // tìm user trong mockUsers theo cccd (vì userId từ Contract.lesseeIdNumber)
+    const found = mockUsers.find((u) => u.cccd === userId);
 
     // giả lập delay tải dữ liệu
     setTimeout(() => {

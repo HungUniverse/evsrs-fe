@@ -4,7 +4,7 @@ import StaffLayout from "@/layouts/staff.layout";
 import {
   DashBoardPage,
   FleetManagementPage,
-  CustomerManagementPage,
+  // CustomerManagementPage,
   StaffManagementPage,
   ReportsPage,
 } from "@/page/admin";
@@ -101,10 +101,10 @@ export const router = createBrowserRouter([
             path: "fleet-management",
             element: <FleetManagementPage />,
           },
-          {
-            path: "customer-management",
-            element: <CustomerManagementPage />,
-          },
+          // {
+          //   path: "customer-management",
+          //   element: <CustomerManagementPage />,
+          // },
           {
             path: "staff-management",
             element: <StaffManagementPage />,

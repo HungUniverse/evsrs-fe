@@ -76,7 +76,6 @@ export default function CategoryChip({
         </Button>
       </SeatModal>
 
-      {/* Giảm giá toggle */}
       <Button
         variant={saleActive ? "default" : "outline"}
         className={base}
@@ -90,7 +89,6 @@ export default function CategoryChip({
         Giảm giá
       </Button>
 
-      {/* Bộ lọc nâng cao */}
       <FilterModal
         open={openFilter}
         onOpenChange={setOpenFilter}

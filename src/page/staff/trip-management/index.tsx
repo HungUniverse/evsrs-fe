@@ -5,6 +5,7 @@ import type { Contract } from "@/@types/contract";
 import { mockContracts } from "@/mockdata/mock-contract";
 import StaffTripFilter from "./components/trip-filter";
 import ShowTrip from "./components/show-trip";
+import UserInfoModal from "./components/user-info-modal";
 
 export default function TripManagement() {
   const navigate = useNavigate();
@@ -17,6 +18,8 @@ export default function TripManagement() {
     dateStart: undefined,
     dateEnd: undefined,
   });
+
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const start = filter.dateStart ? new Date(filter.dateStart) : null;
@@ -55,6 +58,13 @@ export default function TripManagement() {
       <ShowTrip
         data={filtered}
         onClickCode={(orderId) => navigate(`/staff/trip/${orderId}`)}
+        onClickUser={(userId) => setSelectedUserId(userId)}
+      />
+      
+      <UserInfoModal
+        open={!!selectedUserId}
+        onOpenChange={(open) => !open && setSelectedUserId(null)}
+        userId={selectedUserId}
       />
     </div>
   );
