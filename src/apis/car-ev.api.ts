@@ -15,7 +15,7 @@ export const carEVAPI = {
   getAll: (params: CarEVListParams = { pageNumber: 1, pageSize: 10 }) =>
     api.get<PaginationResponse<CarEV>>("/api/CarEV", { params }),
   getById: async (id: string): Promise<CarEV> => {
-    const res = await api.get<ItemBaseResponse<CarEV>>(`api/CarEV/${id}`);
+    const res = await api.get<ItemBaseResponse<CarEV>>(`/api/CarEV/${id}`);
     return res.data.data;
   },
 };

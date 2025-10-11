@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LoginDialog } from "@/page/renter/components/login-dialog";
 import { RegisterDialog } from "@/page/renter/components/register-dialog";
+import { authAPI } from "@/apis/auth.api";
+import { toast } from "sonner";
 
 export default function HeaderLite() {
   const navigate = useNavigate();
@@ -23,11 +25,23 @@ export default function HeaderLite() {
   // ✅ đọc từ store
   const { isAuthenticated, user, clear } = useAuthStore();
 
-  const handleLogout = () => {
-    clear(); // ✅ clear tokens + user
-    navigate("/", { replace: true });
-  };
+  const handleLogout = async () => {
+    try {
+      const { refreshToken } = useAuthStore.getState();
+      console.log("refreshToken =", refreshToken);
 
+      // Nếu BE cần body: gửi luôn object
+      await authAPI.logout({ refreshToken: refreshToken ?? "" });
+
+      toast.success("Đăng xuất thành công");
+    } catch (e) {
+      console.error("logout error:", e);
+      toast.error("Không thể logout");
+    } finally {
+      clear();
+      navigate("/", { replace: true });
+    }
+  };
   const goProfile = () => navigate("/account/my-profile");
 
   const displayName = user?.name;

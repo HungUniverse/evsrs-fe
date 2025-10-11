@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { vnd } from "@/lib/utils/currency";
-import type { CarCardVM } from "@/hooks/to-car-card"; // type ViewModel đã tạo
+import type { CarCardVM } from "@/hooks/to-car-card";
 
 type Props = {
   car: CarCardVM;
@@ -15,30 +15,27 @@ export default function CarCard({ car, searchForm }: Props) {
 
   return (
     <Link
-      to={`/book-car/${car.id}`}
+      to={`/book-car/${car.modelId}`}
       state={{
-        car,
-        province: searchForm.location,
+        modelId: car.modelId,
+        province: car.province || searchForm.location || undefined,
         start: searchForm.start,
         end: searchForm.end,
         searchForm,
       }}
       className="group flex flex-col h-full rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-emerald-500"
     >
-      {/* Ảnh xe */}
       <img
         src={car.image || "/placeholder-car.jpg"}
         alt={car.modelName}
         className="w-full h-56 md:h-60 object-cover rounded-t-2xl"
       />
 
-      {/* Thông tin xe */}
       <div className="flex flex-col gap-2 p-4 flex-1">
         <h3 className="text-base md:text-lg font-semibold line-clamp-1">
           {car.modelName}
         </h3>
 
-        {/* Giá */}
         {hasSale ? (
           <div className="text-sm md:text-base">
             <span className="line-through text-slate-400 mr-2">
@@ -57,14 +54,19 @@ export default function CarCard({ car, searchForm }: Props) {
           </div>
         )}
 
-        {/* Thông tin phụ */}
         <p className="text-xs md:text-sm text-slate-500">
-          {car.seats} chỗ • {car.province || "Không rõ vị trí"}
+          {car.seats} chỗ{car.province ? ` • ${car.province}` : ""}
         </p>
 
         {car.dailyKmLimit && (
           <p className="text-xs text-slate-400">
             Giới hạn {car.dailyKmLimit} km/ngày
+          </p>
+        )}
+
+        {car.availableCount !== undefined && (
+          <p className="text-xs text-emerald-600">
+            Còn {car.availableCount} xe
           </p>
         )}
       </div>
