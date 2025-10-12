@@ -101,9 +101,10 @@ export default function BookingForm({ car, searchForm }: Props) {
                     <SelectValue placeholder="Chọn phương thức thanh toán" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="bank-transfer">
+                    <SelectItem value="BANKING">
                       Chuyển khoản ngân hàng (SePay)
                     </SelectItem>
+                    <SelectItem value="CASH">Tiền mặt</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -152,13 +153,10 @@ export default function BookingForm({ car, searchForm }: Props) {
           </div>
 
           <div className="bg-gray-50 p-6">
-            {/* PaymentSection không cần mock depot nữa */}
             <PaymentSection
               car={car}
               searchForm={searchForm}
               depotId={selectedDepotId}
-              // Nếu muốn hiện tên depot ngay: có thể truyền mảng depots từ AddressSelect,
-              // nhưng để đơn giản, PaymentSection chỉ hiển thị tỉnh + ID depot khi đã chọn.
             />
           </div>
         </div>
