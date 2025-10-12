@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
-  Car,
+  // Car,
   Users,
   UserCheck,
   BarChart3,
@@ -11,6 +11,7 @@ import {
   ChevronUp,
   History,
   MessageSquare,
+  Factory,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
@@ -33,10 +34,15 @@ const navigationItems: NavigationItem[] = [
     href: "/admin/dashboard",
     icon: LayoutDashboard,
   },
+  // {
+  //   name: "Quản lý đội xe",
+  //   href: "/admin/fleet-management",
+  //   icon: Car,
+  // },
   {
-    name: "Quản lý đội xe",
-    href: "/admin/fleet-management",
-    icon: Car,
+    name: "Quản lý hãng xe",
+    href: "/admin/car-manufacture",
+    icon: Factory,
   },
   {
     name: "Quản lý khách hàng",
