@@ -1,5 +1,6 @@
 // Mock data for admin dashboard
 
+//Export type
 export interface DashboardStats {
   totalRevenue: number;
   totalBookings: number;
@@ -93,6 +94,7 @@ export interface RecentBooking {
   location: string;
 }
 
+
 export type VerificationAudit = {
   at: string;            // ISO datetime
   by: string;            // adminId
@@ -117,7 +119,7 @@ export type VerificationAudit = {
   };
 };
 
-
+// Mock data
 export const mockDashboardStats: DashboardStats = {
   totalRevenue: 125000000,
   totalBookings: 2456,
