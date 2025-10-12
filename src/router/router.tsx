@@ -7,6 +7,7 @@ import {
   // CustomerManagementPage,
   StaffManagementPage,
   ReportsPage,
+  CarManufacturePage,
 } from "@/page/admin";
 import RentalHistoryPage from "@/page/admin/customer-management/rental-history";
 import ComplaintsPage from "@/page/admin/customer-management/complaints";
@@ -122,6 +123,10 @@ export const router = createBrowserRouter([
           {
             path: "reports",
             element: <ReportsPage />,
+          },
+          {
+            path: "car-manufacture",
+            element: <CarManufacturePage />,
           },
         ],
       },
