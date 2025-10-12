@@ -3,3 +3,4 @@ export { default as FleetManagementPage } from "./fleet-management";
 // export {default as CustomerManagementPage} from './customer-management/customer-list'
 export { default as StaffManagementPage } from "./staff-management";
 export { default as ReportsPage } from "./reports";
+export { default as CarManufacturePage } from "./car-manufacture";
