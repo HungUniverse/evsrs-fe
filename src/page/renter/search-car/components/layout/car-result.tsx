@@ -5,13 +5,13 @@ import {
   type CarCardVM,
   type CarEvItem,
 } from "@/hooks/to-car-card";
-import { carEVAPI } from "@/apis/car-ev.api"; // <- file api của bạn
+import { carEVAPI } from "@/apis/car-ev.api";
 
 export type Filters = {
   seat?: number[];
   minPrice?: number;
   maxPrice?: number;
-  manufacture?: string; // manufacturerCarId
+  manufacture?: string;
   province?: string;
   sale?: boolean;
   dailyKmLimit?: number;
@@ -36,9 +36,11 @@ export default function CarResult({ filters, searchForm }: Props) {
           pageSize: 200,
           status: "AVAILABLE",
         });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const data = (res.data as any)?.data ?? res.data ?? {};
         const arr = data.items ?? [];
         setItems(arr);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
         console.error(
           "CarEV load error:",
@@ -58,17 +60,19 @@ export default function CarResult({ filters, searchForm }: Props) {
   }, []);
 
   const filteredEvs = useMemo(() => {
-    const loc = (filters.province || searchForm.location || "").trim();
+    const location = (filters.province || searchForm.location || "").trim();
     const seatSet = new Set((filters.seat ?? []).map(Number));
 
     let arr = items.filter((x) => x.status === "AVAILABLE");
 
-    if (loc) {
-      arr = arr.filter((x) => (x.depot?.province ?? "") === loc);
+    if (location) {
+      arr = arr.filter((x) => (x.depot?.province ?? "") === location);
     }
+
     if (seatSet.size > 0) {
       arr = arr.filter((x) => seatSet.has(Number(x.model.seats ?? 0)));
     }
+
     if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
       arr = arr.filter((x) => {
         const price = Number(x.model.price ?? 0);
@@ -103,9 +107,13 @@ export default function CarResult({ filters, searchForm }: Props) {
   // 3) Gom nhóm thành card Model
   const cards: CarCardVM[] = useMemo(() => {
     const hasLocation = !!(filters.province || searchForm.location);
+    const currentProvince = filters.province || searchForm.location;
     // Có chọn location => gom theo modelId (mỗi model 1 card)
     // Không chọn location => gom theo modelId + province (tránh gộp SG với HN)
-    return groupCarEvsToCards(filteredEvs, !hasLocation ? true : false);
+    return groupCarEvsToCards(filteredEvs, {
+      groupByProvince: hasLocation ? false : true,
+      currentProvince: currentProvince || null,
+    });
   }, [filteredEvs, filters, searchForm]);
 
   if (loading) {

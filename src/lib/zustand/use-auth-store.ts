@@ -13,17 +13,12 @@ interface AuthStoreState {
 }
 
 function extractUserFromJWT(token: string): User {
-  const payload = decodeJwt(token) as JWTPayload & Record<string, any>;
-
-  const actualId =
-    payload.userId || payload.id || payload.sub || payload.nameid;
+  const payload = decodeJwt(token) as JWTPayload & Record<string, unknown>;
 
   return {
-    id: actualId as string | undefined,
-    userId: actualId as string | undefined,
-    name: (payload.name || payload.unique_name || payload.given_name) as
-      | string
-      | undefined,
+    userId: payload.userId as string | undefined,
+    name: payload.name as string | undefined,
+    phone: payload.phone as string | undefined,
     email: payload.email as string | undefined,
     role: payload.role as RoleCode,
   };
