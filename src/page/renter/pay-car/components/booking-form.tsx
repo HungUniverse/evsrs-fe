@@ -12,7 +12,6 @@ import AddressSelect from "./address-section";
 import UserInfo from "./user-info";
 import PaymentSection from "./payment-section";
 import { useBookingCalc } from "@/hooks/use-booking-car-cal";
-import type { Car } from "@/@types/car";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { vnd } from "@/lib/utils/currency";
@@ -28,16 +27,17 @@ type Props = {
   };
 };
 
-export default function BookingForm({
-  car,
-  searchForm,
-}: Props) {
+export default function BookingForm({ car, searchForm }: Props) {
   const [selectedDepot, setSelectedDepot] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { deposit } = useBookingCalc(car.pricePerDay, searchForm.start, searchForm.end);
+  const { deposit } = useBookingCalc(
+    car.pricePerDay,
+    searchForm.start,
+    searchForm.end
+  );
   const navigate = useNavigate();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

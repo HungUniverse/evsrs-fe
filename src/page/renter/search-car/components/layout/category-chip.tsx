@@ -10,7 +10,7 @@ type Props = {
   onSeatFilter?: (seat: number[]) => void;
   onPriceFilter?: (min: number, max: number) => void;
   onBrandFilter?: (manufacturerId?: string) => void;
-  onSaleFilter?: (hasSale: boolean) => void;
+  onSaleFilter?: (hasSale?: boolean) => void;
   onDailyKmFilter?: (dailyKm: number) => void;
 };
 
@@ -60,7 +60,6 @@ export default function CategoryChip({
         </Button>
       </BrandModal>
 
-      {/* Loại xe (số chỗ) */}
       <SeatModal
         open={openSeat}
         onOpenChange={setOpenSeat}
@@ -82,7 +81,7 @@ export default function CategoryChip({
         onClick={() => {
           const next = !saleActive;
           setSaleActive(next);
-          onSaleFilter?.(next);
+          onSaleFilter?.(next ? true : undefined);
         }}
       >
         <BadgePercent className="mr-2" />

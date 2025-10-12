@@ -1,15 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import CarCard from "./car-card";
-import { modelAPI } from "@/apis/model-ev.api";
-import type { Model } from "@/@types/car/model";
-import { toCarCardVM, type CarCardVM } from "@/hooks/to-car-card";
-import { useManufactures } from "@/hooks/use-manufature";
+import {
+  groupCarEvsToCards,
+  type CarCardVM,
+  type CarEvItem,
+} from "@/hooks/to-car-card";
+import { carEVAPI } from "@/apis/car-ev.api"; // <- file api của bạn
 
 export type Filters = {
   seat?: number[];
   minPrice?: number;
   maxPrice?: number;
-  manufacture?: string; // ID để lọc
+  manufacture?: string; // manufacturerCarId
   province?: string;
   sale?: boolean;
   dailyKmLimit?: number;
@@ -21,42 +23,92 @@ type Props = {
 };
 
 export default function CarResult({ filters, searchForm }: Props) {
-  const [models, setModels] = useState<Model[]>([]);
+  const [items, setItems] = useState<CarEvItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const {
-    map: manuMap,
-    loading: manuLoading,
-    error: manuError,
-  } = useManufactures();
 
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
-        const res = await modelAPI.getAll(1, 50);
-        const items =
-          (res.data as any)?.data?.items ?? (res.data as any)?.items ?? [];
-        setModels(items);
-      } catch (err) {
-        console.error("❌ Lỗi tải models:", err);
-        setError("Không thể tải danh sách xe");
+        const res = await carEVAPI.getAll({
+          pageNumber: 1,
+          pageSize: 200,
+          status: "AVAILABLE",
+        });
+        const data = (res.data as any)?.data ?? res.data ?? {};
+        const arr = data.items ?? [];
+        setItems(arr);
+      } catch (e: any) {
+        console.error(
+          "CarEV load error:",
+          e?.response?.status,
+          e?.response?.data,
+          e?.message
+        );
+        setError(
+          e?.response?.data?.message ??
+            e?.message ??
+            "Không thể tải danh sách xe"
+        );
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
-  const vms: CarCardVM[] = useMemo(
-    () => models.map((m) => toCarCardVM(m, undefined, manuMap)),
-    [models, manuMap]
-  );
+  const filteredEvs = useMemo(() => {
+    const loc = (filters.province || searchForm.location || "").trim();
+    const seatSet = new Set((filters.seat ?? []).map(Number));
 
-  const isLoading = loading || manuLoading;
-  const firstError = error || manuError;
+    let arr = items.filter((x) => x.status === "AVAILABLE");
 
-  if (isLoading) {
+    if (loc) {
+      arr = arr.filter((x) => (x.depot?.province ?? "") === loc);
+    }
+    if (seatSet.size > 0) {
+      arr = arr.filter((x) => seatSet.has(Number(x.model.seats ?? 0)));
+    }
+    if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
+      arr = arr.filter((x) => {
+        const price = Number(x.model.price ?? 0);
+        const minOk =
+          filters.minPrice !== undefined ? price >= filters.minPrice! : true;
+        const maxOk =
+          filters.maxPrice !== undefined ? price <= filters.maxPrice! : true;
+        return minOk && maxOk;
+      });
+    }
+    if (filters.manufacture) {
+      arr = arr.filter(
+        (x) => (x.model.manufacturerCarId ?? "") === filters.manufacture
+      );
+    }
+    if (filters.sale !== undefined) {
+      arr = arr.filter((x) => {
+        const d = Number(x.model.sale ?? 0);
+        return filters.sale ? d > 0 : d === 0;
+      });
+    }
+    if (filters.dailyKmLimit !== undefined) {
+      arr = arr.filter(
+        (x) => Number(x.model.limiteDailyKm ?? 0) >= filters.dailyKmLimit!
+      );
+    }
+
+    // TODO: filter theo ngày start/end nếu có rule “đang bận” (FE/BE sẽ bổ sung)
+    return arr;
+  }, [items, filters, searchForm]);
+
+  // 3) Gom nhóm thành card Model
+  const cards: CarCardVM[] = useMemo(() => {
+    const hasLocation = !!(filters.province || searchForm.location);
+    // Có chọn location => gom theo modelId (mỗi model 1 card)
+    // Không chọn location => gom theo modelId + province (tránh gộp SG với HN)
+    return groupCarEvsToCards(filteredEvs, !hasLocation ? true : false);
+  }, [filteredEvs, filters, searchForm]);
+
+  if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {Array.from({ length: 8 }).map((_, i) => (
@@ -68,57 +120,13 @@ export default function CarResult({ filters, searchForm }: Props) {
       </div>
     );
   }
-
-  if (firstError) {
-    return <div className="text-center text-red-500 mt-8">{firstError}</div>;
-  }
-
-  let filtered = [...vms];
-
-  if (filters.seat?.length) {
-    const selected = new Set(filters.seat.map((s) => Number(s)));
-    filtered = filtered.filter((c) => selected.has(Number(c.seats)));
-  }
-
-  if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
-    filtered = filtered.filter((c) => {
-      const price = c.pricePerDay;
-      const minOk =
-        filters.minPrice !== undefined ? price >= filters.minPrice! : true;
-      const maxOk =
-        filters.maxPrice !== undefined ? price <= filters.maxPrice! : true;
-      return minOk && maxOk;
-    });
-  }
-
-  if (filters.manufacture) {
-    const id = filters.manufacture;
-    filtered = filtered.filter((c) => (c.manufactureId ?? "") === id);
-  }
-
-  if (filters.province) {
-    filtered = filtered.filter((c) => (c.province ?? "") === filters.province);
-  }
-
-  if (filters.sale !== undefined) {
-    filtered = filtered.filter((c) => {
-      const d = c.discount ?? 0;
-      return filters.sale ? d > 0 : d === 0;
-    });
-  }
-
-  if (filters.dailyKmLimit !== undefined) {
-    filtered = filtered.filter(
-      (c) => (c.dailyKmLimit ?? 0) >= filters.dailyKmLimit!
-    );
-  }
+  if (error)
+    return <div className="text-center text-red-500 mt-8">{error}</div>;
 
   return (
     <div className="max-w-7xl mx-auto px-4 mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {filtered.length > 0 ? (
-        filtered.map((c) => (
-          <CarCard key={c.id} car={c} searchForm={searchForm} />
-        ))
+      {cards.length > 0 ? (
+        cards.map((c) => <CarCard key={c.id} car={c} searchForm={searchForm} />)
       ) : (
         <div className="col-span-full text-center py-10 text-slate-500">
           Không tìm thấy xe phù hợp

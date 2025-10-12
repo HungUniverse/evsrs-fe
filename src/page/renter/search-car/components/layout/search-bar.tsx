@@ -28,6 +28,7 @@ type SearchForm = {
 type Props = {
   onSearch?: (values: SearchForm) => void;
 };
+const PROVINCES = ["TP. Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Cần Thơ"];
 export default function SearchBar({ onSearch }: Props) {
   const [form, setForm] = useState<SearchForm>({
     location: "TP. Hồ Chí Minh",
@@ -65,18 +66,11 @@ export default function SearchBar({ onSearch }: Props) {
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectItem value="TP. Hồ Chí Minh">
-                    TP. Hồ Chí Minh
-                  </SelectItem>
-                  <SelectItem className="text-md" value="Hà Nội">
-                    Hà Nội
-                  </SelectItem>
-                  <SelectItem className="text-md" value="Đà Nẵng">
-                    Đà Nẵng
-                  </SelectItem>
-                  <SelectItem className="text-md" value="Cần Thơ">
-                    Cần Thơ
-                  </SelectItem>
+                  {PROVINCES.map((p) => (
+                    <SelectItem key={p} value={p}>
+                      {p}
+                    </SelectItem>
+                  ))}
                 </SelectGroup>
               </SelectContent>
             </Select>

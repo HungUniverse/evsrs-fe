@@ -9,7 +9,7 @@ export const modelAPI = {
       params: { pageNumber, pageSize },
     }),
   getById: async (id: string): Promise<Model> => {
-    const res = await api.get<ItemBaseResponse<Model>>(`api/Model/${id}`);
+    const res = await api.get<ItemBaseResponse<Model>>(`/api/Model/${id}`);
     return res.data.data;
   },
 };
