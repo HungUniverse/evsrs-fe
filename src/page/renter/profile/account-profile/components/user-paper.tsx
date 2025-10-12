@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Pencil, X, CheckCircle2, CircleAlert, Upload, Eye, X as XIcon } from "lucide-react";
 import { toast } from "sonner";
+import { identifyDocumentAPI, type IdentifyDocumentRequest } from "@/apis/identify-document.api";
 
 type PaperStatus = "unverified" | "pending" | "verified";
 
@@ -22,6 +23,8 @@ export default function UserPaper() {
     address: "",
     issueDate: "",
     expiryDate: "",
+    licenseClass: "B1", // Mặc định B1
+    countryCode: "VN", // Mặc định Việt Nam
     frontImage: null as File | null, // ảnh mặt trước
     backImage: null as File | null, // ảnh mặt sau
   });
@@ -33,13 +36,72 @@ export default function UserPaper() {
   }
 
   async function onSave() {
+    if (!user?.userId) {
+      toast.error("Không tìm thấy thông tin người dùng");
+      return;
+    }
+
+    // Validation
+    if (!form.licenseNumber.trim()) {
+      toast.error("Vui lòng nhập số giấy phép lái xe");
+      return;
+    }
+    if (!form.fullName.trim()) {
+      toast.error("Vui lòng nhập họ và tên");
+      return;
+    }
+    if (!form.expiryDate) {
+      toast.error("Vui lòng nhập ngày hết hạn");
+      return;
+    }
+    if (!form.frontImage || !form.backImage) {
+      toast.error("Vui lòng tải lên đầy đủ ảnh mặt trước và mặt sau");
+      return;
+    }
+
     try {
-      await new Promise((r) => setTimeout(r, 400));
-      toast.success("Đã lưu giấy tờ");
-      setEdit(false);
-      setStatus("pending");
-    } catch {
-      toast.error("Lưu thất bại, thử lại sau");
+      const requestData: IdentifyDocumentRequest = {
+        userId: user.userId,
+        type: "gplx", // Sử dụng "gplx" thay vì "DRIVING_LICENSE"
+        countryCode: form.countryCode,
+        numberMasked: form.licenseNumber,
+        licenseClass: form.licenseClass,
+        expireAt: new Date(form.expiryDate),
+        status: "PENDING",
+        note: `Họ tên: ${form.fullName}, CCCD: ${form.cccd}, Địa chỉ: ${form.address}, Ngày cấp: ${form.issueDate}`,
+      };
+
+      const response = await identifyDocumentAPI.upload(requestData);
+      
+      // Kiểm tra response success
+      if (response.code === "SUCCESS" && response.statusCode === 201) {
+        toast.success(response.message || "Đã gửi giấy tờ để xác thực");
+        setEdit(false);
+        setStatus("pending");
+        
+        // Reset form sau khi lưu thành công
+        setForm({
+          licenseNumber: "",
+          cccd: "",
+          fullName: user?.name ?? "",
+          dob: "",
+          address: "",
+          issueDate: "",
+          expiryDate: "",
+          licenseClass: "B1",
+          countryCode: "VN",
+          frontImage: null,
+          backImage: null,
+        });
+      } else {
+        toast.error(response.message || "Lưu thất bại, thử lại sau");
+      }
+    } catch (error: unknown) {
+      console.error("Upload error:", error);
+      const errorMessage = 
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 
+        "Lưu thất bại, thử lại sau";
+      toast.error(errorMessage);
     }
   }
 
@@ -73,6 +135,8 @@ export default function UserPaper() {
                   address: "",
                   issueDate: "",
                   expiryDate: "",
+                  licenseClass: "B1",
+                  countryCode: "VN",
                   frontImage: null,
                   backImage: null,
                 });
@@ -116,9 +180,21 @@ export default function UserPaper() {
             disabled={!edit}
           />
           <Field
+            label="Hạng GPLX"
+            value={form.licenseClass}
+            onChange={(v) => onChange("licenseClass", v)}
+            disabled={!edit}
+          />
+          <Field
             label="Số CCCD"
             value={form.cccd}
             onChange={(v) => onChange("cccd", v)}
+            disabled={!edit}
+          />
+          <Field
+            label="Quốc gia"
+            value={form.countryCode}
+            onChange={(v) => onChange("countryCode", v)}
             disabled={!edit}
           />
           <Field
