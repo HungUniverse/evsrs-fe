@@ -11,7 +11,7 @@ export type CarCardVM = {
   pricePerDay: number;
   discount?: number;
   dailyKmLimit?: number;
-
+  province?: string;
   availableCount?: number;
 };
 
@@ -46,34 +46,38 @@ export type CarEvItem = {
 
 export function groupCarEvsToCards(
   carEvs: CarEvItem[],
-  groupByProvince: boolean
+  options?: { groupByProvince?: boolean; currentProvince?: string | null }
 ): CarCardVM[] {
+  const groupByProvince = options?.groupByProvince ?? false;
+  const currentProvince = options?.currentProvince?.trim() || undefined;
+
   const groups = new Map<
     string,
-    { sample: CarEvItem; count: number; province?: string }
+    { m: CarEvItem["model"]; count: number; province?: string }
   >();
 
   for (const ev of carEvs) {
-    const province = ev.depot?.province ?? "";
-    const key = groupByProvince ? `${ev.model.id}|${province}` : ev.model.id;
+    const modelId = ev.model.id;
+    const evProvince = (ev.depot?.province ?? "").trim();
+
+    const key = groupByProvince ? `${modelId}|${evProvince}` : modelId;
+
+    const displayProvince =
+      currentProvince || (groupByProvince ? evProvince : undefined);
 
     if (!groups.has(key)) {
-      groups.set(key, {
-        sample: ev,
-        count: 1,
-        province: groupByProvince ? province : undefined,
-      });
+      groups.set(key, { m: ev.model, count: 1, province: displayProvince });
     } else {
       const g = groups.get(key)!;
       g.count += 1;
+      if (!g.province && displayProvince) g.province = displayProvince;
     }
   }
 
-  const results: CarCardVM[] = [];
-  groups.forEach(({ sample, count, province }, key) => {
-    const m = sample.model;
-    results.push({
-      id: key,
+  return Array.from(groups, ([id, g]) => {
+    const m = g.m;
+    return {
+      id,
       modelId: m.id,
       modelName: m.modelName,
       manufactureId: m.manufacturerCarId,
@@ -82,9 +86,8 @@ export function groupCarEvsToCards(
       pricePerDay: Number(m.price ?? 0) || 0,
       discount: m.sale ? Number(m.sale) : undefined,
       dailyKmLimit: m.limiteDailyKm ? Number(m.limiteDailyKm) : undefined,
-      availableCount: count,
-    });
+      province: g.province,
+      availableCount: g.count,
+    };
   });
-
-  return results;
 }

@@ -34,7 +34,6 @@ export function useManufactures() {
     })();
   }, []);
 
-  // array options cho Modal: id, name, logoUrl đã chuẩn hóa
   const list = useMemo(
     () =>
       Array.from(map.values()).map((x: any) => ({

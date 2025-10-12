@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,38 +17,43 @@ import { Label } from "@/components/ui/label";
 import { vnd } from "@/lib/utils/currency";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
+import type { Model } from "@/@types/car/model";
 
 type Props = {
-  car: Car;
-  searchForm: {
-    location: string;
-    start: string;
-    end: string;
-  };
+  car: Model;
+  searchForm: { location: string; start: string; end: string };
 };
 
 export default function BookingForm({ car, searchForm }: Props) {
-  const [selectedDepot, setSelectedDepot] = useState<string>("");
+  const [selectedDepotId, setSelectedDepotId] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { deposit } = useBookingCalc(
-    car.pricePerDay,
+    car.price,
     searchForm.start,
-    searchForm.end
+    searchForm.end,
+    car.sale
   );
   const navigate = useNavigate();
+
+  const canSubmit = useMemo(
+    () => !!selectedDepotId && !!paymentMethod && !isSubmitting,
+    [selectedDepotId, paymentMethod, isSubmitting]
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canSubmit) return;
     setIsSubmitting(true);
 
     try {
       navigate("/payment", {
         state: {
           amount: deposit,
-          car,
-          depot: selectedDepot,
+          model: car,
+          depotId: selectedDepotId,
           paymentMethod,
           notes,
           searchForm,
@@ -81,8 +86,9 @@ export default function BookingForm({ car, searchForm }: Props) {
                 <h3 className="text-lg font-semibold mb-4">Nơi nhận xe</h3>
                 <AddressSelect
                   province={searchForm.location}
-                  value={selectedDepot}
-                  onChange={setSelectedDepot}
+                  modelId={car.id} // quan trọng
+                  value={selectedDepotId}
+                  onChange={setSelectedDepotId}
                 />
               </div>
 
@@ -96,13 +102,12 @@ export default function BookingForm({ car, searchForm }: Props) {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="bank-transfer">
-                      Chuyển khoản ngân hàng(SePay)
+                      Chuyển khoản ngân hàng (SePay)
                     </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* Notes */}
               <div className="space-y-2">
                 <label className="text-sm text-slate-600">Ghi chú</label>
                 <Input
@@ -123,7 +128,6 @@ export default function BookingForm({ car, searchForm }: Props) {
                     </a>
                   </Label>
                 </div>
-
                 <div className="flex items-start space-x-2">
                   <Checkbox id="privacy" required />
                   <Label htmlFor="privacy" className="text-sm text-slate-600">
@@ -137,21 +141,24 @@ export default function BookingForm({ car, searchForm }: Props) {
 
               <Button
                 type="submit"
-                disabled={!selectedDepot || !paymentMethod || isSubmitting}
+                disabled={!canSubmit}
                 className="w-full h-14 text-lg bg-blue-600 hover:bg-blue-700"
               >
                 {isSubmitting
                   ? "Đang xử lý..."
-                  : `Thanh toán ${vnd(deposit)}Vnd`}
+                  : `Thanh toán ${vnd(deposit)} VND`}
               </Button>
             </form>
           </div>
 
           <div className="bg-gray-50 p-6">
+            {/* PaymentSection không cần mock depot nữa */}
             <PaymentSection
               car={car}
               searchForm={searchForm}
-              depotMapId={selectedDepot}
+              depotId={selectedDepotId}
+              // Nếu muốn hiện tên depot ngay: có thể truyền mảng depots từ AddressSelect,
+              // nhưng để đơn giản, PaymentSection chỉ hiển thị tỉnh + ID depot khi đã chọn.
             />
           </div>
         </div>
