@@ -155,12 +155,18 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
     //Edit data
     const handleEdit = (record: BaseRecord) => {
         setSelectedRecord(record);
-        setOpen(true);
 
-        // Set form values
-        Object.keys(record).forEach((key) => {
-            setValue(key, record[key]);
-        });
+        // Reset form first to clear any previous data
+        reset();
+
+        // Set form values after a short delay to ensure form is reset
+        setTimeout(() => {
+            Object.keys(record).forEach((key) => {
+                setValue(key, record[key]);
+            });
+        }, 0);
+
+        setOpen(true);
     };
 
     //Delete data
@@ -263,7 +269,7 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
                             </TableRow>
                         ) : (
                             data.map((record, index) => (
-                                <TableRow key={record.id || record.Id || index}>
+                                <TableRow key={String(record.id || record.Id || `row-${index}`)}>
                                     {columns.map((column) => (
                                         <TableCell key={column.key}>
                                             {column.render
@@ -301,7 +307,13 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
             </div>
 
             {/* Create/Edit Dialog */}
-            <Dialog open={open} onOpenChange={setOpen}>
+            <Dialog open={open} onOpenChange={(openState) => {
+                if (!openState) {
+                    closeDialog();
+                } else {
+                    setOpen(openState);
+                }
+            }}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                         <DialogTitle>

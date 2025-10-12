@@ -1,9 +1,9 @@
 import HttpStatusCode from "@/lib/utils/httpStatusCode.enum";
 
 export interface ItemBaseResponse<T> {
-  statusCode: HttpStatusCode;
-  message: string;
   data: T;
+  message: string;
+  statusCode: HttpStatusCode;
   code: string;
 }
 

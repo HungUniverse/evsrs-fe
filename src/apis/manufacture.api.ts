@@ -8,6 +8,11 @@ export type CreateCarManufactureRequest = {
   logo: string;
 };
 
+export type UpdateCarManufactureRequest = {
+  name: string;
+  logo: string;
+};
+
 export const CarManufactureAPI = {
   getAll: (pageNumber = 1, pageSize = 10) =>
     api.get<ItemBaseResponse<PaginationResponse<CarManufacture>>>(
@@ -28,5 +33,15 @@ export const CarManufactureAPI = {
       data
     );
     return res.data.data;
+  },
+  update: async (id: string, data: UpdateCarManufactureRequest): Promise<CarManufacture> => {
+    const res = await api.put<ItemBaseResponse<CarManufacture>>(
+      `api/CarManufacture/${id}`,
+      data
+    );
+    return res.data.data;
+  },
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`api/CarManufacture/${id}`);
   },
 };

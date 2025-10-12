@@ -36,27 +36,27 @@ const CarManufacturePage: React.FC = () => {
       key: "CreatedAt",
       title: "Created At",
       dataIndex: "createdAt",
-      render: (value: unknown) => new Date(value as string).toLocaleDateString(),
+      render: (value: unknown) => new Date(value as string).toLocaleString(),
     },
     {
       key: "UpdatedAt",
       title: "Updated At",
       dataIndex: "updatedAt",
-      render: (value: unknown) => new Date(value as string).toLocaleDateString(),
+      render: (value: unknown) => new Date(value as string).toLocaleString(),
     },
   ];
 
   // Define form fields
   const formItems = [
     {
-      name: "Name",
+      name: "name",
       label: "Manufacturer Name",
       type: "text" as const,
       required: true,
       placeholder: "Enter manufacturer name",
     },
     {
-      name: "Logo",
+      name: "logo",
       label: "Logo URL",
       type: "text" as const,
       required: false,
