@@ -83,4 +83,10 @@ export const identifyDocumentAPI = {
     const response = await api.delete<ItemBaseResponse<void>>(`/api/IdentifyDocument/${id}`);
     return response.data;
   },
+
+  // Cập nhật trạng thái giấy tờ
+  updateStatus: async (id: string, data: { status: "APPROVED" | "REJECTED"; note?: string }): Promise<ItemBaseResponse<IdentifyDocumentResponse>> => {
+    const response = await api.patch<ItemBaseResponse<IdentifyDocumentResponse>>(`/api/IdentifyDocument/${id}/status`, data);
+    return response.data;
+  },
 };

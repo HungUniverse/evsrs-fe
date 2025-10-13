@@ -2,13 +2,15 @@
 export type User = {
   id: string;
   userName: string;
-  password: string;
-  fullName: string;
-  email: string;
-  dob: string; // ISO string "YYYY-MM-DD"
+  userEmail: string;
   phoneNumber: string;
-  profilePicture: string;
-  role: number;
-  cccd: string;
-  gplx: string;
+  fullName: string;
+  role: "ADMIN" | "USER" | "STAFF";
+  isVerify: boolean;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string | null;
+  updatedBy: string | null;
+  isDeleted: boolean;
+
 };
