@@ -1,45 +1,51 @@
+import { useMemo } from "react";
 import { useBookingCalc } from "@/hooks/use-booking-car-cal";
-import type { Car } from "@/@types/car";
-import { mockDepots } from "@/mockdata/mock-location";
-
 import { vnd } from "@/lib/utils/currency";
+import type { Model } from "@/@types/car/model";
+
+type DepotLite = {
+  id: string;
+  name: string;
+  province?: string;
+  district?: string;
+  street?: string;
+};
 
 type Props = {
-  car: Car;
-  searchForm: {
-    location: string;
-    start: string;
-    end: string;
-  };
-  depotMapId?: string;
+  car: Model;
+  searchForm: { location: string; start: string; end: string };
+  depotId?: string;
+  depots?: DepotLite[];
 };
 
 export default function PaymentSection({
   car,
   searchForm,
-  depotMapId,
+  depotId,
+  depots,
 }: Props) {
   const { days, baseTotal, deposit, salePrice } = useBookingCalc(
-    car.pricePerDay,
+    car.price,
     searchForm.start,
     searchForm.end,
-    car.discount
+    car.sale
   );
 
-  const depot = depotMapId
-    ? mockDepots.find((d) => d.mapId === depotMapId)
-    : undefined;
+  const depot = useMemo(
+    () => (depots ?? []).find((d) => d.id === depotId),
+    [depots, depotId]
+  );
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <div className="font-semibold text-lg">{car.name}</div>
+          <div className="font-semibold text-lg">{car.modelName}</div>
         </div>
         {car.image && (
           <img
             src={car.image}
-            alt={car.name}
+            alt={car.modelName}
             className="w-60 h-40 object-cover rounded-lg"
           />
         )}
@@ -47,7 +53,7 @@ export default function PaymentSection({
 
       <div className="bg-white rounded-lg border p-4 space-y-2">
         <div className="font-medium text-gray-900">
-          {depot ? depot.province : searchForm.location}
+          {depot?.province || searchForm.location}
         </div>
         <div className="text-sm text-gray-600">
           {days} ngày •{" "}
@@ -81,18 +87,17 @@ export default function PaymentSection({
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">Cước phí niêm yết</span>
             <span className="text-sm">
-              {" "}
-              {car.discount && car.discount > 0 ? (
+              {car.sale && car.sale > 0 ? (
                 <div className="text-sm">
                   <span className="line-through text-gray-400 mr-2">
-                    {vnd(car.pricePerDay)}₫
+                    {vnd(car.price)}₫
                   </span>
                   <span className="text-red-600 font-medium">
-                    {vnd(salePrice)}₫ (-{car.discount}%)
+                    {vnd(salePrice)}₫ (-{car.sale}%)
                   </span>
                 </div>
               ) : (
-                <span className="text-sm">{vnd(car.pricePerDay)}₫</span>
+                <span className="text-sm">{vnd(car.sale)}₫</span>
               )}
             </span>
           </div>

@@ -15,7 +15,7 @@ export default function UserInfo() {
         </div>
         <div>
           <label className="text-sm text-slate-600">Số điện thoại *</label>
-          <Input value={user?.phoneNumber ?? ""} readOnly />
+          <Input value={user?.phone ?? ""} readOnly />
         </div>
         <div>
           <label className="text-sm text-slate-600">Email *</label>
