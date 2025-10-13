@@ -6,42 +6,148 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Pencil, X, CheckCircle2, CircleAlert, Upload, Eye, X as XIcon } from "lucide-react";
 import { toast } from "sonner";
+import { identifyDocumentAPI, type IdentifyDocumentRequest, type IdentifyDocumentResponse } from "@/apis/identify-document.api";
+import { useEffect } from "react";
 
-type PaperStatus = "unverified" | "pending" | "verified";
+type PaperStatus = "pending" | "approved" | "rejected";
+
+//Hàm upload ảnh lên Cloudinary
+async function uploadImageToCloudinary(file: File): Promise<string> {
+  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME as string;
+  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET as string;
+
+  if (!cloudName || !uploadPreset) {
+    throw new Error("Cloudinary config missing (VITE_CLOUDINARY_CLOUD_NAME / VITE_CLOUDINARY_UPLOAD_PRESET)");
+  }
+
+  const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", uploadPreset);
+
+  const res = await fetch(url, { method: "POST", body: formData });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Cloudinary upload failed: ${text}`);
+  }
+  const data = await res.json();
+  if (!data?.secure_url) {
+    throw new Error("Cloudinary response missing secure_url");
+  }
+  return data.secure_url as string;
+}
 
 export default function UserPaper() {
   const { user, isAuthenticated } = useAuthStore();
   const [edit, setEdit] = useState(false);
-  const [status, setStatus] = useState<PaperStatus>("unverified");
+  const [status, setStatus] = useState<PaperStatus>("pending");
 
   const [form, setForm] = useState({
     licenseNumber: "",
-    cccd: "",
     fullName: user?.name ?? "",
-    dob: "",
-    address: "",
-    issueDate: "",
     expiryDate: "",
+    licenseClass: "B1", // Mặc định B1
+    countryCode: "VN", // Mặc định Việt Nam
     frontImage: null as File | null, // ảnh mặt trước
     backImage: null as File | null, // ảnh mặt sau
   });
+  const [initialImages, setInitialImages] = useState<{ front?: string | null; back?: string | null }>({});
+  const [savedForm, setSavedForm] = useState<typeof form | null>(null);
+  const [savedImages, setSavedImages] = useState<{ front?: string | null; back?: string | null } | null>(null);
 
-  if (!isAuthenticated) return null;
+  
 
   function onChange<K extends keyof typeof form>(key: K, val: string | File | null) {
     setForm((s) => ({ ...s, [key]: val }));
   }
 
+  //Hàm upload giấy tờ lên server(qua API)
   async function onSave() {
+    if (!user?.userId) {
+      toast.error("Không tìm thấy thông tin người dùng");
+      return;
+    }
+
+    // Validation
+    if (!form.licenseNumber.trim()) {
+      toast.error("Vui lòng nhập số giấy phép lái xe");
+      return;
+    }
+    if (!form.fullName.trim()) {
+      toast.error("Vui lòng nhập họ và tên");
+      return;
+    }
+    if (!form.expiryDate) {
+      toast.error("Vui lòng nhập ngày hết hạn");
+      return;
+    }
+    if (!form.frontImage || !form.backImage) {
+      toast.error("Vui lòng tải lên đầy đủ ảnh mặt trước và mặt sau");
+      return;
+    }
+
     try {
-      await new Promise((r) => setTimeout(r, 400));
-      toast.success("Đã lưu giấy tờ");
-      setEdit(false);
-      setStatus("pending");
-    } catch {
-      toast.error("Lưu thất bại, thử lại sau");
+      const [frontUrl, backUrl] = await Promise.all([
+        uploadImageToCloudinary(form.frontImage),
+        uploadImageToCloudinary(form.backImage),
+      ]);
+
+      const requestData: IdentifyDocumentRequest = {
+        userId: user.userId,
+        frontImage: frontUrl,
+        backImage: backUrl,
+        countryCode: form.countryCode,
+        numberMasked: form.licenseNumber,
+        licenseClass: form.licenseClass,
+        expireAt: new Date(form.expiryDate).toISOString(),
+        status: "PENDING",
+        note: `Họ tên: ${form.fullName}`,
+      };
+
+      const response = await identifyDocumentAPI.upload(requestData);
+      
+      // Kiểm tra response success
+      if (response.code === "SUCCESS" && response.statusCode === 201) {
+        toast.success(response.message || "Đã gửi giấy tờ để xác thực");
+        setEdit(false);
+        setStatus("pending");
+      } else {
+        toast.error(response.message || "Lưu thất bại, thử lại sau");
+      }
+    } catch (error: unknown) {
+      console.error("Upload error:", error);
+      const errorMessage = 
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 
+        "Lưu thất bại, thử lại sau";
+      toast.error(errorMessage);
     }
   }
+
+  // Load user documents and prefill
+  useEffect(() => {
+    const load = async () => {
+      if (!user?.userId) return;
+      try {
+        const res = await identifyDocumentAPI.getUserDocuments(user.userId);
+        const latest = res.data as IdentifyDocumentResponse;
+        if (!latest) return;
+        setStatus(latest.status === "APPROVED" ? "approved" : latest.status === "PENDING" ? "pending" : "rejected");
+        setForm((s) => ({
+          ...s,
+          licenseNumber: latest.numberMasked || "",
+          licenseClass: latest.licenseClass || s.licenseClass,
+          countryCode: latest.countryCode || s.countryCode,
+          expiryDate: latest.expireAt ? new Date(latest.expireAt).toISOString().slice(0, 10) : s.expiryDate,
+        }));
+        setInitialImages({ front: latest.frontImage ?? null, back: latest.backImage ?? null });
+      } catch {
+        // silent
+      }
+    };
+    load();
+  }, [user?.userId]);
+
+  if (!isAuthenticated) return null;
 
   return (
     <section className="rounded-xl border bg-white">
@@ -52,7 +158,11 @@ export default function UserPaper() {
         </div>
 
         {!edit ? (
-          <Button variant="outline" size="sm" onClick={() => setEdit(true)}>
+          <Button variant="outline" size="sm" onClick={() => {
+            setSavedForm(form);
+            setSavedImages(initialImages);
+            setEdit(true);
+          }}>
             <Pencil className="mr-2 h-4 w-4" /> Chỉnh sửa
           </Button>
         ) : (
@@ -64,18 +174,9 @@ export default function UserPaper() {
               variant="outline"
               size="sm"
               onClick={() => {
+                if (savedForm) setForm(savedForm);
+                if (savedImages) setInitialImages(savedImages);
                 setEdit(false);
-                setForm({
-                  licenseNumber: "",
-                  cccd: "",
-                  fullName: user?.name ?? "",
-                  dob: "",
-                  address: "",
-                  issueDate: "",
-                  expiryDate: "",
-                  frontImage: null,
-                  backImage: null,
-                });
               }}
             >
               <X className="mr-2 h-4 w-4" /> Hủy
@@ -99,12 +200,16 @@ export default function UserPaper() {
             file={form.frontImage}
             onChange={(file) => onChange("frontImage", file)}
             disabled={!edit}
+            initialUrl={initialImages.front || null}
+            onRemove={() => setInitialImages((s) => ({ ...s, front: null }))}
           />
           <ImageUpload
             label="Mặt sau GPLX"
             file={form.backImage}
             onChange={(file) => onChange("backImage", file)}
             disabled={!edit}
+            initialUrl={initialImages.back || null}
+            onRemove={() => setInitialImages((s) => ({ ...s, back: null }))}
           />
         </div>
 
@@ -116,35 +221,21 @@ export default function UserPaper() {
             disabled={!edit}
           />
           <Field
-            label="Số CCCD"
-            value={form.cccd}
-            onChange={(v) => onChange("cccd", v)}
+            label="Hạng GPLX"
+            value={form.licenseClass}
+            onChange={(v) => onChange("licenseClass", v)}
+            disabled={!edit}
+          />
+          <Field
+            label="Quốc gia"
+            value={form.countryCode}
+            onChange={(v) => onChange("countryCode", v)}
             disabled={!edit}
           />
           <Field
             label="Họ và tên"
             value={form.fullName}
             onChange={(v) => onChange("fullName", v)}
-            disabled={!edit}
-          />
-          <Field
-            label="Ngày sinh"
-            type="date"
-            value={form.dob}
-            onChange={(v) => onChange("dob", v)}
-            disabled={!edit}
-          />
-          <Field
-            label="Địa chỉ"
-            value={form.address}
-            onChange={(v) => onChange("address", v)}
-            disabled={!edit}
-          />
-          <Field
-            label="Ngày cấp"
-            type="date"
-            value={form.issueDate}
-            onChange={(v) => onChange("issueDate", v)}
             disabled={!edit}
           />
           <Field
@@ -162,9 +253,9 @@ export default function UserPaper() {
 
 function StatusPill({ status }: { status: PaperStatus }) {
   const map = {
-    unverified: { text: "Chưa xác thực", cls: "bg-slate-100 text-slate-700" },
     pending: { text: "Đang chờ duyệt", cls: "bg-amber-100 text-amber-800" },
-    verified: { text: "Đã xác thực", cls: "bg-emerald-100 text-emerald-800" },
+    approved: { text: "Đã xác thực", cls: "bg-emerald-100 text-emerald-800" },
+    rejected: { text: "Đã từ chối", cls: "bg-red-100 text-red-800" },
   } as const;
   const it = map[status];
   return (
@@ -177,11 +268,15 @@ function ImageUpload({
   file,
   onChange,
   disabled,
+  initialUrl,
+  onRemove,
 }: {
   label: string;
   file: File | null;
   onChange?: (file: File | null) => void;
   disabled?: boolean;
+  initialUrl?: string | null;
+  onRemove?: () => void;
 }) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -237,6 +332,7 @@ function ImageUpload({
       URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
     }
+    onRemove?.();
   };
 
   const handleClick = (e: React.MouseEvent) => {
@@ -247,18 +343,20 @@ function ImageUpload({
     }
   };
 
+  const effectivePreview = previewUrl || initialUrl || null;
+
   return (
     <div>
       <Label className="text-xs text-slate-500">{label}</Label>
       <div className="mt-1">
-        {file || previewUrl ? (
+        {file || effectivePreview ? (
           <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-gray-600">
                 {file?.name || "Ảnh đã tải lên"}
               </span>
               <div className="flex gap-2">
-                {previewUrl && (
+                {effectivePreview && (
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button variant="outline" size="sm">
@@ -267,7 +365,7 @@ function ImageUpload({
                     </DialogTrigger>
                     <DialogContent className="max-w-4xl">
                       <img 
-                        src={previewUrl} 
+                        src={effectivePreview} 
                         alt={label}
                         className="w-full h-auto rounded-lg"
                       />
@@ -285,9 +383,9 @@ function ImageUpload({
                 )}
               </div>
             </div>
-            {previewUrl && (
+            {effectivePreview && (
               <img 
-                src={previewUrl} 
+                src={effectivePreview} 
                 alt={label}
                 className="w-full h-32 object-cover rounded border"
               />
