@@ -10,14 +10,15 @@ export interface ApiResponse<T> {
 
 export interface IdentifyDocumentRequest {
   userId: string;
-  type: string;
+  frontImage: string; // base64
+  backImage: string;  // base64
   countryCode: string;
   numberMasked: string;
   licenseClass: string;
-  expireAt: Date;
+  expireAt: string; // ISO 8601
   status: "PENDING" | "VERIFIED" | "REJECTED";
   verifiedBy?: string;
-  verifiedAt?: Date;
+  verifiedAt?: string; // ISO 8601
   note?: string;
 }
 
@@ -40,12 +41,6 @@ export interface IdentifyDocumentResponse {
   isDeleted: boolean;
 }
 
-export interface ApiResponse<T> {
-  data: T;
-  message: string;
-  statusCode: number;
-  code: string;
-}
 
 export const identifyDocumentAPI = {
   // Upload giấy tờ định danh

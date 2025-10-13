@@ -10,6 +10,32 @@ import { identifyDocumentAPI, type IdentifyDocumentRequest } from "@/apis/identi
 
 type PaperStatus = "unverified" | "pending" | "verified";
 
+//Hàm upload ảnh lên Cloudinary
+async function uploadImageToCloudinary(file: File): Promise<string> {
+  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME as string;
+  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET as string;
+
+  if (!cloudName || !uploadPreset) {
+    throw new Error("Cloudinary config missing (VITE_CLOUDINARY_CLOUD_NAME / VITE_CLOUDINARY_UPLOAD_PRESET)");
+  }
+
+  const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", uploadPreset);
+
+  const res = await fetch(url, { method: "POST", body: formData });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Cloudinary upload failed: ${text}`);
+  }
+  const data = await res.json();
+  if (!data?.secure_url) {
+    throw new Error("Cloudinary response missing secure_url");
+  }
+  return data.secure_url as string;
+}
+
 export default function UserPaper() {
   const { user, isAuthenticated } = useAuthStore();
   const [edit, setEdit] = useState(false);
@@ -35,6 +61,7 @@ export default function UserPaper() {
     setForm((s) => ({ ...s, [key]: val }));
   }
 
+  //Hàm upload giấy tờ lên server(qua API)
   async function onSave() {
     if (!user?.userId) {
       toast.error("Không tìm thấy thông tin người dùng");
@@ -60,13 +87,19 @@ export default function UserPaper() {
     }
 
     try {
+      const [frontUrl, backUrl] = await Promise.all([
+        uploadImageToCloudinary(form.frontImage),
+        uploadImageToCloudinary(form.backImage),
+      ]);
+
       const requestData: IdentifyDocumentRequest = {
         userId: user.userId,
-        type: "gplx", // Sử dụng "gplx" thay vì "DRIVING_LICENSE"
+        frontImage: frontUrl,
+        backImage: backUrl,
         countryCode: form.countryCode,
         numberMasked: form.licenseNumber,
         licenseClass: form.licenseClass,
-        expireAt: new Date(form.expiryDate),
+        expireAt: new Date(form.expiryDate).toISOString(),
         status: "PENDING",
         note: `Họ tên: ${form.fullName}, CCCD: ${form.cccd}, Địa chỉ: ${form.address}, Ngày cấp: ${form.issueDate}`,
       };
@@ -78,21 +111,6 @@ export default function UserPaper() {
         toast.success(response.message || "Đã gửi giấy tờ để xác thực");
         setEdit(false);
         setStatus("pending");
-        
-        // Reset form sau khi lưu thành công
-        setForm({
-          licenseNumber: "",
-          cccd: "",
-          fullName: user?.name ?? "",
-          dob: "",
-          address: "",
-          issueDate: "",
-          expiryDate: "",
-          licenseClass: "B1",
-          countryCode: "VN",
-          frontImage: null,
-          backImage: null,
-        });
       } else {
         toast.error(response.message || "Lưu thất bại, thử lại sau");
       }
