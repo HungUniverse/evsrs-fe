@@ -6,104 +6,90 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { mockUsers } from "@/mockdata/mock-user";
-import type { User } from "@/@types/customer";
+import { Badge } from "@/components/ui/badge";
+import { UserFullAPI } from "@/apis/user.api";
+import type { UserFull } from "@/@types/auth.type";
 
 type Props = {
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  userId: string | null; // có thể dùng cho lessor hoặc lessee
+  userId: string | null;
 };
 
 export default function UserInfoModal({ open, onOpenChange, userId }: Props) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserFull | null>(null);
   const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!userId) return;
-    setLoading(true);
-
-    // tìm user trong mockUsers theo cccd (vì userId từ Contract.lesseeIdNumber)
-    const found = mockUsers.find((u) => u.cccd === userId);
-
-    // giả lập delay tải dữ liệu
-    setTimeout(() => {
-      setUser(found || null);
-      setLoading(false);
-    }, 400);
-  }, [userId]);
+    let ignore = false;
+    async function run() {
+      if (!open || !userId) return;
+      setLoading(true);
+      setErr(null);
+      try {
+        const u = await UserFullAPI.getById(userId);
+        if (!ignore) setUser(u);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (e: any) {
+        if (!ignore) setErr(e?.message || "Lỗi tải thông tin người dùng");
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    }
+    run();
+    return () => {
+      ignore = true;
+    };
+  }, [open, userId]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl w-[90vw] h-[80vh] p-0 overflow-hidden">
-        <DialogHeader className="border-b p-4">
+      <DialogContent className="max-w-xl p-0 overflow-hidden">
+        <DialogHeader className="px-6 pt-6">
           <DialogTitle>Thông tin người dùng</DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="h-[calc(80vh-64px)] p-6">
+        <ScrollArea className="px-6 pb-6 max-h-[70vh]">
           {loading && (
-            <div className="text-center text-slate-500">
-              Đang tải thông tin...
-            </div>
+            <div className="p-6 text-sm text-slate-500">Đang tải…</div>
           )}
 
-          {!loading && !user && (
-            <div className="text-center text-slate-500">
-              Không tìm thấy người dùng tương ứng.
-            </div>
+          {err && !loading && (
+            <div className="p-6 text-sm text-red-600">{err}</div>
           )}
 
-          {!loading && user && (
-            <div className="space-y-6">
-              {/* Avatar + thông tin cơ bản */}
+          {!loading && !err && user && (
+            <div className="space-y-4">
+              {/* Header */}
               <section className="flex items-center gap-4">
-                <img
-                  src={user.profilePicture}
-                  alt={user.fullName}
-                  className="w-24 h-24 rounded-full border object-cover"
-                />
+                <div className="h-12 w-12 rounded-full bg-slate-200 flex items-center justify-center text-slate-600">
+                  {user.fullName?.[0] ?? user.userName?.[0] ?? "U"}
+                </div>
                 <div>
-                  <div className="text-lg font-semibold">{user.fullName}</div>
-                  <p className="text-sm text-slate-600">{user.email}</p>
-                  <p className="text-sm text-slate-600">{user.phoneNumber}</p>
-                  <p className="text-sm text-slate-600">
-                    Ngày sinh: {user.dob}
-                  </p>
+                  <div className="font-semibold">
+                    {user.fullName || user.userName}
+                  </div>
+                  <div className="text-sm text-slate-500">
+                    Role: {user.role}
+                  </div>
+                  <div className="mt-1">
+                    <Badge variant={user.isVerify ? "default" : "secondary"}>
+                      {user.isVerify ? "Đã xác minh" : "Chưa xác minh"}
+                    </Badge>
+                  </div>
                 </div>
               </section>
 
-              {/* CCCD */}
-              <section className="border rounded-xl p-4 space-y-3">
-                <div className="font-medium text-slate-700">
-                  Căn cước công dân
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <Info label="Số CCCD" value={user.cccd} />
-                  <Info label="Ngày cấp" value="2020-08-12" />
-                  <Info label="Nơi cấp" value="Công an TP.HCM" />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 pt-2">
-                  <ImageBox src="/mock/cccd_front.jpg" label="Mặt trước" />
-                  <ImageBox src="/mock/cccd_back.jpg" label="Mặt sau" />
-                </div>
-              </section>
-
-              {/* GPLX */}
-              <section className="border rounded-xl p-4 space-y-3">
-                <div className="font-medium text-slate-700">
-                  Giấy phép lái xe
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <Info label="Số GPLX" value={user.gplx} />
-                  <Info label="Hạng" value="B2" />
-                  <Info label="Ngày hết hạn" value="2030-01-01" />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 pt-2">
-                  <ImageBox src="/mock/gplx_front.jpg" label="Mặt trước" />
-                  <ImageBox src="/mock/gplx_back.jpg" label="Mặt sau" />
-                </div>
+              {/* Account info */}
+              <section className="border rounded-xl p-4 grid grid-cols-2 gap-4">
+                <Info label="Username" value={user.userName} />
+                <Info label="Email" value={user.userEmail} />
+                <Info label="Phone" value={user.phoneNumber || undefined} />
+                <Info
+                  label="Date of birth"
+                  value={user.dateOfBirth || undefined}
+                />
               </section>
             </div>
           )}
@@ -113,31 +99,11 @@ export default function UserInfoModal({ open, onOpenChange, userId }: Props) {
   );
 }
 
-/* Sub Components */
 function Info({ label, value }: { label: string; value?: string }) {
   return (
     <div>
       <p className="text-sm text-slate-500">{label}</p>
-      <p className="font-medium">{value || "—"}</p>
-    </div>
-  );
-}
-
-function ImageBox({ src, label }: { src?: string; label: string }) {
-  if (!src)
-    return (
-      <div className="border rounded-lg h-40 flex items-center justify-center text-slate-400 text-sm">
-        {label} (Chưa có ảnh)
-      </div>
-    );
-  return (
-    <div className="flex flex-col gap-1">
-      <img
-        src={src}
-        alt={label}
-        className="rounded-lg border h-40 object-cover"
-      />
-      <span className="text-xs text-center text-slate-500">{label}</span>
+      <p className="font-medium">{value ?? "—"}</p>
     </div>
   );
 }

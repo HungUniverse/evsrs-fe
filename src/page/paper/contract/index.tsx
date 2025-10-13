@@ -27,16 +27,13 @@ const Contract: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
-  // load orderBooking để lấy start/end, số tiền... (2 component con cũng tự fetch theo orderId)
   const [order, setOrder] = useState<OrderBookingDetail | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // ký
   const [openSign, setOpenSign] = useState(false);
   const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
   const [savingSignature, setSavingSignature] = useState(false);
 
-  // tạo hợp đồng
   const [creating, setCreating] = useState(false);
   const [createdNumber, setCreatedNumber] = useState<string | null>(null);
 
@@ -49,6 +46,7 @@ const Contract: React.FC = () => {
           `/api/OrderBooking/${orderId}`
         );
         setOrder(res.data.data);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         toast.error("Lỗi tải dữ liệu đơn hàng");
       } finally {

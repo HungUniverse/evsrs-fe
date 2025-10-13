@@ -54,3 +54,4 @@ export type NotificationType =
 // -------------------- RoleCode --------------------
 export type RoleCode = "ADMIN" | "USER" | "STAFF";
 export type IdentifyDocumentStatus = "PENDING" | "APPROVED" | "REJECTED";
+export type HandoverInspectionType = "HANDOVER" | "RETURN";

@@ -23,7 +23,7 @@ export default function DetailPaper({
             className="inline-flex items-center gap-2 text-sm text-sky-700 hover:underline"
           >
             <Paperclip className="h-4 w-4" />
-            Hợp đồng thuê xe
+            Ký hợp đồng thuê xe
           </Link>
         </li>
         <li>

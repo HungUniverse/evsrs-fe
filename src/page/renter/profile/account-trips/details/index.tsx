@@ -21,8 +21,7 @@ export default function TripDetails() {
     (async () => {
       try {
         const res = await orderBookingAPI.getById(orderId);
-        console.log("[TripDetails] API response:", res);
-        console.log("[TripDetails] Booking data:", res.data.data);
+
         setBooking(res.data.data);
       } catch (e) {
         console.error("[TripDetails] getById error:", e);
@@ -38,7 +37,12 @@ export default function TripDetails() {
     return <div className="p-6 text-slate-600">Đang tải dữ liệu…</div>;
   }
   if (error || !booking) {
-    console.log("[TripDetails] Rendering error/not found state. Error:", error, "Booking:", booking);
+    console.log(
+      "[TripDetails] Rendering error/not found state. Error:",
+      error,
+      "Booking:",
+      booking
+    );
     return (
       <div className="p-6">
         <h2 className="text-lg font-semibold mb-2">Không tìm thấy đơn hàng</h2>
@@ -49,7 +53,7 @@ export default function TripDetails() {
   }
 
   console.log("[TripDetails] Rendering success state with booking:", booking);
-  
+
   return (
     <div className="space-y-6">
       <section className="rounded-2xl border bg-white p-5 md:p-6">

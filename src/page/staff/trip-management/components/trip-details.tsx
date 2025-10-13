@@ -1,48 +1,69 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { mockContracts } from "@/mockdata/mock-contract";
-import type { Contract } from "@/@types/contract";
+import { orderBookingAPI } from "@/apis/order-booking.api";
+import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import DetailInformation from "../../../renter/profile/account-trips/details/components/detail-information";
 import StaffDetailPaper from "./detail-paper";
 import DetailPrice from "../../../renter/profile/account-trips/details/components/detail-price";
 
 export default function StaffTripDetails() {
   const { orderId } = useParams<{ orderId: string }>();
-  const contract = (mockContracts as Contract[]).find(
-    (c) => c.orderId === orderId
-  );
+  const [booking, setBooking] = useState<OrderBookingDetail | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!contract) {
+  useEffect(() => {
+    if (!orderId) return;
+    console.log("[StaffTripDetails] Loading order:", orderId);
+    setLoading(true);
+    setError(null);
+    (async () => {
+      try {
+        const res = await orderBookingAPI.getById(orderId);
+        console.log("[StaffTripDetails] API response:", res);
+        setBooking(res.data.data);
+      } catch (e: any) {
+        console.error("[StaffTripDetails] getById error:", e);
+        setError("Không tải được chi tiết đơn hàng");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [orderId]);
+
+  if (loading) {
+    return (
+      <div className="p-6 text-slate-600">Đang tải dữ liệu…</div>
+    );
+  }
+
+  if (error || !booking) {
     return (
       <div className="p-6">
         <h2 className="text-lg font-semibold mb-2">Không tìm thấy đơn hàng</h2>
         <p className="text-slate-600">Order ID: {orderId}</p>
+        {error && <p className="text-red-500 mt-2">Lỗi: {error}</p>}
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Khung chính giống mock */}
       <section className="rounded-2xl border bg-white p-5 md:p-6">
         <div className="text-lg font-semibold mb-4">Chi tiết đơn hàng</div>
 
         <div className="rounded-xl bg-sky-100 px-4 py-3">
           <span className="text-sm">Mã đơn hàng:&nbsp;</span>
-          <span className="font-medium tracking-wide">{contract.orderId}</span>
+          <span className="font-medium tracking-wide">{booking.id}</span>
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[1fr_320px]">
-          <DetailInformation contract={contract} />
-          <StaffDetailPaper orderId={contract.orderId} />
+          <DetailInformation booking={booking} />
+          <StaffDetailPaper orderId={booking.id} />
         </div>
       </section>
 
-      <DetailPrice
-        contract={contract}
-        extras={[{ label: "Phụ phí cuối tuần", unitPrice: 100_000, qty: 1 }]}
-      />
-
-      <div className="pb-4" />
+      <DetailPrice booking={booking} />
     </div>
   );
 }

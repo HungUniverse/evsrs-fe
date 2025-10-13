@@ -1,12 +1,12 @@
-import type { Contract } from "@/@types/contract";
+import type { OrderBookingDetail } from "@/@types/order/order-booking";
+import type { OrderBookingStatus } from "@/@types/enum";
 import {
   TRIP_STATUS_LABEL,
   TRIP_STATUS_PILL,
-  type TripStatus,
 } from "@/lib/constants/trip-status";
 
 type Props = {
-  data: Contract[];
+  data: OrderBookingDetail[];
   onClickCode?: (orderId: string) => void;
   onClickUser?: (userId: string) => void;
 };
@@ -39,69 +39,81 @@ export default function ShowTrip({ data, onClickCode, onClickUser }: Props) {
           </div>
         )}
 
-        {data.map((c) => (
-          <div key={c.orderId} className={`grid ${COLS} text-sm items-center`}>
-            <div className="px-4 py-3">
-              <button
-                className="text-sky-600 hover:underline"
-                onClick={() => onClickCode?.(c.orderId)}
-                title="Xem chi tiết"
-              >
-                {c.orderId}
-              </button>
-            </div>
+        {data.map((booking) => {
+          const modelName = booking.carEvs?.model?.modelName || "—";
+          const userName = booking.user?.name || booking.user?.userName || "—";
+          const depotName = booking.depot?.name || "—";
+          const depotAddress = booking.depot ? 
+            `${booking.depot.street}, ${booking.depot.ward}, ${booking.depot.district}, ${booking.depot.province}` : "—";
 
-            {/* 2. Dòng xe */}
-            <div className="px-4 py-3 text-slate-700">
-              {c.vehicleCode || c.title}
-            </div>
+          console.log("[ShowTrip] Booking user data:", booking.user);
+          console.log("[ShowTrip] User ID check:", booking.user?.userId, booking.user?.id);
 
-            <div className="px-4 py-3">
-                {c.lesseeIdNumber ? (
+          return (
+            <div key={booking.id} className={`grid ${COLS} text-sm items-center`}>
+              <div className="px-4 py-3">
                 <button
-                  className="text-sky-600 hover:underline truncate block w-full text-left"
-                  onClick={() => onClickUser?.(c.lesseeIdNumber)}
-                  title="Xem thông tin người thuê"
+                  className="text-sky-600 hover:underline"
+                  onClick={() => onClickCode?.(booking.id)}
+                  title="Xem chi tiết"
                 >
-                  {c.lesseeFullName || "—"}
+                  {shortId(booking.id, 8)}
                 </button>
-              ) : (
-                <span className="text-slate-700 truncate">
-                  {c.lesseeFullName || "—"}
-                </span>
-              )}
-            </div>
+              </div>
 
-            {/* 4. Thời gian nhận xe */}
-            <div className="px-4 py-3 text-slate-700">
-              {fmtDateTime(c.rentalStartDate)}
-            </div>
+              {/* 2. Dòng xe */}
+              <div className="px-4 py-3 text-slate-700">
+                {modelName}
+              </div>
 
-            {/* 5. Thời gian trả xe */}
-            <div className="px-4 py-3 text-slate-700">
-              {fmtDateTime(c.rentalEndDate)}
-            </div>
+              {/* 3. Người thuê */}
+              <div className="px-4 py-3">
+                {(booking.user?.userId || booking.user?.id) ? (
+                  <button
+                    className="text-sky-600 hover:underline truncate block w-full text-left"
+                    onClick={() => onClickUser?.(booking.user.userId || booking.user.id!)}
+                    title="Xem thông tin người thuê"
+                  >
+                    {userName}
+                  </button>
+                ) : (
+                  <span className="text-slate-700 truncate">
+                    {userName}
+                  </span>
+                )}
+              </div>
 
-            {/* 6. Địa chỉ nhận xe */}
-            <div
-              className="px-4 py-3 text-slate-700 truncate"
-              title={c.pickupAddress}
-            >
-              {c.pickupAddress}
-            </div>
+              {/* 4. Thời gian nhận xe */}
+              <div className="px-4 py-3 text-slate-700">
+                {fmtDateTime(booking.startAt)}
+              </div>
 
-            {/* 7. Trạng thái */}
-            <div className="px-4 py-3">
-              <StatusPill status={c.status} />
+              {/* 5. Thời gian trả xe */}
+              <div className="px-4 py-3 text-slate-700">
+                {fmtDateTime(booking.endAt)}
+              </div>
+
+              {/* 6. Địa chỉ nhận xe */}
+              <div
+                className="px-4 py-3 text-slate-700 truncate"
+                title={depotAddress}
+              >
+                {depotName}
+              </div>
+
+              {/* 7. Trạng thái */}
+              <div className="px-4 py-3">
+                <StatusPill status={booking.status} />
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
 }
 
-function StatusPill({ status }: { status: TripStatus }) {
+function StatusPill({ status }: { status: OrderBookingStatus }) {
   return (
     <span
       className={`inline-flex items-center rounded-md border px-3 py-1 text-xs font-medium ${TRIP_STATUS_PILL[status]}`}
@@ -118,4 +130,8 @@ function fmtDateTime(s: string) {
   return `${pad(d.getHours())}:${pad(d.getMinutes())} ${pad(d.getDate())}/${pad(
     d.getMonth() + 1
   )}/${d.getFullYear()}`;
+}
+
+function shortId(id: string, length = 8) {
+  return id.length > length ? `${id.substring(0, length)}...` : id;
 }
