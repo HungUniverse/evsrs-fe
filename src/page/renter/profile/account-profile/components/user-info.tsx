@@ -10,7 +10,7 @@ export default function UserInfo() {
       </section>
     );
   }
-  console.log(user.gender);
+  // console.log(user.);
 
   return (
     <section className="rounded-xl border bg-white p-6">

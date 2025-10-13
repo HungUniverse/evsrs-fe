@@ -1,12 +1,7 @@
 import { api } from "@/lib/axios/axios";
-
+import type { ItemBaseResponse } from "@/@types/response";
 // Generic API Response type
-export interface ApiResponse<T> {
-  data: T;
-  message: string;
-  statusCode: number;
-  code: string;
-}
+
 
 export interface IdentifyUserSummary {
   id: string;
@@ -40,14 +35,13 @@ export interface IdentifyDocumentRequest {
 export interface IdentifyDocumentResponse {
   id: string;
   user: IdentifyUserSummary | null;
-  type: string;
+  frontImage: string | null;
+  backImage: string | null;
   countryCode: string;
   numberMasked: string;
   licenseClass: string;
   expireAt: string;
   status: "PENDING" | "APPROVED" | "REJECTED";
-  frontImage: string | null;
-  backImage: string | null;
   verifiedBy?: string;
   verifiedAt?: string;
   note?: string;
@@ -61,32 +55,32 @@ export interface IdentifyDocumentResponse {
 
 export const identifyDocumentAPI = {
   // Upload giấy tờ định danh
-  upload: async (data: IdentifyDocumentRequest): Promise<ApiResponse<IdentifyDocumentResponse>> => {
-    const response = await api.post<ApiResponse<IdentifyDocumentResponse>>("/api/IdentifyDocument", data);
+  upload: async (data: IdentifyDocumentRequest): Promise<ItemBaseResponse<IdentifyDocumentResponse>> => {
+    const response = await api.post<ItemBaseResponse<IdentifyDocumentResponse>>("/api/IdentifyDocument", data);
     return response.data;
   },
 
   // Lấy danh sách giấy tờ của user
-  getUserDocuments: async (userId: string): Promise<ApiResponse<IdentifyDocumentResponse>> => {
-    const response = await api.get<ApiResponse<IdentifyDocumentResponse>>(`/api/IdentifyDocument/user/${userId}`);
+  getUserDocuments: async (userId: string): Promise<ItemBaseResponse<IdentifyDocumentResponse>> => {
+    const response = await api.get<ItemBaseResponse<IdentifyDocumentResponse>>(`/api/IdentifyDocument/user/${userId}`);
     return response.data;
   },
 
   // Lấy thông tin giấy tờ theo ID
-  getById: async (id: string): Promise<ApiResponse<IdentifyDocumentResponse>> => {
-    const response = await api.get<ApiResponse<IdentifyDocumentResponse>>(`/api/IdentifyDocument/${id}`);
+  getById: async (id: string): Promise<ItemBaseResponse<IdentifyDocumentResponse>> => {
+    const response = await api.get<ItemBaseResponse<IdentifyDocumentResponse>>(`/api/IdentifyDocument/${id}`);
     return response.data;
   },
 
   // Cập nhật giấy tờ
-  update: async (id: string, data: Partial<IdentifyDocumentRequest>): Promise<ApiResponse<IdentifyDocumentResponse>> => {
-    const response = await api.put<ApiResponse<IdentifyDocumentResponse>>(`/api/IdentifyDocument/${id}`, data);
+  update: async (id: string, data: Partial<IdentifyDocumentRequest>): Promise<ItemBaseResponse<IdentifyDocumentResponse>> => {
+    const response = await api.put<ItemBaseResponse<IdentifyDocumentResponse>>(`/api/IdentifyDocument/${id}`, data);
     return response.data;
   },
 
   // Xóa giấy tờ
-  delete: async (id: string): Promise<ApiResponse<void>> => {
-    const response = await api.delete<ApiResponse<void>>(`/api/IdentifyDocument/${id}`);
+  delete: async (id: string): Promise<ItemBaseResponse<void>> => {
+    const response = await api.delete<ItemBaseResponse<void>>(`/api/IdentifyDocument/${id}`);
     return response.data;
   },
 };
