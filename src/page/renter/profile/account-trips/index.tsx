@@ -152,6 +152,8 @@ export default function SearchOrderBooking() {
   }
 
   const isDetailPage = location.pathname !== "/account/my-trip";
+  console.log("[AccountTrips] location.pathname:", location.pathname);
+  console.log("[AccountTrips] isDetailPage:", isDetailPage);
 
   return (
     <div className="space-y-4">
@@ -179,6 +181,7 @@ export default function SearchOrderBooking() {
         </>
       )}
       <Outlet />
+      {console.log("[AccountTrips] Rendering Outlet")}
     </div>
   );
 }

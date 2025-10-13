@@ -15,11 +15,14 @@ export default function TripDetails() {
 
   useEffect(() => {
     if (!orderId) return;
+    console.log("[TripDetails] Loading order:", orderId);
     setLoading(true);
     setError(null);
     (async () => {
       try {
         const res = await orderBookingAPI.getById(orderId);
+        console.log("[TripDetails] API response:", res);
+        console.log("[TripDetails] Booking data:", res.data.data);
         setBooking(res.data.data);
       } catch (e) {
         console.error("[TripDetails] getById error:", e);
@@ -30,17 +33,23 @@ export default function TripDetails() {
     })();
   }, [orderId]);
 
-  if (loading)
+  if (loading) {
+    console.log("[TripDetails] Rendering loading state");
     return <div className="p-6 text-slate-600">Đang tải dữ liệu…</div>;
+  }
   if (error || !booking) {
+    console.log("[TripDetails] Rendering error/not found state. Error:", error, "Booking:", booking);
     return (
       <div className="p-6">
         <h2 className="text-lg font-semibold mb-2">Không tìm thấy đơn hàng</h2>
         <p className="text-slate-600">Order ID: {orderId}</p>
+        {error && <p className="text-red-500 mt-2">Lỗi: {error}</p>}
       </div>
     );
   }
 
+  console.log("[TripDetails] Rendering success state with booking:", booking);
+  
   return (
     <div className="space-y-6">
       <section className="rounded-2xl border bg-white p-5 md:p-6">
