@@ -8,6 +8,21 @@ export interface ApiResponse<T> {
   code: string;
 }
 
+export interface IdentifyUserSummary {
+  id: string;
+  userName: string;
+  userEmail: string;
+  phoneNumber: string;
+  fullName: string;
+  role: string;
+  isVerify: boolean;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string | null;
+  updatedBy: string | null;
+  isDeleted: boolean;
+}
+
 export interface IdentifyDocumentRequest {
   userId: string;
   frontImage: string; // base64
@@ -16,7 +31,7 @@ export interface IdentifyDocumentRequest {
   numberMasked: string;
   licenseClass: string;
   expireAt: string; // ISO 8601
-  status: "PENDING" | "VERIFIED" | "REJECTED";
+  status: "PENDING" | "APPROVED" | "REJECTED";
   verifiedBy?: string;
   verifiedAt?: string; // ISO 8601
   note?: string;
@@ -24,13 +39,15 @@ export interface IdentifyDocumentRequest {
 
 export interface IdentifyDocumentResponse {
   id: string;
-  user: unknown | null;
+  user: IdentifyUserSummary | null;
   type: string;
   countryCode: string;
   numberMasked: string;
   licenseClass: string;
   expireAt: string;
-  status: "PENDING" | "VERIFIED" | "REJECTED";
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  frontImage: string | null;
+  backImage: string | null;
   verifiedBy?: string;
   verifiedAt?: string;
   note?: string;
@@ -50,8 +67,8 @@ export const identifyDocumentAPI = {
   },
 
   // Lấy danh sách giấy tờ của user
-  getUserDocuments: async (userId: string): Promise<ApiResponse<IdentifyDocumentResponse[]>> => {
-    const response = await api.get<ApiResponse<IdentifyDocumentResponse[]>>(`/api/IdentifyDocument/user/${userId}`);
+  getUserDocuments: async (userId: string): Promise<ApiResponse<IdentifyDocumentResponse>> => {
+    const response = await api.get<ApiResponse<IdentifyDocumentResponse>>(`/api/IdentifyDocument/user/${userId}`);
     return response.data;
   },
 
