@@ -108,7 +108,7 @@ export default function PaymentSection({
           </div>
 
           <div className="flex items-center justify-between">
-            <span className="font-medium">Tiền đặt cọc</span>
+            <span className="font-medium">Tiền đặt cọc(30%)</span>
             <span className="font-medium">{vnd(deposit)}₫</span>
           </div>
 

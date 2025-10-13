@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/hooks/use-available-cars.ts
 import { useQuery } from "@tanstack/react-query";
 import { carEVAPI } from "@/apis/car-ev.api";
 import type { CarEV } from "@/@types/car/carEv";

@@ -18,7 +18,7 @@ export function useBookingCalc(
       : pricePerDay;
 
   const baseTotal = salePrice * days;
-  const deposit = baseTotal * 0.4;
+  const deposit = baseTotal * 0.3;
 
   return { days, baseTotal, deposit, salePrice };
 }

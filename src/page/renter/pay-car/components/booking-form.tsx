@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,7 +37,9 @@ export default function BookingForm({ car, searchForm }: Props) {
     car.sale
   );
   const navigate = useNavigate();
-
+  useEffect(() => {
+    setSelectedDepotId("");
+  }, [car.id, searchForm.location]);
   const canSubmit = useMemo(
     () => !!selectedDepotId && !!paymentMethod && !isSubmitting,
     [selectedDepotId, paymentMethod, isSubmitting]
@@ -85,8 +87,9 @@ export default function BookingForm({ car, searchForm }: Props) {
               <div>
                 <h3 className="text-lg font-semibold mb-4">Nơi nhận xe</h3>
                 <AddressSelect
+                  key={`${car.id}-${searchForm.location}`}
                   province={searchForm.location}
-                  modelId={car.id} // quan trọng
+                  modelId={car.id}
                   value={selectedDepotId}
                   onChange={setSelectedDepotId}
                 />

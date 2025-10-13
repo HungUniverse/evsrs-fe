@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useLocation } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -59,7 +60,10 @@ export default function DoPayment() {
       return toast.error("Bạn cần đăng nhập trước khi thanh toán.");
     if (isLoading) return toast.message("Đang tải xe khả dụng...");
 
-    const candidates = data?.available ?? [];
+    const rawCandidates = data?.available ?? [];
+    const candidates = rawCandidates.filter(
+      (c: any) => (c?.modelId ?? c?.model?.id) === state?.model?.id
+    );
     if (!candidates.length) {
       return toast.error("Không còn xe khả dụng tại trạm này.");
     }

@@ -8,7 +8,7 @@ export interface User {
   phone?: string;
   role: RoleCode;
   avatar?: string;
-  username?: string;
+  userName?: string;
 }
 
 export interface AuthState {

@@ -1,75 +1,56 @@
-import type { Contract } from "@/@types/contract";
-
-type ExtraFee = { label: string; unitPrice: number; qty?: number };
+import type { OrderBookingDetail } from "@/@types/order/order-booking";
 
 export default function DetailPrice({
-  contract,
-  extras = [],
+  booking,
 }: {
-  contract: Contract;
-  extras?: ExtraFee[];
+  booking: OrderBookingDetail;
 }) {
-  const vnd = (n: number) =>
-    new Intl.NumberFormat("vi-VN").format(Math.round(n)) + "đ";
-
-  const rows = [
-    {
-      label: "Cước phí niêm yết",
-      unitPrice: contract.dailyRate,
-      qty: Math.max(1, contract.rentalDays),
-    },
-    ...extras.map((e) => ({
-      label: e.label,
-      unitPrice: e.unitPrice,
-      qty: e.qty ?? 1,
-    })),
-  ];
-
-  const subTotal = rows.reduce((s, r) => s + r.unitPrice * r.qty, 0);
-  const grandTotal = subTotal + (contract.depositAmount || 0);
+  const totalPrice = parseFloat(booking.subTotal ?? "0");
+  const depositAmount = parseFloat(booking.depositAmount ?? "0");
+  const remaining = parseFloat(
+    booking.remainingAmount ?? `${totalPrice - depositAmount}`
+  );
+  const discount = parseFloat(booking.discount ?? "0");
 
   return (
-    <section className="mt-2">
-      <div className="text-emerald-700 font-semibold text-xs tracking-wide">
-        BẢNG KÊ CHI TIẾT
-      </div>
+    <section className="rounded-2xl border bg-white p-5 md:p-6">
+      <h2 className="text-lg font-semibold mb-4">Chi tiết giá thuê</h2>
 
-      <div className="mt-2 rounded-xl overflow-hidden border">
-        <div className="grid grid-cols-[1.4fr_1fr_0.8fr_1fr] bg-emerald-100 text-emerald-900 text-sm font-medium">
-          <div className="px-4 py-3">Loại</div>
-          <div className="px-4 py-3">Đơn giá</div>
-          <div className="px-4 py-3">Số ngày</div>
-          <div className="px-4 py-3">Tổng</div>
-        </div>
-
-        <div className="divide-y">
-          {rows.map((r) => (
-            <div
-              key={r.label}
-              className="grid grid-cols-[1.4fr_1fr_0.8fr_1fr] text-sm"
-            >
-              <div className="px-4 py-3 text-slate-700">{r.label}</div>
-              <div className="px-4 py-3">{vnd(r.unitPrice)}</div>
-              <div className="px-4 py-3">{r.qty}</div>
-              <div className="px-4 py-3">{vnd(r.unitPrice * r.qty)}</div>
-            </div>
-          ))}
-
-          <div className="grid grid-cols-[1.4fr_1fr_0.8fr_1fr] text-sm">
-            <div className="px-4 py-3 text-slate-700 font-medium">
-              Tiền đặt cọc
-            </div>
-            <div className="px-4 py-3 col-span-2" />
-            <div className="px-4 py-3">{vnd(contract.depositAmount)}</div>
-          </div>
-
-          <div className="grid grid-cols-[1.4fr_1fr_0.8fr_1fr] text-sm font-semibold">
-            <div className="px-4 py-4">Tổng</div>
-            <div className="px-4 py-4 col-span-2" />
-            <div className="px-4 py-4 text-slate-900">{vnd(grandTotal)}</div>
-          </div>
-        </div>
+      <div className="space-y-3 text-sm text-slate-700">
+        <PriceRow label="Tổng tiền thuê" value={totalPrice} />
+        {discount > 0 && (
+          <PriceRow
+            label={`Giảm giá (${discount}%)`}
+            value={-(totalPrice * discount) / 100}
+          />
+        )}
+        <PriceRow label="Tiền cọc" value={-depositAmount} />
+        <hr className="border-slate-200" />
+        <PriceRow label="Số tiền còn lại" value={remaining} bold />
       </div>
     </section>
+  );
+}
+
+function PriceRow({
+  label,
+  value,
+  bold = false,
+}: {
+  label: string;
+  value: number;
+  bold?: boolean;
+}) {
+  const formatted = new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    minimumFractionDigits: 0,
+  }).format(value);
+
+  return (
+    <div className="flex justify-between">
+      <span className={bold ? "font-semibold" : ""}>{label}</span>
+      <span className={bold ? "font-semibold" : ""}>{formatted}</span>
+    </div>
   );
 }

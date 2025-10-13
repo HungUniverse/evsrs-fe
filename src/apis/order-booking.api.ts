@@ -51,4 +51,8 @@ export const orderBookingAPI = {
         search: query.search,
       },
     }),
+  getByUserId: (id: ID) =>
+    api.get<ListBaseResponse<OrderBookingDetail>>(
+      `/api/OrderBooking/user/${id}`
+    ),
 };

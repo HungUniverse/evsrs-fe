@@ -7,10 +7,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CalendarDays, Filter, Search } from "lucide-react";
+import type { OrderBookingStatus } from "@/@types/enum";
 export type TripFilterValue = {
   orderId: string;
   carModel: string;
-  status: string;
+  status: "all" | OrderBookingStatus;
   dateStart?: string;
   dateEnd?: string;
 };
@@ -67,10 +68,13 @@ function StaffTripFilter({ value, onChange }: Props) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Tất cả trạng thái</SelectItem>
-            <SelectItem value="confirmed">Xác nhận</SelectItem>
-            <SelectItem value="in_progress">Đang xử lý</SelectItem>
-            <SelectItem value="completed">Hoàn tất</SelectItem>
-            <SelectItem value="cancelled">Đã hủy</SelectItem>
+            <SelectItem value="PENDING">Chờ xác nhận</SelectItem>
+            <SelectItem value="CONFIRMED">Đã xác nhận</SelectItem>
+            <SelectItem value="CHECKED_OUT">Đã nhận xe</SelectItem>
+            <SelectItem value="IN_USE">Đang sử dụng</SelectItem>
+            <SelectItem value="RETURNED">Đã trả xe</SelectItem>
+            <SelectItem value="COMPLETED">Hoàn tất</SelectItem>
+            <SelectItem value="CANCELLED">Đã hủy</SelectItem>
           </SelectContent>
         </Select>
 
