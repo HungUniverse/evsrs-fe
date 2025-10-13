@@ -59,37 +59,31 @@ export default function ContractCosts({ orderId }: { orderId: string }) {
   }
 
   return (
-    <section className=" p-5 md:p-6">
-      <h3 className="text-lg font-bold text-gray-800 mb-4">
+    <section className=" text-lg p-5 md:p-6">
+      <h3 className="text-xl font-bold text-gray-800 mb-4">
         2. Chi phí thanh toán
       </h3>
 
-      <div className="space-y-2 text-sm text-slate-700">
-        <div className="flex justify-between">
-          <span>Xe</span>
-          <span className="font-medium">{carName}</span>
+      <div className="space-y-2 text-md  text-slate-700">
+        <div className="flex justify-left gap-3">
+          <span className="font-medium">Xe: </span>
+          <span className="">{carName}</span>
         </div>
-        <div className="flex justify-between">
-          <span>Thời hạn</span>
-          <span className="font-medium">{timeRange}</span>
+        <div className="flex justify-left gap-3">
+          <span className="font-medium">Thời hạn: </span>
+          <span className="">{timeRange}</span>
         </div>
-        <div className="flex justify-between">
-          <span>Tổng tiền</span>
-          <span className="font-semibold">
-            {subTotal.toLocaleString("vi-VN")}đ
-          </span>
+        <div className="flex justify-left gap-3">
+          <span className="font-medium">Tổng tiền: </span>
+          <span className=" ">{subTotal.toLocaleString("vi-VN")}đ</span>
         </div>
-        <div className="flex justify-between">
-          <span>Đã cọc</span>
-          <span className="font-semibold">
-            {deposit.toLocaleString("vi-VN")}đ
-          </span>
+        <div className="flex justify-left gap-3">
+          <span className="font-medium"> Đã cọc: </span>
+          <span className="">{deposit.toLocaleString("vi-VN")}đ</span>
         </div>
-        <div className="flex justify-between">
-          <span>Còn lại</span>
-          <span className="font-semibold">
-            {remaining.toLocaleString("vi-VN")}đ
-          </span>
+        <div className="flex justify-left gap-5">
+          <span className="font-medium">Còn lại: </span>
+          <span>{remaining.toLocaleString("vi-VN")}đ</span>
         </div>
 
         {/* Phần dịch vụ/bảo hiểm & one-way giữ nguyên text như file bạn đang dùng */}

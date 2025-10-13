@@ -1,0 +1,4 @@
+const COMPANY_NAME = "Công ty TNHH ECORENT VIỆT NAM";
+const COMPANY_PHONE = "0900000001";
+const COMPANY_EMAIL = "info@ecorent.com";
+export { COMPANY_EMAIL, COMPANY_PHONE, COMPANY_NAME };

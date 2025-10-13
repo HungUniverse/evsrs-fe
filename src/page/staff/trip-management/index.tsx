@@ -9,13 +9,19 @@ import UserInfoModal from "./components/user-info-modal";
 
 export default function TripManagement() {
   const navigate = useNavigate();
-  
+
   const [bookings, setBookings] = useState<OrderBookingDetail[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  // Debug logs for state changes
-  console.log("[StaffTripManagement] Component render - bookings:", bookings.length, "loading:", loading, "error:", error);
+
+  console.log(
+    "[StaffTripManagement] Component render - bookings:",
+    bookings.length,
+    "loading:",
+    loading,
+    "error:",
+    error
+  );
 
   const [filter, setFilter] = useState<TripFilterValue>({
     orderId: "",
@@ -27,31 +33,20 @@ export default function TripManagement() {
 
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
-  // Load all orders
   useEffect(() => {
     const loadBookings = async () => {
-      console.log("[StaffTripManagement] Starting to load bookings...");
       setLoading(true);
       setError(null);
       try {
-        console.log("[StaffTripManagement] Calling orderBookingAPI.getAll...");
         const res = await orderBookingAPI.getAll({
           pageNumber: 1,
-          pageSize: 100, // Load more orders for staff
+          pageSize: 100,
         });
-        console.log("[StaffTripManagement] API response:", res);
-        console.log("[StaffTripManagement] Response data:", res.data);
-        console.log("[StaffTripManagement] Response data keys:", Object.keys(res.data));
-        console.log("[StaffTripManagement] Response data.data:", res.data.data);
-        console.log("[StaffTripManagement] Response data.data keys:", res.data.data ? Object.keys(res.data.data) : "data is null/undefined");
-        console.log("[StaffTripManagement] Items:", res.data.data?.items);
-        console.log("[StaffTripManagement] Items length:", res.data.data?.items?.length);
+
         setBookings(res.data.data?.items || []);
-        console.log("[StaffTripManagement] Bookings set:", res.data.data?.items || []);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
-        console.error("[StaffTripManagement] Load error:", e);
-        console.error("[StaffTripManagement] Error details:", e?.response?.data);
-        setError("Không tải được danh sách đơn hàng");
+        setError(e.message || "Không tải được danh sách đơn hàng");
       } finally {
         setLoading(false);
         console.log("[StaffTripManagement] Loading finished");
@@ -63,9 +58,12 @@ export default function TripManagement() {
 
   // Filter orders
   const filteredBookings = useMemo(() => {
-    console.log("[StaffTripManagement] Filtering bookings. Total bookings:", bookings.length);
+    console.log(
+      "[StaffTripManagement] Filtering bookings. Total bookings:",
+      bookings.length
+    );
     console.log("[StaffTripManagement] Filter:", filter);
-    
+
     if (!bookings.length) {
       console.log("[StaffTripManagement] No bookings to filter");
       return [];
@@ -80,7 +78,10 @@ export default function TripManagement() {
         filter.orderId &&
         !booking.id.toLowerCase().includes(filter.orderId.toLowerCase())
       ) {
-        console.log("[StaffTripManagement] Filtered out by order ID:", booking.id);
+        console.log(
+          "[StaffTripManagement] Filtered out by order ID:",
+          booking.id
+        );
         return false;
       }
 
@@ -89,14 +90,20 @@ export default function TripManagement() {
         const needle = filter.carModel.toLowerCase();
         const modelName = booking.carEvs?.model?.modelName || "";
         if (!modelName.toLowerCase().includes(needle)) {
-          console.log("[StaffTripManagement] Filtered out by car model:", modelName);
+          console.log(
+            "[StaffTripManagement] Filtered out by car model:",
+            modelName
+          );
           return false;
         }
       }
 
       // Filter by status
       if (filter.status !== "all" && booking.status !== filter.status) {
-        console.log("[StaffTripManagement] Filtered out by status:", booking.status);
+        console.log(
+          "[StaffTripManagement] Filtered out by status:",
+          booking.status
+        );
         return false;
       }
 
@@ -104,18 +111,28 @@ export default function TripManagement() {
       const bookingStart = new Date(booking.startAt);
       const bookingEnd = new Date(booking.endAt);
       if (start && bookingEnd < start) {
-        console.log("[StaffTripManagement] Filtered out by start date:", booking.startAt);
+        console.log(
+          "[StaffTripManagement] Filtered out by start date:",
+          booking.startAt
+        );
         return false;
       }
       if (end && bookingStart > end) {
-        console.log("[StaffTripManagement] Filtered out by end date:", booking.endAt);
+        console.log(
+          "[StaffTripManagement] Filtered out by end date:",
+          booking.endAt
+        );
         return false;
       }
 
       return true;
     });
-    
-    console.log("[StaffTripManagement] Filtered result:", filtered.length, "items");
+
+    console.log(
+      "[StaffTripManagement] Filtered result:",
+      filtered.length,
+      "items"
+    );
     return filtered;
   }, [bookings, filter]);
 
@@ -153,13 +170,13 @@ export default function TripManagement() {
         value={filter}
         onChange={(p) => setFilter((prev) => ({ ...prev, ...p }))}
       />
-      
+
       <ShowTrip
         data={filteredBookings}
         onClickCode={(orderId) => navigate(`/staff/trip/${orderId}`)}
         onClickUser={(userId) => setSelectedUserId(userId)}
       />
-      
+
       <UserInfoModal
         open={!!selectedUserId}
         onOpenChange={(open) => !open && setSelectedUserId(null)}

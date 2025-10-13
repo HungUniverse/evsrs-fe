@@ -29,6 +29,7 @@ import AuthGuard from "@/layouts/guard.layout";
 import { TripManagement } from "@/page/staff";
 import StaffTripDetails from "@/page/staff/trip-management/components/trip-details";
 import { lazy } from "react";
+import { ReturnInspectionPage, ReturnSettementPage } from "@/page/paper";
 
 const ContractPage = lazy(() => import("@/page/paper/contract"));
 const HandoverInspectionPage = lazy(
@@ -75,8 +76,16 @@ export const router = createBrowserRouter([
               { path: ":orderId", element: <TripDetails /> },
               { path: ":orderId/contract", element: <ContractPage /> },
               {
-                path: ":orderId/handover-inspection",
+                path: ":orderId/handover/inspection",
                 element: <HandoverInspectionPage />,
+              },
+              {
+                path: ":orderId/return/inspection",
+                element: <ReturnInspectionPage />,
+              },
+              {
+                path: ":orderId/return/settlement",
+                element: <ReturnSettementPage />,
               },
             ],
           },
@@ -155,8 +164,16 @@ export const router = createBrowserRouter([
             element: <ContractPage />,
           },
           {
-            path: "trip/:orderId/handover-inspection",
+            path: "trip/:orderId/handover/inspection",
             element: <HandoverInspectionPage />,
+          },
+          {
+            path: "trip/:orderId/return/inspection",
+            element: <ReturnInspectionPage />,
+          },
+          {
+            path: "trip/:orderId/return/settlement",
+            element: <ReturnSettementPage />,
           },
         ],
       },

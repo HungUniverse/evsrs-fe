@@ -4,11 +4,12 @@ import type { ItemBaseResponse } from "@/@types/response";
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import { identifyDocumentAPI } from "@/apis/identify-document.api";
 import type { IdentifyDocumentResponse } from "@/@types/identify-document";
-
-const COMPANY_NAME =
-  import.meta.env.VITE_COMPANY_NAME ?? "Công ty TNHH ECORENT VIỆT NAM";
-const COMPANY_PHONE = import.meta.env.VITE_COMPANY_PHONE ?? "0900000001";
-const COMPANY_EMAIL = import.meta.env.VITE_COMPANY_EMAIL ?? "info@ecorent.com";
+import {
+  COMPANY_EMAIL,
+  COMPANY_NAME,
+  COMPANY_PHONE,
+} from "@/lib/constants/hire-info";
+import { getEmail, getPhone } from "@/hooks/get-user-contact";
 
 function fmtDate(iso?: string) {
   if (!iso) return "";
@@ -69,22 +70,19 @@ export default function ContractParties({ orderId }: { orderId: string }) {
 
   const lesseeName = order?.user?.userName || "Khách hàng";
 
-  const lesseePhone = order?.user?.phone || "";
-
   const cccd = doc?.numberMasked || "";
   const gplxClass = doc?.licenseClass ? `Hạng ${doc.licenseClass}` : "";
   const gplxExpire = fmtDate(doc?.expireAt);
 
   return (
-    <section className=" p-5 md:p-6">
-      <h3 className="text-lg font-bold text-gray-800 mb-4">
+    <section className="text-lg p-5 md:p-6">
+      <h3 className="text-xl font-bold text-gray-800 mb-4">
         1. Thông tin các bên
       </h3>
 
-      {/* Bên cho thuê */}
-      <div className="mb-4">
+      <div className="  mb-4">
         <h4 className="font-semibold text-gray-700 mb-2">Bên cho thuê:</h4>
-        <div className="space-y-1 pl-4 text-sm">
+        <div className="space-y-1 pl-4 text-md">
           <div>
             <span className="font-medium text-gray-600">Tên công ty:</span>
             <span className="ml-2 text-gray-800">{COMPANY_NAME}</span>
@@ -104,34 +102,38 @@ export default function ContractParties({ orderId }: { orderId: string }) {
         </div>
       </div>
 
-      {/* Bên thuê */}
       <div>
         <h4 className="font-semibold text-gray-700 mb-2">Bên thuê:</h4>
-        <div className="space-y-1 pl-4 text-sm">
+        <div className="space-y-1 pl-4 text-md">
           <div>
             <span className="font-medium text-gray-600">Họ và tên:</span>
             <span className="ml-2 text-gray-800">{lesseeName}</span>
           </div>
 
           <div>
-            <span className="font-medium text-gray-600">CCCD/CMND:</span>
+            <span className="font-medium text-gray-600">Giấy phép lái xe:</span>
             <span className="ml-2 text-gray-800">{cccd || "—"}</span>
           </div>
 
           <div>
-            <span className="font-medium text-gray-600">GPLX:</span>
+            <span className="font-medium text-gray-600">Hạng:</span>
             <span className="ml-2 text-gray-800">
               {gplxClass || "—"}
               {gplxExpire ? `, Hết hạn: ${gplxExpire}` : ""}
             </span>
           </div>
-
-          {lesseePhone && (
-            <div>
-              <span className="font-medium text-gray-600">SĐT:</span>
-              <span className="ml-2 text-gray-800">{lesseePhone}</span>
-            </div>
-          )}
+          <div>
+            <span className="font-medium text-gray-600">Số điện thoại:</span>
+            <span className="ml-2 text-gray-800">
+              {getPhone(order?.user) || "—"}
+            </span>
+          </div>
+          <div>
+            <span className="font-medium text-gray-600">Email:</span>
+            <span className="ml-2 text-gray-800">
+              {getEmail(order?.user) || "—"}
+            </span>
+          </div>
         </div>
       </div>
     </section>

@@ -55,4 +55,25 @@ export const orderBookingAPI = {
     api.get<ListBaseResponse<OrderBookingDetail>>(
       `/api/OrderBooking/user/${id}`
     ),
+  checkout: async (id: ID): Promise<OrderBookingDetail> => {
+    const res = await api.post<ItemBaseResponse<OrderBookingDetail>>(
+      `/api/OrderBooking/${id}/checkout`,
+      {}
+    );
+    return res.data.data;
+  },
+  start: async (id: ID): Promise<OrderBookingDetail> => {
+    const res = await api.post<ItemBaseResponse<OrderBookingDetail>>(
+      `/api/OrderBooking/${id}/start`,
+      {}
+    );
+    return res.data.data;
+  },
+  return: async (id: ID): Promise<OrderBookingDetail> => {
+    const res = await api.post<ItemBaseResponse<OrderBookingDetail>>(
+      `/api/OrderBooking/${id}/return`,
+      {}
+    );
+    return res.data.data;
+  },
 };

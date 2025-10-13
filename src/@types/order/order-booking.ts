@@ -1,4 +1,4 @@
-import type { User } from "../auth.type";
+import type { UserFull } from "../auth.type";
 import type { CarEV } from "../car/carEv";
 import type { Depot } from "../car/depot";
 import type {
@@ -37,7 +37,7 @@ export interface OrderBookingResponse {
 export interface OrderBookingDetail {
   id: ID;
   userId: ID;
-  user: User;
+  user: UserFull;
   depotId: ID;
   depot: Depot;
   carEVDetailId: ID;
