@@ -20,7 +20,7 @@ type Props = {
   onChange: (patch: Partial<TripFilterValue>) => void;
 };
 
-function StaffTripFilter({ value, onChange }: Props) {
+function TripFilter({ value, onChange }: Props) {
   const onStartChange = (v: string) => {
     const patch: Partial<TripFilterValue> = { dateStart: v };
     if (value.dateEnd && new Date(value.dateEnd) < new Date(v))
@@ -46,7 +46,6 @@ function StaffTripFilter({ value, onChange }: Props) {
           />
         </div>
 
-        {/* Dòng xe */}
         <div className="relative">
           <Input
             placeholder="Dòng xe"
@@ -56,7 +55,6 @@ function StaffTripFilter({ value, onChange }: Props) {
           />
         </div>
 
-        {/* Trạng thái */}
         <Select
           value={value.status}
           onValueChange={(v) =>
@@ -103,4 +101,4 @@ function StaffTripFilter({ value, onChange }: Props) {
   );
 }
 
-export default StaffTripFilter;
+export default TripFilter;

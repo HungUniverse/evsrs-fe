@@ -6,20 +6,26 @@ import type {
 } from "@/@types/order/return-settlement";
 
 export const returnSettlementAPI = {
-  create: async (data: ReturnSettlementRequest): Promise<ReturnSettlement> => {
+  create: async (body: ReturnSettlementRequest): Promise<ReturnSettlement> => {
     const res = await api.post<ItemBaseResponse<ReturnSettlement>>(
       "/api/Return/settlement",
-      data
+      body
     );
     return res.data.data;
   },
 
   getByOrderId: async (orderId: string): Promise<ReturnSettlement | null> => {
     try {
-      const res = await api.get<ItemBaseResponse<ReturnSettlement>>(
+      const res = await api.get<ItemBaseResponse<ReturnSettlement[]>>(
         `/api/Return/settlement/order/${orderId}`
       );
-      return res.data.data ?? null;
+      const list = Array.isArray(res.data.data) ? res.data.data : [];
+      if (!list.length) return null;
+      list.sort(
+        (a, b) =>
+          new Date(b.calculateAt).getTime() - new Date(a.calculateAt).getTime()
+      );
+      return list[0];
     } catch {
       return null;
     }

@@ -1,17 +1,19 @@
+import type { ID } from "../order/order-booking";
+
 export interface ReturnSettlementItemRequest {
-  feeIncurred: string; // phí phát sinh (string số)
-  description: string;
-  discount: string; // giảm riêng của item
-  total: string; // tổng của item (thường = feeIncurred - discount)
-  notes: string;
+  feeIncurred: string; // số tiền của item
+  description: string; // mô tả
+  discount: string; // mặc định "0"
+  total: string; // = feeIncurred (nếu không áp discount riêng)
+  notes: string; // để trống
 }
 
 export interface ReturnSettlementRequest {
-  orderBookingId: string;
-  subtotal: string; // số tiền còn lại phải trả (ví dụ remainingAmount)
-  discount: string; // giảm tổng
-  total: string; // subtotal + sum(items.total) - discount
-  notes: string;
+  orderBookingId: ID;
+  subtotal: string; // remainingAmount + sum(items)
+  discount: string; // "0"
+  total: string; // = subtotal - discount (ở đây = subtotal)
+  notes: string; // ghi chú chung
   settlementItems: ReturnSettlementItemRequest[];
 }
 
@@ -23,10 +25,10 @@ export interface ReturnSettlementItem extends ReturnSettlementItemRequest {
   createdBy: string | null;
   updatedBy: string | null;
 }
-export interface ReturnSettlement
-  extends Omit<ReturnSettlementRequest, "settlementItems"> {
+
+export interface ReturnSettlement extends ReturnSettlementRequest {
   id: string;
-  calculateAt: string; // BE trả ra
+  calculateAt: string;
   settlementItems: ReturnSettlementItem[];
   createdAt: string;
   updatedAt: string;

@@ -24,18 +24,11 @@ import CarInfo from "../hand-over-inspection/components/CarInfo";
 import ReturnForm from "./components/return-form";
 import ReturnView from "./components/return-view";
 
-/** Chuẩn hoá role từ JWT/BE */
 function isStaffRole(r?: string | number | null) {
   const s = String(r ?? "")
     .trim()
     .toUpperCase();
-  return s === "STAFF" || s === "3" || s === "ROLE_STAFF";
-}
-/** Chuẩn hoá status từ BE */
-function normStatus(s?: string | null) {
-  return String(s ?? "")
-    .trim()
-    .toUpperCase();
+  return s === "STAFF";
 }
 
 export default function ReturnInspectionPage() {
@@ -51,11 +44,14 @@ export default function ReturnInspectionPage() {
   const [confirmingReturn, setConfirmingReturn] = useState(false);
 
   const isStaff = isStaffRole(user?.role);
-  const status = normStatus(order?.status);
+  const status = order?.status;
   const hasReturn = !!ret;
 
   const canFinishReturn = isStaff && status === "RETURNED";
   const canConfirmReturn = isStaff && hasReturn && status === "IN_USE";
+
+  // Debug logs
+  console.log("Current state:", { isStaff, status, hasReturn, canFinishReturn, canConfirmReturn });
 
   const title = useMemo(() => "BIÊN BẢN TRẢ XE Ô TÔ", []);
 
@@ -64,26 +60,16 @@ export default function ReturnInspectionPage() {
     const res = await api.get<ItemBaseResponse<OrderBookingDetail>>(
       `/api/OrderBooking/${orderId}`
     );
-    console.log(res.data.data);
+    console.log("Order fetched:", res.data.data);
+    console.log("Order status:", res.data.data?.status);
     setOrder(res.data.data);
-  }
-
-  async function fetchHandover() {
-    if (!orderId) return;
-    const data: any = await handoverInspectionAPI.getByOrderId(orderId);
-    if (Array.isArray(data)) {
-      data.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
-      setHandover(data[0] ?? null);
-    } else {
-      setHandover(data ?? null);
-    }
   }
 
   async function refetchReturn() {
     if (!orderId) return;
     try {
       const latest = await returnInspectionAPI.getByOrderId(orderId);
-      setRet(latest); // có thể là null nếu BE trả []
+      setRet(latest);
     } catch {
       // Giữ nguyên state hiện tại để UI không nhảy về form một cách khó chịu
     }
@@ -94,15 +80,36 @@ export default function ReturnInspectionPage() {
       if (!orderId) return;
       setInitLoading(true);
       try {
-        await Promise.all([refetchOrder(), fetchHandover(), refetchReturn()]);
-        console.log(order?.status);
+        // Fetch order
+        const orderRes = await api.get<ItemBaseResponse<OrderBookingDetail>>(
+          `/api/OrderBooking/${orderId}`
+        );
+        console.log("Order fetched:", orderRes.data.data);
+        console.log("Order status:", orderRes.data.data?.status);
+        setOrder(orderRes.data.data);
+
+        // Fetch handover
+        const handoverData: any = await handoverInspectionAPI.getByOrderId(orderId);
+        if (Array.isArray(handoverData)) {
+          handoverData.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
+          setHandover(handoverData[0] ?? null);
+        } else {
+          setHandover(handoverData ?? null);
+        }
+
+        // Fetch return inspection
+        try {
+          const latest = await returnInspectionAPI.getByOrderId(orderId);
+          setRet(latest);
+        } catch {
+          // Giữ nguyên state hiện tại để UI không nhảy về form một cách khó chịu
+        }
       } catch {
         toast.error("Không tải được dữ liệu biên bản trả xe");
       } finally {
         setInitLoading(false);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderId]);
 
   async function handleCreateReturn(v: {
@@ -148,7 +155,7 @@ export default function ReturnInspectionPage() {
   /** Điều hướng sang trang quyết toán */
   function handleGoToSettlement() {
     if (!orderId) return;
-    navigate(`/staff/orders/${orderId}/return/settlement`);
+    navigate(`/staff/trip/${orderId}/return/settlement`);
   }
 
   /** ---- Render ---- */
@@ -221,6 +228,16 @@ export default function ReturnInspectionPage() {
               </div>
             )}
           </>
+        ) : canFinishReturn ? (
+          // Order is already RETURNED, show settlement button
+          <div className="text-center space-y-4">
+            
+            <div className="flex justify-center">
+              <Button onClick={handleGoToSettlement}>
+                Chuyển hướng qua settlement
+              </Button>
+            </div>
+          </div>
         ) : isStaff ? (
           <ReturnForm
             staffDisplay={user?.name || user?.userName || user?.userId || ""}
