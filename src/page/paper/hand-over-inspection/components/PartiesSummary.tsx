@@ -16,7 +16,6 @@ export default function PartiesSummary({
       <div className="font-semibold">1. Thông tin các bên</div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        {/* Bên cho thuê */}
         <div className="space-y-1">
           <div className="font-medium">Bên cho thuê:</div>
           <p>Tên công ty: {COMPANY_NAME}</p>
