@@ -45,13 +45,13 @@ const navigationItems: NavigationItem[] = [
     icon: Factory,
   },
   {
-    name: "Quản lý khách hàng",
+    name: "Quản lý người dùng",
     href: "/admin/customer-management",
     icon: Users,
     hasSubmenu: true,
     submenu: [
       {
-        name: "Danh sách khách hàng",
+        name: "Danh sách người dùng",
         href: "/admin/customer-management",
         icon: Users,
       },

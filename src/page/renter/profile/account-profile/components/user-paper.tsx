@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,6 +75,26 @@ export default function UserPaper() {
     back?: string | null;
   } | null>(null);
 
+  // Helper: lấy document hiện tại (nếu có). Trả về null nếu không tìm thấy
+  const fetchExistingDocument =
+    useCallback(async (): Promise<IdentifyDocumentResponse | null> => {
+      if (!user?.userId) return null;
+      try {
+        const res = await identifyDocumentAPI.getUserDocuments(user.userId);
+        return (res?.data as IdentifyDocumentResponse) ?? null;
+      } catch (err: unknown) {
+        const apiError = err as {
+          response?: { data?: { error?: string; message?: string } };
+        };
+        const notFoundMsg =
+          apiError?.response?.data?.error || apiError?.response?.data?.message;
+        if (notFoundMsg && /not found/i.test(notFoundMsg)) {
+          return null;
+        }
+        throw err;
+      }
+    }, [user?.userId]);
+
   function onChange<K extends keyof typeof form>(
     key: K,
     val: string | File | null
@@ -82,6 +102,7 @@ export default function UserPaper() {
     setForm((s) => ({ ...s, [key]: val }));
   }
 
+  //Hàm upload/cập nhật giấy tờ lên server(qua API)
   async function onSave() {
     if (!user?.userId) {
       toast.error("Không tìm thấy thông tin người dùng");
@@ -101,39 +122,114 @@ export default function UserPaper() {
       toast.error("Vui lòng nhập ngày hết hạn");
       return;
     }
-    if (!form.frontImage || !form.backImage) {
-      toast.error("Vui lòng tải lên đầy đủ ảnh mặt trước và mặt sau");
-      return;
-    }
 
     try {
-      const [frontUrl, backUrl] = await Promise.all([
-        uploadImageToCloudinary(form.frontImage),
-        uploadImageToCloudinary(form.backImage),
-      ]);
+      // Kiểm tra lại xem user đã có document chưa
+      const existing = await fetchExistingDocument();
 
-      const requestData: IdentifyDocumentRequest = {
-        userId: user.userId,
-        frontImage: frontUrl,
-        backImage: backUrl,
-        countryCode: form.countryCode,
-        numberMasked: form.licenseNumber,
-        licenseClass: form.licenseClass,
-        expireAt: new Date(form.expiryDate).toISOString(),
-        status: "PENDING",
-        note: `Họ tên: ${form.fullName}`,
-      };
+      // Chuẩn bị URL ảnh: chỉ upload ảnh mới nếu có, nếu không dùng ảnh cũ (khi update)
+      let frontUrl: string | null = existing?.frontImage ?? null;
+      let backUrl: string | null = existing?.backImage ?? null;
 
-      const response = await identifyDocumentAPI.upload(requestData);
+      const uploaders: Array<Promise<string>> = [];
+      const needsFrontUpload = !!form.frontImage;
+      const needsBackUpload = !!form.backImage;
 
-      // Kiểm tra response success
-      if (response.code === "SUCCESS" && response.statusCode === 201) {
-        toast.success(response.message || "Đã gửi giấy tờ để xác thực");
-        setEdit(false);
-        setStatus("pending");
-      } else {
-        toast.error(response.message || "Lưu thất bại, thử lại sau");
+      if (needsFrontUpload && form.frontImage)
+        uploaders.push(uploadImageToCloudinary(form.frontImage));
+      if (needsBackUpload && form.backImage)
+        uploaders.push(uploadImageToCloudinary(form.backImage));
+
+      if (uploaders.length) {
+        const results = await Promise.all(uploaders);
+        let idx = 0;
+        if (needsFrontUpload && form.frontImage) {
+          frontUrl = results[idx++];
+        }
+        if (needsBackUpload && form.backImage) {
+          backUrl = results[idx++];
+        }
       }
+
+      // Nếu là tạo mới thì bắt buộc phải có đủ 2 ảnh
+      const isCreate = !existing;
+      if (isCreate && (!frontUrl || !backUrl)) {
+        toast.error("Vui lòng tải lên đầy đủ ảnh mặt trước và mặt sau");
+        return;
+      }
+
+      if (isCreate) {
+        const requestData: IdentifyDocumentRequest = {
+          userId: user.userId,
+          frontImage: frontUrl as string,
+          backImage: backUrl as string,
+          countryCode: form.countryCode,
+          numberMasked: form.licenseNumber,
+          licenseClass: form.licenseClass,
+          expireAt: new Date(form.expiryDate).toISOString(),
+          status: "PENDING",
+          note: `Họ tên: ${form.fullName}`,
+        };
+        const response = await identifyDocumentAPI.upload(requestData);
+        if (
+          response.code === "SUCCESS" &&
+          (response.statusCode === 201 || response.statusCode === 200)
+        ) {
+          toast.success(response.message || "Đã gửi giấy tờ để xác thực");
+        } else {
+          toast.error(response.message || "Lưu thất bại, thử lại sau");
+          return;
+        }
+      } else {
+        const response = await identifyDocumentAPI.update(existing.id, {
+          userId: user.userId,
+          frontImage: frontUrl ?? undefined,
+          backImage: backUrl ?? undefined,
+          countryCode: form.countryCode,
+          numberMasked: form.licenseNumber,
+          licenseClass: form.licenseClass,
+          expireAt: new Date(form.expiryDate).toISOString(),
+          status: "PENDING",
+          note: `Họ tên: ${form.fullName}`,
+        });
+        if (
+          response.code === "SUCCESS" &&
+          (response.statusCode === 200 || response.statusCode === 204)
+        ) {
+          toast.success(response.message || "Cập nhật giấy tờ thành công");
+        } else {
+          toast.error(response.message || "Cập nhật thất bại, thử lại sau");
+          return;
+        }
+      }
+
+      // Làm mới dữ liệu sau khi lưu
+      const refreshed = await fetchExistingDocument();
+      if (refreshed) {
+        setStatus(
+          refreshed.status === "APPROVED"
+            ? "approved"
+            : refreshed.status === "PENDING"
+              ? "pending"
+              : "rejected"
+        );
+        setForm((s) => ({
+          ...s,
+          licenseNumber: refreshed.numberMasked || "",
+          licenseClass: refreshed.licenseClass || s.licenseClass,
+          countryCode: refreshed.countryCode || s.countryCode,
+          expiryDate: refreshed.expireAt
+            ? new Date(refreshed.expireAt).toISOString().slice(0, 10)
+            : s.expiryDate,
+          frontImage: null,
+          backImage: null,
+        }));
+        setInitialImages({
+          front: refreshed.frontImage ?? null,
+          back: refreshed.backImage ?? null,
+        });
+      }
+      setEdit(false);
     } catch (error: unknown) {
       console.error("Upload error:", error);
       const errorMessage =
@@ -147,35 +243,50 @@ export default function UserPaper() {
     const load = async () => {
       if (!user?.userId) return;
       try {
-        const res = await identifyDocumentAPI.getUserDocuments(user.userId);
-        const latest = res.data as IdentifyDocumentResponse;
-        if (!latest) return;
-        setStatus(
-          latest.status === "APPROVED"
-            ? "approved"
-            : latest.status === "PENDING"
-              ? "pending"
-              : "rejected"
-        );
-        setForm((s) => ({
-          ...s,
-          licenseNumber: latest.numberMasked || "",
-          licenseClass: latest.licenseClass || s.licenseClass,
-          countryCode: latest.countryCode || s.countryCode,
-          expiryDate: latest.expireAt
-            ? new Date(latest.expireAt).toISOString().slice(0, 10)
-            : s.expiryDate,
-        }));
-        setInitialImages({
-          front: latest.frontImage ?? null,
-          back: latest.backImage ?? null,
-        });
-      } catch {
-        // silent
+        const latest = await fetchExistingDocument();
+        if (latest) {
+          setStatus(
+            latest.status === "APPROVED"
+              ? "approved"
+              : latest.status === "PENDING"
+                ? "pending"
+                : "rejected"
+          );
+          setForm((s) => ({
+            ...s,
+            licenseNumber: latest.numberMasked || "",
+            licenseClass: latest.licenseClass || s.licenseClass,
+            countryCode: latest.countryCode || s.countryCode,
+            expiryDate: latest.expireAt
+              ? new Date(latest.expireAt).toISOString().slice(0, 10)
+              : s.expiryDate,
+            frontImage: null,
+            backImage: null,
+          }));
+          setInitialImages({
+            front: latest.frontImage ?? null,
+            back: latest.backImage ?? null,
+          });
+        } else {
+          // Không có dữ liệu: đặt trống UI
+          setStatus("pending");
+          setForm((s) => ({
+            ...s,
+            licenseNumber: "",
+            expiryDate: "",
+            frontImage: null,
+            backImage: null,
+          }));
+          setInitialImages({ front: null, back: null });
+        }
+      } catch (e) {
+        // Lỗi khác ngoài not found
+        console.error(e);
+        toast.error("Không thể tải giấy tờ. Vui lòng thử lại sau");
       }
     };
     load();
-  }, [user?.userId]);
+  }, [user?.userId, fetchExistingDocument]);
 
   if (!isAuthenticated) return null;
 
