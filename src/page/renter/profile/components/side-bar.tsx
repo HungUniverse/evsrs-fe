@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { UserRound, ScrollText, KeyRound } from "lucide-react";
+import { UserRound, ScrollText, KeyRound, type LucideIcon } from "lucide-react";
 
 type Item = {
   to: string;

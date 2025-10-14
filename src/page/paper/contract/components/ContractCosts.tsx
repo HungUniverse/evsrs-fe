@@ -1,123 +1,135 @@
-import type { Contract } from "@/@types/contract";
+import { useEffect, useState, useMemo } from "react";
+import { api } from "@/lib/axios/axios";
+import type { ItemBaseResponse } from "@/@types/response";
+import type { OrderBookingDetail } from "@/@types/order/order-booking";
 
-interface ContractCostsProps {
-  contract: Contract;
+function toNum(x: unknown) {
+  if (typeof x === "number") return x;
+  if (typeof x === "string") return Number(x.replace(/,/g, ""));
+  return 0;
 }
 
-function ContractCosts({ contract }: ContractCostsProps) {
+export default function ContractCosts({ orderId }: { orderId: string }) {
+  const [order, setOrder] = useState<OrderBookingDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let ignore = false;
+    (async () => {
+      try {
+        setLoading(true);
+        const res = await api.get<ItemBaseResponse<OrderBookingDetail>>(
+          `/api/OrderBooking/${orderId}`
+        );
+        if (!ignore) setOrder(res.data.data);
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, [orderId]);
+
+  const carName = order?.carEvs?.model?.modelName || "Mẫu xe";
+  const startDate = order?.startAt ? new Date(order.startAt) : null;
+  const endDate = order?.endAt ? new Date(order.endAt) : null;
+
+  const subTotal = toNum(order?.subTotal);
+  const deposit = toNum(order?.depositAmount);
+  const remaining =
+    toNum(order?.remainingAmount) || Math.max(0, subTotal - deposit);
+
+  const timeRange = useMemo(() => {
+    if (!startDate || !endDate) return "—";
+    return `${startDate.toLocaleString("vi-VN")} → ${endDate.toLocaleString("vi-VN")}`;
+  }, [startDate, endDate]);
+
+  if (loading) {
+    return (
+      <section className="rounded-xl border bg-white p-5 md:p-6">
+        <div className="h-5 w-40 bg-slate-100 rounded mb-4" />
+        <div className="space-y-2">
+          <div className="h-4 w-72 bg-slate-100 rounded" />
+          <div className="h-4 w-60 bg-slate-100 rounded" />
+          <div className="h-4 w-40 bg-slate-100 rounded" />
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-bold text-gray-800 mb-4">
-          3. Chi phí thanh toán (Payment costs)
-        </h3>
-        <div className="space-y-1 pl-4">
-          <div>
-            <span className="font-medium text-gray-600">Giá thuê:</span>
-            <span className="ml-2 text-gray-800">
-              {contract.dailyRate.toLocaleString("vi-VN")} VNĐ/ngày
-            </span>
-          </div>
-          <div>
-            <span className="font-medium text-gray-600">Đặt cọc:</span>
-            <span className="ml-2 text-gray-800">
-              40% giá thuê của {contract.rentalDays} ngày:{" "}
-              {contract.depositAmount.toLocaleString("vi-VN")}đ.
-            </span>
-          </div>
-          <div>
-            <span className="font-medium text-gray-600">
-              Số tiền còn lại cần trả sau:
-            </span>
-            <span className="ml-2 text-gray-800">
-              {contract.remainingAmount.toLocaleString("vi-VN")}đ.
-            </span>
-          </div>
-          <div>
-            <span className="font-medium text-gray-600">Phí vượt km:</span>
-            <span className="ml-2 text-gray-800">
-              {contract.overMileageFee} vượt. Giới hạn: 300km/ngày (xe 4 chỗ),
-              400km/ngày (xe 6 chỗ trở lên).
-            </span>
-          </div>
-          <div>
-            <span className="font-medium text-gray-600">Phí vượt giờ:</span>
-            <span className="ml-2 text-gray-800">
-              100.000 - 200.000 VNĐ/giờ.
-            </span>
-          </div>
-          <div>
-            <span className="font-medium text-gray-600">Các chi phí khác:</span>
-            <span className="ml-2 text-gray-800">
-              phí cầu đường, gửi xe, vi phạm giao thông do Bên B tự chi trả.
-            </span>
-          </div>
-        </div>
-      </div>
+    <section className=" text-lg p-5 md:p-6">
+      <h3 className="text-xl font-bold text-gray-800 mb-4">
+        2. Chi phí thanh toán
+      </h3>
 
-      {/* Phần 4: Chi phí dịch vụ và bảo hiểm */}
-      <div>
-        <h3 className="text-lg font-bold text-gray-800 mb-4">
-          4. Chi phí dịch vụ và bảo hiểm (Service and insurance costs)
-        </h3>
-        <div className="space-y-1 pl-4">
-          <div>
-            <span className="font-medium text-gray-600">Bảo hiểm:</span>
-            <span className="ml-2 text-gray-800">50.000 VNĐ/người</span>
-          </div>
-          <div>
-            <span className="font-medium text-gray-600">Vệ sinh xe:</span>
-            <span className="ml-2 text-gray-800">
-              {contract.carWashFee} nếu xe bị bẩn quá mức thông thường.
-            </span>
-          </div>
-          <div>
-            <span className="font-medium text-gray-600">
-              Các sự cố đặc biệt:
-            </span>
-            <span className="ml-2 text-gray-800">
-              mất giấy tờ hoặc chìa khóa bồi thường từ 1.000.000 - 3.000.000
-              VNĐ; sau khi xe hết pin 500.000 - 1.000.000 VNĐ/lần; nếu xe hư
-              hỏng do lỗi của khách thì phải bồi thường theo báo giá của hãng
-              hoặc bên cho thuê.
-            </span>
-          </div>
+      <div className="space-y-2 text-md  text-slate-700">
+        <div className="flex justify-left gap-3">
+          <span className="font-medium">Xe: </span>
+          <span className="">{carName}</span>
         </div>
-      </div>
+        <div className="flex justify-left gap-3">
+          <span className="font-medium">Thời hạn: </span>
+          <span className="">{timeRange}</span>
+        </div>
+        <div className="flex justify-left gap-3">
+          <span className="font-medium">Tổng tiền: </span>
+          <span className=" ">{subTotal.toLocaleString("vi-VN")}đ</span>
+        </div>
+        <div className="flex justify-left gap-3">
+          <span className="font-medium"> Đã cọc: </span>
+          <span className="">{deposit.toLocaleString("vi-VN")}đ</span>
+        </div>
+        <div className="flex justify-left gap-5">
+          <span className="font-medium">Còn lại: </span>
+          <span>{remaining.toLocaleString("vi-VN")}đ</span>
+        </div>
 
-      {/* Phần 5: Chi phí khi trả xe tại chi nhánh khác */}
-      <div>
-        <h3 className="text-lg font-bold text-gray-800 mb-4">
-          5. Chi phí khi trả xe tại chi nhánh khác (One-way fee)
-        </h3>
-        <div className="space-y-1 pl-4">
-          <div>
-            <span className="text-gray-800">
-              Trường hợp trả xe tại chi nhánh khác nơi nhận ban đầu sẽ phát sinh
-              thêm phí.
-            </span>
+        {/* Phần dịch vụ/bảo hiểm & one-way giữ nguyên text như file bạn đang dùng */}
+        <div className="mt-4">
+          <h3 className="text-lg font-bold text-gray-800 mb-2">
+            3. Chi phí dịch vụ và bảo hiểm (Service and insurance costs)
+          </h3>
+          <div className="space-y-1 pl-4">
+            <div>
+              <span className="font-medium text-gray-600">Bảo hiểm:</span>
+              <span className="ml-2 text-gray-800">50.000 VNĐ/người</span>
+            </div>
+            <div>
+              <span className="font-medium text-gray-600">Vệ sinh xe:</span>
+              <span className="ml-2 text-gray-800">
+                200.000VNĐ nếu xe bẩn quá mức thông thường.
+              </span>
+            </div>
+            <div>
+              <span className="font-medium text-gray-600">Sự cố đặc biệt:</span>
+              <span className="ml-2 text-gray-800">
+                mất giấy tờ/chìa khóa bồi thường 1.000.000 - 3.000.000 VNĐ; hết
+                pin 500.000 - 1.000.000 VNĐ/lần; hư hỏng do lỗi KH theo báo giá
+                hãng/đơn vị cho thuê.
+              </span>
+            </div>
           </div>
-          <div>
-            <span className="text-gray-800">
-              Có thể tính theo mức cố định từ 200.000 - 500.000 VNĐ/lần.
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-800">
-              Hoặc tính theo khoảng cách: 10.000 - 15.000 VNĐ/km giữa hai chi
-              nhánh.
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-800">
-              Một số chương trình khuyến mãi hoặc dịch vụ car sharing nội thành
-              có thể được miễn phí.
-            </span>
+        </div>
+
+        <div className="mt-4">
+          <h3 className="text-lg font-bold text-gray-800 mb-2">
+            4. Chi phí trả xe tại chi nhánh khác (One-way fee)
+          </h3>
+          <div className="space-y-1 pl-4">
+            <div>Trả khác chi nhánh nhận ban đầu sẽ phát sinh phí.</div>
+            <div>
+              Mức cố định: 200.000 - 500.000 VNĐ/lần, hoặc theo km: 10.000 -
+              15.000 VNĐ/km.
+            </div>
+            <div>
+              Một số chương trình khuyến mãi hoặc car-sharing nội thành có thể
+              được miễn phí.
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
-
-export default ContractCosts;

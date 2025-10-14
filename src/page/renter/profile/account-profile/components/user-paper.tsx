@@ -4,10 +4,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Pencil, X, CheckCircle2, CircleAlert, Upload, Eye, X as XIcon } from "lucide-react";
+import {
+  Pencil,
+  X,
+  CheckCircle2,
+  CircleAlert,
+  Upload,
+  Eye,
+  X as XIcon,
+} from "lucide-react";
 import { toast } from "sonner";
-import { identifyDocumentAPI, type IdentifyDocumentRequest, type IdentifyDocumentResponse } from "@/apis/identify-document.api";
+import { identifyDocumentAPI } from "@/apis/identify-document.api";
 import { useEffect } from "react";
+import type {
+  IdentifyDocumentRequest,
+  IdentifyDocumentResponse,
+} from "@/@types/identify-document";
 
 type PaperStatus = "pending" | "approved" | "rejected";
 
@@ -17,7 +29,9 @@ async function uploadImageToCloudinary(file: File): Promise<string> {
   const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET as string;
 
   if (!cloudName || !uploadPreset) {
-    throw new Error("Cloudinary config missing (VITE_CLOUDINARY_CLOUD_NAME / VITE_CLOUDINARY_UPLOAD_PRESET)");
+    throw new Error(
+      "Cloudinary config missing (VITE_CLOUDINARY_CLOUD_NAME / VITE_CLOUDINARY_UPLOAD_PRESET)"
+    );
   }
 
   const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
@@ -51,29 +65,40 @@ export default function UserPaper() {
     frontImage: null as File | null, // ảnh mặt trước
     backImage: null as File | null, // ảnh mặt sau
   });
-  const [initialImages, setInitialImages] = useState<{ front?: string | null; back?: string | null }>({});
+  const [initialImages, setInitialImages] = useState<{
+    front?: string | null;
+    back?: string | null;
+  }>({});
   const [savedForm, setSavedForm] = useState<typeof form | null>(null);
-  const [savedImages, setSavedImages] = useState<{ front?: string | null; back?: string | null } | null>(null);
+  const [savedImages, setSavedImages] = useState<{
+    front?: string | null;
+    back?: string | null;
+  } | null>(null);
 
   // Helper: lấy document hiện tại (nếu có). Trả về null nếu không tìm thấy
-  const fetchExistingDocument = useCallback(async (): Promise<IdentifyDocumentResponse | null> => {
-    if (!user?.userId) return null;
-    try {
-      const res = await identifyDocumentAPI.getUserDocuments(user.userId);
-      return (res?.data as IdentifyDocumentResponse) ?? null;
-    } catch (err: unknown) {
-      const apiError = err as { response?: { data?: { error?: string; message?: string } } };
-      const notFoundMsg = apiError?.response?.data?.error || apiError?.response?.data?.message;
-      if (notFoundMsg && /not found/i.test(notFoundMsg)) {
-        return null;
+  const fetchExistingDocument =
+    useCallback(async (): Promise<IdentifyDocumentResponse | null> => {
+      if (!user?.userId) return null;
+      try {
+        const res = await identifyDocumentAPI.getUserDocuments(user.userId);
+        return (res?.data as IdentifyDocumentResponse) ?? null;
+      } catch (err: unknown) {
+        const apiError = err as {
+          response?: { data?: { error?: string; message?: string } };
+        };
+        const notFoundMsg =
+          apiError?.response?.data?.error || apiError?.response?.data?.message;
+        if (notFoundMsg && /not found/i.test(notFoundMsg)) {
+          return null;
+        }
+        throw err;
       }
-      throw err;
-    }
-  }, [user?.userId]);
+    }, [user?.userId]);
 
-  
-
-  function onChange<K extends keyof typeof form>(key: K, val: string | File | null) {
+  function onChange<K extends keyof typeof form>(
+    key: K,
+    val: string | File | null
+  ) {
     setForm((s) => ({ ...s, [key]: val }));
   }
 
@@ -110,8 +135,10 @@ export default function UserPaper() {
       const needsFrontUpload = !!form.frontImage;
       const needsBackUpload = !!form.backImage;
 
-      if (needsFrontUpload && form.frontImage) uploaders.push(uploadImageToCloudinary(form.frontImage));
-      if (needsBackUpload && form.backImage) uploaders.push(uploadImageToCloudinary(form.backImage));
+      if (needsFrontUpload && form.frontImage)
+        uploaders.push(uploadImageToCloudinary(form.frontImage));
+      if (needsBackUpload && form.backImage)
+        uploaders.push(uploadImageToCloudinary(form.backImage));
 
       if (uploaders.length) {
         const results = await Promise.all(uploaders);
@@ -144,7 +171,10 @@ export default function UserPaper() {
           note: `Họ tên: ${form.fullName}`,
         };
         const response = await identifyDocumentAPI.upload(requestData);
-        if (response.code === "SUCCESS" && (response.statusCode === 201 || response.statusCode === 200)) {
+        if (
+          response.code === "SUCCESS" &&
+          (response.statusCode === 201 || response.statusCode === 200)
+        ) {
           toast.success(response.message || "Đã gửi giấy tờ để xác thực");
         } else {
           toast.error(response.message || "Lưu thất bại, thử lại sau");
@@ -162,7 +192,10 @@ export default function UserPaper() {
           status: "PENDING",
           note: `Họ tên: ${form.fullName}`,
         });
-        if (response.code === "SUCCESS" && (response.statusCode === 200 || response.statusCode === 204)) {
+        if (
+          response.code === "SUCCESS" &&
+          (response.statusCode === 200 || response.statusCode === 204)
+        ) {
           toast.success(response.message || "Cập nhật giấy tờ thành công");
         } else {
           toast.error(response.message || "Cập nhật thất bại, thử lại sau");
@@ -173,46 +206,67 @@ export default function UserPaper() {
       // Làm mới dữ liệu sau khi lưu
       const refreshed = await fetchExistingDocument();
       if (refreshed) {
-        setStatus(refreshed.status === "APPROVED" ? "approved" : refreshed.status === "PENDING" ? "pending" : "rejected");
+        setStatus(
+          refreshed.status === "APPROVED"
+            ? "approved"
+            : refreshed.status === "PENDING"
+              ? "pending"
+              : "rejected"
+        );
         setForm((s) => ({
           ...s,
           licenseNumber: refreshed.numberMasked || "",
           licenseClass: refreshed.licenseClass || s.licenseClass,
           countryCode: refreshed.countryCode || s.countryCode,
-          expiryDate: refreshed.expireAt ? new Date(refreshed.expireAt).toISOString().slice(0, 10) : s.expiryDate,
+          expiryDate: refreshed.expireAt
+            ? new Date(refreshed.expireAt).toISOString().slice(0, 10)
+            : s.expiryDate,
           frontImage: null,
           backImage: null,
         }));
-        setInitialImages({ front: refreshed.frontImage ?? null, back: refreshed.backImage ?? null });
+        setInitialImages({
+          front: refreshed.frontImage ?? null,
+          back: refreshed.backImage ?? null,
+        });
       }
       setEdit(false);
     } catch (error: unknown) {
       console.error("Upload error:", error);
-      const errorMessage = 
-        (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 
-        "Lưu thất bại, thử lại sau";
+      const errorMessage =
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Lưu thất bại, thử lại sau";
       toast.error(errorMessage);
     }
   }
 
-  // Load user documents and prefill
   useEffect(() => {
     const load = async () => {
       if (!user?.userId) return;
       try {
         const latest = await fetchExistingDocument();
         if (latest) {
-          setStatus(latest.status === "APPROVED" ? "approved" : latest.status === "PENDING" ? "pending" : "rejected");
+          setStatus(
+            latest.status === "APPROVED"
+              ? "approved"
+              : latest.status === "PENDING"
+                ? "pending"
+                : "rejected"
+          );
           setForm((s) => ({
             ...s,
             licenseNumber: latest.numberMasked || "",
             licenseClass: latest.licenseClass || s.licenseClass,
             countryCode: latest.countryCode || s.countryCode,
-            expiryDate: latest.expireAt ? new Date(latest.expireAt).toISOString().slice(0, 10) : s.expiryDate,
+            expiryDate: latest.expireAt
+              ? new Date(latest.expireAt).toISOString().slice(0, 10)
+              : s.expiryDate,
             frontImage: null,
             backImage: null,
           }));
-          setInitialImages({ front: latest.frontImage ?? null, back: latest.backImage ?? null });
+          setInitialImages({
+            front: latest.frontImage ?? null,
+            back: latest.backImage ?? null,
+          });
         } else {
           // Không có dữ liệu: đặt trống UI
           setStatus("pending");
@@ -245,11 +299,15 @@ export default function UserPaper() {
         </div>
 
         {!edit ? (
-          <Button variant="outline" size="sm" onClick={() => {
-            setSavedForm(form);
-            setSavedImages(initialImages);
-            setEdit(true);
-          }}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setSavedForm(form);
+              setSavedImages(initialImages);
+              setEdit(true);
+            }}
+          >
             <Pencil className="mr-2 h-4 w-4" /> Chỉnh sửa
           </Button>
         ) : (
@@ -377,7 +435,7 @@ function ImageUpload({
   };
 
   const processFile = (selectedFile: File) => {
-    if (selectedFile.type.startsWith('image/')) {
+    if (selectedFile.type.startsWith("image/")) {
       onChange?.(selectedFile);
       const url = URL.createObjectURL(selectedFile);
       setPreviewUrl(url);
@@ -404,9 +462,9 @@ function ImageUpload({
     e.preventDefault();
     e.stopPropagation();
     setIsDragOver(false);
-    
+
     if (disabled) return;
-    
+
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       processFile(files[0]);
@@ -451,8 +509,8 @@ function ImageUpload({
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-4xl">
-                      <img 
-                        src={effectivePreview} 
+                      <img
+                        src={effectivePreview}
                         alt={label}
                         className="w-full h-auto rounded-lg"
                       />
@@ -460,9 +518,9 @@ function ImageUpload({
                   </Dialog>
                 )}
                 {!disabled && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={handleRemoveImage}
                   >
                     <XIcon className="h-4 w-4" />
@@ -471,38 +529,40 @@ function ImageUpload({
               </div>
             </div>
             {effectivePreview && (
-              <img 
-                src={effectivePreview} 
+              <img
+                src={effectivePreview}
                 alt={label}
                 className="w-full h-32 object-cover rounded border"
               />
             )}
           </div>
         ) : (
-          <div 
+          <div
             className={`border-2 border-dashed rounded-lg p-4 transition-all ${
-              isDragOver 
-                ? 'border-blue-400 bg-blue-50' 
-                : 'border-gray-300 hover:border-gray-400'
-            } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+              isDragOver
+                ? "border-blue-400 bg-blue-50"
+                : "border-gray-300 hover:border-gray-400"
+            } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
             <div className="text-center">
-              <Upload className={`mx-auto h-8 w-8 ${isDragOver ? 'text-blue-400' : 'text-gray-400'}`} />
+              <Upload
+                className={`mx-auto h-8 w-8 ${isDragOver ? "text-blue-400" : "text-gray-400"}`}
+              />
               <div className="mt-2">
                 <button
                   type="button"
                   onClick={handleClick}
                   disabled={disabled}
                   className={`text-sm transition-colors bg-transparent border-none p-0 cursor-pointer ${
-                    isDragOver 
-                      ? 'text-blue-600' 
-                      : 'text-blue-600 hover:text-blue-500'
-                  } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    isDragOver
+                      ? "text-blue-600"
+                      : "text-blue-600 hover:text-blue-500"
+                  } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
-                  {isDragOver ? 'Thả file vào đây' : 'Tải lên ảnh'}
+                  {isDragOver ? "Thả file vào đây" : "Tải lên ảnh"}
                 </button>
                 <input
                   ref={fileInputRef}
@@ -511,7 +571,7 @@ function ImageUpload({
                   accept="image/*"
                   onChange={handleFileChange}
                   disabled={disabled}
-                  style={{ display: 'none' }}
+                  style={{ display: "none" }}
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   PNG, JPG, GIF tối đa 10MB

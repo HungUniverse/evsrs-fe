@@ -20,11 +20,20 @@ export default function StaffDetailPaper({ orderId }: { orderId: string }) {
         </li>
         <li>
           <Link
-            to={`${base}/handover-inspection`}
+            to={`${base}/handover/inspection`}
             className="inline-flex items-center gap-2 text-sm text-sky-700 hover:underline"
           >
             <Paperclip className="h-4 w-4" />
-            Biên bản giao và nhận xe
+            Biên bản giao xe
+          </Link>
+        </li>
+        <li>
+          <Link
+            to={`${base}/return/inspection`}
+            className="inline-flex items-center gap-2 text-sm text-sky-700 hover:underline"
+          >
+            <Paperclip className="h-4 w-4" />
+            Biên bản nhận xe
           </Link>
         </li>
       </ul>

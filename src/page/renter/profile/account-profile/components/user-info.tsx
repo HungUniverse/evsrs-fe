@@ -10,7 +10,7 @@ export default function UserInfo() {
       </section>
     );
   }
-  // console.log(user.);
+  console.log(user);
 
   return (
     <section className="rounded-xl border bg-white p-6">
@@ -19,11 +19,7 @@ export default function UserInfo() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
         <div className="flex flex-col items-center">
           <img
-            src={
-              user.profilePicture ||
-              "https://api.dicebear.com/7.x/initials/svg?seed=" +
-                encodeURIComponent(user.fullName || user.email)
-            }
+            src={user.avatar}
             alt="avatar"
             className="h-24 w-24 rounded-full ring-1 ring-slate-200 object-cover"
           />
@@ -31,8 +27,8 @@ export default function UserInfo() {
 
         <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Email" value={user.email} />
-          <Field label="Số điện thoại" value={user.phoneNumber} />
-          <Field label="Ngày sinh" value={user.dob || ""} />
+          <Field label="Số điện thoại" value={user.phone} />
+          <Field label="Ngày sinh" value={user?.dob || ""} />
           <Field label="Giới tính" value={user.gender || "aa"} />
         </div>
       </div>

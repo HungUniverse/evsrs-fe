@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -6,16 +5,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { carEVAPI } from "@/apis/car-ev.api";
+import { useEffect } from "react";
+import type { ID } from "@/@types/common/pagination";
+import { useDepotsByModel } from "@/hooks/use-depot-by-model";
 
-type DepotLite = {
-  id: string;
-  name: string;
+type Props = {
   province?: string;
-  district?: string;
-  ward?: string;
-  street?: string;
-  mapId?: string;
+  modelId: ID;
+  value: ID;
+  onChange: (id: ID) => void;
 };
 
 export default function AddressSelect({
@@ -23,78 +21,53 @@ export default function AddressSelect({
   modelId,
   value,
   onChange,
-}: {
-  province: string;
-  modelId: string;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  const [depots, setDepots] = useState<DepotLite[]>([]);
-  const [loading, setLoading] = useState(false);
+}: Props) {
+  const { data: depots = [], isLoading } = useDepotsByModel({
+    modelId,
+    province,
+  });
 
   useEffect(() => {
-    if (!modelId) return;
-    (async () => {
-      try {
-        setLoading(true);
-        const res = await carEVAPI.getAll({
-          pageNumber: 1,
-          pageSize: 500,
-          status: "AVAILABLE",
-          modelId,
-        });
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const data = (res.data as any)?.data ?? res.data ?? {};
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const items: any[] = data.items ?? [];
+    if (!isLoading && depots.length === 1 && value !== depots[0].depot.id) {
+      onChange(depots[0].depot.id);
+    }
+  }, [isLoading, depots, value, onChange]);
 
-        // unique depot theo id + lọc theo province đang chọn
-        const map = new Map<string, DepotLite>();
-        for (const it of items) {
-          const d = it.depot;
-          if (!d?.id) continue;
-          if (province && (d.province ?? "") !== province) continue;
-          if (!map.has(d.id)) {
-            map.set(d.id, {
-              id: d.id,
-              name: d.name,
-              province: d.province,
-              district: d.district,
-              ward: d.ward,
-              street: d.street,
-              mapId: d.mapId,
-            });
-          }
-        }
-        setDepots([...map.values()]);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [modelId, province]);
+  const placeholder = isLoading
+    ? "Đang tải trạm..."
+    : depots.length
+      ? "Chọn trạm có xe"
+      : "Không có trạm phù hợp";
 
   return (
-    <section className="space-y-2">
-      <label className="text-sm text-slate-600">Nơi nhận xe *</label>
-      <Select value={value} onValueChange={onChange} disabled={loading}>
+    <div className="space-y-2">
+      <Select
+        value={value}
+        onValueChange={onChange}
+        disabled={isLoading || depots.length === 0}
+      >
         <SelectTrigger className="w-full">
-          <SelectValue
-            placeholder={loading ? "Đang tải..." : "Chọn địa chỉ chi tiết"}
-          />
+          <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
-          {depots.map((d) => (
-            <SelectItem key={d.id} value={d.id}>
-              {d.name} — {d.street}, {d.district}
+          {depots.map(({ depot, count }) => (
+            <SelectItem key={depot.id} value={depot.id}>
+              {depot.name}
+              {depot.district ? ` • ${depot.district}` : ""}
+              {depot.ward ? `, ${depot.ward}` : ""}
+              <span className="ml-1 text-xs text-muted-foreground">
+                ({count} xe)
+              </span>
             </SelectItem>
           ))}
-          {depots.length === 0 && !loading && (
-            <div className="px-3 py-2 text-sm text-slate-500">
-              Không có trạm phù hợp
-            </div>
-          )}
         </SelectContent>
       </Select>
-    </section>
+
+      {!isLoading && depots.length === 0 && (
+        <p className="text-xs text-muted-foreground">
+          Không tìm thấy trạm có xe AVAILABLE cho model này.
+        </p>
+      )}
+    </div>
   );
 }

@@ -1,7 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import * as React from "react";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
-import { userAPI } from "@/apis/user.api";
 import { identifyDocumentAPI } from "@/apis/identify-document.api";
 import type { User as UserType } from "@/@types/customer";
 import type { IdentifyDocumentResponse } from "@/apis/identify-document.api";
@@ -58,6 +57,7 @@ import {
   User,
   Eye,
 } from "lucide-react";
+import { UserFullAPI } from "@/apis/user.api";
 
 function formatDate(iso?: string) {
   if (!iso) return "—";
@@ -74,17 +74,17 @@ function formatDate(iso?: string) {
 
 function getImageUrl(imageString: string | null): string {
   if (!imageString) return "";
-  
+
   // Nếu đã có prefix data: thì dùng trực tiếp
-  if (imageString.startsWith('data:')) {
+  if (imageString.startsWith("data:")) {
     return imageString;
   }
-  
+
   // Nếu là URL thì dùng trực tiếp
-  if (imageString.startsWith('http')) {
+  if (imageString.startsWith("http")) {
     return imageString;
   }
-  
+
   // Mặc định coi như base64 string và thêm prefix
   return `data:image/jpeg;base64,${imageString}`;
 }
@@ -112,7 +112,9 @@ function getDocStatus(
 export function CustomerList() {
   const { user: currentUser } = useAuthStore();
   const [users, setUsers] = useState<UserType[]>([]);
-  const [documents, setDocuments] = useState<Record<string, IdentifyDocumentResponse | null>>({});
+  const [documents, setDocuments] = useState<
+    Record<string, IdentifyDocumentResponse | null>
+  >({});
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<SelectionMap>({});
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
@@ -148,7 +150,7 @@ export function CustomerList() {
     const loadUsers = async () => {
       setLoading(true);
       try {
-        const response = await userAPI.getUsers(1, 100);
+        const response = await UserFullAPI.getAll(1, 100);
         setUsers(response.data.data.items);
       } catch (error) {
         console.error("Failed to load users:", error);
@@ -164,21 +166,21 @@ export function CustomerList() {
   const loadUserDocument = async (userId: string) => {
     // Only load if not already loaded
     if (documents[userId] !== undefined) return;
-    
+
     try {
       const docResponse = await identifyDocumentAPI.getUserDocuments(userId);
-      console.log('Document response for user', userId, ':', docResponse.data);
-      console.log('Front image type:', typeof docResponse.data.frontImage);
-      console.log('Back image type:', typeof docResponse.data.backImage);
-      
-      setDocuments(prev => ({
+      console.log("Document response for user", userId, ":", docResponse.data);
+      console.log("Front image type:", typeof docResponse.data.frontImage);
+      console.log("Back image type:", typeof docResponse.data.backImage);
+
+      setDocuments((prev) => ({
         ...prev,
-        [userId]: docResponse.data
+        [id]: docResponse.data,
       }));
     } catch {
-      setDocuments(prev => ({
+      setDocuments((prev) => ({
         ...prev,
-        [userId]: null
+        [userId]: null,
       }));
     }
   };
@@ -243,7 +245,6 @@ export function CustomerList() {
     setSelected(next);
   };
 
-
   const clearFilters = () => {
     setQuery("");
     setFilters({
@@ -260,39 +261,47 @@ export function CustomerList() {
     if (documents[user.id] === undefined) {
       await loadUserDocument(user.id);
     }
-    
+
     const document = documents[user.id];
     if (!document) return;
-    
-    setDocumentDialog({ 
-      user, 
-      document, 
-      action: document.status === "PENDING" ? "approve" : "approve" 
+
+    setDocumentDialog({
+      user,
+      document,
+      action: document.status === "PENDING" ? "approve" : "approve",
     });
     setVerificationNotes("");
   };
 
-  const handleStatusToggle = async (user: UserType, newStatus: "APPROVED" | "REJECTED") => {
+  const handleStatusToggle = async (
+    user: UserType,
+    newStatus: "APPROVED" | "REJECTED"
+  ) => {
     // Load document if not already loaded
     if (documents[user.id] === undefined) {
       await loadUserDocument(user.id);
     }
-    
+
     const document = documents[user.id];
     if (!document) return;
-    
+
     // Show confirmation dialog
     setStatusChangeDialog({
       user,
       document,
       newStatus,
-      currentStatus: document.status
+      currentStatus: document.status,
     });
   };
 
   const confirmStatusChange = async () => {
-    if (!statusChangeDialog || !statusChangeDialog.document || !statusChangeDialog.user) return;
-    
+    if (
+      !statusChangeDialog ||
+      !statusChangeDialog.document ||
+      !statusChangeDialog.user
+    )
+      return;
+
     try {
       // Use document ID from the loaded document
       await identifyDocumentAPI.updateStatus(statusChangeDialog.document.id, {
@@ -320,13 +329,13 @@ export function CustomerList() {
     }
   };
 
-
   const confirmDocumentVerification = async () => {
     if (!documentDialog.user || !documentDialog.document) return;
-    
+
     try {
-      const newStatus = documentDialog.action === "approve" ? "APPROVED" : "REJECTED";
-      
+      const newStatus =
+        documentDialog.action === "approve" ? "APPROVED" : "REJECTED";
+
       // Use document ID from the loaded document
       await identifyDocumentAPI.updateStatus(documentDialog.document.id, {
         status: newStatus,
@@ -419,7 +428,6 @@ export function CustomerList() {
             </Select>
           </div>
 
-
           {/* Sort by Filter */}
           <div className="flex items-center gap-2">
             <ArrowUpDown className="size-4 text-muted-foreground" />
@@ -480,15 +488,19 @@ export function CustomerList() {
               const selectedRow = Boolean(selected[u.id]);
               const document = documents[u.id];
               const hasDocumentLoaded = documents[u.id] !== undefined;
-              const frontDoc = hasDocumentLoaded ? getDocStatus(
-                Boolean(document?.frontImage),
-                document?.status || "PENDING"
-              ) : "loading";
-              const backDoc = hasDocumentLoaded ? getDocStatus(
-                Boolean(document?.backImage),
-                document?.status || "PENDING"
-              ) : "loading";
-              
+              const frontDoc = hasDocumentLoaded
+                ? getDocStatus(
+                    Boolean(document?.frontImage),
+                    document?.status || "PENDING"
+                  )
+                : "loading";
+              const backDoc = hasDocumentLoaded
+                ? getDocStatus(
+                    Boolean(document?.backImage),
+                    document?.status || "PENDING"
+                  )
+                : "loading";
+
               return (
                 <React.Fragment key={u.id}>
                   <TableRow
@@ -497,7 +509,7 @@ export function CustomerList() {
                     onClick={() => {
                       const newExpandedRow = expandedRow === u.id ? null : u.id;
                       setExpandedRow(newExpandedRow);
-                      
+
                       // Load document when expanding row
                       if (newExpandedRow && filters.role === "USER") {
                         loadUserDocument(u.id);
@@ -517,9 +529,7 @@ export function CustomerList() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <img
-                          src={
-                            `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.fullName)}`
-                          }
+                          src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.fullName)}`}
                           alt={u.fullName}
                           className="size-8 rounded-full object-cover"
                         />
@@ -638,33 +648,40 @@ export function CustomerList() {
                               >
                                 {document.status}
                               </Badge>
-                              
+
                               {document.status !== "PENDING" && (
                                 <div className="flex items-center gap-2">
                                   <button
                                     className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                                      document.status === "APPROVED" 
-                                        ? "bg-blue-600" 
+                                      document.status === "APPROVED"
+                                        ? "bg-blue-600"
                                         : "bg-gray-200"
                                     }`}
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      const newStatus = document.status === "APPROVED" ? "REJECTED" : "APPROVED";
+                                      const newStatus =
+                                        document.status === "APPROVED"
+                                          ? "REJECTED"
+                                          : "APPROVED";
                                       handleStatusToggle(u, newStatus);
                                     }}
                                   >
                                     <span
                                       className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
-                                        document.status === "APPROVED" ? "translate-x-5" : "translate-x-1"
+                                        document.status === "APPROVED"
+                                          ? "translate-x-5"
+                                          : "translate-x-1"
                                       }`}
                                     />
                                   </button>
                                   <span className="text-xs text-muted-foreground">
-                                    {document.status === "APPROVED" ? "Đã duyệt" : "Đã từ chối"}
+                                    {document.status === "APPROVED"
+                                      ? "Đã duyệt"
+                                      : "Đã từ chối"}
                                   </span>
                                 </div>
                               )}
-                              
+
                               {document.status === "PENDING" && (
                                 <Button
                                   size="sm"
@@ -714,7 +731,10 @@ export function CustomerList() {
                   {/* Expanded Row Content */}
                   {expandedRow === u.id && (
                     <TableRow>
-                      <TableCell colSpan={showDocumentColumns ? 8 : 6} className="p-0">
+                      <TableCell
+                        colSpan={showDocumentColumns ? 8 : 6}
+                        className="p-0"
+                      >
                         <div className="border-t bg-muted/20 p-4">
                           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {/* Basic Info */}
@@ -737,7 +757,11 @@ export function CustomerList() {
                                     Verified:
                                   </span>
                                   <span className="ml-2">
-                                    <Badge variant={u.isVerify ? "default" : "secondary"}>
+                                    <Badge
+                                      variant={
+                                        u.isVerify ? "default" : "secondary"
+                                      }
+                                    >
                                       {u.isVerify ? "Yes" : "No"}
                                     </Badge>
                                   </span>
@@ -763,9 +787,7 @@ export function CustomerList() {
                                     <span className="text-muted-foreground">
                                       Tạo bởi:
                                     </span>
-                                    <span className="ml-2">
-                                      {u.createdBy}
-                                    </span>
+                                    <span className="ml-2">{u.createdBy}</span>
                                   </div>
                                 )}
                                 {u.updatedBy && (
@@ -773,9 +795,7 @@ export function CustomerList() {
                                     <span className="text-muted-foreground">
                                       Cập nhật bởi:
                                     </span>
-                                    <span className="ml-2">
-                                      {u.updatedBy}
-                                    </span>
+                                    <span className="ml-2">{u.updatedBy}</span>
                                   </div>
                                 )}
                               </div>
@@ -791,7 +811,9 @@ export function CustomerList() {
                                 {!hasDocumentLoaded ? (
                                   <div className="flex items-center justify-center p-8">
                                     <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
-                                    <span className="ml-2 text-sm text-muted-foreground">Đang tải tài liệu...</span>
+                                    <span className="ml-2 text-sm text-muted-foreground">
+                                      Đang tải tài liệu...
+                                    </span>
                                   </div>
                                 ) : document ? (
                                   <div className="space-y-3">
@@ -813,7 +835,7 @@ export function CustomerList() {
                                         </div>
                                       </div>
                                     </div>
-                                    
+
                                     <div className="space-y-2">
                                       <span className="text-sm text-muted-foreground">
                                         Ảnh mặt trước:
@@ -821,19 +843,34 @@ export function CustomerList() {
                                       {document.frontImage ? (
                                         <div className="relative group">
                                           <img
-                                            src={getImageUrl(document.frontImage)}
+                                            src={getImageUrl(
+                                              document.frontImage
+                                            )}
                                             alt="Front Document"
                                             className="w-full h-20 object-cover rounded border cursor-pointer hover:opacity-80"
                                             onError={() => {
-                                              console.error('Image load error:', document.frontImage);
-                                              console.error('Image type:', typeof document.frontImage);
-                                              console.error('Image length:', document.frontImage?.length);
+                                              console.error(
+                                                "Image load error:",
+                                                document.frontImage
+                                              );
+                                              console.error(
+                                                "Image type:",
+                                                typeof document.frontImage
+                                              );
+                                              console.error(
+                                                "Image length:",
+                                                document.frontImage?.length
+                                              );
                                             }}
                                             onClick={() => {
                                               if (document.frontImage) {
                                                 setImageModalOpen({
-                                                  url: getImageUrl(document.frontImage),
-                                                  title: "Front Document - " + u.fullName,
+                                                  url: getImageUrl(
+                                                    document.frontImage
+                                                  ),
+                                                  title:
+                                                    "Front Document - " +
+                                                    u.fullName,
                                                 });
                                               }
                                             }}
@@ -853,7 +890,7 @@ export function CustomerList() {
                                         </div>
                                       )}
                                     </div>
-                                    
+
                                     <div className="space-y-2">
                                       <span className="text-sm text-muted-foreground">
                                         Ảnh mặt sau:
@@ -861,19 +898,34 @@ export function CustomerList() {
                                       {document.backImage ? (
                                         <div className="relative group">
                                           <img
-                                            src={getImageUrl(document.backImage)}
+                                            src={getImageUrl(
+                                              document.backImage
+                                            )}
                                             alt="Back Document"
                                             className="w-full h-20 object-cover rounded border cursor-pointer hover:opacity-80"
                                             onError={() => {
-                                              console.error('Back image load error:', document.backImage);
-                                              console.error('Back image type:', typeof document.backImage);
-                                              console.error('Back image length:', document.backImage?.length);
+                                              console.error(
+                                                "Back image load error:",
+                                                document.backImage
+                                              );
+                                              console.error(
+                                                "Back image type:",
+                                                typeof document.backImage
+                                              );
+                                              console.error(
+                                                "Back image length:",
+                                                document.backImage?.length
+                                              );
                                             }}
                                             onClick={() => {
                                               if (document.backImage) {
                                                 setImageModalOpen({
-                                                  url: getImageUrl(document.backImage),
-                                                  title: "Back Document - " + u.fullName,
+                                                  url: getImageUrl(
+                                                    document.backImage
+                                                  ),
+                                                  title:
+                                                    "Back Document - " +
+                                                    u.fullName,
                                                 });
                                               }
                                             }}
@@ -1058,14 +1110,22 @@ export function CustomerList() {
                 <Button
                   variant="outline"
                   onClick={() =>
-                    setDocumentDialog({ user: null, document: null, action: "approve" })
+                    setDocumentDialog({
+                      user: null,
+                      document: null,
+                      action: "approve",
+                    })
                   }
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={confirmDocumentVerification}
-                  variant={documentDialog.action === "reject" ? "destructive" : "default"}
+                  variant={
+                    documentDialog.action === "reject"
+                      ? "destructive"
+                      : "default"
+                  }
                 >
                   {documentDialog.action === "approve" ? "Approve" : "Reject"}
                 </Button>
@@ -1095,15 +1155,21 @@ export function CustomerList() {
                   className="size-10 rounded-full object-cover"
                 />
                 <div>
-                  <h4 className="font-medium">{statusChangeDialog.user.fullName}</h4>
-                  <p className="text-sm text-muted-foreground">{statusChangeDialog.user.userName}</p>
+                  <h4 className="font-medium">
+                    {statusChangeDialog.user.fullName}
+                  </h4>
+                  <p className="text-sm text-muted-foreground">
+                    {statusChangeDialog.user.userName}
+                  </p>
                 </div>
               </div>
 
               {/* Status Change Info */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 border rounded-lg">
-                  <span className="text-sm font-medium">Trạng thái hiện tại:</span>
+                  <span className="text-sm font-medium">
+                    Trạng thái hiện tại:
+                  </span>
                   <Badge
                     variant={
                       statusChangeDialog.currentStatus === "APPROVED"
@@ -1133,16 +1199,17 @@ export function CustomerList() {
               {/* Warning Message */}
               <div className="p-3 rounded-lg border bg-amber-50 text-amber-800">
                 <p className="text-sm">
-                  {statusChangeDialog.newStatus === "APPROVED" 
+                  {statusChangeDialog.newStatus === "APPROVED"
                     ? "Tài liệu sẽ được duyệt và người dùng có thể sử dụng dịch vụ."
-                    : "Tài liệu sẽ bị từ chối và có thể ảnh hưởng đến khả năng sử dụng dịch vụ của người dùng."
-                  }
+                    : "Tài liệu sẽ bị từ chối và có thể ảnh hưởng đến khả năng sử dụng dịch vụ của người dùng."}
                 </p>
               </div>
 
               {/* Notes */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Ghi chú (tùy chọn)</Label>
+                <Label className="text-sm font-medium">
+                  Ghi chú (tùy chọn)
+                </Label>
                 <textarea
                   value={verificationNotes}
                   onChange={(e) => setVerificationNotes(e.target.value)}
@@ -1164,9 +1231,15 @@ export function CustomerList() {
                 </Button>
                 <Button
                   onClick={confirmStatusChange}
-                  variant={statusChangeDialog.newStatus === "APPROVED" ? "default" : "destructive"}
+                  variant={
+                    statusChangeDialog.newStatus === "APPROVED"
+                      ? "default"
+                      : "destructive"
+                  }
                 >
-                  {statusChangeDialog.newStatus === "APPROVED" ? "Duyệt tài liệu" : "Từ chối tài liệu"}
+                  {statusChangeDialog.newStatus === "APPROVED"
+                    ? "Duyệt tài liệu"
+                    : "Từ chối tài liệu"}
                 </Button>
               </DialogFooter>
             </div>
