@@ -2,75 +2,22 @@ import { useMemo, useState, useEffect } from "react";
 import * as React from "react";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import { identifyDocumentAPI } from "@/apis/identify-document.api";
-import type { User as UserType } from "@/@types/customer";
-import type { IdentifyDocumentResponse } from "@/apis/identify-document.api";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import type { UserFull } from "@/@types/auth.type";
+import type { IdentifyDocumentResponse } from "@/@types/identify-document";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  MoreHorizontal,
-  ShieldCheck,
-  AlertTriangle,
-  Minus,
-  Filter,
-  ArrowUpDown,
-  ExternalLink,
-  FileText,
-  User,
-  Eye,
-} from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { MoreHorizontal, ShieldCheck, AlertTriangle, Minus, Filter, ArrowUpDown, ExternalLink, FileText, User, Eye } from "lucide-react";
 import { UserFullAPI } from "@/apis/user.api";
-
-function formatDate(iso?: string) {
-  if (!iso) return "—";
-  try {
-    const date = new Date(iso);
-    const dateStr = date.toLocaleDateString("vi-VN");
-    const hours = date.getHours().toString().padStart(2, "0");
-    const minutes = date.getMinutes().toString().padStart(2, "0");
-    return `${dateStr} ${hours}:${minutes}`;
-  } catch {
-    return iso;
-  }
-}
+import { formatDate } from "@/lib/utils/formatDate";
 
 function getImageUrl(imageString: string | null): string {
   if (!imageString) return "";
@@ -111,7 +58,7 @@ function getDocStatus(
 
 export function CustomerList() {
   const { user: currentUser } = useAuthStore();
-  const [users, setUsers] = useState<UserType[]>([]);
+  const [users, setUsers] = useState<UserFull[]>([]);
   const [documents, setDocuments] = useState<
     Record<string, IdentifyDocumentResponse | null>
   >({});
@@ -123,13 +70,13 @@ export function CustomerList() {
     title: string;
   } | null>(null);
   const [documentDialog, setDocumentDialog] = useState<{
-    user: UserType | null;
+    user: UserFull | null;
     document: IdentifyDocumentResponse | null;
     action: "approve" | "reject";
   }>({ user: null, document: null, action: "approve" });
   const [verificationNotes, setVerificationNotes] = useState("");
   const [statusChangeDialog, setStatusChangeDialog] = useState<{
-    user: UserType | null;
+    user: UserFull | null;
     document: IdentifyDocumentResponse | null;
     newStatus: "APPROVED" | "REJECTED";
     currentStatus: "PENDING" | "APPROVED" | "REJECTED";
@@ -151,9 +98,13 @@ export function CustomerList() {
       setLoading(true);
       try {
         const response = await UserFullAPI.getAll(1, 100);
-        setUsers(response.data.data.items);
+        
+        // Thử các cách truy cập khác nhau
+        const usersData = response.data.items || response.data.data?.items || response.data.data || [];
+        setUsers(usersData);
       } catch (error) {
         console.error("Failed to load users:", error);
+        setUsers([]); // Đặt mảng rỗng nếu có lỗi
       } finally {
         setLoading(false);
       }
@@ -162,6 +113,36 @@ export function CustomerList() {
     loadUsers();
   }, []);
 
+  // Load documents for all USER role when filter changes to USER
+  useEffect(() => {
+    const loadAllUserDocuments = async () => {
+      if (filters.role !== "USER") return;
+      
+      // Get all users with USER role
+      const userRoleUsers = users.filter(user => user.role === "USER");
+      
+      // Load documents for all USER role users
+      for (const user of userRoleUsers) {
+        if (documents[user.id] === undefined) {
+          try {
+            const docResponse = await identifyDocumentAPI.getUserDocuments(user.id);
+            setDocuments((prev) => ({
+              ...prev,
+              [user.id]: docResponse.data,
+            }));
+          } catch {
+            setDocuments((prev) => ({
+              ...prev,
+              [user.id]: null,
+            }));
+          }
+        }
+      }
+    };
+
+    loadAllUserDocuments();
+  }, [filters.role, users, documents]);
+
   // Load document for specific user when row is expanded
   const loadUserDocument = async (userId: string) => {
     // Only load if not already loaded
@@ -169,13 +150,10 @@ export function CustomerList() {
 
     try {
       const docResponse = await identifyDocumentAPI.getUserDocuments(userId);
-      console.log("Document response for user", userId, ":", docResponse.data);
-      console.log("Front image type:", typeof docResponse.data.frontImage);
-      console.log("Back image type:", typeof docResponse.data.backImage);
 
       setDocuments((prev) => ({
         ...prev,
-        [id]: docResponse.data,
+        [userId]: docResponse.data,
       }));
     } catch {
       setDocuments((prev) => ({
@@ -186,6 +164,16 @@ export function CustomerList() {
   };
 
   const rows = useMemo(() => {
+    // Chỉ trả về mảng rỗng nếu users chưa được khởi tạo (undefined/null)
+    // Không trả về rỗng nếu users đã là mảng rỗng []
+    if (users === undefined || users === null) {
+      return [];
+    }
+
+    if (!Array.isArray(users)) {
+      return [];
+    }
+
     let filtered = users;
 
     // Text search
@@ -209,8 +197,8 @@ export function CustomerList() {
 
       switch (sortState.field) {
         case "fullName":
-          aVal = a.fullName.toLowerCase();
-          bVal = b.fullName.toLowerCase();
+          aVal = (a.fullName || "").toLowerCase();
+          bVal = (b.fullName || "").toLowerCase();
           break;
         case "createdAt":
           aVal = new Date(a.createdAt).getTime();
@@ -256,7 +244,7 @@ export function CustomerList() {
   const hasActiveFilters =
     query || Object.values(filters).some((v) => v !== "All");
 
-  const handleDocumentVerification = async (user: UserType) => {
+  const handleDocumentVerification = async (user: UserFull) => {
     // Load document if not already loaded
     if (documents[user.id] === undefined) {
       await loadUserDocument(user.id);
@@ -274,7 +262,7 @@ export function CustomerList() {
   };
 
   const handleStatusToggle = async (
-    user: UserType,
+    user: UserFull,
     newStatus: "APPROVED" | "REJECTED"
   ) => {
     // Load document if not already loaded
@@ -490,15 +478,15 @@ export function CustomerList() {
               const hasDocumentLoaded = documents[u.id] !== undefined;
               const frontDoc = hasDocumentLoaded
                 ? getDocStatus(
-                    Boolean(document?.frontImage),
-                    document?.status || "PENDING"
-                  )
+                  Boolean(document?.frontImage),
+                  document?.status || "PENDING"
+                )
                 : "loading";
               const backDoc = hasDocumentLoaded
                 ? getDocStatus(
-                    Boolean(document?.backImage),
-                    document?.status || "PENDING"
-                  )
+                  Boolean(document?.backImage),
+                  document?.status || "PENDING"
+                )
                 : "loading";
 
               return (
@@ -509,11 +497,6 @@ export function CustomerList() {
                     onClick={() => {
                       const newExpandedRow = expandedRow === u.id ? null : u.id;
                       setExpandedRow(newExpandedRow);
-
-                      // Load document when expanding row
-                      if (newExpandedRow && filters.role === "USER") {
-                        loadUserDocument(u.id);
-                      }
                     }}
                   >
                     <TableCell className="w-[40px]">
@@ -529,8 +512,8 @@ export function CustomerList() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <img
-                          src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.fullName)}`}
-                          alt={u.fullName}
+                          src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.fullName || "User")}`}
+                          alt={u.fullName || "User"}
                           className="size-8 rounded-full object-cover"
                         />
                         <div>
@@ -652,11 +635,10 @@ export function CustomerList() {
                               {document.status !== "PENDING" && (
                                 <div className="flex items-center gap-2">
                                   <button
-                                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                                      document.status === "APPROVED"
+                                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${document.status === "APPROVED"
                                         ? "bg-blue-600"
                                         : "bg-gray-200"
-                                    }`}
+                                      }`}
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       const newStatus =
@@ -667,11 +649,10 @@ export function CustomerList() {
                                     }}
                                   >
                                     <span
-                                      className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
-                                        document.status === "APPROVED"
+                                      className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${document.status === "APPROVED"
                                           ? "translate-x-5"
                                           : "translate-x-1"
-                                      }`}
+                                        }`}
                                     />
                                   </button>
                                   <span className="text-xs text-muted-foreground">
@@ -728,7 +709,7 @@ export function CustomerList() {
                     </TableCell>
                   </TableRow>
 
-                  {/* Expanded Row Content */}
+                  {/* Row Expansions */}
                   {expandedRow === u.id && (
                     <TableRow>
                       <TableCell
@@ -737,7 +718,7 @@ export function CustomerList() {
                       >
                         <div className="border-t bg-muted/20 p-4">
                           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {/* Basic Info */}
+                            {/* Basic Information */}
                             <div className="space-y-4">
                               <h4 className="font-semibold flex items-center gap-2">
                                 <User className="size-4" />
@@ -849,18 +830,7 @@ export function CustomerList() {
                                             alt="Front Document"
                                             className="w-full h-20 object-cover rounded border cursor-pointer hover:opacity-80"
                                             onError={() => {
-                                              console.error(
-                                                "Image load error:",
-                                                document.frontImage
-                                              );
-                                              console.error(
-                                                "Image type:",
-                                                typeof document.frontImage
-                                              );
-                                              console.error(
-                                                "Image length:",
-                                                document.frontImage?.length
-                                              );
+                                              console.error("Front image load error");
                                             }}
                                             onClick={() => {
                                               if (document.frontImage) {
@@ -904,18 +874,7 @@ export function CustomerList() {
                                             alt="Back Document"
                                             className="w-full h-20 object-cover rounded border cursor-pointer hover:opacity-80"
                                             onError={() => {
-                                              console.error(
-                                                "Back image load error:",
-                                                document.backImage
-                                              );
-                                              console.error(
-                                                "Back image type:",
-                                                typeof document.backImage
-                                              );
-                                              console.error(
-                                                "Back image length:",
-                                                document.backImage?.length
-                                              );
+                                              console.error("Back image load error");
                                             }}
                                             onClick={() => {
                                               if (document.backImage) {
@@ -1043,8 +1002,8 @@ export function CustomerList() {
               {/* User Info */}
               <div className="flex items-center gap-4 p-4 bg-muted/20 rounded-lg">
                 <img
-                  src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(documentDialog.user.fullName)}`}
-                  alt={documentDialog.user.fullName}
+                  src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(documentDialog.user.fullName || "User")}`}
+                  alt={documentDialog.user.fullName || "User"}
                   className="size-12 rounded-full object-cover"
                 />
                 <div>
@@ -1150,8 +1109,8 @@ export function CustomerList() {
               {/* User Info */}
               <div className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
                 <img
-                  src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(statusChangeDialog.user.fullName)}`}
-                  alt={statusChangeDialog.user.fullName}
+                  src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(statusChangeDialog.user.fullName || "User")}`}
+                  alt={statusChangeDialog.user.fullName || "User"}
                   className="size-10 rounded-full object-cover"
                 />
                 <div>

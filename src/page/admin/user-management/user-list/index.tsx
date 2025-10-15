@@ -1,5 +1,5 @@
 // import { CustomerStats } from "./components/customer-stats";
-import { CustomerList } from "./components/customer-list";
+import { CustomerList } from "./components/user-table";
 
 export default function CustomerManagementPage() {
   return (
