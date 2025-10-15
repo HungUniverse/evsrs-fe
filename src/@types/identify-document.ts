@@ -29,14 +29,13 @@ export interface IdentifyDocumentRequest {
 export interface IdentifyDocumentResponse {
   id: string;
   user: IdentifyUserSummary | null;
-  type: string;
+  frontImage: string | null;
+  backImage: string | null;
   countryCode: string;
   numberMasked: string;
   licenseClass: string;
   expireAt: string;
   status: IdentifyDocumentStatus;
-  frontImage: string | null;
-  backImage: string | null;
   verifiedBy?: string;
   verifiedAt?: string;
   note?: string;
