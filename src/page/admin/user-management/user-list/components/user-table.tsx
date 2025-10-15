@@ -817,92 +817,96 @@ export function CustomerList() {
                                       </div>
                                     </div>
 
-                                    <div className="space-y-2">
-                                      <span className="text-sm text-muted-foreground">
-                                        Ảnh mặt trước:
-                                      </span>
-                                      {document.frontImage ? (
-                                        <div className="relative group">
-                                          <img
-                                            src={getImageUrl(
-                                              document.frontImage
-                                            )}
-                                            alt="Front Document"
-                                            className="w-full h-20 object-cover rounded border cursor-pointer hover:opacity-80"
-                                            onError={() => {
-                                              console.error("Front image load error");
-                                            }}
-                                            onClick={() => {
-                                              if (document.frontImage) {
-                                                setImageModalOpen({
-                                                  url: getImageUrl(
-                                                    document.frontImage
-                                                  ),
-                                                  title:
-                                                    "Front Document - " +
-                                                    u.fullName,
-                                                });
-                                              }
-                                            }}
-                                          />
-                                          <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded border flex items-center justify-center pointer-events-none">
-                                            <div className="flex items-center gap-1 bg-white bg-opacity-90 px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                              <Eye className="size-3 text-gray-700" />
-                                              <span className="text-xs font-medium text-gray-700">
-                                                Click để xem
-                                              </span>
+                                    <div className="flex gap-4">
+                                      {/* Ảnh mặt trước */}
+                                      <div className="flex-1 space-y-2">
+                                        <span className="text-sm text-muted-foreground">
+                                          Ảnh mặt trước:
+                                        </span>
+                                        {document.frontImage ? (
+                                          <div className="relative group">
+                                            <img
+                                              src={getImageUrl(
+                                                document.frontImage
+                                              )}
+                                              alt="Front Document"
+                                              className="w-full h-20 object-cover rounded border cursor-pointer hover:opacity-80"
+                                              onError={() => {
+                                                console.error("Front image load error");
+                                              }}
+                                              onClick={() => {
+                                                if (document.frontImage) {
+                                                  setImageModalOpen({
+                                                    url: getImageUrl(
+                                                      document.frontImage
+                                                    ),
+                                                    title:
+                                                      "Front Document - " +
+                                                      u.fullName,
+                                                  });
+                                                }
+                                              }}
+                                            />
+                                            <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded border flex items-center justify-center pointer-events-none">
+                                              <div className="flex items-center gap-1 bg-white bg-opacity-90 px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                <Eye className="size-3 text-gray-700" />
+                                                <span className="text-xs font-medium text-gray-700">
+                                                  Click để xem
+                                                </span>
+                                              </div>
                                             </div>
                                           </div>
-                                        </div>
-                                      ) : (
-                                        <div className="w-full h-20 rounded border border-dashed flex items-center justify-center text-xs text-muted-foreground bg-muted/30">
-                                          Không có ảnh mặt trước
-                                        </div>
-                                      )}
-                                    </div>
+                                        ) : (
+                                          <div className="w-full h-20 rounded border border-dashed flex items-center justify-center text-xs text-muted-foreground bg-muted/30">
+                                            Không có ảnh mặt trước
+                                          </div>
+                                        )}
+                                      </div>
 
-                                    <div className="space-y-2">
-                                      <span className="text-sm text-muted-foreground">
-                                        Ảnh mặt sau:
-                                      </span>
-                                      {document.backImage ? (
-                                        <div className="relative group">
-                                          <img
-                                            src={getImageUrl(
-                                              document.backImage
-                                            )}
-                                            alt="Back Document"
-                                            className="w-full h-20 object-cover rounded border cursor-pointer hover:opacity-80"
-                                            onError={() => {
-                                              console.error("Back image load error");
-                                            }}
-                                            onClick={() => {
-                                              if (document.backImage) {
-                                                setImageModalOpen({
-                                                  url: getImageUrl(
-                                                    document.backImage
-                                                  ),
-                                                  title:
-                                                    "Back Document - " +
-                                                    u.fullName,
-                                                });
-                                              }
-                                            }}
-                                          />
-                                          <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded border flex items-center justify-center pointer-events-none">
-                                            <div className="flex items-center gap-1 bg-white bg-opacity-90 px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                              <Eye className="size-3 text-gray-700" />
-                                              <span className="text-xs font-medium text-gray-700">
-                                                Click để xem
-                                              </span>
+                                      {/* Ảnh mặt sau */}
+                                      <div className="flex-1 space-y-2">
+                                        <span className="text-sm text-muted-foreground">
+                                          Ảnh mặt sau:
+                                        </span>
+                                        {document.backImage ? (
+                                          <div className="relative group">
+                                            <img
+                                              src={getImageUrl(
+                                                document.backImage
+                                              )}
+                                              alt="Back Document"
+                                              className="w-full h-20 object-cover rounded border cursor-pointer hover:opacity-80"
+                                              onError={() => {
+                                                console.error("Back image load error");
+                                              }}
+                                              onClick={() => {
+                                                if (document.backImage) {
+                                                  setImageModalOpen({
+                                                    url: getImageUrl(
+                                                      document.backImage
+                                                    ),
+                                                    title:
+                                                      "Back Document - " +
+                                                      u.fullName,
+                                                  });
+                                                }
+                                              }}
+                                            />
+                                            <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded border flex items-center justify-center pointer-events-none">
+                                              <div className="flex items-center gap-1 bg-white bg-opacity-90 px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                <Eye className="size-3 text-gray-700" />
+                                                <span className="text-xs font-medium text-gray-700">
+                                                  Click để xem
+                                                </span>
+                                              </div>
                                             </div>
                                           </div>
-                                        </div>
-                                      ) : (
-                                        <div className="w-full h-20 rounded border border-dashed flex items-center justify-center text-xs text-muted-foreground bg-muted/30">
-                                          Không có ảnh mặt sau
-                                        </div>
-                                      )}
+                                        ) : (
+                                          <div className="w-full h-20 rounded border border-dashed flex items-center justify-center text-xs text-muted-foreground bg-muted/30">
+                                            Không có ảnh mặt sau
+                                          </div>
+                                        )}
+                                      </div>
                                     </div>
 
                                     {document.verifiedBy && (
@@ -969,7 +973,7 @@ export function CustomerList() {
               <img
                 src={imageModalOpen.url}
                 alt={imageModalOpen.title}
-                className="w-full max-h-[600px] object-contain rounded border"
+                className="w-full max-h-[400px] object-contain rounded border"
               />
               <DialogFooter>
                 <Button
