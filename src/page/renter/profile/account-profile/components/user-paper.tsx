@@ -4,22 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import {
-  Pencil,
-  X,
-  CheckCircle2,
-  CircleAlert,
-  Upload,
-  Eye,
-  X as XIcon,
-} from "lucide-react";
+import { Pencil, X, CheckCircle2, CircleAlert, Upload, Eye, X as XIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { identifyDocumentAPI } from "@/apis/identify-document.api";
 import { useEffect } from "react";
-import type {
-  IdentifyDocumentRequest,
-  IdentifyDocumentResponse,
-} from "@/@types/identify-document";
+import type { IdentifyDocumentRequest, IdentifyDocumentResponse } from "@/@types/identify-document";
 
 type PaperStatus = "pending" | "approved" | "rejected";
 
@@ -55,6 +44,7 @@ export default function UserPaper() {
   const { user, isAuthenticated } = useAuthStore();
   const [edit, setEdit] = useState(false);
   const [status, setStatus] = useState<PaperStatus>("pending");
+  const [isLoading, setIsLoading] = useState(false);
 
   const [form, setForm] = useState({
     licenseNumber: "",
@@ -109,17 +99,22 @@ export default function UserPaper() {
       return;
     }
 
+    setIsLoading(true);
+
     // Validation
     if (!form.licenseNumber.trim()) {
       toast.error("Vui lòng nhập số giấy phép lái xe");
+      setIsLoading(false);
       return;
     }
     if (!form.fullName.trim()) {
       toast.error("Vui lòng nhập họ và tên");
+      setIsLoading(false);
       return;
     }
     if (!form.expiryDate) {
       toast.error("Vui lòng nhập ngày hết hạn");
+      setIsLoading(false);
       return;
     }
 
@@ -155,6 +150,7 @@ export default function UserPaper() {
       const isCreate = !existing;
       if (isCreate && (!frontUrl || !backUrl)) {
         toast.error("Vui lòng tải lên đầy đủ ảnh mặt trước và mặt sau");
+        setIsLoading(false);
         return;
       }
 
@@ -178,6 +174,7 @@ export default function UserPaper() {
           toast.success(response.message || "Đã gửi giấy tờ để xác thực");
         } else {
           toast.error(response.message || "Lưu thất bại, thử lại sau");
+          setIsLoading(false);
           return;
         }
       } else {
@@ -199,6 +196,7 @@ export default function UserPaper() {
           toast.success(response.message || "Cập nhật giấy tờ thành công");
         } else {
           toast.error(response.message || "Cập nhật thất bại, thử lại sau");
+          setIsLoading(false);
           return;
         }
       }
@@ -230,12 +228,14 @@ export default function UserPaper() {
         });
       }
       setEdit(false);
+      setIsLoading(false);
     } catch (error: unknown) {
       console.error("Upload error:", error);
       const errorMessage =
         (error as { response?: { data?: { message?: string } } })?.response
           ?.data?.message || "Lưu thất bại, thử lại sau";
       toast.error(errorMessage);
+      setIsLoading(false);
     }
   }
 
@@ -312,8 +312,13 @@ export default function UserPaper() {
           </Button>
         ) : (
           <div className="flex gap-2">
-            <Button size="sm" onClick={onSave}>
-              <CheckCircle2 className="mr-2 h-4 w-4" /> Lưu
+            <Button size="sm" onClick={onSave} disabled={isLoading}>
+              {isLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <CheckCircle2 className="mr-2 h-4 w-4" />
+              )}
+              {isLoading ? "Đang lưu..." : "Lưu"}
             </Button>
             <Button
               variant="outline"
