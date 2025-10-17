@@ -1,7 +1,5 @@
-import type {
-  HandoverInspection,
-  ReturnInspection,
-} from "@/@types/order/return-inspection";
+import type { HandoverInspection } from "@/@types/order/handover-inspection";
+import type { ReturnInspectionResponse } from "@/@types/order/return-inspection";
 import { Button } from "@/components/ui/button";
 
 function Row({
@@ -36,7 +34,7 @@ export default function ReturnView({
   confirming = false,
   onConfirmReturn,
 }: {
-  inspection: ReturnInspection;
+  inspection: ReturnInspectionResponse;
   baseline?: HandoverInspection | null;
   canConfirmReturn?: boolean;
   confirming?: boolean;

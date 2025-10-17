@@ -2,33 +2,21 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-import { api } from "@/lib/axios/axios";
-import { useAuthStore } from "@/lib/zustand/use-auth-store";
+import { orderBookingAPI } from "@/apis/order-booking.api";
 
-import type { ItemBaseResponse } from "@/@types/response";
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
-import type {
-  ReturnInspection,
-} from "@/@types/order/return-inspection";
-
-import { handoverInspectionAPI } from "@/apis/hand-over-inspection.api";
-import { returnInspectionAPI } from "@/apis/return-inspection.api";
 
 import PartiesSummary from "../hand-over-inspection/components/PartiesSummary";
 import CarInfo from "./components/car-info";
-import SettlementView from "./components/settlement-view";
-import SettlementForm from "./components/settlement-form";
-import type { HandoverInspection } from "@/@types/order/handover-inspection";
+import SettlementViewCustomer from "./components/settlement-view";
+import type { ReturnSettlement } from "@/@types/order/return-settlement";
+import { returnSettlementAPI } from "@/apis/return-settlement.api";
 
 export default function CustomerSettlementPage() {
   const { orderId } = useParams<{ orderId: string }>();
-  const { user } = useAuthStore();
 
   const [order, setOrder] = useState<OrderBookingDetail | null>(null);
-  const [handoverInspection, setHandoverInspection] =
-    useState<HandoverInspection | null>(null);
-  const [returnInspection, setReturnInspection] =
-    useState<ReturnInspection | null>(null);
+  const [settlement, setSettlement] = useState<ReturnSettlement | null>(null);
   const [loading, setLoading] = useState(true);
 
   const title = useMemo(() => "BIÊN BẢN THANH TOÁN GIAO XE", []);
@@ -38,32 +26,22 @@ export default function CustomerSettlementPage() {
       if (!orderId) return;
       setLoading(true);
       try {
-        const [orderRes, handoverInspect, returnInspect] = await Promise.all([
-          api.get<ItemBaseResponse<OrderBookingDetail>>(
-            `/api/OrderBooking/${orderId}`
-          ),
-          handoverInspectionAPI.getByOrderId(orderId),
-          returnInspectionAPI.getByOrderId(orderId),
+        const [o, s] = await Promise.all([
+          orderBookingAPI.getById(orderId),
+          returnSettlementAPI.getByOrderId(orderId),
         ]);
 
-        console.log("Handover Inspection:", handoverInspect);
-        console.log("Return Inspection:", returnInspect);
-
-        setOrder(orderRes.data.data);
-        setHandoverInspection(handoverInspect);
-        setReturnInspection(returnInspect);
-      } catch (error) {
-        console.error(error);
-        toast.error("Không thể tải thông tin thanh toán");
+        setOrder(o.data.data);
+        setSettlement(s);
+      } catch {
+        toast.error("Không tải được dữ liệu thanh toán");
       } finally {
         setLoading(false);
       }
     })();
   }, [orderId]);
 
-  if (!order || loading) {
-    return <div>Loading...</div>;
-  }
+  if (!order || loading) return <div>Loading...</div>;
 
   return (
     <div className="container mx-auto py-8 space-y-8">
@@ -73,23 +51,14 @@ export default function CustomerSettlementPage() {
 
       <CarInfo
         car={order.carEvs}
-        handoverInspection={handoverInspection}
-        returnInspection={returnInspection}
+        orderId={orderId}
         startAt={order.startAt}
         endAt={order.endAt}
       />
-
-      {handoverInspection ? (
-        <SettlementView inspection={handoverInspection} order={order} />
+      {settlement ? (
+        <SettlementViewCustomer data={settlement} />
       ) : (
-        <SettlementForm
-          staffDisplay={user?.userName ?? ""}
-          order={order}
-          onSubmit={async (inspection) => {
-            setHandoverInspection(inspection);
-            toast.success("Đã lưu thông tin thanh toán");
-          }}
-        />
+        "Không tìm thấy biên bản thanh toán."
       )}
     </div>
   );

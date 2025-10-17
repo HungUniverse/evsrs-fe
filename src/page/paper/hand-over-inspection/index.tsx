@@ -12,10 +12,7 @@ import { useAuthStore } from "@/lib/zustand/use-auth-store";
 
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import type { ItemBaseResponse } from "@/@types/response";
-import type {
-  HandoverInspection,
-  HandoverInspectionRequest,
-} from "@/@types/order/return-inspection";
+
 import type { HandoverInspectionType } from "@/@types/enum";
 
 import PartiesSummary from "./components/PartiesSummary";
@@ -24,6 +21,10 @@ import InspectionView from "./components/InspectionView";
 
 import { handoverInspectionAPI } from "@/apis/hand-over-inspection.api";
 import { orderBookingAPI } from "@/apis/order-booking.api";
+import type {
+  HandoverInspection,
+  HandoverInspectionRequest,
+} from "@/@types/order/handover-inspection";
 
 function isStaffRole(r?: string | number | null) {
   const s = String(r ?? "")
@@ -109,17 +110,11 @@ export default function HandoverInspectionPage() {
   async function handleConfirm() {
     if (!orderId || !user?.userId) return toast.error("Thiếu dữ liệu");
 
-    // optional: validate battery >= 80
-    const bat = Number(batteryPercent);
-    if (Number.isNaN(bat) || bat < 80 || bat > 100) {
-      return toast.error("Battery (%) phải từ 80 đến 100");
-    }
-
     const body: HandoverInspectionRequest = {
       orderBookingId: orderId,
       type: "HANDOVER",
-      batteryPercent: String(bat),
-      odometer: String(odometer),
+      batteryPercent: batteryPercent,
+      odometer: odometer,
       images: "",
       notes,
       staffId: user.userId,

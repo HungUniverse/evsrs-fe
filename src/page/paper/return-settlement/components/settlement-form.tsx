@@ -7,10 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
 import type { ReturnSettlementRequest } from "@/@types/order/return-settlement";
-import type {
-  ReturnInspection,
-} from "@/@types/order/return-inspection";
-
 import { handoverInspectionAPI } from "@/apis/hand-over-inspection.api";
 import { returnInspectionAPI } from "@/apis/return-inspection.api";
 import type { HandoverInspection } from "@/@types/order/handover-inspection";
@@ -38,7 +34,7 @@ export default function SettlementForm({
   const { orderId } = useParams<{ orderId: string }>();
 
   const [handover, setHandover] = useState<HandoverInspection | null>(null);
-  const [returned, setReturned] = useState<ReturnInspection | null>(null);
+
   const [dataLoading, setDataLoading] = useState(true);
 
   const [odoReturn, setOdoReturn] = useState<string>("");
@@ -49,7 +45,6 @@ export default function SettlementForm({
   const [newDesc, setNewDesc] = useState("");
   const [newAmt, setNewAmt] = useState("");
 
-  // Fetch inspection data
   useEffect(() => {
     (async () => {
       if (!orderId) return;
@@ -70,17 +65,9 @@ export default function SettlementForm({
           setHandover(h ?? null);
         }
 
-        setReturned(r);
-
         if (r) {
-          console.log("Setting return values:", {
-            odometer: r.odometer,
-            batteryPercent: r.batteryPercent,
-          });
           setOdoReturn(r.odometer || "");
           setBatReturn(r.batteryPercent || "");
-        } else {
-          console.log("No return inspection data found");
         }
       } catch {
         toast.error("Không tải được dữ liệu kiểm tra xe");
@@ -102,21 +89,8 @@ export default function SettlementForm({
   const odoDiff = toNum(odoReturn) - odoHandover;
   const batDiff = batHandover - toNum(batReturn);
 
-  // Debug logs
-  console.log("SettlementForm Debug:", {
-    handover: handover,
-    returned: returned,
-    odoHandover,
-    batHandover,
-    odoReturn,
-    batReturn,
-    odoDiff,
-    batDiff,
-  });
-
   function addItem() {
-    if (!newDesc.trim()) return;
-    if (!newAmt.trim()) return;
+    if (!newDesc.trim() || !newAmt.trim()) return;
     setItems((prev) => [
       ...prev,
       { description: newDesc.trim(), amount: newAmt },
@@ -130,18 +104,20 @@ export default function SettlementForm({
 
   async function handleSubmit() {
     const payload: ReturnSettlementRequest = {
-      orderBookingId: "", // sẽ được set ở page cha trước khi call API
       subtotal: String(subtotal),
       discount: "0",
-      total: String(subtotal),
-      notes,
-      settlementItems: items.map((it) => ({
-        description: it.description,
-        feeIncurred: String(toNum(it.amount)),
-        discount: "0",
-        total: String(toNum(it.amount)),
-        notes: "",
-      })),
+      total: String(subtotal), // 👈 thêm total theo BE
+      notes: String(notes),
+      settlementItems: items.map((it) => {
+        const amt = String(toNum(it.amount));
+        return {
+          description: it.description,
+          feeIncurred: amt,
+          discount: "0",
+          total: amt,
+          notes: "",
+        };
+      }),
     };
     await onSubmit(payload);
   }
@@ -165,7 +141,6 @@ export default function SettlementForm({
     <section className="rounded-lg border p-4 space-y-6">
       <div className="font-semibold">Tạo biên bản thanh toán khi trả xe</div>
 
-      {/* So sánh hiện trạng */}
       <div className="grid md:grid-cols-2 gap-4">
         <div className="rounded-md border p-3 space-y-2">
           <div className="font-semibold">So sánh hiện trạng</div>
@@ -227,7 +202,6 @@ export default function SettlementForm({
         </div>
       </div>
 
-      {/* Khoản phát sinh: chỉ 2 ô (mô tả + tiền) */}
       <div className="rounded-md border p-3 space-y-3">
         <div className="font-medium">Thêm khoản phát sinh</div>
         <div className="grid md:grid-cols-[1fr_180px_120px] gap-3">

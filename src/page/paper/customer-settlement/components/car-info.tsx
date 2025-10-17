@@ -1,24 +1,45 @@
 import { fmtRange } from "@/hooks/fmt-date-time";
-import type { ReturnInspection } from "@/@types/order/return-inspection";
+import type { ReturnInspectionRequest } from "@/@types/order/return-inspection";
 import type { CarEV } from "@/@types/car/carEv";
 import type { HandoverInspection } from "@/@types/order/handover-inspection";
 
+import { useEffect, useState } from "react";
+import { handoverInspectionAPI } from "@/apis/hand-over-inspection.api";
+import { returnInspectionAPI } from "@/apis/return-inspection.api";
+
 type Props = {
   car: CarEV;
-  handoverInspection?: HandoverInspection | null;
-  returnInspection?: ReturnInspection | null;
+  // allow this component to fetch inspections directly
+  orderId?: string;
   startAt: string;
   endAt: string;
+  // optional callback for parent to get inspections
 };
 
-export default function CarInfo({
-  car,
-  handoverInspection,
-  returnInspection,
-  startAt,
-  endAt,
-}: Props) {
-  console.log("CarInfo Props:", {
+export default function CarInfo({ car, orderId, startAt, endAt }: Props) {
+  const [handoverInspection, setHandoverInspection] =
+    useState<HandoverInspection | null>(null);
+  const [returnInspection, setReturnInspection] =
+    useState<ReturnInspectionRequest | null>(null);
+
+  useEffect(() => {
+    if (!orderId) return;
+    (async () => {
+      try {
+        const [handover, ret] = await Promise.all([
+          handoverInspectionAPI.getByOrderId(orderId),
+          returnInspectionAPI.getByOrderId(orderId),
+        ]);
+        setHandoverInspection(handover ?? null);
+        const retData = ret ?? null;
+        setReturnInspection(retData);
+      } catch (error) {
+        console.error("Error loading inspections in CarInfo:", error);
+      }
+    })();
+  }, [orderId]);
+
+  console.log("CarInfo Inspections:", {
     handoverOdo: handoverInspection?.odometer,
     returnOdo: returnInspection?.odometer,
     handoverBattery: handoverInspection?.batteryPercent,
@@ -63,14 +84,6 @@ export default function CarInfo({
               value={
                 returnInspection?.batteryPercent
                   ? `${returnInspection.batteryPercent}%`
-                  : undefined
-              }
-            />
-            <Info
-              label="Tình trạng pin"
-              value={
-                car.batteryHealthPercentage
-                  ? `${car.batteryHealthPercentage}%`
                   : undefined
               }
             />
