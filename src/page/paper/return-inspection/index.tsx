@@ -10,7 +10,6 @@ import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import type { ItemBaseResponse } from "@/@types/response";
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import type {
-  HandoverInspection,
   ReturnInspection,
   ReturnInspectionRequest,
 } from "@/@types/order/return-inspection";
@@ -23,6 +22,7 @@ import PartiesSummary from "../hand-over-inspection/components/PartiesSummary";
 import CarInfo from "../hand-over-inspection/components/CarInfo";
 import ReturnForm from "./components/return-form";
 import ReturnView from "./components/return-view";
+import type { HandoverInspection } from "@/@types/order/handover-inspection";
 
 function isStaffRole(r?: string | number | null) {
   const s = String(r ?? "")

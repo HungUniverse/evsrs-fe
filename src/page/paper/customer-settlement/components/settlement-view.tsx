@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import type { HandoverInspection } from "@/@types/order/return-inspection";
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
+import type { HandoverInspection } from "@/@types/order/handover-inspection";
 
 type Props = {
   inspection: HandoverInspection;

@@ -8,12 +8,12 @@ import { toast } from "sonner";
 
 import type { ReturnSettlementRequest } from "@/@types/order/return-settlement";
 import type {
-  HandoverInspection,
   ReturnInspection,
 } from "@/@types/order/return-inspection";
 
 import { handoverInspectionAPI } from "@/apis/hand-over-inspection.api";
 import { returnInspectionAPI } from "@/apis/return-inspection.api";
+import type { HandoverInspection } from "@/@types/order/handover-inspection";
 
 function toNum(v: string | number | null | undefined) {
   const n = Number(String(v ?? "0").replace(/[^\d.-]/g, ""));

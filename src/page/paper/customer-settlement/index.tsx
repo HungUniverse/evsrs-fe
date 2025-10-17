@@ -8,7 +8,6 @@ import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import type { ItemBaseResponse } from "@/@types/response";
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import type {
-  HandoverInspection,
   ReturnInspection,
 } from "@/@types/order/return-inspection";
 
@@ -19,6 +18,7 @@ import PartiesSummary from "../hand-over-inspection/components/PartiesSummary";
 import CarInfo from "./components/car-info";
 import SettlementView from "./components/settlement-view";
 import SettlementForm from "./components/settlement-form";
+import type { HandoverInspection } from "@/@types/order/handover-inspection";
 
 export default function CustomerSettlementPage() {
   const { orderId } = useParams<{ orderId: string }>();
