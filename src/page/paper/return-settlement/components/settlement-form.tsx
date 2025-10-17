@@ -10,7 +10,7 @@ import type { ReturnSettlementRequest } from "@/@types/order/return-settlement";
 import type {
   HandoverInspection,
   ReturnInspection,
-} from "@/@types/order/inspection";
+} from "@/@types/order/return-inspection";
 
 import { handoverInspectionAPI } from "@/apis/hand-over-inspection.api";
 import { returnInspectionAPI } from "@/apis/return-inspection.api";
@@ -24,7 +24,7 @@ type Item = { description: string; amount: string };
 
 type Props = {
   staffDisplay: string;
-  defaultSubtotal: string; // remainingAmount (hoặc totalAmount)
+  defaultSubtotal: string;
   loading?: boolean;
   onSubmit: (payload: ReturnSettlementRequest) => Promise<void> | void;
 };

@@ -3,12 +3,12 @@ import type { ItemBaseResponse } from "@/@types/response";
 import type {
   ReturnInspection,
   ReturnInspectionRequest,
-} from "@/@types/order/inspection";
+} from "@/@types/order/return-inspection";
 
 export const returnInspectionAPI = {
   create: async (data: ReturnInspectionRequest): Promise<ReturnInspection> => {
     const res = await api.post<ItemBaseResponse<ReturnInspection>>(
-      "/api/Return/inspection",
+      "/api/Handover/inspection",
       data
     );
     return res.data.data;
@@ -17,7 +17,7 @@ export const returnInspectionAPI = {
   getByOrderId: async (orderId: string): Promise<ReturnInspection | null> => {
     try {
       const res = await api.get<ItemBaseResponse<ReturnInspection[]>>(
-        `/api/Return/inspection/order/${orderId}`
+        `/api/Handover/inspection/order/${orderId}`
       );
       const list = Array.isArray(res.data.data) ? res.data.data : [];
       if (list.length === 0) return null;

@@ -14,7 +14,6 @@ export default function SearchOrderBooking() {
   const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
 
-  // Store chỉ có userId
   const uid = user?.userId as string | undefined;
 
   const [filter, setFilter] = useState<TripFilterValue>({
@@ -29,13 +28,11 @@ export default function SearchOrderBooking() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const location = useLocation();
-  // Debug logs
   useEffect(() => {
     console.log("[SearchOrderBooking] user:", user);
     console.log("[SearchOrderBooking] uid:", uid);
   }, [user, uid]);
 
-  // Params gửi API (server-side filter — dùng được tới đâu hay tới đó)
   const params = useMemo(() => {
     const search = `${filter.orderId} ${filter.carModel}`.trim() || undefined;
     const status =
@@ -77,7 +74,14 @@ export default function SearchOrderBooking() {
         const items: OrderBookingDetail[] = Array.isArray(payload)
           ? payload
           : (payload?.items ?? []);
-        if (!cancelled) setBookings(items);
+
+        // Filter theo userId
+        const filteredItems = items.filter((item) => item.userId === uid);
+        console.log("All items:", items);
+        console.log("Filtered items:", filteredItems);
+        console.log("Current userId:", uid);
+
+        if (!cancelled) setBookings(filteredItems);
       } catch (err) {
         console.error("[SearchOrderBooking] API error:", err);
         if (!cancelled) {

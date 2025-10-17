@@ -9,7 +9,6 @@ export interface CarEV {
     modelName?: string;
   };
   depotId: ID;
-  odoMeter: number;
   batteryHealthPercentage: number;
   status: CarEvStatus; // có thể đổi sang enum
   createdBy: string;

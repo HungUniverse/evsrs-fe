@@ -1,7 +1,7 @@
 import type {
   HandoverInspection,
   ReturnInspection,
-} from "@/@types/order/inspection";
+} from "@/@types/order/return-inspection";
 import { Button } from "@/components/ui/button";
 
 function Row({

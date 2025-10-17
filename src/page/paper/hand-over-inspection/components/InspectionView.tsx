@@ -1,4 +1,4 @@
-import type { HandoverInspection } from "@/@types/order/inspection";
+import type { HandoverInspection } from "@/@types/order/return-inspection";
 
 export default function InspectionView({
   inspection,

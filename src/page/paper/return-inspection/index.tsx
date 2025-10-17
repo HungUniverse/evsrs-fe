@@ -13,7 +13,7 @@ import type {
   HandoverInspection,
   ReturnInspection,
   ReturnInspectionRequest,
-} from "@/@types/order/inspection";
+} from "@/@types/order/return-inspection";
 
 import { handoverInspectionAPI } from "@/apis/hand-over-inspection.api";
 import { returnInspectionAPI } from "@/apis/return-inspection.api";
@@ -51,7 +51,13 @@ export default function ReturnInspectionPage() {
   const canConfirmReturn = isStaff && hasReturn && status === "IN_USE";
 
   // Debug logs
-  console.log("Current state:", { isStaff, status, hasReturn, canFinishReturn, canConfirmReturn });
+  console.log("Current state:", {
+    isStaff,
+    status,
+    hasReturn,
+    canFinishReturn,
+    canConfirmReturn,
+  });
 
   const title = useMemo(() => "BIÊN BẢN TRẢ XE Ô TÔ", []);
 
@@ -89,9 +95,12 @@ export default function ReturnInspectionPage() {
         setOrder(orderRes.data.data);
 
         // Fetch handover
-        const handoverData: any = await handoverInspectionAPI.getByOrderId(orderId);
+        const handoverData: any =
+          await handoverInspectionAPI.getByOrderId(orderId);
         if (Array.isArray(handoverData)) {
-          handoverData.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
+          handoverData.sort(
+            (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)
+          );
           setHandover(handoverData[0] ?? null);
         } else {
           setHandover(handoverData ?? null);
@@ -231,7 +240,6 @@ export default function ReturnInspectionPage() {
         ) : canFinishReturn ? (
           // Order is already RETURNED, show settlement button
           <div className="text-center space-y-4">
-            
             <div className="flex justify-center">
               <Button onClick={handleGoToSettlement}>
                 Chuyển hướng qua settlement

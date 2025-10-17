@@ -1,9 +1,10 @@
 import { api } from "@/lib/axios/axios";
 import type { ItemBaseResponse } from "@/@types/response";
+import type {} from "@/@types/order/return-inspection";
 import type {
   HandoverInspection,
   HandoverInspectionRequest,
-} from "@/@types/order/inspection";
+} from "@/@types/order/handover-inspection";
 
 export const handoverInspectionAPI = {
   create: async (

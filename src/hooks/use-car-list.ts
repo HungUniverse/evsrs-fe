@@ -5,7 +5,7 @@ import { modelAPI } from "@/apis/model-ev.api";
 import type { CarEV } from "@/@types/car/carEv";
 import type { Model } from "@/@types/car/model";
 // import type { Depot } from "@/@types/car/depot";
-import { toCarCardVM, type CarCardVM } from "@/hooks/to-car-card";
+import { groupCarEvsToCards, type CarCardVM } from "@/hooks/to-car-card";
 
 async function fetchModelsByIds(ids: string[]) {
   const uniq = [...new Set(ids)];
@@ -36,7 +36,7 @@ export function useCarEVList(params = { pageNumber: 1, pageSize: 12 }) {
 
       const modelMap = await fetchModelsByIds(items.map((i) => i.modelId));
       const list = items.map((c) =>
-        toCarCardVM(c, modelMap.get(c.modelId), undefined)
+        groupCarEvsToCards(c, modelMap.get(c.modelId))
       ); // depot tắt
       return { list, meta: data };
     },

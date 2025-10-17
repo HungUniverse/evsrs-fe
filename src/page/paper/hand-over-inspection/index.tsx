@@ -15,7 +15,7 @@ import type { ItemBaseResponse } from "@/@types/response";
 import type {
   HandoverInspection,
   HandoverInspectionRequest,
-} from "@/@types/order/inspection";
+} from "@/@types/order/return-inspection";
 import type { HandoverInspectionType } from "@/@types/enum";
 
 import PartiesSummary from "./components/PartiesSummary";
