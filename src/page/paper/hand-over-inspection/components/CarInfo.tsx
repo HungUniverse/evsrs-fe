@@ -1,14 +1,14 @@
 import { fmtRange } from "@/hooks/fmt-date-time";
 
 type Props = {
-  platePlaceholder?: string; // placeholder biển số (chưa có API)
+  licensePlate?: string; // placeholder biển số (chưa có API)
   startAt: string;
   endAt: string;
   carName?: string;
 };
 
 export default function CarInfo({
-  platePlaceholder = "XXA-123.45",
+  licensePlate,
   startAt,
   endAt,
   carName,
@@ -19,7 +19,7 @@ export default function CarInfo({
 
       <div className="grid md:grid-cols-3 gap-4">
         <Info label="Xe" value={carName || "—"} />
-        <Info label="Biển số" value={platePlaceholder} />
+        <Info label="Biển số" value={licensePlate} />
         <Info label="Thời gian thuê" value={fmtRange(startAt, endAt)} />
       </div>
     </section>

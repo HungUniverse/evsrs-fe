@@ -10,19 +10,18 @@ import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import type { ItemBaseResponse } from "@/@types/response";
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import type {
-  HandoverInspection,
-  ReturnInspection,
   ReturnInspectionRequest,
-} from "@/@types/order/inspection";
+  ReturnInspectionResponse,
+} from "@/@types/order/return-inspection";
 
 import { handoverInspectionAPI } from "@/apis/hand-over-inspection.api";
 import { returnInspectionAPI } from "@/apis/return-inspection.api";
 import { orderBookingAPI } from "@/apis/order-booking.api";
 
 import PartiesSummary from "../hand-over-inspection/components/PartiesSummary";
-import CarInfo from "../hand-over-inspection/components/CarInfo";
 import ReturnForm from "./components/return-form";
 import ReturnView from "./components/return-view";
+import type { HandoverInspection } from "@/@types/order/handover-inspection";
 
 function isStaffRole(r?: string | number | null) {
   const s = String(r ?? "")
@@ -38,7 +37,7 @@ export default function ReturnInspectionPage() {
 
   const [order, setOrder] = useState<OrderBookingDetail | null>(null);
   const [handover, setHandover] = useState<HandoverInspection | null>(null);
-  const [ret, setRet] = useState<ReturnInspection | null>(null);
+  const [ret, setRet] = useState<ReturnInspectionResponse | null>(null);
 
   const [initLoading, setInitLoading] = useState(true);
   const [confirmingReturn, setConfirmingReturn] = useState(false);
@@ -50,28 +49,23 @@ export default function ReturnInspectionPage() {
   const canFinishReturn = isStaff && status === "RETURNED";
   const canConfirmReturn = isStaff && hasReturn && status === "IN_USE";
 
-  // Debug logs
-  console.log("Current state:", { isStaff, status, hasReturn, canFinishReturn, canConfirmReturn });
-
   const title = useMemo(() => "BIÊN BẢN TRẢ XE Ô TÔ", []);
 
   async function refetchOrder() {
     if (!orderId) return;
-    const res = await api.get<ItemBaseResponse<OrderBookingDetail>>(
-      `/api/OrderBooking/${orderId}`
-    );
-    console.log("Order fetched:", res.data.data);
-    console.log("Order status:", res.data.data?.status);
+    const res = await orderBookingAPI.getById(orderId);
     setOrder(res.data.data);
   }
 
   async function refetchReturn() {
     if (!orderId) return;
     try {
-      const latest = await returnInspectionAPI.getByOrderId(orderId);
-      setRet(latest);
+      const latest = (await returnInspectionAPI.getByOrderId(
+        orderId
+      )) as ReturnInspectionResponse;
+      setRet(latest ?? null);
     } catch {
-      // Giữ nguyên state hiện tại để UI không nhảy về form một cách khó chịu
+      // giữ nguyên state hiện tại để UI không nhảy về form
     }
   }
 
@@ -84,14 +78,15 @@ export default function ReturnInspectionPage() {
         const orderRes = await api.get<ItemBaseResponse<OrderBookingDetail>>(
           `/api/OrderBooking/${orderId}`
         );
-        console.log("Order fetched:", orderRes.data.data);
-        console.log("Order status:", orderRes.data.data?.status);
         setOrder(orderRes.data.data);
 
         // Fetch handover
-        const handoverData: any = await handoverInspectionAPI.getByOrderId(orderId);
+        const handoverData: any =
+          await handoverInspectionAPI.getByOrderId(orderId);
         if (Array.isArray(handoverData)) {
-          handoverData.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
+          handoverData.sort(
+            (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)
+          );
           setHandover(handoverData[0] ?? null);
         } else {
           setHandover(handoverData ?? null);
@@ -99,10 +94,12 @@ export default function ReturnInspectionPage() {
 
         // Fetch return inspection
         try {
-          const latest = await returnInspectionAPI.getByOrderId(orderId);
-          setRet(latest);
+          const latest = (await returnInspectionAPI.getByOrderId(
+            orderId
+          )) as ReturnInspectionResponse;
+          setRet(latest ?? null);
         } catch {
-          // Giữ nguyên state hiện tại để UI không nhảy về form một cách khó chịu
+          // giữ nguyên state hiện tại
         }
       } catch {
         toast.error("Không tải được dữ liệu biên bản trả xe");
@@ -116,25 +113,28 @@ export default function ReturnInspectionPage() {
     odometer: string;
     batteryPercent: string;
     notes: string;
+    image?: string;
   }) {
     if (!orderId || !user?.userId) return toast.error("Thiếu dữ liệu");
     const body: ReturnInspectionRequest = {
       orderBookingId: orderId,
       type: "RETURN",
-      images: "",
+      images: v.image || "",
       staffId: user.userId,
       ...v,
     };
     try {
-      const created = await returnInspectionAPI.create(body);
-      setRet(created); // dùng ngay object mới
+      await returnInspectionAPI.create(body);
+      const latest = (await returnInspectionAPI.getByOrderId(
+        orderId
+      )) as ReturnInspectionResponse;
+      setRet(latest);
       toast.success("Đã lập biên bản trả xe");
     } catch {
       toast.error("Lập biên bản trả thất bại");
     }
   }
 
-  /** Xác nhận trả xe (đổi status -> RETURNED) */
   async function handleConfirmReturn() {
     if (!orderId) return;
     try {
@@ -202,12 +202,6 @@ export default function ReturnInspectionPage() {
 
         {/* Parties + Car */}
         <PartiesSummary order={order} />
-        <CarInfo
-          platePlaceholder="—"
-          startAt={order.startAt}
-          endAt={order.endAt}
-          carName={order.carEvs.model?.modelName ?? undefined}
-        />
 
         {/* View or Form */}
         {hasReturn ? (
@@ -231,7 +225,6 @@ export default function ReturnInspectionPage() {
         ) : canFinishReturn ? (
           // Order is already RETURNED, show settlement button
           <div className="text-center space-y-4">
-            
             <div className="flex justify-center">
               <Button onClick={handleGoToSettlement}>
                 Chuyển hướng qua settlement

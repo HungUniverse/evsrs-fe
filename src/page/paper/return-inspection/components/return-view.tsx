@@ -1,8 +1,8 @@
-import type {
-  HandoverInspection,
-  ReturnInspection,
-} from "@/@types/order/inspection";
+import type { HandoverInspection } from "@/@types/order/handover-inspection";
+import type { ReturnInspectionResponse } from "@/@types/order/return-inspection";
 import { Button } from "@/components/ui/button";
+import { splitUrls } from "@/hooks/split-url";
+import { Dialog, DialogContent, DialogTrigger } from "@radix-ui/react-dialog";
 
 function Row({
   label,
@@ -36,12 +36,13 @@ export default function ReturnView({
   confirming = false,
   onConfirmReturn,
 }: {
-  inspection: ReturnInspection;
+  inspection: ReturnInspectionResponse;
   baseline?: HandoverInspection | null;
   canConfirmReturn?: boolean;
   confirming?: boolean;
   onConfirmReturn?: () => void;
 }) {
+  const urls = splitUrls(inspection.images);
   return (
     <section className="rounded-lg border p-4 space-y-4">
       <div className="font-semibold">Biên bản trả xe</div>
@@ -75,7 +76,33 @@ export default function ReturnView({
           />
         </div>
       </div>
-
+      {urls.length > 0 ? (
+        <div className="space-y-2">
+          <p className="text-sm text-slate-500">Ảnh hiện trạng khi trả xe</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {urls.map((u, i) => (
+              <Dialog key={u + i}>
+                <DialogTrigger asChild>
+                  <img
+                    src={u}
+                    alt={`return-${i}`}
+                    className="w-full h-28 object-cover rounded border cursor-pointer"
+                  />
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl">
+                  <img
+                    src={u}
+                    alt={`preview-${i}`}
+                    className="w-full h-auto rounded"
+                  />
+                </DialogContent>
+              </Dialog>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="text-sm text-slate-500">Không có ảnh</div>
+      )}
       {canConfirmReturn && (
         <div className="flex justify-end">
           <Button onClick={onConfirmReturn} disabled={confirming}>
@@ -84,9 +111,7 @@ export default function ReturnView({
         </div>
       )}
 
-      <div className="text-sm text-slate-500">
-        Ảnh tình trạng: ("Để sau add vào = cloudinary")
-      </div>
+      <div className="text-sm text-slate-500"></div>
     </section>
   );
 }

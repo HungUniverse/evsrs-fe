@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import UploadReturn from "./upload-return";
 
 export default function ReturnForm({
   staffDisplay,
@@ -17,11 +18,13 @@ export default function ReturnForm({
     odometer: string;
     batteryPercent: string;
     notes: string;
+    image?: string;
   }) => void;
 }) {
   const [odo, setOdo] = useState("0");
   const [battery, setBattery] = useState(defaultBattery);
   const [notes, setNotes] = useState("");
+  const [imageUrls, setImageUrls] = useState<string>("");
 
   return (
     <section className="rounded-lg border p-4 space-y-4">
@@ -64,11 +67,21 @@ export default function ReturnForm({
           placeholder="Vết xước mới, phụ kiện thiếu, mùi lạ..."
         />
       </div>
+      <UploadReturn
+        label="Ảnh hiện trạng lúc trả xe"
+        value={imageUrls}
+        onChange={setImageUrls}
+      />
 
       <div className="flex justify-end">
         <Button
           onClick={() =>
-            onSubmit({ odometer: odo, batteryPercent: battery, notes })
+            onSubmit({
+              odometer: odo,
+              batteryPercent: battery,
+              notes,
+              image: imageUrls,
+            })
           }
           disabled={loading}
         >

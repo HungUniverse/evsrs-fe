@@ -1,4 +1,3 @@
-// src/pages/account/components/show-my-trip.tsx
 import { useEffect, useMemo, useState } from "react";
 import type { OrderBookingStatus } from "@/@types/enum";
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
@@ -7,7 +6,7 @@ import {
   TRIP_STATUS_LABEL,
   TRIP_STATUS_PILL,
 } from "@/lib/constants/trip-status";
-import { modelAPI } from "@/apis/model-ev.api"; // 👈 cần có getById(id)
+import { modelAPI } from "@/apis/model-ev.api";
 
 type Props = {
   data: OrderBookingDetail[];
@@ -15,7 +14,6 @@ type Props = {
 };
 
 export default function ShowMyTrip({ data, onClickCode }: Props) {
-  // 1) Lấy danh sách modelId duy nhất từ data
   const modelIds = useMemo(() => {
     const ids = new Set<string>();
     for (const ob of data) {
@@ -25,7 +23,6 @@ export default function ShowMyTrip({ data, onClickCode }: Props) {
     return Array.from(ids);
   }, [data]);
 
-  // 2) Fetch tên model theo id và cache vào map
   const { names: modelNameMap, loading: modelLoading } =
     useModelNames(modelIds);
 

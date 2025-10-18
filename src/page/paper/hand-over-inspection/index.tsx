@@ -12,10 +12,7 @@ import { useAuthStore } from "@/lib/zustand/use-auth-store";
 
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import type { ItemBaseResponse } from "@/@types/response";
-import type {
-  HandoverInspection,
-  HandoverInspectionRequest,
-} from "@/@types/order/inspection";
+
 import type { HandoverInspectionType } from "@/@types/enum";
 
 import PartiesSummary from "./components/PartiesSummary";
@@ -24,6 +21,11 @@ import InspectionView from "./components/InspectionView";
 
 import { handoverInspectionAPI } from "@/apis/hand-over-inspection.api";
 import { orderBookingAPI } from "@/apis/order-booking.api";
+import type {
+  HandoverInspection,
+  HandoverInspectionRequest,
+} from "@/@types/order/handover-inspection";
+import UploadHandover from "./components/upload-handover";
 
 function isStaffRole(r?: string | number | null) {
   const s = String(r ?? "")
@@ -51,6 +53,7 @@ export default function HandoverInspectionPage() {
   const [odometer, setOdometer] = useState<string>("0");
   const [batteryPercent, setBatteryPercent] = useState<string>("90");
   const [notes, setNotes] = useState<string>("");
+  const [imageUrls, setImageUrls] = useState<string>("");
 
   const isStaff = isStaffRole(user?.role);
   const isUser = isUserRole(user?.role);
@@ -109,18 +112,12 @@ export default function HandoverInspectionPage() {
   async function handleConfirm() {
     if (!orderId || !user?.userId) return toast.error("Thiếu dữ liệu");
 
-    // optional: validate battery >= 80
-    const bat = Number(batteryPercent);
-    if (Number.isNaN(bat) || bat < 80 || bat > 100) {
-      return toast.error("Battery (%) phải từ 80 đến 100");
-    }
-
     const body: HandoverInspectionRequest = {
       orderBookingId: orderId,
       type: "HANDOVER",
-      batteryPercent: String(bat),
-      odometer: String(odometer),
-      images: "",
+      batteryPercent: batteryPercent,
+      odometer: odometer,
+      images: imageUrls,
       notes,
       staffId: user.userId,
     };
@@ -215,7 +212,7 @@ export default function HandoverInspectionPage() {
         <PartiesSummary order={order} />
 
         <CarInfo
-          platePlaceholder="XXA-123.45"
+          licensePlate={order.carEvs.licensePlate}
           startAt={order.startAt}
           endAt={order.endAt}
           carName={order.carEvs.model?.modelName ?? undefined}
@@ -268,7 +265,11 @@ export default function HandoverInspectionPage() {
                 placeholder="Tình trạng xe, vết xước, phụ kiện đi kèm..."
               />
             </div>
-
+            <UploadHandover
+              label="Ảnh/biên bản hiện trạng"
+              value={imageUrls}
+              onChange={setImageUrls}
+            />
             <div className="flex justify-end">
               <Button onClick={handleConfirm}>Xác nhận lập biên bản</Button>
             </div>
@@ -298,7 +299,7 @@ export default function HandoverInspectionPage() {
               variant="secondary"
               title="Bắt đầu sử dụng xe (IN_USE)"
             >
-              {starting ? "Đang bắt đầu..." : "Start"}
+              {starting ? "Đang bắt đầu..." : "Xác nhận sử dụng xe"}
             </Button>
           )}
         </div>

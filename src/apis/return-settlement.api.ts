@@ -14,20 +14,10 @@ export const returnSettlementAPI = {
     return res.data.data;
   },
 
-  getByOrderId: async (orderId: string): Promise<ReturnSettlement | null> => {
-    try {
-      const res = await api.get<ItemBaseResponse<ReturnSettlement[]>>(
-        `/api/Return/settlement/order/${orderId}`
-      );
-      const list = Array.isArray(res.data.data) ? res.data.data : [];
-      if (!list.length) return null;
-      list.sort(
-        (a, b) =>
-          new Date(b.calculateAt).getTime() - new Date(a.calculateAt).getTime()
-      );
-      return list[0];
-    } catch {
-      return null;
-    }
+  getByOrderId: async (orderId: string): Promise<ReturnSettlement> => {
+    const res = await api.get<ItemBaseResponse<ReturnSettlement>>(
+      `/api/Return/settlement/order/${orderId}`
+    );
+    return res.data.data;
   },
 };

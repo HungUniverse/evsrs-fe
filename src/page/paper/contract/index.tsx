@@ -214,7 +214,6 @@ const ContractPage: React.FC = () => {
           )}
         </div>
 
-        {/* 4. CTA tạo hợp đồng (ẩn khi đã có contract) */}
         {!isSigned && (
           <div className="flex justify-end">
             <Button onClick={handleCreate} disabled={creating}>
@@ -223,7 +222,6 @@ const ContractPage: React.FC = () => {
           </div>
         )}
 
-        {/* Dialog ký */}
         <SignatureDialog
           open={openSign}
           onOpenChange={setOpenSign}

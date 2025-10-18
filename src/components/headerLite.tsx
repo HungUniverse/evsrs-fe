@@ -1,5 +1,4 @@
-// src/layouts/headerLite.tsx (hoặc đúng path bạn đang đặt)
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import logo from "../images/logo.png";
@@ -17,20 +16,30 @@ import { LoginDialog } from "@/page/renter/components/login-dialog";
 import { RegisterDialog } from "@/page/renter/components/register-dialog";
 import { authAPI } from "@/apis/auth.api";
 import { toast } from "sonner";
+import { UserFullAPI } from "@/apis/user.api";
 
 export default function HeaderLite() {
   const navigate = useNavigate();
   const [openLogin, setOpenLogin] = useState(false);
   const [openRegister, setOpenRegister] = useState(false);
-  // ✅ đọc từ store
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
   const { isAuthenticated, user, clear } = useAuthStore();
+  useEffect(() => {
+    const fetchAvatar = async () => {
+      if (!user?.id) return;
 
+      const res = await UserFullAPI.getById(user.id);
+      setAvatarUrl(res.avatar || "");
+      console.log("Fetched avatar URL:", res.avatar);
+    };
+
+    fetchAvatar();
+  }, [user?.id]);
   const handleLogout = async () => {
     try {
       const { refreshToken } = useAuthStore.getState();
       console.log("refreshToken =", refreshToken);
 
-      // Nếu BE cần body: gửi luôn object
       await authAPI.logout({ refreshToken: refreshToken ?? "" });
 
       toast.success("Đăng xuất thành công");
@@ -46,12 +55,9 @@ export default function HeaderLite() {
 
   const displayName = user?.name;
 
-  const avatarSrc = user?.avatar || "";
-
   return (
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b">
       <div className="mx-auto w-full max-w-6xl h-16 px-4 flex items-center justify-between">
-        {/* Logo + brand */}
         <div
           className="flex items-center gap-1 cursor-pointer"
           onClick={() => navigate("/")}
@@ -97,8 +103,8 @@ export default function HeaderLite() {
                     aria-label="Tài khoản"
                   >
                     <div className="h-7 w-7 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden">
-                      {avatarSrc ? (
-                        <img src={avatarSrc} className="h-7 w-7 rounded-full" />
+                      {avatarUrl ? (
+                        <img src={avatarUrl} className="h-7 w-7 rounded-full" />
                       ) : (
                         <UserIcon className="h-4 w-4 text-slate-500" />
                       )}

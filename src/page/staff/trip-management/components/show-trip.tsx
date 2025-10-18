@@ -41,16 +41,24 @@ export default function ShowTrip({ data, onClickCode, onClickUser }: Props) {
 
         {data.map((booking) => {
           const modelName = booking.carEvs?.model?.modelName || "—";
-          const userName = booking.user?.name || booking.user?.userName || "—";
+          const userName = booking.user?.userName || "—";
           const depotName = booking.depot?.name || "—";
-          const depotAddress = booking.depot ? 
-            `${booking.depot.street}, ${booking.depot.ward}, ${booking.depot.district}, ${booking.depot.province}` : "—";
+          const depotAddress = booking.depot
+            ? `${booking.depot.street}, ${booking.depot.ward}, ${booking.depot.district}, ${booking.depot.province}`
+            : "—";
 
           console.log("[ShowTrip] Booking user data:", booking.user);
-          console.log("[ShowTrip] User ID check:", booking.user?.userId, booking.user?.id);
+          console.log(
+            "[ShowTrip] User ID check:",
+            booking.user?.userId,
+            booking.user?.id
+          );
 
           return (
-            <div key={booking.id} className={`grid ${COLS} text-sm items-center`}>
+            <div
+              key={booking.id}
+              className={`grid ${COLS} text-sm items-center`}
+            >
               <div className="px-4 py-3">
                 <button
                   className="text-sky-600 hover:underline"
@@ -62,24 +70,22 @@ export default function ShowTrip({ data, onClickCode, onClickUser }: Props) {
               </div>
 
               {/* 2. Dòng xe */}
-              <div className="px-4 py-3 text-slate-700">
-                {modelName}
-              </div>
+              <div className="px-4 py-3 text-slate-700">{modelName}</div>
 
               {/* 3. Người thuê */}
               <div className="px-4 py-3">
-                {(booking.user?.userId || booking.user?.id) ? (
+                {booking.user?.userId || booking.user?.id ? (
                   <button
                     className="text-sky-600 hover:underline truncate block w-full text-left"
-                    onClick={() => onClickUser?.(booking.user.userId || booking.user.id!)}
+                    onClick={() =>
+                      onClickUser?.(booking.user.userId || booking.user.id!)
+                    }
                     title="Xem thông tin người thuê"
                   >
                     {userName}
                   </button>
                 ) : (
-                  <span className="text-slate-700 truncate">
-                    {userName}
-                  </span>
+                  <span className="text-slate-700 truncate">{userName}</span>
                 )}
               </div>
 

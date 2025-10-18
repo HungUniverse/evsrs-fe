@@ -5,7 +5,7 @@ import {
   DashBoardPage,
   FleetManagementPage,
   CustomerManagementPage,
-  StaffManagementPage,  
+  StaffManagementPage,
   ReportsPage,
   CarManufacturePage,
 } from "@/page/admin";
@@ -29,7 +29,11 @@ import AuthGuard from "@/layouts/guard.layout";
 import { TripManagement } from "@/page/staff";
 import StaffTripDetails from "@/page/staff/trip-management/components/trip-details";
 import { lazy } from "react";
-import { ReturnInspectionPage, ReturnSettementPage } from "@/page/paper";
+import {
+  CustomerSettlement,
+  ReturnInspectionPage,
+  ReturnSettementPage,
+} from "@/page/paper";
 
 const ContractPage = lazy(() => import("@/page/paper/contract"));
 const HandoverInspectionPage = lazy(
@@ -85,7 +89,7 @@ export const router = createBrowserRouter([
               },
               {
                 path: ":orderId/return/settlement",
-                element: <ReturnSettementPage />,
+                element: <CustomerSettlement />,
               },
             ],
           },
