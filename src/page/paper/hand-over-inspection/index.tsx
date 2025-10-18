@@ -210,7 +210,7 @@ export default function HandoverInspectionPage() {
         <PartiesSummary order={order} />
 
         <CarInfo
-          platePlaceholder="XXA-123.45"
+          licensePlate={order.carEvs.licensePlate}
           startAt={order.startAt}
           endAt={order.endAt}
           carName={order.carEvs.model?.modelName ?? undefined}

@@ -41,8 +41,8 @@ export default function CustomerSettlementPage() {
     })();
   }, [orderId]);
 
-  if (!order || loading) return <div>Loading...</div>;
-
+  if (loading) return <div>Loading...</div>;
+  if (!order) return <div>Chưa có biên bản trả xe.</div>;
   return (
     <div className="container mx-auto py-8 space-y-8">
       <h1 className="text-2xl font-bold text-center">{title}</h1>

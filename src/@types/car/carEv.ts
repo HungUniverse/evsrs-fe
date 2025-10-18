@@ -4,6 +4,7 @@ import type { CarEvStatus } from "../enum";
 export interface CarEV {
   id: ID;
   modelId: ID;
+  licensePlate: string;
   model?: {
     id?: ID;
     modelName?: string;

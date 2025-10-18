@@ -18,6 +18,7 @@ export interface UserFull {
   userEmail: string;
   phoneNumber: string | null;
   fullName: string | null;
+  avatar?: string;
   role: RoleCode;
   dateOfBirth: string;
   isVerify: boolean;

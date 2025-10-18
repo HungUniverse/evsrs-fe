@@ -179,12 +179,11 @@ export default function ReturnSettlementPage() {
           </div>
         )}
 
-        {/* Parties + Car (chỉ khi có order) */}
         {order ? (
           <>
             <PartiesSummary order={order} />
             <CarInfo
-              platePlaceholder="—"
+              licensePlate={order.carEvs.licensePlate}
               startAt={order.startAt}
               endAt={order.endAt}
               carName={order.carEvs?.model?.modelName ?? undefined}
@@ -192,12 +191,10 @@ export default function ReturnSettlementPage() {
           </>
         ) : (
           <div className="p-4 text-sm text-gray-600">
-            Không tìm thấy dữ liệu đơn hàng — bạn vẫn có thể tạo biên bản thanh
-            toán.
+            Không tìm thấy dữ liệu đơn hàng
           </div>
         )}
 
-        {/* View or Form */}
         {settlement ? (
           <SettlementView data={settlement} />
         ) : (

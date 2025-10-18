@@ -70,6 +70,10 @@ export default function ContractCosts({ orderId }: { orderId: string }) {
           <span className="">{carName}</span>
         </div>
         <div className="flex justify-left gap-3">
+          <span className="font-medium">Biển số: </span>
+          <span className="">{order?.carEvs?.licensePlate}</span>
+        </div>
+        <div className="flex justify-left gap-3">
           <span className="font-medium">Thời hạn: </span>
           <span className="">{timeRange}</span>
         </div>

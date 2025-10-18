@@ -28,10 +28,6 @@ export default function SearchOrderBooking() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const location = useLocation();
-  useEffect(() => {
-    console.log("[SearchOrderBooking] user:", user);
-    console.log("[SearchOrderBooking] uid:", uid);
-  }, [user, uid]);
 
   const params = useMemo(() => {
     const search = `${filter.orderId} ${filter.carModel}`.trim() || undefined;

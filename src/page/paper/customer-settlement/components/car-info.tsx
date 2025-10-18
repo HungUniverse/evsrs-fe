@@ -54,7 +54,7 @@ export default function CarInfo({ car, orderId, startAt, endAt }: Props) {
           <div className="font-medium">Thông tin cơ bản:</div>
           <div className="grid grid-cols-2 gap-4">
             <Info label="Xe" value={car.model?.modelName} />
-            <Info label="Biển số" value={car.id} />
+            <Info label="Biển số" value={car.licensePlate} />
             <Info
               label="ODO lúc giao"
               value={
