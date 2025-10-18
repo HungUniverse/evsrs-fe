@@ -47,13 +47,6 @@ export default function ShowTrip({ data, onClickCode, onClickUser }: Props) {
             ? `${booking.depot.street}, ${booking.depot.ward}, ${booking.depot.district}, ${booking.depot.province}`
             : "—";
 
-          console.log("[ShowTrip] Booking user data:", booking.user);
-          console.log(
-            "[ShowTrip] User ID check:",
-            booking.user?.userId,
-            booking.user?.id
-          );
-
           return (
             <div
               key={booking.id}

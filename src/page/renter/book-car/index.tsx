@@ -5,15 +5,17 @@ import CarInfo from "./components/layouts/car-info";
 
 export default function BookCar() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div>
       <HeaderLite />
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <CarInfo />
-        <div className="mt-12">
-          <RentalCondition />
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <CarInfo />
+          <div className="mt-12">
+            <RentalCondition />
+          </div>
         </div>
+        <Footer />
       </div>
-      <Footer />
     </div>
   );
 }

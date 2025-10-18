@@ -31,6 +31,8 @@ export default function ExtraItems({ items, onAdd, onRemove }: Props) {
     setQuick(v);
     if (v === "cleaning") setDesc("Phí vệ sinh");
     else if (v === "other-depot") setDesc("Phí trả khác trạm");
+    else if (v === "highway") setDesc("Phí cao tốc");
+    else if (v === "other-fee") setDesc("Phí khác");
     else setDesc("");
   }
 
@@ -56,6 +58,8 @@ export default function ExtraItems({ items, onAdd, onRemove }: Props) {
           <SelectContent>
             <SelectItem value="cleaning">Phí vệ sinh</SelectItem>
             <SelectItem value="other-depot">Phí trả khác trạm</SelectItem>
+            <SelectItem value="highway">Phí cao tốc</SelectItem>
+            <SelectItem value="other-fee">Phí khác</SelectItem>
           </SelectContent>
         </Select>
 

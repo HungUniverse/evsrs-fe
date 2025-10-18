@@ -31,7 +31,7 @@ export default function InspectionView({
                   <img
                     src={u}
                     alt={`handover-${i}`}
-                    className="w-full h-28 object-cover rounded border cursor-pointer"
+                    className="w-full h-50 object-cover rounded border cursor-pointer"
                   />
                 </DialogTrigger>
                 <DialogContent className="max-w-4xl">

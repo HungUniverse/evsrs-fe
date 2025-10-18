@@ -50,7 +50,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "/search-car",
-        element: <SearchCar />,
+        element: (
+          <AuthGuard>
+            <SearchCar />
+          </AuthGuard>
+        ),
       },
       {
         path: "/book-car/:id",
