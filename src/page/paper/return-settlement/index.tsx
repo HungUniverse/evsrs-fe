@@ -13,9 +13,10 @@ import { orderBookingAPI } from "@/apis/order-booking.api";
 import { returnSettlementAPI } from "@/apis/return-settlement.api";
 
 import PartiesSummary from "../hand-over-inspection/components/PartiesSummary";
-import CarInfo from "../hand-over-inspection/components/CarInfo";
 import SettlementView from "./components/settlement-view";
 import SettlementForm from "./components/settlement-form";
+import CarInfo from "../customer-settlement/components/car-info";
+import InspectionImages from "./components/inspection-image";
 
 function toNum(v: string | number | null | undefined) {
   const n = Number(String(v ?? "0").replace(/[^\d.-]/g, ""));
@@ -183,10 +184,10 @@ export default function ReturnSettlementPage() {
           <>
             <PartiesSummary order={order} />
             <CarInfo
-              licensePlate={order.carEvs.licensePlate}
+              car={order.carEvs}
+              orderId={order.id}
               startAt={order.startAt}
               endAt={order.endAt}
-              carName={order.carEvs?.model?.modelName ?? undefined}
             />
           </>
         ) : (
@@ -194,13 +195,23 @@ export default function ReturnSettlementPage() {
             Không tìm thấy dữ liệu đơn hàng
           </div>
         )}
-
+        <InspectionImages />
         {settlement ? (
-          <SettlementView data={settlement} />
+          <div>
+            <SettlementView data={settlement} />
+          </div>
         ) : (
           <SettlementForm
             staffDisplay={user?.name || user?.userName || user?.userId || ""}
             defaultSubtotal={defaultSubtotal}
+            limitDailyKm={
+              order?.carEvs?.model?.limiteDailyKm ??
+              order?.carEvs?.model?.limiteDailyKm ??
+              order?.carEvs.model?.limiteDailyKm ??
+              0
+            }
+            startAt={order?.startAt ?? null}
+            endAt={order?.endAt ?? null}
             loading={creating}
             onSubmit={handleCreate}
           />

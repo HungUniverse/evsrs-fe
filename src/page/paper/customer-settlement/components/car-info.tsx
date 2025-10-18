@@ -6,6 +6,7 @@ import type { HandoverInspection } from "@/@types/order/handover-inspection";
 import { useEffect, useState } from "react";
 import { handoverInspectionAPI } from "@/apis/hand-over-inspection.api";
 import { returnInspectionAPI } from "@/apis/return-inspection.api";
+import InspectionImagesByOrder from "../../return-settlement/components/inspection-image";
 
 type Props = {
   car: CarEV;

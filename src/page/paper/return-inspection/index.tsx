@@ -19,7 +19,6 @@ import { returnInspectionAPI } from "@/apis/return-inspection.api";
 import { orderBookingAPI } from "@/apis/order-booking.api";
 
 import PartiesSummary from "../hand-over-inspection/components/PartiesSummary";
-import CarInfo from "../hand-over-inspection/components/CarInfo";
 import ReturnForm from "./components/return-form";
 import ReturnView from "./components/return-view";
 import type { HandoverInspection } from "@/@types/order/handover-inspection";
@@ -114,12 +113,13 @@ export default function ReturnInspectionPage() {
     odometer: string;
     batteryPercent: string;
     notes: string;
+    image?: string;
   }) {
     if (!orderId || !user?.userId) return toast.error("Thiếu dữ liệu");
     const body: ReturnInspectionRequest = {
       orderBookingId: orderId,
       type: "RETURN",
-      images: "",
+      images: v.image || "",
       staffId: user.userId,
       ...v,
     };
@@ -202,12 +202,6 @@ export default function ReturnInspectionPage() {
 
         {/* Parties + Car */}
         <PartiesSummary order={order} />
-        <CarInfo
-          platePlaceholder="—"
-          startAt={order.startAt}
-          endAt={order.endAt}
-          carName={order.carEvs.model?.modelName ?? undefined}
-        />
 
         {/* View or Form */}
         {hasReturn ? (

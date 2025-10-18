@@ -93,17 +93,13 @@ export default function ContractCosts({ orderId }: { orderId: string }) {
         {/* Phần dịch vụ/bảo hiểm & one-way giữ nguyên text như file bạn đang dùng */}
         <div className="mt-4">
           <h3 className="text-lg font-bold text-gray-800 mb-2">
-            3. Chi phí dịch vụ và bảo hiểm (Service and insurance costs)
+            3. Chi phí dịch vụ (Service costs)
           </h3>
           <div className="space-y-1 pl-4">
             <div>
-              <span className="font-medium text-gray-600">Bảo hiểm:</span>
-              <span className="ml-2 text-gray-800">50.000 VNĐ/người</span>
-            </div>
-            <div>
               <span className="font-medium text-gray-600">Vệ sinh xe:</span>
               <span className="ml-2 text-gray-800">
-                200.000VNĐ nếu xe bẩn quá mức thông thường.
+                200.000VNĐ hoặc hơn nếu xe bẩn quá mức thông thường.
               </span>
             </div>
             <div>

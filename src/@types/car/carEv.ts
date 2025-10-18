@@ -8,6 +8,7 @@ export interface CarEV {
   model?: {
     id?: ID;
     modelName?: string;
+    limiteDailyKm?: number;
   };
   depotId: ID;
   batteryHealthPercentage: number;

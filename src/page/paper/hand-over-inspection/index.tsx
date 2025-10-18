@@ -25,6 +25,7 @@ import type {
   HandoverInspection,
   HandoverInspectionRequest,
 } from "@/@types/order/handover-inspection";
+import UploadHandover from "./components/upload-handover";
 
 function isStaffRole(r?: string | number | null) {
   const s = String(r ?? "")
@@ -52,6 +53,7 @@ export default function HandoverInspectionPage() {
   const [odometer, setOdometer] = useState<string>("0");
   const [batteryPercent, setBatteryPercent] = useState<string>("90");
   const [notes, setNotes] = useState<string>("");
+  const [imageUrls, setImageUrls] = useState<string>("");
 
   const isStaff = isStaffRole(user?.role);
   const isUser = isUserRole(user?.role);
@@ -115,7 +117,7 @@ export default function HandoverInspectionPage() {
       type: "HANDOVER",
       batteryPercent: batteryPercent,
       odometer: odometer,
-      images: "",
+      images: imageUrls,
       notes,
       staffId: user.userId,
     };
@@ -263,7 +265,11 @@ export default function HandoverInspectionPage() {
                 placeholder="Tình trạng xe, vết xước, phụ kiện đi kèm..."
               />
             </div>
-
+            <UploadHandover
+              label="Ảnh/biên bản hiện trạng"
+              value={imageUrls}
+              onChange={setImageUrls}
+            />
             <div className="flex justify-end">
               <Button onClick={handleConfirm}>Xác nhận lập biên bản</Button>
             </div>
@@ -293,7 +299,7 @@ export default function HandoverInspectionPage() {
               variant="secondary"
               title="Bắt đầu sử dụng xe (IN_USE)"
             >
-              {starting ? "Đang bắt đầu..." : "Start"}
+              {starting ? "Đang bắt đầu..." : "Xác nhận sử dụng xe"}
             </Button>
           )}
         </div>
