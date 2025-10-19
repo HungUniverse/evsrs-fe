@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { api } from "@/lib/axios/axios";
@@ -21,7 +21,14 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Edit2, Trash2, Plus } from "lucide-react";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Edit2, Trash2, Plus, Search, ArrowUpDown, Loader2 } from "lucide-react";
 
 // Types
 interface BaseRecord {
@@ -49,7 +56,6 @@ interface CrudTemplateProps {
     columns: Column[];
     apiURL: string;
     formItems: FormItem[];
-    title?: string;
     addButtonText?: string;
     editButtonText?: string;
     deleteButtonText?: string;
@@ -60,13 +66,18 @@ interface CrudTemplateProps {
         update?: string;
         delete?: string;
     };
+    searchField?: string; // Field to search by (default: 'name')
+    sortOptions?: Array<{
+        value: string;
+        label: string;
+        sortFn: (a: BaseRecord, b: BaseRecord) => number;
+    }>;
 }
 
 const CrudTemplate: React.FC<CrudTemplateProps> = ({
     columns,
     apiURL,
     formItems,
-    title = "Manage Data",
     addButtonText = "Add Item",
     editButtonText = "Edit",
     deleteButtonText = "Delete",
@@ -77,12 +88,16 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
         update: "Item updated successfully!",
         delete: "Item deleted successfully!",
     },
+    searchField = "name",
+    sortOptions = [],
 }) => {
     const [data, setData] = useState<BaseRecord[]>([]);
     const [open, setOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [selectedRecord, setSelectedRecord] = useState<BaseRecord | null>(null);
     const [loading, setLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [sortBy, setSortBy] = useState<string>("none");
 
     const {
         register,
@@ -91,6 +106,32 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
         setValue,
         formState: { errors },
     } = useForm<BaseRecord>();
+
+    // Filter and sort data
+    const filteredAndSortedData = useMemo(() => {
+        let filtered = data;
+
+        // Apply search filter
+        if (searchTerm) {
+            filtered = data.filter((record) => {
+                const searchValue = record[searchField];
+                if (typeof searchValue === 'string') {
+                    return searchValue.toLowerCase().includes(searchTerm.toLowerCase());
+                }
+                return false;
+            });
+        }
+
+        // Apply sorting
+        if (sortBy && sortBy !== "none" && sortOptions.length > 0) {
+            const sortOption = sortOptions.find(option => option.value === sortBy);
+            if (sortOption) {
+                filtered = [...filtered].sort(sortOption.sortFn);
+            }
+        }
+
+        return filtered;
+    }, [data, searchTerm, sortBy, searchField, sortOptions]);
 
     //Read data from API
     const fetchData = async () => {
@@ -236,8 +277,40 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
     //Render table
     return (
         <div className="space-y-4">
-            <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold">{title}</h2>
+            {/* Search, Sort Controls and Add Button */}
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                {/* Search Input */}
+                <div className="relative flex-1 max-w-sm">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Input
+                        placeholder={`Tìm kiếm theo ${searchField}...`}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                    />
+                </div>
+
+                {/* Sort Dropdown */}
+                {sortOptions.length > 0 && (
+                    <div className="flex items-center gap-2">
+                        <ArrowUpDown className="h-4 w-4 text-gray-400" />
+                        <Select value={sortBy} onValueChange={setSortBy}>
+                            <SelectTrigger className="w-[200px]">
+                                <SelectValue placeholder="Sắp xếp theo..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="none">Không sắp xếp</SelectItem>
+                                {sortOptions.map((option) => (
+                                    <SelectItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                )}
+
+                {/* Add Button */}
                 <Button onClick={() => setOpen(true)} className="flex items-center gap-2">
                     <Plus className="h-4 w-4" />
                     {addButtonText}
@@ -258,17 +331,20 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
                         {loading ? (
                             <TableRow>
                                 <TableCell colSpan={columns.length + 1} className="text-center py-8">
-                                    Loading...
+                                    <div className="flex items-center justify-center gap-2">
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        <span>Loading...</span>
+                                    </div>
                                 </TableCell>
                             </TableRow>
-                        ) : data.length === 0 ? (
+                        ) : filteredAndSortedData.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={columns.length + 1} className="text-center py-8">
-                                    No data available
+                                    {searchTerm ? "Không tìm thấy kết quả phù hợp" : "No data available"}
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            data.map((record, index) => (
+                            filteredAndSortedData.map((record, index) => (
                                 <TableRow key={String(record.id || record.Id || `row-${index}`)}>
                                     {columns.map((column) => (
                                         <TableCell key={column.key}>

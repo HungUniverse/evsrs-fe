@@ -11,13 +11,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { MoreHorizontal, ShieldCheck, AlertTriangle, Minus, Filter, ArrowUpDown, ExternalLink, FileText, User, Eye } from "lucide-react";
+import { MoreHorizontal, ShieldCheck, AlertTriangle, Minus, Filter, ArrowUpDown, FileText, User, Eye, Trash2, Loader2 } from "lucide-react";
 import { UserFullAPI } from "@/apis/user.api";
 import { formatDate } from "@/lib/utils/formatDate";
+import type { IdentifyDocumentStatus } from "@/@types/enum";
+import { ImageModal, DocumentVerificationModal, StatusChangeDialog, DeleteConfirmationDialog } from "./table-components";
 
 function getImageUrl(imageString: string | null): string {
   if (!imageString) return "";
@@ -49,14 +49,14 @@ type SortState = {
 
 function getDocStatus(
   hasImage: boolean | undefined,
-  status: "PENDING" | "APPROVED" | "REJECTED"
+  status: IdentifyDocumentStatus
 ) {
   if (!hasImage) return "missing" as const;
   if (status === "APPROVED") return "ok" as const;
   return "review" as const;
 }
 
-export function CustomerList() {
+export function RenterTable() {
   const { user: currentUser } = useAuthStore();
   const [users, setUsers] = useState<UserFull[]>([]);
   const [documents, setDocuments] = useState<
@@ -79,13 +79,18 @@ export function CustomerList() {
     user: UserFull | null;
     document: IdentifyDocumentResponse | null;
     newStatus: "APPROVED" | "REJECTED";
-    currentStatus: "PENDING" | "APPROVED" | "REJECTED";
+    currentStatus: IdentifyDocumentStatus;
   } | null>(null);
+  const [deleteDialog, setDeleteDialog] = useState<{
+    users: UserFull[];
+    isOpen: boolean;
+  }>({ users: [], isOpen: false });
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Filters and sorting
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<FilterState>({
-    role: "All",
+    role: "USER", // Tự động filter role=USER cho renter-management
   });
   const [sortState, setSortState] = useState<SortState>({
     field: "fullName",
@@ -99,8 +104,7 @@ export function CustomerList() {
       try {
         const response = await UserFullAPI.getAll(1, 100);
         
-        // Thử các cách truy cập khác nhau
-        const usersData = response.data.items || response.data.data?.items || response.data.data || [];
+        const usersData =  response.data.data?.items ; //ignore this error
         setUsers(usersData);
       } catch (error) {
         console.error("Failed to load users:", error);
@@ -180,16 +184,25 @@ export function CustomerList() {
     const q = query.trim().toLowerCase();
     if (q) {
       filtered = filtered.filter((u) => {
-        return [u.fullName, u.userName, u.phoneNumber, u.userEmail]
-          .filter(Boolean)
-          .some((v) => String(v).toLowerCase().includes(q));
+        return [
+          u.fullName || "Chưa có tên",
+          u.userName || "Chưa có tên đăng nhập", 
+          u.phoneNumber || "Chưa có số điện thoại",
+          u.userEmail || "Chưa có email"
+        ].some((v) => String(v).toLowerCase().includes(q));
       });
     }
 
-    // Role filter
-    if (filters.role !== "All") {
-      filtered = filtered.filter((u) => u.role === filters.role);
-    }
+    // Role filter - chỉ hiển thị USER và loại bỏ admin hiện tại
+    filtered = filtered.filter((u) => {
+      // Chỉ hiển thị USER
+      if ((u.role || "USER") !== "USER") return false;
+      
+      // Loại bỏ admin hiện tại nếu có
+      if (currentUser && u.id === currentUser.id) return false;
+      
+      return true;
+    });
 
     // Sorting
     filtered.sort((a, b) => {
@@ -197,16 +210,16 @@ export function CustomerList() {
 
       switch (sortState.field) {
         case "fullName":
-          aVal = (a.fullName || "").toLowerCase();
-          bVal = (b.fullName || "").toLowerCase();
+          aVal = (a.fullName || "Chưa có tên").toLowerCase();
+          bVal = (b.fullName || "Chưa có tên").toLowerCase();
           break;
         case "createdAt":
-          aVal = new Date(a.createdAt).getTime();
-          bVal = new Date(b.createdAt).getTime();
+          aVal = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          bVal = b.createdAt ? new Date(b.createdAt).getTime() : 0;
           break;
         case "role":
-          aVal = a.role;
-          bVal = b.role;
+          aVal = a.role || "USER";
+          bVal = b.role || "USER";
           break;
         default:
           return 0;
@@ -218,31 +231,17 @@ export function CustomerList() {
     });
 
     return filtered;
-  }, [query, filters, sortState, users]);
-
-  const allVisibleSelected =
-    rows.length > 0 && rows.every((r) => selected[r.id]);
-  const someVisibleSelected =
-    rows.some((r) => selected[r.id]) && !allVisibleSelected;
-
-  const toggleAllVisible = (checked: boolean) => {
-    const next: SelectionMap = { ...selected };
-    rows.forEach((r) => {
-      next[r.id] = checked;
-    });
-    setSelected(next);
-  };
+  }, [query, sortState, users, currentUser]);
 
   const clearFilters = () => {
     setQuery("");
     setFilters({
-      role: "All",
+      role: "USER", // Luôn giữ filter role=USER cho renter-management
     });
     setSortState({ field: "fullName", direction: "asc" });
   };
 
-  const hasActiveFilters =
-    query || Object.values(filters).some((v) => v !== "All");
+  const hasActiveFilters = query;
 
   const handleDocumentVerification = async (user: UserFull) => {
     // Load document if not already loaded
@@ -350,125 +349,152 @@ export function CustomerList() {
     }
   };
 
+  // Delete user functions
+  const handleDeleteUsers = () => {
+    const selectedUsers = rows.filter((user) => selected[user.id]);
+    if (selectedUsers.length === 0) return;
+
+    setDeleteDialog({
+      users: selectedUsers,
+      isOpen: true,
+    });
+  };
+
+  const confirmDeleteUsers = async () => {
+    if (deleteDialog.users.length === 0) return;
+
+    setIsDeleting(true);
+    try {
+      // Delete users one by one
+      for (const user of deleteDialog.users) {
+        await UserFullAPI.delete(user.id);
+      }
+
+      // Update local state - remove deleted users
+      setUsers((prev) => prev.filter((user) => 
+        !deleteDialog.users.some((deletedUser) => deletedUser.id === user.id)
+      ));
+
+      // Clear selection
+      setSelected({});
+
+      // Close dialog
+      setDeleteDialog({ users: [], isOpen: false });
+    } catch (error) {
+      console.error("Failed to delete users:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const closeDeleteDialog = () => {
+    setDeleteDialog({ users: [], isOpen: false });
+  };
+
   const showDocumentColumns = filters.role === "USER";
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-lg">Loading...</div>
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          <span className="text-lg">Loading...</span>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-3">
-      {/* Enhanced Toolbar */}
-      <div className="flex flex-col gap-3">
-        {/* Search and Bulk Actions Row */}
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2">
-            <Input
-              placeholder="Tìm nhanh (tên / user / phone / email)"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="w-[280px]"
-            />
+      {/* Thanh công cụ cải tiến */}
+      <div className="space-y-3">
+        {/* Tìm kiếm, bộ lọc và hành động trên cùng một hàng */}
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          {/* Phần bên trái: Search và Filters */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+            {/* Search Bar */}
+            <div className="flex items-center gap-2">
+              <Input
+                placeholder="Tìm nhanh (tên / tên đăng nhập / số điện thoại / email)"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="w-[280px] sm:w-[320px]"
+              />
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-wrap items-center gap-3">
+              
+              {/* Sort */}
+              <div className="flex items-center gap-2">
+                <ArrowUpDown className="size-4 text-muted-foreground" />
+                <Label
+                  htmlFor="sort-filter"
+                  className="text-sm text-muted-foreground whitespace-nowrap"
+                >
+                  Sắp xếp:
+                </Label>
+                <Select
+                  value={`${sortState.field}-${sortState.direction}`}
+                  onValueChange={(v) => {
+                    const [field, direction] = v.split("-");
+                    setSortState({ field, direction: direction as "asc" | "desc" });
+                  }}
+                >
+                  <SelectTrigger id="sort-filter" className="w-[160px]">
+                    <SelectValue placeholder="Sắp xếp theo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fullName-asc">Tên A→Z</SelectItem>
+                    <SelectItem value="fullName-desc">Tên Z→A</SelectItem>
+                    <SelectItem value="role-asc">Vai trò A→Z</SelectItem>
+                    <SelectItem value="role-desc">Vai trò Z→A</SelectItem>
+                    <SelectItem value="createdAt-desc">Ngày tạo (mới nhất)</SelectItem>
+                    <SelectItem value="createdAt-asc">Ngày tạo (cũ nhất)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
+
+          {/* Phần bên phải: Actions */}
           <div className="flex items-center gap-2">
             {hasActiveFilters && (
               <Button variant="outline" size="sm" onClick={clearFilters}>
-                Clear filters
+                Xóa bộ lọc
+              </Button>
+            )}
+            
+            {/* Delete button - only for selected users */}
+            {Object.keys(selected).some(key => selected[key]) && (
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                onClick={handleDeleteUsers}
+                className="flex items-center gap-2"
+              >
+                <Trash2 className="size-4" />
+                Xóa đã chọn ({Object.keys(selected).filter(key => selected[key]).length})
               </Button>
             )}
           </div>
         </div>
-
-        {/* Filters Row */}
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Filter className="size-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Filters:</span>
-          </div>
-
-          {/* Role Filter */}
-          <div className="flex items-center gap-2">
-            <Label
-              htmlFor="role-filter"
-              className="text-sm text-muted-foreground whitespace-nowrap"
-            >
-              Role:
-            </Label>
-            <Select
-              value={filters.role}
-              onValueChange={(v) =>
-                setFilters((prev) => ({ ...prev, role: v }))
-              }
-            >
-              <SelectTrigger id="role-filter" className="w-[120px]">
-                <SelectValue placeholder="Role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All">All</SelectItem>
-                <SelectItem value="ADMIN">ADMIN</SelectItem>
-                <SelectItem value="USER">USER</SelectItem>
-                <SelectItem value="STAFF">STAFF</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Sort by Filter */}
-          <div className="flex items-center gap-2">
-            <ArrowUpDown className="size-4 text-muted-foreground" />
-            <Label
-              htmlFor="sort-filter"
-              className="text-sm text-muted-foreground whitespace-nowrap"
-            >
-              Sort by:
-            </Label>
-            <Select
-              value={`${sortState.field}-${sortState.direction}`}
-              onValueChange={(v) => {
-                const [field, direction] = v.split("-");
-                setSortState({ field, direction: direction as "asc" | "desc" });
-              }}
-            >
-              <SelectTrigger id="sort-filter" className="w-[160px]">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="fullName-asc">Name A→Z</SelectItem>
-                <SelectItem value="fullName-desc">Name Z→A</SelectItem>
-                <SelectItem value="role-asc">Role A→Z</SelectItem>
-                <SelectItem value="role-desc">Role Z→A</SelectItem>
-                <SelectItem value="createdAt-desc">Created (newest)</SelectItem>
-                <SelectItem value="createdAt-asc">Created (oldest)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
       </div>
 
-      {/* User List Table */}
+      {/* Danh sách người dùng */}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[40px]">
-                <Checkbox
-                  aria-label="Select all"
-                  checked={allVisibleSelected}
-                  onCheckedChange={(v) => toggleAllVisible(Boolean(v))}
-                  data-state={someVisibleSelected ? "indeterminate" : undefined}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </TableHead>
-              <TableHead>User</TableHead>
-              <TableHead>Phone / Email</TableHead>
-              <TableHead>Role</TableHead>
-              {showDocumentColumns && <TableHead>Docs</TableHead>}
-              {showDocumentColumns && <TableHead>Verify</TableHead>}
-              <TableHead>Created</TableHead>
-              <TableHead className="w-[60px]">Actions</TableHead>
+              <TableHead className="w-[40px]"></TableHead>
+              <TableHead>Người dùng</TableHead>
+              <TableHead>Số điện thoại / Email</TableHead>
+              <TableHead>Vai trò</TableHead>
+              {showDocumentColumns && <TableHead>Tài liệu</TableHead>}
+              {showDocumentColumns && <TableHead>Xác thực</TableHead>}
+              <TableHead>Ngày tạo</TableHead>
+              <TableHead>Ngày cập nhật</TableHead>
+              <TableHead className="w-[60px]">Hành động</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -513,15 +539,15 @@ export function CustomerList() {
                       <div className="flex items-center gap-3">
                         <img
                           src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.fullName || "User")}`}
-                          alt={u.fullName || "User"}
+                          alt={u.fullName || "Người dùng"}
                           className="size-8 rounded-full object-cover"
                         />
                         <div>
                           <div className="font-medium leading-tight">
-                            {u.fullName}
+                            {u.fullName || "Chưa có tên"}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {u.userName}
+                            {u.userName || "Chưa có tên đăng nhập"}
                           </div>
                         </div>
                       </div>
@@ -529,13 +555,13 @@ export function CustomerList() {
                     {/* Phone / Email */}
                     <TableCell>
                       <div className="flex flex-col">
-                        <span>{u.phoneNumber || "—"}</span>
+                        <span>{u.phoneNumber || "Chưa có số điện thoại"}</span>
                         <span className="text-xs text-muted-foreground">
-                          {u.userEmail || "—"}
+                          {u.userEmail || "Chưa có email"}
                         </span>
                       </div>
                     </TableCell>
-                    {/* Role */}
+                    {/* Vai trò */}
                     <TableCell>
                       <Badge
                         variant={
@@ -546,10 +572,10 @@ export function CustomerList() {
                               : "outline"
                         }
                       >
-                        {u.role}
+                        {u.role || "USER"}
                       </Badge>
                     </TableCell>
-                    {/* Docs - Only show for USER role */}
+                    {/* Tài liệu - Chỉ hiển thị cho role USER */}
                     {showDocumentColumns && (
                       <TableCell>
                         <div className="flex items-center gap-3">
@@ -566,11 +592,11 @@ export function CustomerList() {
                                   ) : (
                                     <Minus className="text-muted-foreground" />
                                   )}
-                                  <span className="text-xs">Front</span>
+                                  <span className="text-xs">Mặt trước</span>
                                 </span>
                               </TooltipTrigger>
                               <TooltipContent>
-                                Front:{" "}
+                                Mặt trước:{" "}
                                 {frontDoc === "loading"
                                   ? "Đang tải..."
                                   : frontDoc === "ok"
@@ -594,11 +620,11 @@ export function CustomerList() {
                                   ) : (
                                     <Minus className="text-muted-foreground" />
                                   )}
-                                  <span className="text-xs">Back</span>
+                                  <span className="text-xs">Mặt sau</span>
                                 </span>
                               </TooltipTrigger>
                               <TooltipContent>
-                                Back:{" "}
+                                Mặt sau:{" "}
                                 {backDoc === "loading"
                                   ? "Đang tải..."
                                   : backDoc === "ok"
@@ -612,7 +638,7 @@ export function CustomerList() {
                         </div>
                       </TableCell>
                     )}
-                    {/* Verification - Only show for USER role */}
+                    {/* Xác thực - Chỉ hiển thị cho role USER */}
                     {showDocumentColumns && (
                       <TableCell>
                         <div className="flex items-center gap-2">
@@ -672,18 +698,20 @@ export function CustomerList() {
                                     handleDocumentVerification(u);
                                   }}
                                 >
-                                  Verify
+                                  Xác thực
                                 </Button>
                               )}
                             </div>
                           ) : (
-                            <Badge variant="outline">No Document</Badge>
+                            <Badge variant="outline">Không có tài liệu</Badge>
                           )}
                         </div>
                       </TableCell>
                     )}
                     {/* Created */}
-                    <TableCell>{formatDate(u.createdAt)}</TableCell>
+                    <TableCell>{u.createdAt ? formatDate(u.createdAt) : "Chưa xác định"}</TableCell>
+                    {/* Updated */}
+                    <TableCell>{u.updatedAt ? formatDate(u.updatedAt) : "Chưa xác định"}</TableCell>
                     {/* Actions */}
                     <TableCell className="text-right">
                       <DropdownMenu>
@@ -693,17 +721,31 @@ export function CustomerList() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View</DropdownMenuItem>
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
+                          <DropdownMenuItem>Xem</DropdownMenuItem>
+                          <DropdownMenuItem>Chỉnh sửa</DropdownMenuItem>
                           {showDocumentColumns && document && (
                             <DropdownMenuItem
                               onClick={() => handleDocumentVerification(u)}
                             >
-                              Verify Document
+                              Xác thực tài liệu
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem>Audit log</DropdownMenuItem>
+                          <DropdownMenuItem>Nhật ký kiểm tra</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            className="text-red-600 focus:text-red-600"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteDialog({
+                                users: [u],
+                                isOpen: true,
+                              });
+                            }}
+                          >
+                            <Trash2 className="size-4 mr-2" />
+                            Xóa người dùng
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -730,12 +772,12 @@ export function CustomerList() {
                                     Role:
                                   </span>
                                   <span className="ml-2">
-                                    <Badge variant="outline">{u.role}</Badge>
+                                    <Badge variant="outline">{u.role || "USER"}</Badge>
                                   </span>
                                 </div>
                                 <div>
                                   <span className="text-muted-foreground">
-                                    Verified:
+                                    Đã xác thực:
                                   </span>
                                   <span className="ml-2">
                                     <Badge
@@ -743,7 +785,7 @@ export function CustomerList() {
                                         u.isVerify ? "default" : "secondary"
                                       }
                                     >
-                                      {u.isVerify ? "Yes" : "No"}
+                                      {u.isVerify ? "Có" : "Không"}
                                     </Badge>
                                   </span>
                                 </div>
@@ -752,7 +794,7 @@ export function CustomerList() {
                                     Tạo lúc:
                                   </span>
                                   <span className="ml-2">
-                                    {formatDate(u.createdAt)}
+                                    {u.createdAt ? formatDate(u.createdAt) : "Chưa xác định"}
                                   </span>
                                 </div>
                                 <div>
@@ -760,25 +802,21 @@ export function CustomerList() {
                                     Cập nhật:
                                   </span>
                                   <span className="ml-2">
-                                    {formatDate(u.updatedAt)}
+                                    {u.updatedAt ? formatDate(u.updatedAt) : "Chưa xác định"}
                                   </span>
                                 </div>
-                                {u.createdBy && (
-                                  <div>
-                                    <span className="text-muted-foreground">
-                                      Tạo bởi:
-                                    </span>
-                                    <span className="ml-2">{u.createdBy}</span>
-                                  </div>
-                                )}
-                                {u.updatedBy && (
-                                  <div>
-                                    <span className="text-muted-foreground">
-                                      Cập nhật bởi:
-                                    </span>
-                                    <span className="ml-2">{u.updatedBy}</span>
-                                  </div>
-                                )}
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    Tạo bởi:
+                                  </span>
+                                  <span className="ml-2">{u.createdBy || "Hệ thống"}</span>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    Cập nhật bởi:
+                                  </span>
+                                  <span className="ml-2">{u.updatedBy || "Chưa cập nhật"}</span>
+                                </div>
                               </div>
                             </div>
 
@@ -804,7 +842,7 @@ export function CustomerList() {
                                           Mã quốc gia:
                                         </span>
                                         <div className="text-sm">
-                                          {document.countryCode || "—"}
+                                          {document.countryCode || "Chưa có mã quốc gia"}
                                         </div>
                                       </div>
                                       <div>
@@ -812,7 +850,7 @@ export function CustomerList() {
                                           Số GPLX:
                                         </span>
                                         <div className="text-sm">
-                                          {document.numberMasked || "—"}
+                                          {document.numberMasked || "Chưa có số GPLX"}
                                         </div>
                                       </div>
                                     </div>
@@ -842,7 +880,7 @@ export function CustomerList() {
                                                     ),
                                                     title:
                                                       "Front Document - " +
-                                                      u.fullName,
+                                                      (u.fullName || "Người dùng"),
                                                   });
                                                 }
                                               }}
@@ -887,7 +925,7 @@ export function CustomerList() {
                                                     ),
                                                     title:
                                                       "Back Document - " +
-                                                      u.fullName,
+                                                      (u.fullName || "Người dùng"),
                                                   });
                                                 }
                                               }}
@@ -909,36 +947,30 @@ export function CustomerList() {
                                       </div>
                                     </div>
 
-                                    {document.verifiedBy && (
-                                      <div className="text-sm">
-                                        <span className="text-muted-foreground">
-                                          Xác thực bởi:
-                                        </span>
-                                        <span className="ml-2">
-                                          {document.verifiedBy}
-                                        </span>
-                                      </div>
-                                    )}
-                                    {document.verifiedAt && (
-                                      <div className="text-sm">
-                                        <span className="text-muted-foreground">
-                                          Ngày xác thực:
-                                        </span>
-                                        <span className="ml-2">
-                                          {formatDate(document.verifiedAt)}
-                                        </span>
-                                      </div>
-                                    )}
-                                    {document.note && (
-                                      <div className="text-sm">
-                                        <span className="text-muted-foreground">
-                                          Ghi chú:
-                                        </span>
-                                        <span className="ml-2">
-                                          {document.note}
-                                        </span>
-                                      </div>
-                                    )}
+                                    <div className="text-sm">
+                                      <span className="text-muted-foreground">
+                                        Xác thực bởi:
+                                      </span>
+                                      <span className="ml-2">
+                                        {document.verifiedBy || "Chưa được xác thực"}
+                                      </span>
+                                    </div>
+                                    <div className="text-sm">
+                                      <span className="text-muted-foreground">
+                                        Ngày xác thực:
+                                      </span>
+                                      <span className="ml-2">
+                                        {document.verifiedAt ? formatDate(document.verifiedAt) : "Chưa xác thực"}
+                                      </span>
+                                    </div>
+                                    <div className="text-sm">
+                                      <span className="text-muted-foreground">
+                                        Ghi chú:
+                                      </span>
+                                      <span className="ml-2">
+                                        {document.note || "Không có ghi chú"}
+                                      </span>
+                                    </div>
                                   </div>
                                 ) : (
                                   <div className="text-sm text-muted-foreground">
@@ -959,256 +991,52 @@ export function CustomerList() {
         </Table>
       </div>
 
-      {/* Image Modal */}
-      <Dialog
-        open={!!imageModalOpen}
-        onOpenChange={() => setImageModalOpen(null)}
-      >
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>{imageModalOpen?.title}</DialogTitle>
-          </DialogHeader>
-          {imageModalOpen && (
-            <div className="space-y-4">
-              <img
-                src={imageModalOpen.url}
-                alt={imageModalOpen.title}
-                className="w-full max-h-[400px] object-contain rounded border"
-              />
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => window.open(imageModalOpen.url, "_blank")}
-                >
-                  <ExternalLink className="size-4 mr-2" />
-                  Mở trong tab mới
-                </Button>
-              </DialogFooter>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Modal ảnh tài liệu */}
+      <ImageModal
+        isOpen={!!imageModalOpen}
+        onClose={() => setImageModalOpen(null)}
+        imageUrl={imageModalOpen?.url || null}
+        title={imageModalOpen?.title || null}
+      />
 
-      {/* Document Verification Modal */}
-      <Dialog
-        open={!!documentDialog.user}
-        onOpenChange={() =>
+      {/* Modal xác thực tài liệu */}
+      <DocumentVerificationModal
+        isOpen={!!documentDialog.user}
+        onClose={() =>
           setDocumentDialog({ user: null, document: null, action: "approve" })
         }
-      >
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Xác thực tài liệu</DialogTitle>
-          </DialogHeader>
+        user={documentDialog.user}
+        document={documentDialog.document}
+        action={documentDialog.action}
+        onActionChange={(action: "approve" | "reject") =>
+          setDocumentDialog({ ...documentDialog, action })
+        }
+        verificationNotes={verificationNotes}
+        onNotesChange={setVerificationNotes}
+        onConfirm={confirmDocumentVerification}
+      />
 
-          {documentDialog.user && documentDialog.document && (
-            <div className="space-y-6">
-              {/* User Info */}
-              <div className="flex items-center gap-4 p-4 bg-muted/20 rounded-lg">
-                <img
-                  src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(documentDialog.user.fullName || "User")}`}
-                  alt={documentDialog.user.fullName || "User"}
-                  className="size-12 rounded-full object-cover"
-                />
-                <div>
-                  <h3 className="font-semibold">
-                    {documentDialog.user.fullName}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {documentDialog.user.userName}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-sm text-muted-foreground">
-                      Trạng thái hiện tại:
-                    </span>
-                    <Badge
-                      variant={
-                        documentDialog.document.status === "APPROVED"
-                          ? "default"
-                          : documentDialog.document.status === "REJECTED"
-                            ? "destructive"
-                            : "outline"
-                      }
-                    >
-                      {documentDialog.document.status}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
+      {/* Modal xác thực trạng thái */}
+      <StatusChangeDialog
+        isOpen={!!statusChangeDialog}
+        onClose={() => setStatusChangeDialog(null)}
+        user={statusChangeDialog?.user || null}
+        document={statusChangeDialog?.document || null}
+        newStatus={statusChangeDialog?.newStatus || "APPROVED"}
+        currentStatus={statusChangeDialog?.currentStatus || "PENDING"}
+        verificationNotes={verificationNotes}
+        onNotesChange={setVerificationNotes}
+        onConfirm={confirmStatusChange}
+      />
 
-              {/* Action Selection */}
-              <div className="space-y-2">
-                <Label className="text-sm">Chọn hành động</Label>
-                <RadioGroup
-                  value={documentDialog.action}
-                  onValueChange={(v: "approve" | "reject") =>
-                    setDocumentDialog({ ...documentDialog, action: v })
-                  }
-                  className="grid gap-2"
-                >
-                  <div className="flex items-center space-x-2 p-2 border rounded">
-                    <RadioGroupItem value="approve" id="r-approve" />
-                    <Label htmlFor="r-approve">Approve</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 p-2 border rounded">
-                    <RadioGroupItem value="reject" id="r-reject" />
-                    <Label htmlFor="r-reject">Reject</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              {/* Notes */}
-              <div className="space-y-2">
-                <Label className="text-sm">Ghi chú</Label>
-                <textarea
-                  value={verificationNotes}
-                  onChange={(e) => setVerificationNotes(e.target.value)}
-                  placeholder="Nhập ghi chú..."
-                  className="w-full min-h-[80px] p-3 border rounded-md resize-none"
-                />
-              </div>
-
-              {/* Footer */}
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    setDocumentDialog({
-                      user: null,
-                      document: null,
-                      action: "approve",
-                    })
-                  }
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={confirmDocumentVerification}
-                  variant={
-                    documentDialog.action === "reject"
-                      ? "destructive"
-                      : "default"
-                  }
-                >
-                  {documentDialog.action === "approve" ? "Approve" : "Reject"}
-                </Button>
-              </DialogFooter>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Status Change Confirmation Dialog */}
-      <Dialog
-        open={!!statusChangeDialog}
-        onOpenChange={() => setStatusChangeDialog(null)}
-      >
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Xác nhận thay đổi trạng thái</DialogTitle>
-          </DialogHeader>
-
-          {statusChangeDialog && statusChangeDialog.user && (
-            <div className="space-y-4">
-              {/* User Info */}
-              <div className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
-                <img
-                  src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(statusChangeDialog.user.fullName || "User")}`}
-                  alt={statusChangeDialog.user.fullName || "User"}
-                  className="size-10 rounded-full object-cover"
-                />
-                <div>
-                  <h4 className="font-medium">
-                    {statusChangeDialog.user.fullName}
-                  </h4>
-                  <p className="text-sm text-muted-foreground">
-                    {statusChangeDialog.user.userName}
-                  </p>
-                </div>
-              </div>
-
-              {/* Status Change Info */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 border rounded-lg">
-                  <span className="text-sm font-medium">
-                    Trạng thái hiện tại:
-                  </span>
-                  <Badge
-                    variant={
-                      statusChangeDialog.currentStatus === "APPROVED"
-                        ? "default"
-                        : statusChangeDialog.currentStatus === "REJECTED"
-                          ? "destructive"
-                          : "outline"
-                    }
-                  >
-                    {statusChangeDialog.currentStatus}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 border rounded-lg">
-                  <span className="text-sm font-medium">Trạng thái mới:</span>
-                  <Badge
-                    variant={
-                      statusChangeDialog.newStatus === "APPROVED"
-                        ? "default"
-                        : "destructive"
-                    }
-                  >
-                    {statusChangeDialog.newStatus}
-                  </Badge>
-                </div>
-              </div>
-
-              {/* Warning Message */}
-              <div className="p-3 rounded-lg border bg-amber-50 text-amber-800">
-                <p className="text-sm">
-                  {statusChangeDialog.newStatus === "APPROVED"
-                    ? "Tài liệu sẽ được duyệt và người dùng có thể sử dụng dịch vụ."
-                    : "Tài liệu sẽ bị từ chối và có thể ảnh hưởng đến khả năng sử dụng dịch vụ của người dùng."}
-                </p>
-              </div>
-
-              {/* Notes */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Ghi chú (tùy chọn)
-                </Label>
-                <textarea
-                  value={verificationNotes}
-                  onChange={(e) => setVerificationNotes(e.target.value)}
-                  placeholder="Nhập ghi chú cho việc thay đổi trạng thái..."
-                  className="w-full min-h-[80px] p-3 border rounded-md resize-none text-sm"
-                />
-              </div>
-
-              {/* Action Buttons */}
-              <DialogFooter className="gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setStatusChangeDialog(null);
-                    setVerificationNotes("");
-                  }}
-                >
-                  Hủy
-                </Button>
-                <Button
-                  onClick={confirmStatusChange}
-                  variant={
-                    statusChangeDialog.newStatus === "APPROVED"
-                      ? "default"
-                      : "destructive"
-                  }
-                >
-                  {statusChangeDialog.newStatus === "APPROVED"
-                    ? "Duyệt tài liệu"
-                    : "Từ chối tài liệu"}
-                </Button>
-              </DialogFooter>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Modal xác nhận xóa người dùng */}
+      <DeleteConfirmationDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={closeDeleteDialog}
+        onConfirm={confirmDeleteUsers}
+        users={deleteDialog.users}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }

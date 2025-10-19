@@ -2,15 +2,11 @@ import AppLayout from "@/layouts/app.layout";
 import AdminLayout from "@/layouts/admin.layout";
 import StaffLayout from "@/layouts/staff.layout";
 import {
-  DashBoardPage,
-  FleetManagementPage,
-  CustomerManagementPage,
+  RenterManagementPage,
+  CarManufactureManagementPage,
+  ModelManagementPage,
   StaffManagementPage,
-  ReportsPage,
-  CarManufacturePage,
-} from "@/page/admin";
-import RentalHistoryPage from "@/page/admin/user-management/rental-history";
-import ComplaintsPage from "@/page/admin/user-management/complaints";
+} from "@/page/admin/index";
 import {
   AccountProfile,
   AccountTrips,
@@ -107,40 +103,24 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Navigate to="/admin/dashboard" replace />,
+            element: <Navigate to="/admin/car-manufacture" replace />,
           },
           {
-            path: "dashboard",
-            element: <DashBoardPage />,
+            path: "renter-management",
+            element: <RenterManagementPage />,
           },
           {
-            path: "fleet-management",
-            element: <FleetManagementPage />,
+            path: "car-manufacture",
+            element: <CarManufactureManagementPage />,
           },
           {
-            path: "customer-management",
-            element: <CustomerManagementPage />,
-          },
-          {
-            path: "customer-management/rental-history",
-            element: <RentalHistoryPage />,
-          },
-          {
-            path: "customer-management/complaints",
-            element: <ComplaintsPage />,
+            path: "model-management",
+            element: <ModelManagementPage />,
           },
           {
             path: "staff-management",
             element: <StaffManagementPage />,
-          },
-          {
-            path: "reports",
-            element: <ReportsPage />,
-          },
-          {
-            path: "car-manufacture",
-            element: <CarManufacturePage />,
-          },
+          }
         ],
       },
       {

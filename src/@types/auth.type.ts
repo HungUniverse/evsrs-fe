@@ -19,6 +19,9 @@ export interface UserFull {
   phoneNumber: string | null;
   fullName: string | null;
   avatar?: string;
+  profilePicture?: string;
+  depotId?: string;
+  depot?: string;
   role: RoleCode;
   dateOfBirth: string;
   isVerify: boolean;

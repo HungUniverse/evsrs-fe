@@ -12,4 +12,11 @@ export const UserFullAPI = {
     const res = await api.get<ItemBaseResponse<UserFull>>(`/api/User/${id}`);
     return res.data.data;
   },
+  addNew: async (user: UserFull): Promise<UserFull> => {
+    const res = await api.post<ItemBaseResponse<UserFull>>("/api/User/staff", user);
+    return res.data.data;
+  },
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/api/User/${id}`);
+  },
 };

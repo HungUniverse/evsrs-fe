@@ -1,6 +1,4 @@
-export { default as DashBoardPage } from "./overview-dashboard";
-export { default as FleetManagementPage } from "./fleet-management";
-export {default as CustomerManagementPage} from './user-management/user-list'
+export {default as ModelManagementPage} from './model-management/index'
+export {default as RenterManagementPage} from './renter-management'
+export { default as CarManufactureManagementPage } from "./car-manufacture-management";
 export { default as StaffManagementPage } from "./staff-management";
-export { default as ReportsPage } from "./reports";
-export { default as CarManufacturePage } from "./car-manufacture";

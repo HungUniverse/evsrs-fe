@@ -1,6 +1,5 @@
-import { StaffStats } from "./components/staff-stats";
-import { StaffList } from "./components/staff-list";
 
+import { StaffTable } from "./components/table";
 
 export default function StaffManagementPage() {
   return (
@@ -8,12 +7,11 @@ export default function StaffManagementPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Quản lý nhân viên</h1>
         <p className="text-muted-foreground">
-          Quản lý thông tin nhân viên và phân bổ công việc trong hệ thống
+          Quản lý thông tin và trạng thái nhân viên trong hệ thống
         </p>
       </div>
 
-      <StaffStats />
-      <StaffList />
+      <StaffTable />
     </div>
   );
 }

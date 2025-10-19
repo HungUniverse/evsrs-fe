@@ -1,17 +1,13 @@
 import { Link, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard,
-  // Car,
   Users,
-  UserCheck,
-  BarChart3,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
   ChevronUp,
-  History,
-  MessageSquare,
   Factory,
+  Car,
+  User,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
@@ -30,53 +26,25 @@ interface NavigationItem {
 
 const navigationItems: NavigationItem[] = [
   {
-    name: "Dashboard",
-    href: "/admin/dashboard",
-    icon: LayoutDashboard,
-  },
-  // {
-  //   name: "Quản lý đội xe",
-  //   href: "/admin/fleet-management",
-  //   icon: Car,
-  // },
-  {
     name: "Quản lý hãng xe",
     href: "/admin/car-manufacture",
     icon: Factory,
   },
   {
-    name: "Quản lý người dùng",
-    href: "/admin/customer-management",
+    name: "Quản lý người thuê",
+    href: "/admin/renter-management",
     icon: Users,
-    hasSubmenu: true,
-    submenu: [
-      {
-        name: "Danh sách người dùng",
-        href: "/admin/customer-management",
-        icon: Users,
-      },
-      {
-        name: "Lịch sử thuê",
-        href: "/admin/customer-management/rental-history",
-        icon: History,
-      },
-      {
-        name: "Xử lý khiếu nại",
-        href: "/admin/customer-management/complaints",
-        icon: MessageSquare,
-      },
-    ],
   },
   {
     name: "Quản lý nhân viên",
     href: "/admin/staff-management",
-    icon: UserCheck,
+    icon: User,
   },
   {
-    name: "Báo cáo & Phân tích",
-    href: "/admin/reports",
-    icon: BarChart3,
-  },
+    name: "Quản lý model",
+    href: "/admin/model-management",
+    icon: Car,
+  }
 ];
 
 interface AdminSidebarProps {
