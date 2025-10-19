@@ -13,7 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { MoreHorizontal, ShieldCheck, AlertTriangle, Minus, Filter, ArrowUpDown, FileText, User, Eye, Trash2, Loader2 } from "lucide-react";
+import { MoreHorizontal, ShieldCheck, AlertTriangle, Minus, ArrowUpDown, FileText, User, Eye, Trash2, Loader2 } from "lucide-react";
 import { UserFullAPI } from "@/apis/user.api";
 import { formatDate } from "@/lib/utils/formatDate";
 import type { IdentifyDocumentStatus } from "@/@types/enum";
@@ -104,7 +104,7 @@ export function RenterTable() {
       try {
         const response = await UserFullAPI.getAll(1, 100);
         
-        const usersData =  response.data.data?.items ; //ignore this error
+        const usersData =  response.data.data.items ; //ignore this error
         setUsers(usersData);
       } catch (error) {
         console.error("Failed to load users:", error);

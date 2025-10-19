@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import * as React from "react";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import type { UserFull } from "@/@types/auth.type";
+import type { Depot } from "@/@types/car/depot";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
@@ -10,16 +11,13 @@ import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { MoreHorizontal, ArrowUpDown, User, Trash2, Loader2 } from "lucide-react";
+import { MoreHorizontal, ArrowUpDown, User, Trash2, Loader2, MapPin } from "lucide-react";
 import { UserFullAPI } from "@/apis/user.api";
+import { depotAPI } from "@/apis/depot.api";
 import { formatDate } from "@/lib/utils/formatDate";
 import { DeleteConfirmationDialog } from "./table-components/delete-confirmation-dialog";
 
 type SelectionMap = Record<string, boolean>;
-
-type FilterState = {
-  role: string;
-};
 
 type SortState = {
   field: string;
@@ -29,6 +27,7 @@ type SortState = {
 export function StaffTable() {
   const { user: currentUser } = useAuthStore();
   const [users, setUsers] = useState<UserFull[]>([]);
+  const [depots, setDepots] = useState<Record<string, Depot>>({});
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<SelectionMap>({});
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
@@ -40,33 +39,67 @@ export function StaffTable() {
 
   // Filters and sorting
   const [query, setQuery] = useState("");
-  const [filters, setFilters] = useState<FilterState>({
-    role: "STAFF", // Tự động filter role=STAFF cho staff-management
-  });
   const [sortState, setSortState] = useState<SortState>({
     field: "fullName",
     direction: "asc",
   });
 
-  // Load users data
+  // Load users data and fetch depot details for staff
   useEffect(() => {
-    const loadUsers = async () => {
+    const loadData = async () => {
       setLoading(true);
       try {
-        const response = await UserFullAPI.getAll(1, 100);
-        
-        const usersData = response.data.data.items || [];
+        // Load users first
+        const usersResponse = await UserFullAPI.getAll(1, 100);
+        const usersData = usersResponse.data.data.items || [];
         setUsers(usersData);
+
+        // Get unique depot IDs from staff users
+        const depotIds = [...new Set(
+          usersData
+            .filter((user: UserFull) => user.role === "STAFF" && user.depotId)
+            .map((user: UserFull) => user.depotId!)
+        )];
+
+        // Fetch depot details for each unique depot ID
+        const depotPromises = depotIds.map(async (depotId: string) => {
+          try {
+            const depot = await depotAPI.getById(depotId);
+            return { depotId, depot };
+          } catch (error) {
+            console.error(`Failed to load depot ${depotId}:`, error);
+            return null;
+          }
+        });
+
+        const depotResults = await Promise.all(depotPromises);
+        const depotMap: Record<string, Depot> = {};
+        
+        depotResults.forEach(result => {
+          if (result) {
+            depotMap[result.depotId] = result.depot;
+          }
+        });
+
+        setDepots(depotMap);
       } catch (error) {
-        console.error("Failed to load users:", error);
-        setUsers([]); // Đặt mảng rỗng nếu có lỗi
+        console.error("Failed to load data:", error);
+        setUsers([]);
+        setDepots({});
       } finally {
         setLoading(false);
       }
     };
 
-    loadUsers();
+    loadData();
   }, []);
+
+  // Helper function to get depot name by ID
+  const getDepotName = (depotId: string | undefined): string => {
+    if (!depotId) return "Chưa phân công";
+    const depot = depots[depotId];
+    return depot ? depot.name : "Không tìm thấy";
+  };
 
   const rows = useMemo(() => {
     // Chỉ trả về mảng rỗng nếu users chưa được khởi tạo (undefined/null)
@@ -132,13 +165,10 @@ export function StaffTable() {
     });
 
     return filtered;
-  }, [query, filters, sortState, users, currentUser]);
+  }, [query, sortState, users, currentUser]);
 
   const clearFilters = () => {
     setQuery("");
-    setFilters({
-      role: "STAFF", // Luôn giữ filter role=STAFF cho staff-management
-    });
     setSortState({ field: "fullName", direction: "asc" });
   };
 
@@ -343,6 +373,15 @@ export function StaffTable() {
                     <TableCell>{u.createdAt ? formatDate(u.createdAt) : "Chưa xác định"}</TableCell>
                     {/* Updated */}
                     <TableCell>{u.updatedAt ? formatDate(u.updatedAt) : "Chưa xác định"}</TableCell>
+                    {/* Depot */}
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="size-4 text-muted-foreground" />
+                        <span className="text-sm">
+                          {getDepotName(u.depotId)}
+                        </span>
+                      </div>
+                    </TableCell>
                     {/* Actions */}
                     <TableCell className="text-right">
                       <DropdownMenu>
@@ -441,6 +480,27 @@ export function StaffTable() {
                                   </span>
                                   <span className="ml-2">{u.updatedBy || "Chưa cập nhật"}</span>
                                 </div>
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    Kho làm việc:
+                                  </span>
+                                  <span className="ml-2">
+                                    <Badge variant="outline" className="flex items-center gap-1 w-fit">
+                                      <MapPin className="size-3" />
+                                      {getDepotName(u.depotId)}
+                                    </Badge>
+                                  </span>
+                                </div>
+                                {u.depotId && depots[u.depotId] && (
+                                  <div className="col-span-2">
+                                    <span className="text-muted-foreground">
+                                      Địa chỉ kho:
+                                    </span>
+                                    <span className="ml-2 text-sm">
+                                      {depots[u.depotId].street}, {depots[u.depotId].ward}, {depots[u.depotId].district}, {depots[u.depotId].province}
+                                    </span>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </div>
