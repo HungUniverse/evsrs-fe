@@ -72,7 +72,6 @@ export default function PayCar() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <HeaderLite />
       <BookingForm car={model} searchForm={searchForm} />
       <Footer />
     </div>

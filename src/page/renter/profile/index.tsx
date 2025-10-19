@@ -1,12 +1,9 @@
-import HeaderLite from "@/components/headerLite";
 import AccountSidebar from "./components/side-bar";
 import { Outlet } from "react-router-dom";
 
 function Profile() {
   return (
     <>
-      <HeaderLite />
-
       <div className="bg-slate-50">
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
           <AccountSidebar />
