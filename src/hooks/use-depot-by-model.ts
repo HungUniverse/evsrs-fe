@@ -23,6 +23,7 @@ export function useDepotsByModel(opts: {
         pageNumber: 1,
         pageSize,
         modelId: modelId!,
+        status: "AVAILABLE", // Chỉ lấy xe có status AVAILABLE
       });
 
       const items: CarEV[] = res.data.items ?? [];
@@ -33,7 +34,8 @@ export function useDepotsByModel(opts: {
       for (const car of items) {
         const carModelId = (car as any).modelId ?? (car as any).model?.id;
         if (carModelId !== modelId) continue;
-        if (!isAvailable((car as any).status)) continue;
+        // Double check to ensure only AVAILABLE cars are counted
+        if (onlyAvailable && !isAvailable((car as any).status)) continue;
 
         const dep = (car as any).depot as Depot | undefined;
         const depotId = dep?.id ?? (car as any).depotId;

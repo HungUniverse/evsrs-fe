@@ -24,17 +24,30 @@ export default function HeaderLite() {
   const [openRegister, setOpenRegister] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string>("");
   const { isAuthenticated, user, clear } = useAuthStore();
+
   useEffect(() => {
     const fetchAvatar = async () => {
-      if (!user?.id) return;
+      const userId = user?.userId || user?.id;
 
-      const res = await UserFullAPI.getById(user.id);
-      setAvatarUrl(res.avatar || "");
-      console.log("Fetched avatar URL:", res.avatar);
+      if (!userId) {
+        console.log("[HeaderLite] No user ID found, skipping avatar fetch");
+        setAvatarUrl("");
+        return;
+      }
+
+      try {
+        const res = await UserFullAPI.getById(userId);
+        if (res.profilePicture) {
+          setAvatarUrl(res.profilePicture);
+        }
+      } catch (error) {
+        console.error("[HeaderLite] Error fetching avatar:", error);
+        setAvatarUrl("");
+      }
     };
 
     fetchAvatar();
-  }, [user?.id]);
+  }, [user?.id, user?.userId]);
   const handleLogout = async () => {
     try {
       const { refreshToken } = useAuthStore.getState();
@@ -52,7 +65,7 @@ export default function HeaderLite() {
     }
   };
   const goProfile = () => navigate("/account/my-profile");
-
+  const goMyTrips = () => navigate("/account/my-trip");
   const displayName = user?.name;
 
   return (
@@ -104,7 +117,16 @@ export default function HeaderLite() {
                   >
                     <div className="h-7 w-7 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden">
                       {avatarUrl ? (
-                        <img src={avatarUrl} className="h-7 w-7 rounded-full" />
+                        <img
+                          src={avatarUrl}
+                          alt="User avatar"
+                          className="h-7 w-7 object-cover rounded-full"
+                          onError={(e) => {
+                            console.error("Avatar image failed to load:", e);
+                            e.currentTarget.src = ""; // Clear the src to show fallback
+                            setAvatarUrl(""); // Reset state to show icon
+                          }}
+                        />
                       ) : (
                         <UserIcon className="h-4 w-4 text-slate-500" />
                       )}
@@ -119,13 +141,23 @@ export default function HeaderLite() {
                   <DropdownMenuSeparator />
 
                   {user?.role === "USER" && (
-                    <DropdownMenuItem
-                      onClick={goProfile}
-                      className="cursor-pointer"
-                    >
-                      <IdCard className="mr-2 h-4 w-4" />
-                      <span>Trang cá nhân</span>
-                    </DropdownMenuItem>
+                    <div>
+                      {" "}
+                      <DropdownMenuItem
+                        onClick={goProfile}
+                        className="cursor-pointer"
+                      >
+                        <IdCard className="mr-2 h-4 w-4" />
+                        <span>Trang cá nhân</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={goMyTrips}
+                        className="cursor-pointer"
+                      >
+                        <IdCard className="mr-2 h-4 w-4" />
+                        <span>Chuyến của tôi</span>
+                      </DropdownMenuItem>
+                    </div>
                   )}
 
                   {user?.role === "ADMIN" && (

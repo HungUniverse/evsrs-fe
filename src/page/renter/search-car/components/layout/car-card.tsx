@@ -54,9 +54,7 @@ export default function CarCard({ car, searchForm }: Props) {
           </div>
         )}
 
-        <p className="text-xs md:text-sm text-slate-500">
-          {car.seats} chỗ{car.province ? ` • ${car.province}` : ""}
-        </p>
+        <p className="text-xs md:text-sm text-slate-500">{car.seats} chỗ</p>
 
         {car.dailyKmLimit && (
           <p className="text-xs text-slate-400">

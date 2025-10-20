@@ -76,4 +76,8 @@ export const orderBookingAPI = {
     );
     return res.data.data;
   },
+  getByDepotId: (id: ID) =>
+    api.get<ListBaseResponse<OrderBookingDetail>>(
+      `/api/OrderBooking/depot/${id}`
+    ),
 };

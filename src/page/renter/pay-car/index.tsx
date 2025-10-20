@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import BookingForm from "./components/booking-form";
-import HeaderLite from "@/components/headerLite";
 import Footer from "../components/layout/footer";
 import { modelAPI } from "@/apis/model-ev.api";
 import type { Model } from "@/@types/car/model";
@@ -72,7 +71,6 @@ export default function PayCar() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <HeaderLite />
       <BookingForm car={model} searchForm={searchForm} />
       <Footer />
     </div>
