@@ -1,7 +1,9 @@
 import { useMemo, useState, useEffect } from "react";
 import * as React from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
-import type { UserFull } from "@/@types/auth.type";
+import type { UserFull, StaffRequest } from "@/@types/auth.type";
 import type { Depot } from "@/@types/car/depot";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -11,7 +13,8 @@ import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { MoreHorizontal, ArrowUpDown, User, Trash2, Loader2, MapPin } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { MoreHorizontal, ArrowUpDown, User, Trash2, Loader2, MapPin, Plus } from "lucide-react";
 import { UserFullAPI } from "@/apis/user.api";
 import { depotAPI } from "@/apis/depot.api";
 import { formatDate } from "@/lib/utils/formatDate";
@@ -28,6 +31,7 @@ export function StaffTable() {
   const { user: currentUser } = useAuthStore();
   const [users, setUsers] = useState<UserFull[]>([]);
   const [depots, setDepots] = useState<Record<string, Depot>>({});
+  const [depotList, setDepotList] = useState<Depot[]>([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<SelectionMap>({});
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
@@ -36,6 +40,10 @@ export function StaffTable() {
     isOpen: boolean;
   }>({ users: [], isOpen: false });
   const [isDeleting, setIsDeleting] = useState(false);
+  
+  // Create staff dialog state
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   // Filters and sorting
   const [query, setQuery] = useState("");
@@ -43,6 +51,16 @@ export function StaffTable() {
     field: "fullName",
     direction: "asc",
   });
+
+  // Form handling for create staff
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<StaffRequest>();
 
   // Load users data and fetch depot details for staff
   useEffect(() => {
@@ -53,6 +71,11 @@ export function StaffTable() {
         const usersResponse = await UserFullAPI.getAll(1, 100);
         const usersData = usersResponse.data.data.items || [];
         setUsers(usersData);
+
+        // Load depot list for dropdown
+        const depotResponse = await depotAPI.getAll(1, 100);
+        const depotData = depotResponse.data.data.items || [];
+        setDepotList(depotData);
 
         // Get unique depot IDs from staff users
         const depotIds = [...new Set(
@@ -86,6 +109,7 @@ export function StaffTable() {
         console.error("Failed to load data:", error);
         setUsers([]);
         setDepots({});
+        setDepotList([]);
       } finally {
         setLoading(false);
       }
@@ -216,6 +240,33 @@ export function StaffTable() {
     setDeleteDialog({ users: [], isOpen: false });
   };
 
+  // Create staff functions
+  const handleCreateStaff = async (data: StaffRequest) => {
+    setIsCreating(true);
+    try {
+      const newStaff = await UserFullAPI.createStaff(data);
+      setUsers(prev => [...prev, newStaff]);
+      setCreateDialogOpen(false);
+      reset();
+      toast.success("Tạo nhân viên thành công!");
+    } catch (error) {
+      console.error("Failed to create staff:", error);
+      toast.error("Không thể tạo nhân viên. Vui lòng thử lại.");
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const openCreateDialog = () => {
+    reset();
+    setCreateDialogOpen(true);
+  };
+
+  const closeCreateDialog = () => {
+    setCreateDialogOpen(false);
+    reset();
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -276,6 +327,16 @@ export function StaffTable() {
 
           {/* Phần bên phải: Actions */}
           <div className="flex items-center gap-2">
+            {/* Add Staff button */}
+            <Button 
+              onClick={openCreateDialog}
+              className="flex items-center gap-2"
+              size="sm"
+            >
+              <Plus className="size-4" />
+              Thêm nhân viên
+            </Button>
+
             {hasActiveFilters && (
               <Button variant="outline" size="sm" onClick={clearFilters}>
                 Xóa bộ lọc
@@ -523,6 +584,184 @@ export function StaffTable() {
         users={deleteDialog.users}
         isDeleting={isDeleting}
       />
+
+      {/* Create Staff Dialog */}
+      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
+            <DialogTitle>Thêm nhân viên mới</DialogTitle>
+            <DialogDescription>
+              Điền đầy đủ thông tin để tạo tài khoản nhân viên mới.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleSubmit(handleCreateStaff)} className="flex flex-col flex-1 min-h-0">
+            <div className="space-y-4 flex-1 overflow-y-auto">
+              {/* Full Name */}
+              <div className="space-y-2">
+                <Label htmlFor="fullName">
+                  Họ và tên <span className="text-red-500 ml-1">*</span>
+                </Label>
+                <Input
+                  id="fullName"
+                  placeholder="Nhập họ và tên đầy đủ"
+                  {...register("fullName", {
+                    required: "Họ và tên là bắt buộc",
+                    minLength: {
+                      value: 2,
+                      message: "Họ và tên phải có ít nhất 2 ký tự"
+                    }
+                  })}
+                  className={errors.fullName ? "border-red-500" : ""}
+                />
+                {errors.fullName && (
+                  <p className="text-sm text-red-500">{errors.fullName.message}</p>
+                )}
+              </div>
+
+              {/* User Name */}
+              <div className="space-y-2">
+                <Label htmlFor="userName">
+                  Tên đăng nhập <span className="text-red-500 ml-1">*</span>
+                </Label>
+                <Input
+                  id="userName"
+                  placeholder="Nhập tên đăng nhập"
+                  {...register("userName", {
+                    required: "Tên đăng nhập là bắt buộc",
+                    minLength: {
+                      value: 3,
+                      message: "Tên đăng nhập phải có ít nhất 3 ký tự"
+                    },
+                    pattern: {
+                      value: /^[a-zA-Z0-9_]+$/,
+                      message: "Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới"
+                    }
+                  })}
+                  className={errors.userName ? "border-red-500" : ""}
+                />
+                {errors.userName && (
+                  <p className="text-sm text-red-500">{errors.userName.message}</p>
+                )}
+              </div>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="userEmail">
+                  Email <span className="text-red-500 ml-1">*</span>
+                </Label>
+                <Input
+                  id="userEmail"
+                  type="email"
+                  placeholder="Nhập địa chỉ email"
+                  {...register("userEmail", {
+                    required: "Email là bắt buộc",
+                    pattern: {
+                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                      message: "Email không hợp lệ"
+                    }
+                  })}
+                  className={errors.userEmail ? "border-red-500" : ""}
+                />
+                {errors.userEmail && (
+                  <p className="text-sm text-red-500">{errors.userEmail.message}</p>
+                )}
+              </div>
+
+              {/* Phone Number */}
+              <div className="space-y-2">
+                <Label htmlFor="phoneNumber">
+                  Số điện thoại <span className="text-red-500 ml-1">*</span>
+                </Label>
+                <Input
+                  id="phoneNumber"
+                  placeholder="Nhập số điện thoại"
+                  {...register("phoneNumber", {
+                    required: "Số điện thoại là bắt buộc",
+                    pattern: {
+                      value: /^[0-9]{10,11}$/,
+                      message: "Số điện thoại phải có 10-11 chữ số"
+                    }
+                  })}
+                  className={errors.phoneNumber ? "border-red-500" : ""}
+                />
+                {errors.phoneNumber && (
+                  <p className="text-sm text-red-500">{errors.phoneNumber.message}</p>
+                )}
+              </div>
+
+              {/* Date of Birth */}
+              <div className="space-y-2">
+                <Label htmlFor="dateOfBirth">
+                  Ngày sinh <span className="text-red-500 ml-1">*</span>
+                </Label>
+                <Input
+                  id="dateOfBirth"
+                  type="date"
+                  {...register("dateOfBirth", {
+                    required: "Ngày sinh là bắt buộc"
+                  })}
+                  className={errors.dateOfBirth ? "border-red-500" : ""}
+                />
+                {errors.dateOfBirth && (
+                  <p className="text-sm text-red-500">{errors.dateOfBirth.message}</p>
+                )}
+              </div>
+
+              {/* Depot Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="depotId">
+                  Kho làm việc <span className="text-red-500 ml-1">*</span>
+                </Label>
+                <Select
+                  onValueChange={(value) => setValue("depotId", value)}
+                  value={watch("depotId") || ""}
+                >
+                  <SelectTrigger className={errors.depotId ? "border-red-500" : ""}>
+                    <SelectValue placeholder="Chọn kho làm việc" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {depotList.map((depot) => (
+                      <SelectItem key={depot.id} value={depot.id}>
+                        {depot.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.depotId && (
+                  <p className="text-sm text-red-500">{errors.depotId.message}</p>
+                )}
+              </div>
+
+              {/* Profile Picture */}
+              <div className="space-y-2">
+                <Label htmlFor="profilePicture">Ảnh đại diện</Label>
+                <Input
+                  id="profilePicture"
+                  placeholder="URL ảnh đại diện (tùy chọn)"
+                  {...register("profilePicture")}
+                />
+              </div>
+            </div>
+
+            <DialogFooter className="flex-shrink-0 mt-4">
+              <Button type="button" variant="outline" onClick={closeCreateDialog}>
+                Hủy
+              </Button>
+              <Button type="submit" disabled={isCreating}>
+                {isCreating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang tạo...
+                  </>
+                ) : (
+                  "Tạo nhân viên"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
