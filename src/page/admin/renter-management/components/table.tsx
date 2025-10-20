@@ -572,7 +572,7 @@ export function RenterTable() {
                               : "outline"
                         }
                       >
-                        {u.role || "USER"}
+                        {u.role || "Chưa có"}
                       </Badge>
                     </TableCell>
                     {/* Tài liệu - Chỉ hiển thị cho role USER */}
@@ -772,7 +772,7 @@ export function RenterTable() {
                                     Role:
                                   </span>
                                   <span className="ml-2">
-                                    <Badge variant="outline">{u.role || "USER"}</Badge>
+                                    <Badge variant="outline">{u.role || "Chưa có"}</Badge>
                                   </span>
                                 </div>
                                 <div>

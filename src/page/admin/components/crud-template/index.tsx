@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
+import type { FieldValues } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import type { CrudAPI, FormItem, SortOption } from "@/@types/api.interface";
@@ -32,7 +33,7 @@ import {
 import { Edit2, Trash2, Plus, Search, ArrowUpDown, Loader2 } from "lucide-react";
 
 // Types
-interface BaseRecord {
+interface BaseRecord extends FieldValues {
     id?: string | number;
     [key: string]: unknown;
 }
@@ -44,7 +45,7 @@ interface Column<T = BaseRecord> {
     render?: (value: unknown, record: T) => React.ReactNode;
 }
 
-interface CrudTemplateProps<T = BaseRecord, TRequest = Partial<T>> {
+interface CrudTemplateProps<T extends FieldValues = BaseRecord, TRequest = Partial<T>> {
     columns: Column<T>[];
     api: CrudAPI<T, TRequest>;
     formItems: FormItem<T>[];
@@ -62,7 +63,7 @@ interface CrudTemplateProps<T = BaseRecord, TRequest = Partial<T>> {
     sortOptions?: SortOption<T>[];
 }
 
-const CrudTemplate = <T extends BaseRecord, TRequest = Partial<T>>({
+const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>({
     columns,
     api,
     formItems,
@@ -310,7 +311,7 @@ const CrudTemplate = <T extends BaseRecord, TRequest = Partial<T>>({
                     {addButtonText}
                 </Button>
             </div>
-
+            {/* Data table section */}
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>

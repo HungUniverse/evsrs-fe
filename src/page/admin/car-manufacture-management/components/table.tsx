@@ -117,7 +117,7 @@ const CarManufacturePage: React.FC = () => {
           update: "Nhà sản xuất xe đã được cập nhật thành công!",
           delete: "Nhà sản xuất xe đã được xóa thành công!",
         }}
-        searchField="tên"
+        searchField="name"
         sortOptions={sortOptions}
       />
     </div>
