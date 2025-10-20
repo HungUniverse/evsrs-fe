@@ -6,6 +6,7 @@ import {
   CarManufactureManagementPage,
   ModelManagementPage,
   StaffManagementPage,
+  DepotManagementPage,
 } from "@/page/admin/index";
 import {
   AccountProfile,
@@ -125,7 +126,11 @@ export const router = createBrowserRouter([
           {
             path: "amenities-management",
             element: <AmenitiesManagementPage />,
-          }
+          },
+          {
+            path: "depot-management",
+            element: <DepotManagementPage />,
+          },
         ],
       },
       {

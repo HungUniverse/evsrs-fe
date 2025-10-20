@@ -9,6 +9,7 @@ import {
   Car,
   User,
   Building,
+  Warehouse,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
@@ -50,6 +51,11 @@ const navigationItems: NavigationItem[] = [
     name: "Quản lý tiện nghi",
     href: "/admin/amenities-management",
     icon: Building,
+  },
+  {
+    name: "Quản lý kho",
+    href: "/admin/depot-management",
+    icon: Warehouse,
   }
 ];
 

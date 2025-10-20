@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import type { FieldValues } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import type { CrudAPI, FormItem, SortOption } from "@/@types/api.interface";
+import type { CrudAPI, FormItem, SortOption, FilterOption } from "@/@types/api.interface";
 import {
     Dialog,
     DialogContent,
@@ -30,7 +30,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Edit2, Trash2, Plus, Search, ArrowUpDown, Loader2 } from "lucide-react";
+import { Edit2, Trash2, Plus, Search, ArrowUpDown, Loader2, Filter } from "lucide-react";
 
 // Types
 interface BaseRecord extends FieldValues {
@@ -61,6 +61,7 @@ interface CrudTemplateProps<T extends FieldValues = BaseRecord, TRequest = Parti
     };
     searchField?: string; // Field to search by (default: 'name')
     sortOptions?: SortOption<T>[];
+    filterOptions?: FilterOption<T>[];
 }
 
 const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>({
@@ -79,6 +80,7 @@ const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>
     },
     searchField = "name",
     sortOptions = [],
+    filterOptions = [],
 }: CrudTemplateProps<T, TRequest>) => {
     const [data, setData] = useState<T[]>([]);
     const [open, setOpen] = useState(false);
@@ -87,6 +89,7 @@ const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [sortBy, setSortBy] = useState<string>("none");
+    const [filters, setFilters] = useState<Record<string, string>>({});
 
     const {
         register,
@@ -111,6 +114,19 @@ const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>
             });
         }
 
+        // Apply additional filters
+        Object.entries(filters).forEach(([field, value]) => {
+            if (value) {
+                filtered = filtered.filter((record) => {
+                    const fieldValue = record[field];
+                    if (typeof fieldValue === 'string') {
+                        return fieldValue.toLowerCase().includes(value.toLowerCase());
+                    }
+                    return false;
+                });
+            }
+        });
+
         // Apply sorting
         if (sortBy && sortBy !== "none" && sortOptions.length > 0) {
             const sortOption = sortOptions.find(option => option.value === sortBy);
@@ -120,7 +136,7 @@ const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>
         }
 
         return filtered;
-    }, [data, searchTerm, sortBy, searchField, sortOptions]);
+    }, [data, searchTerm, sortBy, searchField, sortOptions, filters]);
 
     //Read data from API
     const fetchData = async () => {
@@ -272,44 +288,94 @@ const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>
     //Render table
     return (
         <div className="space-y-4">
-            {/* Search, Sort Controls and Add Button */}
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                {/* Search Input */}
-                <div className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                    <Input
-                        placeholder={`Tìm kiếm theo ${searchField}...`}
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
-                    />
+            {/* Search, Filter, Sort Controls and Add Button */}
+            <div className="space-y-4">
+                {/* Top Row: Search and Add Button */}
+                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                    {/* Search Input */}
+                    <div className="relative flex-1 max-w-sm">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Input
+                            placeholder={`Tìm kiếm theo ${searchField}...`}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-10"
+                        />
+                    </div>
+
+                    {/* Add Button */}
+                    <Button onClick={() => setOpen(true)} className="flex items-center gap-2">
+                        <Plus className="h-4 w-4" />
+                        {addButtonText}
+                    </Button>
                 </div>
 
-                {/* Sort Dropdown */}
-                {sortOptions.length > 0 && (
-                    <div className="flex items-center gap-2">
-                        <ArrowUpDown className="h-4 w-4 text-gray-400" />
-                        <Select value={sortBy} onValueChange={setSortBy}>
-                            <SelectTrigger className="w-[200px]">
-                                <SelectValue placeholder="Sắp xếp theo..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="none">Không sắp xếp</SelectItem>
-                                {sortOptions.map((option) => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                        {option.label}
-                                    </SelectItem>
+                {/* Filter and Sort Row */}
+                {(filterOptions.length > 0 || sortOptions.length > 0) && (
+                    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                        {/* Filter Controls */}
+                        {filterOptions.length > 0 && (
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <Filter className="h-4 w-4 text-gray-400" />
+                                <span className="text-sm text-gray-600">Lọc theo:</span>
+                                {filterOptions.map((filter) => (
+                                    <div key={String(filter.field)} className="flex items-center gap-2">
+                                        <span className="text-sm font-medium">{filter.label}:</span>
+                                        {filter.type === "select" && filter.options ? (
+                                            <Select 
+                                                value={filters[String(filter.field)] || ""} 
+                                                onValueChange={(value) => 
+                                                    setFilters(prev => ({ ...prev, [String(filter.field)]: value }))
+                                                }
+                                            >
+                                                <SelectTrigger className="w-[150px]">
+                                                    <SelectValue placeholder={`Chọn ${filter.label.toLowerCase()}`} />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="">Tất cả</SelectItem>
+                                                    {filter.options.map((option) => (
+                                                        <SelectItem key={option.value} value={option.value}>
+                                                            {option.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        ) : (
+                                            <Input
+                                                placeholder={`Nhập ${filter.label.toLowerCase()}`}
+                                                value={filters[String(filter.field)] || ""}
+                                                onChange={(e) => 
+                                                    setFilters(prev => ({ ...prev, [String(filter.field)]: e.target.value }))
+                                                }
+                                                className="w-[150px]"
+                                            />
+                                        )}
+                                    </div>
                                 ))}
-                            </SelectContent>
-                        </Select>
+                            </div>
+                        )}
+
+                        {/* Sort Dropdown */}
+                        {sortOptions.length > 0 && (
+                            <div className="flex items-center gap-2">
+                                <ArrowUpDown className="h-4 w-4 text-gray-400" />
+                                <Select value={sortBy} onValueChange={setSortBy}>
+                                    <SelectTrigger className="w-[200px]">
+                                        <SelectValue placeholder="Sắp xếp theo..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">Không sắp xếp</SelectItem>
+                                        {sortOptions.map((option) => (
+                                            <SelectItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
                     </div>
                 )}
-
-                {/* Add Button */}
-                <Button onClick={() => setOpen(true)} className="flex items-center gap-2">
-                    <Plus className="h-4 w-4" />
-                    {addButtonText}
-                </Button>
             </div>
             {/* Data table section */}
             <div className="rounded-md border">

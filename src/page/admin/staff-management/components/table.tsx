@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -40,6 +40,13 @@ export function StaffTable() {
     isOpen: boolean;
   }>({ users: [], isOpen: false });
   const [isDeleting, setIsDeleting] = useState(false);
+  // Change depot dialog state
+  const [changeDepotDialog, setChangeDepotDialog] = useState<{
+    isOpen: boolean;
+    user: UserFull | null;
+    selectedDepotId: string;
+    isSubmitting: boolean;
+  }>({ isOpen: false, user: null, selectedDepotId: "", isSubmitting: false });
   
   // Create staff dialog state
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -267,6 +274,51 @@ export function StaffTable() {
     reset();
   };
 
+  // Change depot handlers
+  const openChangeDepotForUser = (user: UserFull) => {
+    setChangeDepotDialog({
+      isOpen: true,
+      user,
+      selectedDepotId: user.depotId || "",
+      isSubmitting: false,
+    });
+  };
+
+  const closeChangeDepotDialog = () => {
+    setChangeDepotDialog({ isOpen: false, user: null, selectedDepotId: "", isSubmitting: false });
+  };
+
+  const confirmChangeDepot = async () => {
+    if (!changeDepotDialog.user || !changeDepotDialog.selectedDepotId) {
+      toast.error("Vui lòng chọn kho làm việc");
+      return;
+    }
+    try {
+      setChangeDepotDialog((s) => ({ ...s, isSubmitting: true }));
+      await UserFullAPI.updateDepot(changeDepotDialog.user.id, changeDepotDialog.selectedDepotId);
+
+      // Update local users list
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === changeDepotDialog.user!.id ? { ...u, depotId: changeDepotDialog.selectedDepotId } : u
+        )
+      );
+
+      // Ensure depot map has the selected depot details for name rendering
+      const depotInfo = depotList.find((d) => d.id === changeDepotDialog.selectedDepotId);
+      if (depotInfo) {
+        setDepots((prev) => ({ ...prev, [depotInfo.id]: depotInfo }));
+      }
+
+      toast.success("Cập nhật kho làm việc thành công");
+      closeChangeDepotDialog();
+    } catch (error) {
+      console.error("Failed to update depot:", error);
+      toast.error("Không thể cập nhật kho. Vui lòng thử lại.");
+      setChangeDepotDialog((s) => ({ ...s, isSubmitting: false }));
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -388,6 +440,7 @@ export function StaffTable() {
                       setExpandedRow(newExpandedRow);
                     }}
                   >
+                    {/* Checkbox */}
                     <TableCell className="w-[40px]">
                       <Checkbox
                         aria-label={`Select ${u.fullName}`}
@@ -398,6 +451,7 @@ export function StaffTable() {
                         onClick={(e) => e.stopPropagation()}
                       />
                     </TableCell>
+                    {/* Avatar */}
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <img
@@ -453,7 +507,19 @@ export function StaffTable() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem>Xem</DropdownMenuItem>
-                          <DropdownMenuItem>Chỉnh sửa</DropdownMenuItem>
+                          <DropdownMenuSub>
+                            <DropdownMenuSubTrigger>Chỉnh sửa</DropdownMenuSubTrigger>
+                            <DropdownMenuSubContent>
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openChangeDepotForUser(u);
+                                }}
+                              >
+                                Thay đổi Kho
+                              </DropdownMenuItem>
+                            </DropdownMenuSubContent>
+                          </DropdownMenuSub>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem>Nhật ký kiểm tra</DropdownMenuItem>
                           <DropdownMenuSeparator />
@@ -584,6 +650,51 @@ export function StaffTable() {
         users={deleteDialog.users}
         isDeleting={isDeleting}
       />
+
+      {/* Change Depot Dialog */}
+      <Dialog open={changeDepotDialog.isOpen} onOpenChange={(open) => (open ? null : closeChangeDepotDialog())}>
+        <DialogContent className="sm:max-w-[420px]">
+          <DialogHeader>
+            <DialogTitle>Thay đổi kho làm việc</DialogTitle>
+            <DialogDescription>
+              Chọn kho mới cho nhân viên {changeDepotDialog.user?.fullName || changeDepotDialog.user?.userName}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Label>Kho làm việc</Label>
+            <Select
+              value={changeDepotDialog.selectedDepotId}
+              onValueChange={(val) => setChangeDepotDialog((s) => ({ ...s, selectedDepotId: val }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn kho" />
+              </SelectTrigger>
+              <SelectContent>
+                {depotList.map((d) => (
+                  <SelectItem key={d.id} value={d.id}>
+                    {d.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={closeChangeDepotDialog} disabled={changeDepotDialog.isSubmitting}>
+              Hủy
+            </Button>
+            <Button type="button" onClick={confirmChangeDepot} disabled={changeDepotDialog.isSubmitting}>
+              {changeDepotDialog.isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang cập nhật...
+                </>
+              ) : (
+                "Cập nhật"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Create Staff Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>

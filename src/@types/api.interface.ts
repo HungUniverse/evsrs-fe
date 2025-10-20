@@ -27,3 +27,11 @@ export interface SortOption<T = Record<string, unknown>> {
   label: string;
   sortFn: (a: T, b: T) => number;
 }
+
+// Generic interface for filter options
+export interface FilterOption<T = Record<string, unknown>> {
+  field: keyof T;
+  label: string;
+  type: "select" | "text";
+  options?: Array<{ value: string; label: string }>;
+}
