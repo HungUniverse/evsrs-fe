@@ -30,6 +30,7 @@ import {
   ReturnInspectionPage,
   ReturnSettementPage,
 } from "@/page/paper";
+import AmenitiesManagementPage from "@/page/admin/amenities-management";
 
 const ContractPage = lazy(() => import("@/page/paper/contract"));
 const HandoverInspectionPage = lazy(
@@ -120,6 +121,10 @@ export const router = createBrowserRouter([
           {
             path: "staff-management",
             element: <StaffManagementPage />,
+          },
+          {
+            path: "amenities-management",
+            element: <AmenitiesManagementPage />,
           }
         ],
       },

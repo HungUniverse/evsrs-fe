@@ -10,3 +10,7 @@ export interface Amenity {
   updatedAt: DateString;
   isDeleted: boolean;
 }
+export interface AmenityRequest {
+  name: string;
+  icon: string;
+}
