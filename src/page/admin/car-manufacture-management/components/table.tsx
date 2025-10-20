@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 import CrudTemplate from "@/page/admin/components/crud-template";
 import { Badge } from "@/components/ui/badge";
+import { CarManufactureAPI } from "@/apis/manufacture.api";
+import type { CarManufacture, CarManufactureRequest } from "@/@types/car/carManufacture";
 
 const CarManufacturePage: React.FC = () => {
   // Define table columns
@@ -14,7 +17,7 @@ const CarManufacturePage: React.FC = () => {
       key: "Logo",
       title: "Logo",
       dataIndex: "logo",
-      render: (value: unknown) => (
+      render: (value: unknown, _record: CarManufacture) => (
         value ? (
           <img src={value as string} alt="Logo" className="w-8 h-8 object-contain" />
         ) : (
@@ -26,7 +29,7 @@ const CarManufacturePage: React.FC = () => {
       key: "IsDeleted",
       title: "Đã xóa",
       dataIndex: "isDeleted",
-      render: (value: unknown) => (
+      render: (value: unknown, _record: CarManufacture) => (
         <Badge variant={!value ? "default" : "secondary"}>
           {!value ? "Not Deleted" : "Deleted"}
         </Badge>
@@ -36,13 +39,13 @@ const CarManufacturePage: React.FC = () => {
       key: "CreatedAt",
       title: "Ngày tạo",
       dataIndex: "createdAt",
-      render: (value: unknown) => new Date(value as string).toLocaleString(),
+      render: (value: unknown, _record: CarManufacture) => new Date(value as string).toLocaleString(),
     },
     {
       key: "UpdatedAt",
       title: "Ngày cập nhật",
       dataIndex: "updatedAt",
-      render: (value: unknown) => new Date(value as string).toLocaleString(),
+      render: (value: unknown, _record: CarManufacture) => new Date(value as string).toLocaleString(),
     },
   ];
 
@@ -69,39 +72,39 @@ const CarManufacturePage: React.FC = () => {
     {
       value: "name-asc",
       label: "Tên A-Z",
-      sortFn: (a: any, b: any) => (a.name || "").localeCompare(b.name || ""),
+      sortFn: (a: CarManufacture, b: CarManufacture) => (a.name || "").localeCompare(b.name || ""),
     },
     {
       value: "name-desc",
       label: "Tên Z-A",
-      sortFn: (a: any, b: any) => (b.name || "").localeCompare(a.name || ""),
+      sortFn: (a: CarManufacture, b: CarManufacture) => (b.name || "").localeCompare(a.name || ""),
     },
     {
       value: "created-asc",
       label: "Ngày tạo (cũ nhất)",
-      sortFn: (a: any, b: any) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime(),
+      sortFn: (a: CarManufacture, b: CarManufacture) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime(),
     },
     {
       value: "created-desc",
       label: "Ngày tạo (mới nhất)",
-      sortFn: (a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime(),
+      sortFn: (a: CarManufacture, b: CarManufacture) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime(),
     },
     {
       value: "updated-asc",
       label: "Ngày cập nhật (cũ nhất)",
-      sortFn: (a: any, b: any) => new Date(a.updatedAt || 0).getTime() - new Date(b.updatedAt || 0).getTime(),
+      sortFn: (a: CarManufacture, b: CarManufacture) => new Date(a.updatedAt || 0).getTime() - new Date(b.updatedAt || 0).getTime(),
     },
     {
       value: "updated-desc",
       label: "Ngày cập nhật (mới nhất)",
-      sortFn: (a: any, b: any) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime(),
+      sortFn: (a: CarManufacture, b: CarManufacture) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime(),
     },
   ];
 
   return (
     <div className="container mx-auto space-y-4">
-      <CrudTemplate
-        apiURL="/api/CarManufacture"
+      <CrudTemplate<CarManufacture, CarManufactureRequest>
+        api={CarManufactureAPI}
         columns={columns}
         formItems={formItems}
         addButtonText="Thêm nhà sản xuất xe"

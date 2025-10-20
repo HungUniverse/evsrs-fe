@@ -2,13 +2,13 @@ import type { ID, DateString } from "@/@types/common/pagination";
 
 export interface Model {
   id: ID;
+  modelName: string;
   manufacturerCarId: ID;
   amenitiesId: ID;
-  modelName: string;
   batteryCapacityKwh: string;
   rangeKm: string;
-  limiteDailyKm: number;
-  seats: number;
+  limiteDailyKm: string;
+  seats: string;
   price: number;
   sale: number;
   image: string;
@@ -17,4 +17,19 @@ export interface Model {
   createdAt: DateString;
   updatedAt: DateString;
   isDeleted: boolean;
+  [key: string]: unknown; // Add index signature to satisfy BaseRecord constraint
+}
+
+export type ModelRequest = {
+  modelName: string;
+  manufacturerCarId: string;
+  amenitiesId: string;
+  limiteDailyKm: string;
+  rangeKm: string;
+  seats: string;
+  price: number;
+  sale: number;
+  batteryCapacityKwh: string;
+  image: string;
+  isDeleted: false;
 }

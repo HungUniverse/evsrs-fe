@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { api } from "@/lib/axios/axios";
 import { Button } from "@/components/ui/button";
+import type { CrudAPI, FormItem, SortOption } from "@/@types/api.interface";
 import {
     Dialog,
     DialogContent,
@@ -36,26 +37,17 @@ interface BaseRecord {
     [key: string]: unknown;
 }
 
-interface Column {
+interface Column<T = BaseRecord> {
     key: string;
     title: string;
     dataIndex: string;
-    render?: (value: unknown, record: BaseRecord) => React.ReactNode;
+    render?: (value: unknown, record: T) => React.ReactNode;
 }
 
-interface FormItem {
-    name: string;
-    label: string;
-    type?: "text" | "number" | "email" | "password" | "date";
-    required?: boolean;
-    placeholder?: string;
-    render?: () => React.ReactNode;
-}
-
-interface CrudTemplateProps {
-    columns: Column[];
-    apiURL: string;
-    formItems: FormItem[];
+interface CrudTemplateProps<T = BaseRecord, TRequest = Partial<T>> {
+    columns: Column<T>[];
+    api: CrudAPI<T, TRequest>;
+    formItems: FormItem<T>[];
     addButtonText?: string;
     editButtonText?: string;
     deleteButtonText?: string;
@@ -67,16 +59,12 @@ interface CrudTemplateProps {
         delete?: string;
     };
     searchField?: string; // Field to search by (default: 'name')
-    sortOptions?: Array<{
-        value: string;
-        label: string;
-        sortFn: (a: BaseRecord, b: BaseRecord) => number;
-    }>;
+    sortOptions?: SortOption<T>[];
 }
 
-const CrudTemplate: React.FC<CrudTemplateProps> = ({
+const CrudTemplate = <T extends BaseRecord, TRequest = Partial<T>>({
     columns,
-    apiURL,
+    api,
     formItems,
     addButtonText = "Add Item",
     editButtonText = "Edit",
@@ -90,11 +78,11 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
     },
     searchField = "name",
     sortOptions = [],
-}) => {
-    const [data, setData] = useState<BaseRecord[]>([]);
+}: CrudTemplateProps<T, TRequest>) => {
+    const [data, setData] = useState<T[]>([]);
     const [open, setOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const [selectedRecord, setSelectedRecord] = useState<BaseRecord | null>(null);
+    const [selectedRecord, setSelectedRecord] = useState<T | null>(null);
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [sortBy, setSortBy] = useState<string>("none");
@@ -105,7 +93,7 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
         reset,
         setValue,
         formState: { errors },
-    } = useForm<BaseRecord>();
+    } = useForm<T>();
 
     // Filter and sort data
     const filteredAndSortedData = useMemo(() => {
@@ -126,7 +114,7 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
         if (sortBy && sortBy !== "none" && sortOptions.length > 0) {
             const sortOption = sortOptions.find(option => option.value === sortBy);
             if (sortOption) {
-                filtered = [...filtered].sort(sortOption.sortFn);
+                filtered = [...filtered].sort(sortOption.sortFn as (a: BaseRecord, b: BaseRecord) => number);
             }
         }
 
@@ -138,13 +126,13 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
         try {
             setLoading(true);
             console.log("Fetching data from API...");
-            const response = await api.get(apiURL);
+            const response = await api.getAll();
             console.log(response.data);
 
-            // Handle different response structures
-            let responseData;
+            // Handle response structure - ListBaseResponse has data.items
+            let responseData: T[];
             if (response.data && response.data.data && response.data.data.items) {
-                // PaginationResponse structure: { data: { items: [], totalCount: number } }
+                // ListBaseResponse structure: { data: { items: [], totalCount: number } }
                 responseData = response.data.data.items;
             } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
                 // Direct array in data property
@@ -168,22 +156,22 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
     };
 
     //Create or Update data
-    const onSubmit = async (values: BaseRecord) => {
+    const onSubmit = async (values: T) => {
         try {
             let response;
             const { id, ...formData } = values;
 
             if (id) {
                 // Update existing record
-                response = await api.put(`${apiURL}/${id}`, formData);
+                response = await api.update(String(id), formData as TRequest);
                 toast.success(successMessages.update);
             } else {
                 // Create new record
-                response = await api.post(apiURL, formData);
+                response = await api.create(formData as TRequest);
                 toast.success(successMessages.create);
             }
 
-            console.log(response.data);
+            console.log(response);
             setOpen(false);
             reset();
             fetchData();
@@ -193,8 +181,16 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
         }
     };
 
+    // Helper function to set form values
+    const setFormValues = (record: T) => {
+        Object.keys(record).forEach((key) => {
+            const value = record[key as keyof T];
+            setValue(key as any, value as any);
+        });
+    };
+
     //Edit data
-    const handleEdit = (record: BaseRecord) => {
+    const handleEdit = (record: T) => {
         setSelectedRecord(record);
 
         // Reset form first to clear any previous data
@@ -202,9 +198,7 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
 
         // Set form values after a short delay to ensure form is reset
         setTimeout(() => {
-            Object.keys(record).forEach((key) => {
-                setValue(key, record[key]);
-            });
+            setFormValues(record);
         }, 0);
 
         setOpen(true);
@@ -215,7 +209,7 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
         if (!selectedRecord?.id) return;
 
         try {
-            await api.delete(`${apiURL}/${selectedRecord.id}`);
+            await api.delete(String(selectedRecord.id));
             toast.success(successMessages.delete);
             setDeleteDialogOpen(false);
             setSelectedRecord(null);
@@ -227,7 +221,7 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
     };
 
     //Open delete dialog
-    const openDeleteDialog = (record: BaseRecord) => {
+    const openDeleteDialog = (record: T) => {
         setSelectedRecord(record);
         setDeleteDialogOpen(true);
     };
@@ -245,9 +239,9 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     //Render form item
-    const renderFormItem = (item: FormItem) => {
+    const renderFormItem = (item: FormItem<T>) => {
         if (item.render) {
-            return item.render();
+            return item.render(register);
         }
 
         return (
@@ -260,7 +254,7 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
                     id={item.name}
                     type={item.type || "text"}
                     placeholder={item.placeholder}
-                    {...register(item.name, {
+                    {...register(item.name as any, {
                         required: item.required ? `${item.label} is required` : false,
                     })}
                     className={errors[item.name] ? "border-red-500" : ""}
@@ -390,27 +384,27 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
                     setOpen(openState);
                 }
             }}>
-                <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
+                <DialogContent className="sm:max-w-[425px] max-h-[90vh] flex flex-col">
+                    <DialogHeader className="flex-shrink-0">
                         <DialogTitle>
-                            {selectedRecord ? `Edit Item` : `Create New Item`}
+                            {selectedRecord ? `Sửa` : `Thêm mới`}
                         </DialogTitle>
                         <DialogDescription>
                             {selectedRecord
-                                ? "Make changes to the item here. Click save when you're done."
-                                : "Add a new item to the system. Fill in all required fields."}
+                                ? "Thay đổi thông tin của item tại đây. Nhấn lưu khi bạn hoàn thành."
+                                : "Thêm mới một item vào hệ thống. Điền đầy đủ các trường bắt buộc."}
                         </DialogDescription>
                     </DialogHeader>
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                        <div className="space-y-4">
+                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0">
+                        <div className="space-y-4 flex-1 overflow-y-auto">
                             {formItems.map(renderFormItem)}
                         </div>
-                        <DialogFooter>
+                        <DialogFooter className="flex-shrink-0 mt-4">
                             <Button type="button" variant="outline" onClick={closeDialog}>
-                                Cancel
+                                Hủy
                             </Button>
                             <Button type="submit">
-                                {selectedRecord ? "Update" : "Create"}
+                                {selectedRecord ? "Cập nhật" : "Thêm mới"}
                             </Button>
                         </DialogFooter>
                     </form>
