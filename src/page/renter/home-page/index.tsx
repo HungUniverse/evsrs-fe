@@ -1,14 +1,14 @@
 import Hero from "./components/hero";
 import WhyEcoRent from "./components/whyEco";
-import SelfDriveSection from "./components/selfDrive";
 import Footer from "../components/layout/footer";
+import HowToRentSteps from "./components/howToRent";
 
 export default function HomePage() {
   return (
     <>
       <Hero />
       <WhyEcoRent />
-      <SelfDriveSection />
+      <HowToRentSteps />
       <Footer />
     </>
   );
