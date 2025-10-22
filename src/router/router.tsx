@@ -9,8 +9,8 @@ import {
   ReportsPage,
   CarManufacturePage,
 } from "@/page/admin";
-import RentalHistoryPage from "@/page/admin/customer-management/rental-history";
-import ComplaintsPage from "@/page/admin/customer-management/complaints";
+import RentalHistoryPage from "@/page/admin/user-management/rental-history";
+import ComplaintsPage from "@/page/admin/user-management/complaints";
 import {
   AccountProfile,
   AccountTrips,

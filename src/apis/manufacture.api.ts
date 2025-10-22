@@ -3,12 +3,7 @@ import type { PaginationResponse } from "@/@types/common/pagination";
 import type { CarManufacture } from "@/@types/car/carManufacture";
 import type { ItemBaseResponse } from "@/@types/response";
 
-export type CreateCarManufactureRequest = {
-  name: string;
-  logo: string;
-};
-
-export type UpdateCarManufactureRequest = {
+export type CarManufactureRequest = {
   name: string;
   logo: string;
 };
@@ -27,14 +22,14 @@ export const CarManufactureAPI = {
     );
     return res.data.data;
   },
-  addNew: async (data: CreateCarManufactureRequest): Promise<CarManufacture> => {
+  addNew: async (data: CarManufactureRequest): Promise<CarManufacture> => {
     const res = await api.post<ItemBaseResponse<CarManufacture>>(
       `api/CarManufacture`,
       data
     );
     return res.data.data;
   },
-  update: async (id: string, data: UpdateCarManufactureRequest): Promise<CarManufacture> => {
+  update: async (id: string, data: CarManufactureRequest): Promise<CarManufacture> => {
     const res = await api.put<ItemBaseResponse<CarManufacture>>(
       `api/CarManufacture/${id}`,
       data
