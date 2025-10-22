@@ -21,8 +21,7 @@ export function useManufactures() {
       try {
         setLoading(true);
         const res = await CarManufactureAPI.getAll(1, 200);
-        const items =
-          (res.data as any)?.data?.items ?? (res.data as any)?.items ?? [];
+        const items = res.data?.data?.items ?? [];
         const m = new Map<string, CarManufacture>();
         (items as CarManufacture[]).forEach((it) => m.set(String(it.id), it));
         setMap(m);
@@ -36,10 +35,10 @@ export function useManufactures() {
 
   const list = useMemo(
     () =>
-      Array.from(map.values()).map((x: any) => ({
+      Array.from(map.values()).map((x) => ({
         id: String(x.id),
-        name: x.name ?? x.manufacturerName ?? "Hãng xe",
-        logoUrl: resolveLogoUrl(x.logoUrl ?? x.logo), // hỗ trợ cả 'logo'/'logoUrl'
+        name: x.name ?? "Hãng xe",
+        logoUrl: resolveLogoUrl(x.logo), // hỗ trợ cả 'logo'/'logoUrl'
       })),
     [map]
   );

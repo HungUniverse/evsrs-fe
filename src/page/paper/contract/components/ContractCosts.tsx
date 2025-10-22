@@ -102,21 +102,32 @@ export default function ContractCosts({ orderId }: { orderId: string }) {
               <span className="ml-2 text-gray-800">
                 - Nhân viên sẽ kiểm tra mức pin khi trả xe. Nếu mức pin thấp hơn
                 so với lúc nhận xe, khách hàng sẽ chịu phí sạc pin theo bảng giá{" "}
-                {order?.carEvs?.model?.electricityFee} VNĐ/%.
+                {order?.carEvs?.model?.electricityFee}đ/%.
               </span>
+
               <br />
               <span className="ml-2 text-gray-800">
                 - Khách hàng thuê xe sạc pin ở trạm ngoài, thì khi có hoá đơn
                 tiền sạc gửi về chi nhánh sẽ cộng thêm vào chi phí dịch vụ khi
                 trả xe
-                {order?.carEvs?.model?.electricityFee} VNĐ/%.
+              </span>
+            </div>
+            <div>
+              <span className="font-medium text-gray-600">
+                Chi phí vượt quá km:
+              </span>
+              <br />
+              <span className="ml-2 text-gray-800">
+                - Chi phí vượt quá km được cho phép của xe (
+                {order?.carEvs?.model?.limiteDailyKm}km/ngày) sẽ được tính theo
+                bảng giá là {order?.carEvs?.model?.overageFee}đ/km.
               </span>
             </div>
             <div>
               <span className="font-medium text-gray-600">Vệ sinh xe:</span>
               <br />
               <span className="ml-2 text-gray-800">
-                - 200.000VNĐ hoặc hơn nếu xe bẩn quá mức thông thường.
+                - 200.000đ hoặc hơn nếu xe bẩn quá mức thông thường.
               </span>
             </div>
             <div>
@@ -132,9 +143,9 @@ export default function ContractCosts({ orderId }: { orderId: string }) {
               <span className="font-medium text-gray-600">Sự cố đặc biệt:</span>
               <br />
               <span className="ml-2 text-gray-800">
-                - Mất giấy tờ/chìa khóa bồi thường 1.000.000 - 3.000.000 VNĐ;
-                hết pin 500.000 - 1.000.000 VNĐ/lần; hư hỏng do lỗi KH theo báo
-                giá hãng/đơn vị cho thuê.
+                - Mất giấy tờ/chìa khóa bồi thường 1.000.000 - 3.000.000đ; hết
+                pin 500.000 - 1.000.000đ/lần; hư hỏng do lỗi KH theo báo giá
+                hãng/đơn vị cho thuê.
               </span>
             </div>
           </div>
@@ -147,8 +158,8 @@ export default function ContractCosts({ orderId }: { orderId: string }) {
           <div className="space-y-1 pl-4">
             <div>Trả khác chi nhánh nhận ban đầu sẽ phát sinh phí.</div>
             <div>
-              Mức cố định: 200.000 - 500.000 VNĐ/lần, hoặc theo km: 10.000 -
-              15.000 VNĐ/km.
+              Mức cố định: 200.000 - 500.000đ/lần, hoặc theo km: 10.000 -
+              15.000đ/km.
             </div>
             <div>
               Một số chương trình khuyến mãi hoặc car-sharing nội thành có thể

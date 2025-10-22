@@ -22,6 +22,8 @@ export interface UserFull {
   fullName: string | null;
   profilePicture?: string;
   role: RoleCode;
+  depotId?: string;
+  depot?: Depot;
   dateOfBirth: string;
   isVerify: boolean;
   isDeleted: boolean;

@@ -26,7 +26,7 @@ import {
 
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import AuthGuard from "@/layouts/guard.layout";
-import { TripManagement } from "@/page/staff";
+import { StaffCarManagement, TripManagement } from "@/page/staff";
 import StaffTripDetails from "@/page/staff/trip-management/components/trip-details";
 import { lazy } from "react";
 import {
@@ -34,7 +34,6 @@ import {
   ReturnInspectionPage,
   ReturnSettementPage,
 } from "@/page/paper";
-import StaffCarManagement from "@/page/staff/car-management";
 
 const ContractPage = lazy(() => import("@/page/paper/contract"));
 const HandoverInspectionPage = lazy(

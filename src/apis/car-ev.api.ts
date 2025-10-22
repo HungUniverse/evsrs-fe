@@ -32,4 +32,10 @@ export const carEVAPI = {
   delete: async (id: string): Promise<void> => {
     await api.delete<ItemBaseResponse<CarEV>>(`/api/CarEV/${id}`);
   },
+  getCarByDepotId: async (depotId: string) => {
+    const res = await api.get<ItemBaseResponse<PaginationResponse<CarEV>>>(
+      `/api/CarEV/depot/${depotId}/paginated`
+    );
+    return res.data.data;
+  },
 };

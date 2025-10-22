@@ -5,7 +5,7 @@ import { UserRound, ScrollText, KeyRound } from "lucide-react";
 const items = [
   { to: "/staff/my-profile", label: "Tài khoản của tôi", icon: UserRound },
   { to: "/staff/trip", label: "Quản lý chuyến đi  ", icon: ScrollText },
-
+  { to: "/staff/car", label: "Quản lý xe trong trạm ", icon: ScrollText },
   { to: "/staff/change-password", label: "Đổi mật khẩu", icon: KeyRound },
 ];
 
