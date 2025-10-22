@@ -65,24 +65,24 @@ export default function ContractCosts({ orderId }: { orderId: string }) {
       </h3>
 
       <div className="space-y-2 text-md  text-slate-700">
-        <div className="flex justify-left gap-3">
+        <div className="flex justify-left gap-2">
           <span className="font-medium">Xe: </span>
           <span className="">{carName}</span>
         </div>
-        <div className="flex justify-left gap-3">
+        <div className="flex justify-left gap-2">
           <span className="font-medium">Biển số: </span>
           <span className="">{order?.carEvs?.licensePlate}</span>
         </div>
-        <div className="flex justify-left gap-3">
+        <div className="flex justify-left gap-2">
           <span className="font-medium">Thời hạn: </span>
           <span className="">{timeRange}</span>
         </div>
-        <div className="flex justify-left gap-3">
+        <div className="flex justify-left gap-2">
           <span className="font-medium">Tổng tiền: </span>
           <span className=" ">{subTotal.toLocaleString("vi-VN")}đ</span>
         </div>
-        <div className="flex justify-left gap-3">
-          <span className="font-medium"> Đã cọc: </span>
+        <div className="flex justify-left gap-2">
+          <span className="font-medium">Đã cọc: </span>
           <span className="">{deposit.toLocaleString("vi-VN")}đ</span>
         </div>
         <div className="flex justify-left gap-5">
@@ -97,17 +97,44 @@ export default function ContractCosts({ orderId }: { orderId: string }) {
           </h3>
           <div className="space-y-1 pl-4">
             <div>
-              <span className="font-medium text-gray-600">Vệ sinh xe:</span>
+              <span className="font-medium text-gray-600">Chi phí pin:</span>
+              <br />
               <span className="ml-2 text-gray-800">
-                200.000VNĐ hoặc hơn nếu xe bẩn quá mức thông thường.
+                - Nhân viên sẽ kiểm tra mức pin khi trả xe. Nếu mức pin thấp hơn
+                so với lúc nhận xe, khách hàng sẽ chịu phí sạc pin theo bảng giá{" "}
+                {order?.carEvs?.model?.electricityFee} VNĐ/%.
+              </span>
+              <br />
+              <span className="ml-2 text-gray-800">
+                - Khách hàng thuê xe sạc pin ở trạm ngoài, thì khi có hoá đơn
+                tiền sạc gửi về chi nhánh sẽ cộng thêm vào chi phí dịch vụ khi
+                trả xe
+                {order?.carEvs?.model?.electricityFee} VNĐ/%.
+              </span>
+            </div>
+            <div>
+              <span className="font-medium text-gray-600">Vệ sinh xe:</span>
+              <br />
+              <span className="ml-2 text-gray-800">
+                - 200.000VNĐ hoặc hơn nếu xe bẩn quá mức thông thường.
+              </span>
+            </div>
+            <div>
+              <span className="font-medium text-gray-600">
+                Chi phí cầu đường:
+              </span>
+              <br />
+              <span className="ml-2 text-gray-800">
+                - Nhân viên khi nhận xe sẽ thông báo chi phí cầu đường (nếu có).
               </span>
             </div>
             <div>
               <span className="font-medium text-gray-600">Sự cố đặc biệt:</span>
+              <br />
               <span className="ml-2 text-gray-800">
-                mất giấy tờ/chìa khóa bồi thường 1.000.000 - 3.000.000 VNĐ; hết
-                pin 500.000 - 1.000.000 VNĐ/lần; hư hỏng do lỗi KH theo báo giá
-                hãng/đơn vị cho thuê.
+                - Mất giấy tờ/chìa khóa bồi thường 1.000.000 - 3.000.000 VNĐ;
+                hết pin 500.000 - 1.000.000 VNĐ/lần; hư hỏng do lỗi KH theo báo
+                giá hãng/đơn vị cho thuê.
               </span>
             </div>
           </div>

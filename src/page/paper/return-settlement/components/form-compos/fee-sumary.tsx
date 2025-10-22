@@ -4,10 +4,7 @@ type Props = {
   itemsTotal: number;
   overKmFee: number;
   exceededKm: number;
-  ratePerKm: number;
-  batteryFee: number;
-  batDiff: number;
-  ratePerBatt: number;
+  ratePerKm?: number;
   subtotal: number;
 };
 
@@ -19,9 +16,6 @@ export default function FeesSummary(p: Props) {
     overKmFee,
     exceededKm,
     ratePerKm,
-    batteryFee,
-    batDiff,
-    ratePerBatt,
     subtotal,
   } = p;
 
@@ -43,17 +37,7 @@ export default function FeesSummary(p: Props) {
           <span className="text-slate-500">
             {" "}
             ({exceededKm.toLocaleString("vi-VN")} km ×{" "}
-            {ratePerKm.toLocaleString("vi-VN")})
-          </span>
-        )}
-      </div>
-
-      <div className="text-sm">
-        Phí hao pin: <b>{batteryFee.toLocaleString("vi-VN")}</b>
-        {batDiff > 0 && (
-          <span className="text-slate-500">
-            {" "}
-            ({batDiff}% × {ratePerBatt.toLocaleString("vi-VN")})
+            {ratePerKm?.toLocaleString("vi-VN")})
           </span>
         )}
       </div>
