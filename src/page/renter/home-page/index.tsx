@@ -2,6 +2,7 @@ import Hero from "./components/hero";
 import WhyEcoRent from "./components/whyEco";
 import Footer from "../components/layout/footer";
 import HowToRentSteps from "./components/howToRent";
+import AboutMioto from "./components/aboutMioto";
 
 export default function HomePage() {
   return (
@@ -9,6 +10,7 @@ export default function HomePage() {
       <Hero />
       <WhyEcoRent />
       <HowToRentSteps />
+      <AboutMioto />
       <Footer />
     </>
   );

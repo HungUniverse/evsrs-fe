@@ -31,7 +31,7 @@ export default function ContractCosts({ orderId }: { orderId: string }) {
     };
   }, [orderId]);
 
-  const carName = order?.carEvs?.model?.modelName || "Mẫu xe";
+  const carName = order?.carEvs?.model?.modelName;
   const startDate = order?.startAt ? new Date(order.startAt) : null;
   const endDate = order?.endAt ? new Date(order.endAt) : null;
 

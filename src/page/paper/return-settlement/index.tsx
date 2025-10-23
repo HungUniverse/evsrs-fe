@@ -199,7 +199,7 @@ export default function ReturnSettlementPage() {
               order?.carEvs.model?.limiteDailyKm ??
               0
             }
-            overageFee={order.carEvs.model.overageFee}
+            overageFee={order?.carEvs.model.overageFee}
             startAt={order?.startAt ?? null}
             endAt={order?.endAt ?? null}
             loading={creating}
