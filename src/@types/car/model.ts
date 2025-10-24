@@ -12,6 +12,8 @@ export interface Model {
   price: number;
   sale: number;
   image: string;
+  electricityFee: string;
+  overageFee: string;
   createdBy: string;
   updatedBy: string | null;
   createdAt: DateString;

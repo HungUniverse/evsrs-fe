@@ -1,17 +1,14 @@
 import type { ID, DateString } from "@/@types/common/pagination";
 import type { CarEvStatus } from "../enum";
+import type { Model } from "./model";
+import type { Depot } from "./depot";
 
 export interface CarEV {
   id: ID;
-  modelId: ID;
+  model: Model;
+  depot: Depot;
   licensePlate: string;
-  model?: {
-    id?: ID;
-    modelName?: string;
-    limiteDailyKm?: number;
-  };
-  depotId: ID;
-  batteryHealthPercentage: number;
+  batteryHealthPercentage: string;
   status: CarEvStatus; // có thể đổi sang enum
   createdBy: string;
   updatedBy: string | null;
