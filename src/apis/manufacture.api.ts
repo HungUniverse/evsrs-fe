@@ -1,20 +1,12 @@
 import { api } from "@/lib/axios/axios";
-import type { PaginationResponse } from "@/@types/common/pagination";
-import type { CarManufacture } from "@/@types/car/carManufacture";
-import type { ItemBaseResponse } from "@/@types/response";
-
-export type CarManufactureRequest = {
-  name: string;
-  logo: string;
-};
+import type { CarManufacture, CarManufactureRequest } from "@/@types/car/carManufacture";
+import type { ItemBaseResponse, ListBaseResponse } from "@/@types/response";
 
 export const CarManufactureAPI = {
   getAll: (pageNumber = 1, pageSize = 10) =>
-    api.get<ItemBaseResponse<PaginationResponse<CarManufacture>>>(
+    api.get<ListBaseResponse<CarManufacture>>(
       "/api/CarManufacture",
-      {
-        params: { pageNumber, pageSize },
-      }
+      { params: { pageNumber, pageSize } }
     ),
   getById: async (id: string): Promise<CarManufacture> => {
     const res = await api.get<ItemBaseResponse<CarManufacture>>(
@@ -22,7 +14,7 @@ export const CarManufactureAPI = {
     );
     return res.data.data;
   },
-  addNew: async (data: CarManufactureRequest): Promise<CarManufacture> => {
+  create: async (data: CarManufactureRequest): Promise<CarManufacture> => {
     const res = await api.post<ItemBaseResponse<CarManufacture>>(
       `api/CarManufacture`,
       data

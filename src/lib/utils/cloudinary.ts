@@ -31,3 +31,34 @@ export async function uploadDataUrlToCloudinary(
   
   return json.secure_url as string;
 }
+
+
+
+
+//Hàm upload ảnh lên Cloudinary
+export async function uploadFileToCloudinary(file: File): Promise<string> {
+  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME as string;
+  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET as string;
+
+  if (!cloudName || !uploadPreset) {
+    throw new Error(
+      "Cloudinary config missing (VITE_CLOUDINARY_CLOUD_NAME / VITE_CLOUDINARY_UPLOAD_PRESET)"
+    );
+  }
+
+  const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", uploadPreset);
+
+  const res = await fetch(url, { method: "POST", body: formData });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Cloudinary upload failed: ${text}`);
+  }
+  const data = await res.json();
+  if (!data?.secure_url) {
+    throw new Error("Cloudinary response missing secure_url");
+  }
+  return data.secure_url as string;
+}

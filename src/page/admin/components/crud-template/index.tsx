@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
+import type { FieldValues } from "react-hook-form";
 import { toast } from "sonner";
-import { api } from "@/lib/axios/axios";
 import { Button } from "@/components/ui/button";
+import type { CrudAPI, FormItem, SortOption, FilterOption } from "@/@types/api.interface";
 import {
     Dialog,
     DialogContent,
@@ -21,35 +23,32 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Edit2, Trash2, Plus } from "lucide-react";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Edit2, Trash2, Plus, Search, ArrowUpDown, Loader2, Filter } from "lucide-react";
 
 // Types
-interface BaseRecord {
+interface BaseRecord extends FieldValues {
     id?: string | number;
     [key: string]: unknown;
 }
 
-interface Column {
+interface Column<T = BaseRecord> {
     key: string;
     title: string;
     dataIndex: string;
-    render?: (value: unknown, record: BaseRecord) => React.ReactNode;
+    render?: (value: unknown, record: T) => React.ReactNode;
 }
 
-interface FormItem {
-    name: string;
-    label: string;
-    type?: "text" | "number" | "email" | "password" | "date";
-    required?: boolean;
-    placeholder?: string;
-    render?: () => React.ReactNode;
-}
-
-interface CrudTemplateProps {
-    columns: Column[];
-    apiURL: string;
-    formItems: FormItem[];
-    title?: string;
+interface CrudTemplateProps<T extends FieldValues = BaseRecord, TRequest = Partial<T>> {
+    columns: Column<T>[];
+    api: CrudAPI<T, TRequest>;
+    formItems: FormItem<T>[];
     addButtonText?: string;
     editButtonText?: string;
     deleteButtonText?: string;
@@ -60,13 +59,15 @@ interface CrudTemplateProps {
         update?: string;
         delete?: string;
     };
+    searchField?: string; // Field to search by (default: 'name')
+    sortOptions?: SortOption<T>[];
+    filterOptions?: FilterOption<T>[];
 }
 
-const CrudTemplate: React.FC<CrudTemplateProps> = ({
+const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>({
     columns,
-    apiURL,
+    api,
     formItems,
-    title = "Manage Data",
     addButtonText = "Add Item",
     editButtonText = "Edit",
     deleteButtonText = "Delete",
@@ -77,12 +78,18 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
         update: "Item updated successfully!",
         delete: "Item deleted successfully!",
     },
-}) => {
-    const [data, setData] = useState<BaseRecord[]>([]);
+    searchField = "name",
+    sortOptions = [],
+    filterOptions = [],
+}: CrudTemplateProps<T, TRequest>) => {
+    const [data, setData] = useState<T[]>([]);
     const [open, setOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const [selectedRecord, setSelectedRecord] = useState<BaseRecord | null>(null);
+    const [selectedRecord, setSelectedRecord] = useState<T | null>(null);
     const [loading, setLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [sortBy, setSortBy] = useState<string>("none");
+    const [filters, setFilters] = useState<Record<string, string>>({});
 
     const {
         register,
@@ -90,20 +97,59 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
         reset,
         setValue,
         formState: { errors },
-    } = useForm<BaseRecord>();
+    } = useForm<T>();
+
+    // Filter and sort data
+    const filteredAndSortedData = useMemo(() => {
+        let filtered = data;
+
+        // Apply search filter
+        if (searchTerm) {
+            filtered = data.filter((record) => {
+                const searchValue = record[searchField];
+                if (typeof searchValue === 'string') {
+                    return searchValue.toLowerCase().includes(searchTerm.toLowerCase());
+                }
+                return false;
+            });
+        }
+
+        // Apply additional filters
+        Object.entries(filters).forEach(([field, value]) => {
+            if (value) {
+                filtered = filtered.filter((record) => {
+                    const fieldValue = record[field];
+                    if (typeof fieldValue === 'string') {
+                        return fieldValue.toLowerCase().includes(value.toLowerCase());
+                    }
+                    return false;
+                });
+            }
+        });
+
+        // Apply sorting
+        if (sortBy && sortBy !== "none" && sortOptions.length > 0) {
+            const sortOption = sortOptions.find(option => option.value === sortBy);
+            if (sortOption) {
+                filtered = [...filtered].sort(sortOption.sortFn as (a: BaseRecord, b: BaseRecord) => number);
+            }
+        }
+
+        return filtered;
+    }, [data, searchTerm, sortBy, searchField, sortOptions, filters]);
 
     //Read data from API
     const fetchData = async () => {
         try {
             setLoading(true);
             console.log("Fetching data from API...");
-            const response = await api.get(apiURL);
+            const response = await api.getAll();
             console.log(response.data);
 
-            // Handle different response structures
-            let responseData;
+            // Handle response structure - ListBaseResponse has data.items
+            let responseData: T[];
             if (response.data && response.data.data && response.data.data.items) {
-                // PaginationResponse structure: { data: { items: [], totalCount: number } }
+                // ListBaseResponse structure: { data: { items: [], totalCount: number } }
                 responseData = response.data.data.items;
             } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
                 // Direct array in data property
@@ -127,22 +173,22 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
     };
 
     //Create or Update data
-    const onSubmit = async (values: BaseRecord) => {
+    const onSubmit = async (values: T) => {
         try {
             let response;
             const { id, ...formData } = values;
 
             if (id) {
                 // Update existing record
-                response = await api.put(`${apiURL}/${id}`, formData);
+                response = await api.update(String(id), formData as TRequest);
                 toast.success(successMessages.update);
             } else {
                 // Create new record
-                response = await api.post(apiURL, formData);
+                response = await api.create(formData as TRequest);
                 toast.success(successMessages.create);
             }
 
-            console.log(response.data);
+            console.log(response);
             setOpen(false);
             reset();
             fetchData();
@@ -152,8 +198,16 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
         }
     };
 
+    // Helper function to set form values
+    const setFormValues = (record: T) => {
+        Object.keys(record).forEach((key) => {
+            const value = record[key as keyof T];
+            setValue(key as any, value as any);
+        });
+    };
+
     //Edit data
-    const handleEdit = (record: BaseRecord) => {
+    const handleEdit = (record: T) => {
         setSelectedRecord(record);
 
         // Reset form first to clear any previous data
@@ -161,9 +215,7 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
 
         // Set form values after a short delay to ensure form is reset
         setTimeout(() => {
-            Object.keys(record).forEach((key) => {
-                setValue(key, record[key]);
-            });
+            setFormValues(record);
         }, 0);
 
         setOpen(true);
@@ -174,7 +226,7 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
         if (!selectedRecord?.id) return;
 
         try {
-            await api.delete(`${apiURL}/${selectedRecord.id}`);
+            await api.delete(String(selectedRecord.id));
             toast.success(successMessages.delete);
             setDeleteDialogOpen(false);
             setSelectedRecord(null);
@@ -186,7 +238,7 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
     };
 
     //Open delete dialog
-    const openDeleteDialog = (record: BaseRecord) => {
+    const openDeleteDialog = (record: T) => {
         setSelectedRecord(record);
         setDeleteDialogOpen(true);
     };
@@ -204,9 +256,9 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     //Render form item
-    const renderFormItem = (item: FormItem) => {
+    const renderFormItem = (item: FormItem<T>) => {
         if (item.render) {
-            return item.render();
+            return item.render(register);
         }
 
         return (
@@ -219,7 +271,7 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
                     id={item.name}
                     type={item.type || "text"}
                     placeholder={item.placeholder}
-                    {...register(item.name, {
+                    {...register(item.name as any, {
                         required: item.required ? `${item.label} is required` : false,
                     })}
                     className={errors[item.name] ? "border-red-500" : ""}
@@ -236,14 +288,96 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
     //Render table
     return (
         <div className="space-y-4">
-            <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold">{title}</h2>
-                <Button onClick={() => setOpen(true)} className="flex items-center gap-2">
-                    <Plus className="h-4 w-4" />
-                    {addButtonText}
-                </Button>
-            </div>
+            {/* Search, Filter, Sort Controls and Add Button */}
+            <div className="space-y-4">
+                {/* Top Row: Search and Add Button */}
+                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                    {/* Search Input */}
+                    <div className="relative flex-1 max-w-sm">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Input
+                            placeholder={`Tìm kiếm theo ${searchField}...`}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-10"
+                        />
+                    </div>
 
+                    {/* Add Button */}
+                    <Button onClick={() => setOpen(true)} className="flex items-center gap-2">
+                        <Plus className="h-4 w-4" />
+                        {addButtonText}
+                    </Button>
+                </div>
+
+                {/* Filter and Sort Row */}
+                {(filterOptions.length > 0 || sortOptions.length > 0) && (
+                    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                        {/* Filter Controls */}
+                        {filterOptions.length > 0 && (
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <Filter className="h-4 w-4 text-gray-400" />
+                                <span className="text-sm text-gray-600">Lọc theo:</span>
+                                {filterOptions.map((filter) => (
+                                    <div key={String(filter.field)} className="flex items-center gap-2">
+                                        <span className="text-sm font-medium">{filter.label}:</span>
+                                        {filter.type === "select" && filter.options ? (
+                                            <Select 
+                                                value={filters[String(filter.field)] || ""} 
+                                                onValueChange={(value) => 
+                                                    setFilters(prev => ({ ...prev, [String(filter.field)]: value }))
+                                                }
+                                            >
+                                                <SelectTrigger className="w-[150px]">
+                                                    <SelectValue placeholder={`Chọn ${filter.label.toLowerCase()}`} />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="">Tất cả</SelectItem>
+                                                    {filter.options.map((option) => (
+                                                        <SelectItem key={option.value} value={option.value}>
+                                                            {option.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        ) : (
+                                            <Input
+                                                placeholder={`Nhập ${filter.label.toLowerCase()}`}
+                                                value={filters[String(filter.field)] || ""}
+                                                onChange={(e) => 
+                                                    setFilters(prev => ({ ...prev, [String(filter.field)]: e.target.value }))
+                                                }
+                                                className="w-[150px]"
+                                            />
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Sort Dropdown */}
+                        {sortOptions.length > 0 && (
+                            <div className="flex items-center gap-2">
+                                <ArrowUpDown className="h-4 w-4 text-gray-400" />
+                                <Select value={sortBy} onValueChange={setSortBy}>
+                                    <SelectTrigger className="w-[200px]">
+                                        <SelectValue placeholder="Sắp xếp theo..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">Không sắp xếp</SelectItem>
+                                        {sortOptions.map((option) => (
+                                            <SelectItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+            {/* Data table section */}
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>
@@ -258,17 +392,20 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
                         {loading ? (
                             <TableRow>
                                 <TableCell colSpan={columns.length + 1} className="text-center py-8">
-                                    Loading...
+                                    <div className="flex items-center justify-center gap-2">
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        <span>Loading...</span>
+                                    </div>
                                 </TableCell>
                             </TableRow>
-                        ) : data.length === 0 ? (
+                        ) : filteredAndSortedData.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={columns.length + 1} className="text-center py-8">
-                                    No data available
+                                    {searchTerm ? "Không tìm thấy kết quả phù hợp" : "No data available"}
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            data.map((record, index) => (
+                            filteredAndSortedData.map((record, index) => (
                                 <TableRow key={String(record.id || record.Id || `row-${index}`)}>
                                     {columns.map((column) => (
                                         <TableCell key={column.key}>
@@ -314,27 +451,27 @@ const CrudTemplate: React.FC<CrudTemplateProps> = ({
                     setOpen(openState);
                 }
             }}>
-                <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
+                <DialogContent className="sm:max-w-[425px] max-h-[90vh] flex flex-col">
+                    <DialogHeader className="flex-shrink-0">
                         <DialogTitle>
-                            {selectedRecord ? `Edit Item` : `Create New Item`}
+                            {selectedRecord ? `Sửa` : `Thêm mới`}
                         </DialogTitle>
                         <DialogDescription>
                             {selectedRecord
-                                ? "Make changes to the item here. Click save when you're done."
-                                : "Add a new item to the system. Fill in all required fields."}
+                                ? "Thay đổi thông tin của item tại đây. Nhấn lưu khi bạn hoàn thành."
+                                : "Thêm mới một item vào hệ thống. Điền đầy đủ các trường bắt buộc."}
                         </DialogDescription>
                     </DialogHeader>
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                        <div className="space-y-4">
+                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0">
+                        <div className="space-y-4 flex-1 overflow-y-auto">
                             {formItems.map(renderFormItem)}
                         </div>
-                        <DialogFooter>
+                        <DialogFooter className="flex-shrink-0 mt-4">
                             <Button type="button" variant="outline" onClick={closeDialog}>
-                                Cancel
+                                Hủy
                             </Button>
                             <Button type="submit">
-                                {selectedRecord ? "Update" : "Create"}
+                                {selectedRecord ? "Cập nhật" : "Thêm mới"}
                             </Button>
                         </DialogFooter>
                     </form>

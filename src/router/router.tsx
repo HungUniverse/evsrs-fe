@@ -2,15 +2,12 @@ import AppLayout from "@/layouts/app.layout";
 import AdminLayout from "@/layouts/admin.layout";
 import StaffLayout from "@/layouts/staff.layout";
 import {
-  DashBoardPage,
-  FleetManagementPage,
-  CustomerManagementPage,
+  RenterManagementPage,
+  CarManufactureManagementPage,
+  ModelManagementPage,
   StaffManagementPage,
-  ReportsPage,
-  CarManufacturePage,
-} from "@/page/admin";
-import RentalHistoryPage from "@/page/admin/user-management/rental-history";
-import ComplaintsPage from "@/page/admin/user-management/complaints";
+  DepotManagementPage,
+} from "@/page/admin/index";
 import {
   AccountProfile,
   AccountTrips,
@@ -34,6 +31,7 @@ import {
   ReturnInspectionPage,
   ReturnSettementPage,
 } from "@/page/paper";
+import AmenitiesManagementPage from "@/page/admin/amenities-management";
 import AboutPage from "@/page/renter/home-page/components/aboutEV";
 
 const ContractPage = lazy(() => import("@/page/paper/contract"));
@@ -113,39 +111,31 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Navigate to="/admin/dashboard" replace />,
+            element: <Navigate to="/admin/car-manufacture" replace />,
           },
           {
-            path: "dashboard",
-            element: <DashBoardPage />,
+            path: "renter-management",
+            element: <RenterManagementPage />,
           },
           {
-            path: "fleet-management",
-            element: <FleetManagementPage />,
+            path: "car-manufacture",
+            element: <CarManufactureManagementPage />,
           },
           {
-            path: "customer-management",
-            element: <CustomerManagementPage />,
-          },
-          {
-            path: "customer-management/rental-history",
-            element: <RentalHistoryPage />,
-          },
-          {
-            path: "customer-management/complaints",
-            element: <ComplaintsPage />,
+            path: "model-management",
+            element: <ModelManagementPage />,
           },
           {
             path: "staff-management",
             element: <StaffManagementPage />,
           },
           {
-            path: "reports",
-            element: <ReportsPage />,
+            path: "amenities-management",
+            element: <AmenitiesManagementPage />,
           },
           {
-            path: "car-manufacture",
-            element: <CarManufacturePage />,
+            path: "depot-management",
+            element: <DepotManagementPage />,
           },
         ],
       },

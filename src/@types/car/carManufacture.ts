@@ -9,4 +9,10 @@ export interface CarManufacture {
   createdAt: DateString;
   updatedAt: DateString;
   isDeleted: boolean;
+  [key: string]: unknown; // Add index signature to satisfy BaseRecord constraint
 }
+
+export type CarManufactureRequest = {
+  name: string;
+  logo: string;
+};

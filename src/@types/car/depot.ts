@@ -18,3 +18,15 @@ export interface Depot {
   updatedAt: DateString;
   isDeleted: boolean;
 }
+export interface DepotRequest {
+  name: string;
+  mapId: string;
+  province: string;
+  district: string;
+  ward: string;
+  street: string;
+  lattitude: string;
+  longitude: string;
+  openTime: string;
+  closeTime: string;
+}

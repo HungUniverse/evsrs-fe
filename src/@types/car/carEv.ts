@@ -19,3 +19,10 @@ export interface CarEV {
   updatedAt: DateString;
   isDeleted: boolean;
 }
+export interface CarEVRequest {
+  modelId: ID;
+  depotId: ID;
+  licensePlate: string;
+  batteryHealthPercentage: string;
+  status: CarEvStatus;
+}

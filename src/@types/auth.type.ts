@@ -19,6 +19,9 @@ export interface UserFull {
   phoneNumber: string | null;
   fullName: string | null;
   avatar?: string;
+  profilePicture?: string;
+  depotId?: string;
+  depot?: string;
   role: RoleCode;
   dateOfBirth: string;
   isVerify: boolean;
@@ -27,6 +30,16 @@ export interface UserFull {
   updatedAt: string;
   createdBy: string | null;
   updatedBy: string | null;
+}
+
+export interface StaffRequest {
+  userName: string;
+  userEmail: string;
+  fullName: string;
+  phoneNumber: string;
+  depotId: string;
+  dateOfBirth: string;
+  profilePicture: string;
 }
 
 export interface AuthState {
