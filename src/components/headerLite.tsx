@@ -70,12 +70,12 @@ export default function HeaderLite() {
 
         {/* Right zone */}
         <div className="flex items-center gap-4 text-slate-700">
-          <a
-            href="#"
-            className="hidden md:inline-block text-sm font-medium hover:text-emerald-600"
-          >
-            Về EcoRent
-          </a>
+          <button
+            onClick={() => navigate("/about")}
+             className="hidden md:inline-block text-sm font-medium hover:text-emerald-600"
+          > 
+             Về EcoRent
+           </button>
 
           <span className="hidden md:block w-px h-5 bg-slate-300/70" />
 
