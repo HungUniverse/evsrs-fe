@@ -53,7 +53,7 @@ const navigationItems: NavigationItem[] = [
     icon: Building,
   },
   {
-    name: "Quản lý kho",
+    name: "Quản lý trạm",
     href: "/admin/depot-management",
     icon: Warehouse,
   }
