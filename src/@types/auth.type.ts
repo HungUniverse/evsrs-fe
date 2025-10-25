@@ -51,6 +51,17 @@ export interface UserResponse {
   createdBy: string | null;
   updatedBy: string | null;
 }
+
+export interface StaffRequest {
+  userName: string;
+  userEmail: string;
+  fullName: string;
+  phoneNumber: string;
+  depotId: string;
+  dateOfBirth: string;
+  profilePicture: string;
+}
+
 export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;

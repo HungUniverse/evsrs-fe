@@ -7,6 +7,7 @@ import AboutMioto from "./components/aboutMioto";
 export default function HomePage() {
   return (
     <>
+      <HeaderLite />
       <Hero />
       <WhyEcoRent />
       <HowToRentSteps />

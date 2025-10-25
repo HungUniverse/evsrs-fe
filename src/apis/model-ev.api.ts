@@ -5,7 +5,7 @@ import type { ItemBaseResponse } from "@/@types/response";
 
 export const modelAPI = {
   getAll: (pageNumber = 1, pageSize = 10) =>
-    api.get<PaginationResponse<Model>>("/api/Model", {
+    api.get<ListBaseResponse<Model>>("/api/Model", {
       params: { pageNumber, pageSize },
     }),
   getById: async (id: string): Promise<Model> => {

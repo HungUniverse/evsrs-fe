@@ -1,6 +1,7 @@
 import { api } from "@/lib/axios/axios";
 import type { PaginationResponse } from "@/@types/common/pagination";
 import type { CarEV, CarEVRequest } from "@/@types/car/carEv";
+import type { CarEV, CarEVRequest } from "@/@types/car/carEv";
 import type { ItemBaseResponse } from "@/@types/response";
 
 export type CarEVListParams = {

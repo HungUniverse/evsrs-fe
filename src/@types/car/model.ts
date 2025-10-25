@@ -2,13 +2,13 @@ import type { ID, DateString } from "@/@types/common/pagination";
 
 export interface Model {
   id: ID;
+  modelName: string;
   manufacturerCarId: ID;
   amenitiesId: ID;
-  modelName: string;
   batteryCapacityKwh: string;
   rangeKm: string;
-  limiteDailyKm: number;
-  seats: number;
+  limiteDailyKm: string;
+  seats: string;
   price: number;
   sale: number;
   image: string;

@@ -9,36 +9,8 @@ import { toast } from "sonner";
 import { identifyDocumentAPI } from "@/apis/identify-document.api";
 import { useEffect } from "react";
 import type { IdentifyDocumentRequest, IdentifyDocumentResponse } from "@/@types/identify-document";
-
+import { uploadFileToCloudinary } from "@/lib/utils/cloudinary";
 type PaperStatus = "pending" | "approved" | "rejected";
-
-//Hàm upload ảnh lên Cloudinary
-async function uploadImageToCloudinary(file: File): Promise<string> {
-  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME as string;
-  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET as string;
-
-  if (!cloudName || !uploadPreset) {
-    throw new Error(
-      "Cloudinary config missing (VITE_CLOUDINARY_CLOUD_NAME / VITE_CLOUDINARY_UPLOAD_PRESET)"
-    );
-  }
-
-  const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("upload_preset", uploadPreset);
-
-  const res = await fetch(url, { method: "POST", body: formData });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Cloudinary upload failed: ${text}`);
-  }
-  const data = await res.json();
-  if (!data?.secure_url) {
-    throw new Error("Cloudinary response missing secure_url");
-  }
-  return data.secure_url as string;
-}
 
 export default function UserPaper() {
   const { user, isAuthenticated } = useAuthStore();
@@ -131,9 +103,9 @@ export default function UserPaper() {
       const needsBackUpload = !!form.backImage;
 
       if (needsFrontUpload && form.frontImage)
-        uploaders.push(uploadImageToCloudinary(form.frontImage));
+        uploaders.push(uploadFileToCloudinary(form.frontImage));
       if (needsBackUpload && form.backImage)
-        uploaders.push(uploadImageToCloudinary(form.backImage));
+        uploaders.push(uploadFileToCloudinary(form.backImage));
 
       if (uploaders.length) {
         const results = await Promise.all(uploaders);
