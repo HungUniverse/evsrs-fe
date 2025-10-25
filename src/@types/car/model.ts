@@ -12,14 +12,14 @@ export interface Model {
   price: number;
   sale: number;
   image: string;
+  electricityFee: number;
+  overageFee: number;
   createdBy: string;
   updatedBy: string | null;
   createdAt: DateString;
   updatedAt: DateString;
   isDeleted: boolean;
-  [key: string]: unknown; // Add index signature to satisfy BaseRecord constraint
 }
-
 export type ModelRequest = {
   modelName: string;
   manufacturerCarId: string;
@@ -32,4 +32,4 @@ export type ModelRequest = {
   batteryCapacityKwh: string;
   image: string;
   isDeleted: false;
-}
+};

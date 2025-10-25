@@ -1,6 +1,7 @@
 import { api } from "@/lib/axios/axios";
+import type { PaginationResponse } from "@/@types/common/pagination";
 import type { Model, ModelRequest } from "@/@types/car/model";
-import type { ItemBaseResponse, ListBaseResponse } from "@/@types/response";
+import type { ItemBaseResponse } from "@/@types/response";
 
 export const modelAPI = {
   getAll: (pageNumber = 1, pageSize = 10) =>
@@ -16,7 +17,10 @@ export const modelAPI = {
     return res.data.data;
   },
   update: async (id: string, data: ModelRequest): Promise<Model> => {
-    const res = await api.put<ItemBaseResponse<Model>>(`/api/Model/${id}`, data);
+    const res = await api.put<ItemBaseResponse<Model>>(
+      `/api/Model/${id}`,
+      data
+    );
     return res.data.data;
   },
   delete: async (id: string): Promise<void> => {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo } from "react";
 import { useBookingCalc } from "@/hooks/use-booking-car-cal";
 
@@ -15,8 +14,7 @@ export type AutoFeeParams = {
   limitDailyKm?: string | number | null;
   startAt?: string | null;
   endAt?: string | null;
-  ratePerKm?: number; // default 4000
-  ratePerBatt?: number; // default 2000
+  ratePerKm?: number;
 };
 
 export function useAutoFees(p: AutoFeeParams) {
@@ -28,8 +26,7 @@ export function useAutoFees(p: AutoFeeParams) {
     limitDailyKm,
     startAt,
     endAt,
-    ratePerKm = 4000,
-    ratePerBatt = 2000,
+    ratePerKm,
   } = p;
 
   const { days } = useBookingCalc(
@@ -51,8 +48,7 @@ export function useAutoFees(p: AutoFeeParams) {
     const permittedKm = daily * (days > 0 ? days : 1);
     const exceededKm = Math.max(0, odoDiff - permittedKm);
 
-    const overKmFee = Math.max(0, exceededKm) * ratePerKm;
-    const batteryFee = Math.max(0, batDiff) * ratePerBatt;
+    const overKmFee = Math.max(0, exceededKm) * (ratePerKm ?? 0);
 
     return {
       days,
@@ -61,10 +57,8 @@ export function useAutoFees(p: AutoFeeParams) {
       permittedKm,
       exceededKm,
       overKmFee,
-      batteryFee,
-      autoFeesTotal: overKmFee + batteryFee,
+      autoFeesTotal: overKmFee,
       ratePerKm,
-      ratePerBatt,
       daily,
     };
   }, [
@@ -75,7 +69,6 @@ export function useAutoFees(p: AutoFeeParams) {
     limitDailyKm,
     days,
     ratePerKm,
-    ratePerBatt,
   ]);
 
   return calc;

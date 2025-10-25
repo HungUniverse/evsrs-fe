@@ -47,11 +47,9 @@ export default function SearchOrderBooking() {
       to,
       search,
     };
-    console.log("[SearchOrderBooking] params:", p);
     return p;
   }, [filter, uid]);
 
-  // Fetch danh sách booking theo userId + params
   useEffect(() => {
     if (!uid) {
       setBookings([]);
@@ -71,11 +69,7 @@ export default function SearchOrderBooking() {
           ? payload
           : (payload?.items ?? []);
 
-        // Filter theo userId
         const filteredItems = items.filter((item) => item.userId === uid);
-        console.log("All items:", items);
-        console.log("Filtered items:", filteredItems);
-        console.log("Current userId:", uid);
 
         if (!cancelled) setBookings(filteredItems);
       } catch (err) {

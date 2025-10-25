@@ -125,13 +125,13 @@ export default function ContractParties({ orderId }: { orderId: string }) {
           <div>
             <span className="font-medium text-gray-600">Số điện thoại:</span>
             <span className="ml-2 text-gray-800">
-              {getPhone(order?.user) || "—"}
+              {order?.user ? getPhone(order.user) || "—" : "—"}
             </span>
           </div>
           <div>
             <span className="font-medium text-gray-600">Email:</span>
             <span className="ml-2 text-gray-800">
-              {getEmail(order?.user) || "—"}
+              {order?.user ? getEmail(order.user) || "—" : "—"}
             </span>
           </div>
         </div>

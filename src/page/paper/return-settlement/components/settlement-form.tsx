@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -25,6 +24,7 @@ type Props = {
   staffDisplay: string;
   defaultSubtotal: string;
   limitDailyKm?: number | string | null;
+  overageFee?: number;
   startAt?: string | null;
   endAt?: string | null;
   loading?: boolean;
@@ -35,6 +35,7 @@ export default function SettlementForm({
   staffDisplay,
   defaultSubtotal,
   limitDailyKm,
+  overageFee,
   startAt,
   endAt,
   loading,
@@ -49,7 +50,6 @@ export default function SettlementForm({
   const [items, setItems] = useState<Item[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
-  // load dữ liệu inspection
   useEffect(() => {
     (async () => {
       if (!orderId) return;
@@ -85,6 +85,7 @@ export default function SettlementForm({
     limitDailyKm,
     startAt,
     endAt,
+    ratePerKm: overageFee,
   });
 
   const itemsTotal = useMemo(
@@ -149,9 +150,6 @@ export default function SettlementForm({
           overKmFee={auto.overKmFee}
           exceededKm={auto.exceededKm}
           ratePerKm={auto.ratePerKm}
-          batteryFee={auto.batteryFee}
-          batDiff={auto.batDiff}
-          ratePerBatt={auto.ratePerBatt}
           subtotal={subtotal}
         />
       </div>

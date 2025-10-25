@@ -118,3 +118,163 @@
     @apply bg-background text-foreground;
   }
 }
+/* Smooth left-to-right hero panning */
+.hero-pan {
+  transform: translateX(-4%); /* bắt đầu hơi lệch trái */
+  animation: hero-pan-x 22s ease-in-out infinite alternate;
+}
+
+@keyframes hero-pan-x {
+  to {
+    transform: translateX(4%); /* hết nhịp lệch sang phải */
+  }
+}
+
+/* Tôn trọng người dùng hạn chế chuyển động */
+@media (prefers-reduced-motion: reduce) {
+  .hero-pan {
+    animation: none !important;
+    transform: translateX(0);
+  }
+}
+/* Full-bleed background that pans without exposing edges */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  --hero-zoom: 130%; /* 120–150% tùy ảnh */
+  background-image: var(--hero-image, none);
+  background-size: var(--hero-zoom) auto;
+  background-repeat: no-repeat;
+  background-position: 0% 50%;
+  will-change: background-position, background-size;
+  animation: hero-pan 23s linear infinite alternate; /* nhanh hơn */
+}
+@keyframes hero-pan {
+  to {
+    background-position: 100% 50%;
+  }
+}
+
+.hero-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.25),
+    transparent 20%,
+    transparent 80%,
+    rgba(0, 0, 0, 0.25)
+  );
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .hero-bg {
+    animation: none;
+  }
+}
+
+/* ===== Typography & button polish ===== */
+.text-gradient {
+  background: linear-gradient(to right, #ffffff, #67e8f9, #34d399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.headline {
+  text-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.15),
+    0 1px 2px rgba(0, 0, 0, 0.1);
+}
+.subhead {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+.glow-emerald {
+  filter: drop-shadow(0 0 18px rgba(16, 185, 129, 0.7));
+}
+
+.btn-glow {
+  position: relative;
+  isolation: isolate;
+}
+.btn-glow::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 999px;
+  background: radial-gradient(
+    120% 120% at 50% 50%,
+    rgba(16, 185, 129, 0.35),
+    rgba(16, 185, 129, 0)
+  );
+  filter: blur(12px);
+  z-index: -1;
+  opacity: 0.9;
+  transition:
+    opacity 0.2s ease,
+    filter 0.2s ease;
+}
+.btn-glow:hover::after {
+  opacity: 1;
+  filter: blur(16px);
+}
+/* Panning trái -> phải (qua lại) bằng background-position */
+@keyframes hero-pan {
+  to {
+    background-position: 100% 50%;
+  }
+}
+
+/* Tuỳ chọn: phai mép ảnh mềm hơn khi pan (edge fade) */
+.hero-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* hơi tối mép trái/phải để không thấy viền ảnh */
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.25),
+    transparent 20%,
+    transparent 80%,
+    rgba(0, 0, 0, 0.25)
+  );
+}
+
+/* Nếu muốn thêm zoom nhè nhẹ khi pan (cinematic), bật block này
+.hero-bg{
+  animation:
+    hero-pan 8s linear infinite alternate,
+    hero-zoom 16s ease-in-out infinite alternate;
+}
+@keyframes hero-zoom {
+  from { background-size: 125% auto; }
+  to   { background-size: 140% auto; }
+}
+*/
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .hero-bg {
+    animation: none;
+  }
+}
+
+/* Fade-in animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out;
+}

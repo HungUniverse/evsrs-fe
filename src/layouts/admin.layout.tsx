@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import AdminSidebar from "@/page/admin/components/admin-sidebar";
-import HeaderLite from "@/components/headerLite";
 
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -36,7 +35,6 @@ export default function AdminLayout() {
         }`}
       >
         {/* Admin Header */}
-        <HeaderLite />
         {/* Page content, render outlet pages */}
         <main className="p-6">
           <Outlet />

@@ -9,6 +9,7 @@ import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import PartiesSummary from "../hand-over-inspection/components/PartiesSummary";
 import CarInfo from "./components/car-info";
 import SettlementViewCustomer from "./components/settlement-view";
+import InspectionImagesByOrder from "../return-settlement/components/inspection-image";
 import type { ReturnSettlement } from "@/@types/order/return-settlement";
 import { returnSettlementAPI } from "@/apis/return-settlement.api";
 
@@ -55,6 +56,13 @@ export default function CustomerSettlementPage() {
         startAt={order.startAt}
         endAt={order.endAt}
       />
+
+      <InspectionImagesByOrder
+        showHandover={true}
+        showReturn={true}
+        sideBySide={true}
+      />
+
       {settlement ? (
         <SettlementViewCustomer data={settlement} />
       ) : (

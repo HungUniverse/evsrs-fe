@@ -1,6 +1,7 @@
 import { api } from "@/lib/axios/axios";
 import type { PaginationResponse } from "@/@types/common/pagination";
 import type { CarEV, CarEVRequest } from "@/@types/car/carEv";
+import type { CarEV, CarEVRequest } from "@/@types/car/carEv";
 import type { ItemBaseResponse } from "@/@types/response";
 
 export type CarEVListParams = {
@@ -23,10 +24,19 @@ export const carEVAPI = {
     return res.data.data;
   },
   update: async (id: string, data: CarEVRequest): Promise<CarEV> => {
-    const res = await api.put<ItemBaseResponse<CarEV>>(`/api/CarEV/${id}`, data);
+    const res = await api.put<ItemBaseResponse<CarEV>>(
+      `/api/CarEV/${id}`,
+      data
+    );
     return res.data.data;
   },
   delete: async (id: string): Promise<void> => {
     await api.delete<ItemBaseResponse<CarEV>>(`/api/CarEV/${id}`);
+  },
+  getCarByDepotId: async (depotId: string) => {
+    const res = await api.get<ItemBaseResponse<PaginationResponse<CarEV>>>(
+      `/api/CarEV/depot/${depotId}/paginated`
+    );
+    return res.data.data;
   },
 };

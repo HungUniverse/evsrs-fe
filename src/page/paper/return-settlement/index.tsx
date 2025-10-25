@@ -28,7 +28,7 @@ export default function ReturnSettlementPage() {
   const { user } = useAuthStore();
 
   // ---- STATE
-  const [order, setOrder] = useState<OrderBookingDetail | null>(null);
+  const [order, setOrder] = useState<OrderBookingDetail>();
   const [settlement, setSettlement] = useState<ReturnSettlement | null>(null);
 
   const [loadingOrder, setLoadingOrder] = useState(true);
@@ -52,7 +52,7 @@ export default function ReturnSettlementPage() {
       // Tùy backend, lấy đúng path data
       const data: OrderBookingDetail =
         (res?.data?.data as OrderBookingDetail) ?? res?.data;
-      setOrder(data ?? null);
+      setOrder(data);
       if (!data) {
         toast.warning("Không tìm thấy đơn hàng.");
       }
@@ -60,7 +60,6 @@ export default function ReturnSettlementPage() {
       console.error("Fetch order error:", err);
       setErrorOrder("Không tải được dữ liệu đơn hàng.");
       toast.error("Tải đơn hàng thất bại.");
-      setOrder(null);
     } finally {
       setLoadingOrder(false);
     }
@@ -123,16 +122,6 @@ export default function ReturnSettlementPage() {
   const defaultSubtotal = String(
     toNum(order?.totalAmount ?? order?.remainingAmount ?? "0")
   );
-
-  console.log("💰 Return Settlement - Computed values:", {
-    order,
-    settlement,
-    defaultSubtotal,
-    totalAmount: order?.totalAmount,
-    remainingAmount: order?.remainingAmount,
-    errorOrder,
-    errorSettlement,
-  });
 
   // ---- UI
   if (loading) {
@@ -210,6 +199,7 @@ export default function ReturnSettlementPage() {
               order?.carEvs.model?.limiteDailyKm ??
               0
             }
+            overageFee={order?.carEvs.model.overageFee}
             startAt={order?.startAt ?? null}
             endAt={order?.endAt ?? null}
             loading={creating}

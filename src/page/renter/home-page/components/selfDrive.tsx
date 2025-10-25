@@ -22,7 +22,7 @@ export default function SelfDriveSection() {
           </p>
           <Button
             className="mt-6 rounded-full px-6 md:px-8 py-5 text-base md:text-lg bg-white text-gray-900 border border-gray-300 hover:bg-gray-50 shadow-sm"
-            onClick={() => navigate("#")}
+            onClick={() => navigate("/search-car")}
           >
             Xem chi tiết
           </Button>

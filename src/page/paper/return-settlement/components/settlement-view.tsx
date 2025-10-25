@@ -1,4 +1,5 @@
 import type { ReturnSettlement } from "@/@types/order/return-settlement";
+import { toNum } from "@/hooks/use-booking-car-cal";
 
 function Row({ l, r }: { l: string; r?: string | number | null }) {
   return (
@@ -21,9 +22,12 @@ export default function SettlementView({ data }: { data: ReturnSettlement }) {
             l="Tính lúc"
             r={new Date(data.calculateAt).toLocaleString("vi-VN")}
           />
-          <Row l="Subtotal" r={data.subtotal} />
-          <Row l="Giảm tổng" r={data.discount} />
-          <Row l="Tổng thanh toán" r={data.total} />
+          <Row l="Subtotal" r={toNum(data.subtotal).toLocaleString("vi-VN")} />
+          <Row l="Giảm tổng" r={toNum(data.discount).toLocaleString("vi-VN")} />
+          <Row
+            l="Tổng thanh toán"
+            r={toNum(data.total).toLocaleString("vi-VN")}
+          />
           <Row l="Ghi chú" r={data.notes} />
         </div>
 
@@ -35,10 +39,17 @@ export default function SettlementView({ data }: { data: ReturnSettlement }) {
                 <div key={it.id} className="py-2">
                   <div className="font-medium">{it.description || "—"}</div>
                   <div className="grid grid-cols-3 gap-3 text-sm">
-                    <div>Phí: {it.feeIncurred}</div>
-                    <div>Giảm: {it.discount}</div>
                     <div>
-                      Tổng: <span className="font-semibold">{it.total}</span>
+                      Phí: {toNum(it.feeIncurred).toLocaleString("vi-VN")}
+                    </div>
+                    <div>
+                      Giảm: {toNum(it.discount).toLocaleString("vi-VN")}
+                    </div>
+                    <div>
+                      Tổng:{" "}
+                      <span className="font-semibold">
+                        {toNum(it.total).toLocaleString("vi-VN")}
+                      </span>
                     </div>
                   </div>
                   {it.notes && (
