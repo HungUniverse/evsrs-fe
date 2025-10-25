@@ -47,6 +47,7 @@ export interface OrderBookingDetail {
   checkOutedAt: DateString | null;
   returnedAt: DateString | null;
   status: OrderBookingStatus;
+  code: string;
   subTotal: string;
   discount: string | null;
   depositAmount: string;

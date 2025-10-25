@@ -30,7 +30,7 @@ export default function Hero() {
           style={{ animationDelay: "0.5s", animationFillMode: "forwards" }}
         >
           Trải nghiệm di chuyển xanh – tiết kiệm và bền vững cùng{" "}
-          <span className="text-emerald-400 font-semibold underline decoration-2 underline-offset-4">
+          <span className="text-emerald-500 font-semibold underline decoration-2 underline-offset-4">
             EcoRent
           </span>
           .

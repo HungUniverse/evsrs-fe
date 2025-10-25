@@ -7,6 +7,7 @@ export interface SettlementItem {
   description: string;
   discount: string;
   total: string;
+  image: string;
   notes: string;
   createdAt: string;
   updatedAt: string;
@@ -40,6 +41,7 @@ export interface ReturnSettlementRequest {
     description: string;
     feeIncurred: string;
     discount: string;
+    image: string;
     total: string;
     notes?: string;
   }[];

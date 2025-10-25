@@ -204,9 +204,6 @@ export default function HandoverInspectionPage() {
           <h3 className="text-2xl font-bold uppercase text-gray-800">
             {title}
           </h3>
-          <div className="text-sm text-slate-500">
-            {hasInspection ? "Đã lập biên bản" : "Chưa có biên bản"}
-          </div>
         </div>
 
         <PartiesSummary order={order} />
