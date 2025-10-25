@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,8 +11,6 @@ import { useAuthStore } from "@/lib/zustand/use-auth-store";
 
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import type { ItemBaseResponse } from "@/@types/response";
-
-import type { HandoverInspectionType } from "@/@types/enum";
 
 import PartiesSummary from "./components/PartiesSummary";
 import CarInfo from "./components/CarInfo";
