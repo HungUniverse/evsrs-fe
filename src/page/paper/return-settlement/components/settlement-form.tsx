@@ -107,6 +107,7 @@ export default function SettlementForm({
           feeIncurred: amt,
           discount: "0",
           total: amt,
+          image: it.image || "",
           notes: "",
         };
       }),

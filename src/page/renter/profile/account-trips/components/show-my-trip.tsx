@@ -73,7 +73,7 @@ export default function ShowMyTrip({ data, onClickCode }: Props) {
                   onClick={() => onClickCode?.(orderId)}
                   title={orderId}
                 >
-                  {shortId(orderId, 8)}
+                  {ob.code}
                 </button>
               </div>
 
@@ -122,12 +122,6 @@ function StatusPill({ status }: { status: OrderBookingStatus }) {
       {label}
     </span>
   );
-}
-
-/** ================= Helpers ================= */
-function shortId(id: string, keep = 8) {
-  if (!id) return "-";
-  return id.length > keep ? id.slice(0, keep) + "…" : id;
 }
 
 // Ưu tiên trường mới (modelId) – vẫn hỗ trợ schema cũ (model.id) để an toàn

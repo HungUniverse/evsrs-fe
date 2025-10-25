@@ -28,8 +28,8 @@ export default function UserInfo() {
         <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Email" value={user.email} />
           <Field label="Số điện thoại" value={user.phone} />
-          <Field label="Ngày sinh" value={user?.dateOfBirth || ""} />
-          <Field label="Giới tính" value={user.gender || "Nam"} />
+          <Field label="Ngày sinh" value={user?.phone || ""} />
+          <Field label="Giới tính" value={user.phone || "Nam"} />
         </div>
       </div>
     </section>

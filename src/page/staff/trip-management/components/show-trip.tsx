@@ -58,7 +58,7 @@ export default function ShowTrip({ data, onClickCode, onClickUser }: Props) {
                   onClick={() => onClickCode?.(booking.id)}
                   title="Xem chi tiết"
                 >
-                  {shortId(booking.id, 8)}
+                  {booking.code}
                 </button>
               </div>
 
@@ -129,8 +129,4 @@ function fmtDateTime(s: string) {
   return `${pad(d.getHours())}:${pad(d.getMinutes())} ${pad(d.getDate())}/${pad(
     d.getMonth() + 1
   )}/${d.getFullYear()}`;
-}
-
-function shortId(id: string, length = 8) {
-  return id.length > length ? `${id.substring(0, length)}...` : id;
 }

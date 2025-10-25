@@ -61,7 +61,7 @@ export default function TripDetails() {
 
         <div className="rounded-xl bg-sky-100 px-4 py-3">
           <span className="text-sm">Mã đơn hàng:&nbsp;</span>
-          <span className="font-medium tracking-wide">{booking.id}</span>
+          <span className="font-medium tracking-wide">{booking.code}</span>
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[1fr_320px]">

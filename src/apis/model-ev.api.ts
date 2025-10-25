@@ -1,7 +1,6 @@
 import { api } from "@/lib/axios/axios";
-import type { PaginationResponse } from "@/@types/common/pagination";
 import type { Model, ModelRequest } from "@/@types/car/model";
-import type { ItemBaseResponse } from "@/@types/response";
+import type { ItemBaseResponse, ListBaseResponse } from "@/@types/response";
 
 export const modelAPI = {
   getAll: (pageNumber = 1, pageSize = 10) =>
