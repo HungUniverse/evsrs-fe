@@ -34,7 +34,7 @@ const getStatusBadge = (status: string) => {
     },
     RESERVED: {
       variant: "secondary" as const,
-      label: "Đang tạm giữ",
+      label: "Đã đặt trước",
       className: "bg-gray-100 text-orange-700 hover:bg-orange-100",
     },
     REPAIRING: {
