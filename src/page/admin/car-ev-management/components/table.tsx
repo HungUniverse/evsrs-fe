@@ -29,7 +29,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Edit2, Trash2, Plus, Search, ArrowUpDown, Loader2, Filter } from "lucide-react";
+import { Edit2, Trash2, Plus, Search, ArrowUpDown, Loader2, Filter, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { carEVAPI } from "@/apis/car-ev.api";
 import { depotAPI } from "@/apis/depot.api";
 import { modelAPI } from "@/apis/model-ev.api";
@@ -69,6 +69,8 @@ export default function CarEVTable() {
         modelId: "all",
         status: "all",
     });
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(10);
 
     const {
         register,
@@ -83,7 +85,7 @@ export default function CarEVTable() {
     const watchedDepotId = watch("depotId");
     const watchedModelId = watch("modelId");
 
-    // Filter and sort data
+    // Filter and sort data (client-side filtering)
     const filteredAndSortedData = useMemo(() => {
         let filtered = data;
 
@@ -94,8 +96,10 @@ export default function CarEVTable() {
             );
         }
 
-        // Note: Depot filter is handled by API call in fetchDataByDepot, 
-        // so we don't need to apply it again here
+        // Apply depot filter
+        if (filters.depotId && filters.depotId !== "all") {
+            filtered = filtered.filter((record) => record.depot?.id === filters.depotId);
+        }
 
         // Apply model filter
         if (filters.modelId && filters.modelId !== "all") {
@@ -132,11 +136,27 @@ export default function CarEVTable() {
         return filtered;
     }, [data, searchTerm, sortBy, filters]);
 
-    // Fetch CarEV data
+    // Paginate data
+    const paginatedData = useMemo(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        return filteredAndSortedData.slice(startIndex, endIndex);
+    }, [filteredAndSortedData, currentPage, itemsPerPage]);
+
+    // Pagination calculations
+    const totalItems = filteredAndSortedData.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startItem = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+    const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+    // Fetch CarEV data (only pagination, no filters)
     const fetchCarEVData = async () => {
         try {
             setLoading(true);
-            const response = await carEVAPI.getAll({ pageNumber: 1, pageSize: 1000 });
+            const response = await carEVAPI.getAll({ 
+                pageNumber: 1, 
+                pageSize: 1000 
+            });
             setData(response.data.items || []);
         } catch (error) {
             console.error("Error fetching CarEV data:", error);
@@ -169,26 +189,6 @@ export default function CarEVTable() {
         }
     };
 
-    // Fetch data by depot ID
-    const fetchDataByDepot = async (depotId: string) => {
-        if (!depotId || depotId === "all") {
-            fetchCarEVData();
-            return;
-        }
-        
-        try {
-            setLoading(true);
-            const response = await carEVAPI.getByDepotId(depotId);
-            console.log("Depot data response:", response);
-            setData(response);
-        } catch (error) {
-            console.error("Error fetching CarEV data by depot:", error);
-            toast.error("Không thể tải dữ liệu xe điện theo depot");
-            setData([]);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     // Create or Update data
     const onSubmit = async (values: CarEVFormData) => {
@@ -265,8 +265,40 @@ export default function CarEVTable() {
 
     // Handle depot filter change
     const handleDepotFilterChange = (depotId: string) => {
-        setFilters(prev => ({ ...prev, depotId, modelId: "all", status: "all" }));
-        fetchDataByDepot(depotId);
+        setFilters(prev => ({ ...prev, depotId }));
+        setCurrentPage(1);
+    };
+
+    // Clear all filters
+    const handleClearFilters = () => {
+        setSearchTerm("");
+        setFilters({
+            depotId: "all",
+            modelId: "all",
+            status: "all",
+        });
+        setSortBy("none");
+        setCurrentPage(1);
+    };
+
+    // Handle filter changes (reset to page 1)
+    const handleModelFilterChange = (modelId: string) => {
+        setFilters(prev => ({ ...prev, modelId }));
+        setCurrentPage(1);
+    };
+
+    const handleStatusFilterChange = (status: string) => {
+        setFilters(prev => ({ ...prev, status }));
+        setCurrentPage(1);
+    };
+
+    // Handle pagination
+    const handlePreviousPage = () => {
+        setCurrentPage(prev => Math.max(prev - 1, 1));
+    };
+
+    const handleNextPage = () => {
+        setCurrentPage(prev => Math.min(prev + 1, totalPages));
     };
 
     // Get status badge
@@ -279,12 +311,17 @@ export default function CarEVTable() {
         );
     };
 
-    // Fetch data when component mounts
+    // Fetch all data once on mount
     useEffect(() => {
         fetchCarEVData();
         fetchDepotData();
         fetchModelData();
     }, []);
+
+    // Reset to page 1 when search term or filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, filters]);
 
   return (
         <div className="space-y-4">
@@ -343,9 +380,7 @@ export default function CarEVTable() {
                             <span className="text-sm font-medium">Model:</span>
                             <Select 
                                 value={filters.modelId} 
-                                onValueChange={(value) => 
-                                    setFilters(prev => ({ ...prev, modelId: value }))
-                                }
+                                onValueChange={handleModelFilterChange}
                             >
                                 <SelectTrigger className="w-[200px]">
                                     <SelectValue placeholder="Chọn model" />
@@ -366,9 +401,7 @@ export default function CarEVTable() {
                             <span className="text-sm font-medium">Trạng thái:</span>
                             <Select 
                                 value={filters.status} 
-                                onValueChange={(value) => 
-                                    setFilters(prev => ({ ...prev, status: value }))
-                                }
+                                onValueChange={handleStatusFilterChange}
                             >
                                 <SelectTrigger className="w-[200px]">
                                     <SelectValue placeholder="Chọn trạng thái" />
@@ -383,6 +416,17 @@ export default function CarEVTable() {
                                 </SelectContent>
                             </Select>
                         </div>
+
+                        {/* Clear Filters Button */}
+                        <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={handleClearFilters}
+                            className="flex items-center gap-2"
+                        >
+                            <X className="h-4 w-4" />
+                            Xóa bộ lọc
+                        </Button>
                     </div>
 
                     {/* Sort Dropdown */}
@@ -439,7 +483,7 @@ export default function CarEVTable() {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            filteredAndSortedData.map((record) => (
+                            paginatedData.map((record) => (
                                 <TableRow key={record.id}>
                                     <TableCell className="font-medium">
                                         {record.licensePlate}
@@ -479,6 +523,42 @@ export default function CarEVTable() {
                     </TableBody>
                 </Table>
             </div>
+
+            {/* Pagination Controls */}
+            {!loading && filteredAndSortedData.length > 0 && (
+                <div className="flex items-center justify-between px-2">
+                    <div className="text-sm text-gray-700">
+                        Hiển thị <span className="font-medium">{startItem}</span> - {" "}
+                        <span className="font-medium">{endItem}</span> của{" "}
+                        <span className="font-medium">{totalItems}</span> kết quả
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handlePreviousPage}
+                            disabled={currentPage === 1}
+                            className="flex items-center gap-1"
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                            Trước
+                        </Button>
+                        <span className="text-sm text-gray-700">
+                            Trang {currentPage} / {totalPages}
+                        </span>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleNextPage}
+                            disabled={currentPage === totalPages}
+                            className="flex items-center gap-1"
+                        >
+                            Sau
+                            <ChevronRight className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </div>
+            )}
 
             {/* Create/Edit Dialog */}
             <Dialog open={open} onOpenChange={(openState) => {
