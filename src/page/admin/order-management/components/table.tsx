@@ -35,6 +35,7 @@ import {
   ChevronLeft,
   ChevronRight,
   User,
+  Building2,
 } from "lucide-react";
 import { orderBookingAPI, type OrderBookingQuery } from "@/apis/order-booking.api";
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
@@ -43,6 +44,9 @@ import { formatDate } from "@/lib/utils/formatDate";
 import { vnd } from "@/lib/utils/currency";
 import { UserFullAPI } from "@/apis/user.api";
 import type { UserFull } from "@/@types/auth.type";
+import { Input } from "@/components/ui/input";
+import { depotAPI } from "@/apis/depot.api";
+import type { Depot } from "@/@types/car/depot";
 
 type OrderBookingQueryParams = {
   pageNumber?: number;
@@ -89,9 +93,12 @@ export default function OrderTable() {
   const [status, setStatus] = useState<OrderBookingStatus>("PENDING");
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("PENDING");
   const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [searchOrderId, setSearchOrderId] = useState<string>("");
+  const [selectedDepotId, setSelectedDepotId] = useState<string>("");
   
-  // User list for selection
+  // User list and depot list for selection
   const [users, setUsers] = useState<UserFull[]>([]);
+  const [depots, setDepots] = useState<Depot[]>([]);
 
   // Fetch orders with pagination
   const fetchOrders = async (query: OrderBookingQueryParams = {}) => {
@@ -140,6 +147,19 @@ export default function OrderTable() {
     }
   };
 
+  // Fetch depots for selection
+  const fetchDepots = async () => {
+    try {
+      const response = await depotAPI.getAll(1, 100); // Get first 100 depots
+      if (response.data?.data) {
+        setDepots(response.data.data.items);
+      }
+    } catch (error) {
+      console.error("Error fetching depots:", error);
+      toast.error("Không thể tải danh sách depot");
+    }
+  };
+
   // Fetch orders by user ID
   const fetchOrdersByUserId = async () => {
     if (!selectedUserId) {
@@ -185,6 +205,93 @@ export default function OrderTable() {
     } catch (error) {
       console.error("Error fetching user orders:", error);
       toast.error("Không thể tải đơn đặt xe của người dùng này");
+      setOrders([]);
+      setTotalPages(0);
+      setTotalCount(0);
+      setHasNextPage(false);
+      setHasPreviousPage(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch orders by depot ID
+  const fetchOrdersByDepotId = async () => {
+    if (!selectedDepotId) {
+      toast.error("Vui lòng chọn depot");
+      return;
+    }
+    try {
+      setLoading(true);
+      const response = await orderBookingAPI.getByDepotId(selectedDepotId);
+      
+      if (response.data) {
+        const ordersData = response.data.data;
+        
+        if (Array.isArray(ordersData) && ordersData.length > 0) {
+          setOrders(ordersData);
+          setTotalPages(1);
+          setTotalCount(ordersData.length);
+          setHasNextPage(false);
+          setHasPreviousPage(false);
+          toast.success(`Tìm thấy ${ordersData.length} đơn đặt xe`);
+        } else {
+          setOrders([]);
+          setTotalPages(0);
+          setTotalCount(0);
+          setHasNextPage(false);
+          setHasPreviousPage(false);
+          toast.info("Không tìm thấy đơn đặt xe nào cho depot này");
+        }
+      } else {
+        setOrders([]);
+        setTotalPages(0);
+        setTotalCount(0);
+        setHasNextPage(false);
+        setHasPreviousPage(false);
+        toast.info("Không tìm thấy đơn đặt xe nào cho depot này");
+      }
+    } catch (error) {
+      console.error("Error fetching depot orders:", error);
+      toast.error("Không thể tải đơn đặt xe của depot này");
+      setOrders([]);
+      setTotalPages(0);
+      setTotalCount(0);
+      setHasNextPage(false);
+      setHasPreviousPage(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Search order by ID
+  const handleSearchOrderById = async () => {
+    if (!searchOrderId.trim()) {
+      toast.error("Vui lòng nhập mã đơn đặt xe");
+      return;
+    }
+    try {
+      setLoading(true);
+      const response = await orderBookingAPI.getById(searchOrderId);
+      
+      if (response.data?.data) {
+        setOrders([response.data.data]);
+        setTotalPages(1);
+        setTotalCount(1);
+        setHasNextPage(false);
+        setHasPreviousPage(false);
+        toast.success("Tìm thấy đơn đặt xe");
+      } else {
+        setOrders([]);
+        setTotalPages(0);
+        setTotalCount(0);
+        setHasNextPage(false);
+        setHasPreviousPage(false);
+        toast.info("Không tìm thấy đơn đặt xe với mã này");
+      }
+    } catch (error) {
+      console.error("Error searching order:", error);
+      toast.error("Không tìm thấy đơn đặt xe với mã này");
       setOrders([]);
       setTotalPages(0);
       setTotalCount(0);
@@ -249,6 +356,7 @@ export default function OrderTable() {
   useEffect(() => {
     fetchOrders({ pageNumber, pageSize });
     fetchUsers();
+    fetchDepots();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -296,34 +404,105 @@ export default function OrderTable() {
   return (
     <div className="space-y-4">
       {/* Controls */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Search className="h-4 w-4 text-gray-400" />
-          <Select value={selectedUserId || "all"} onValueChange={(value) => setSelectedUserId(value === "all" ? "" : value)}>
-            <SelectTrigger className="w-[300px]">
-              <SelectValue placeholder="Chọn người dùng để xem đơn đặt xe" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tất cả người dùng</SelectItem>
-              {users.map((user) => (
-                <SelectItem key={user.id} value={user.id}>
-                  {user.fullName || user.userName} - {user.userEmail}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button 
-            onClick={fetchOrdersByUserId} 
-            size="sm" 
-            variant="outline"
-            disabled={!selectedUserId || selectedUserId === ""}
-          >
-            <User className="h-4 w-4 mr-2" />
-            Xem đơn đặt xe
-          </Button>
+      <div className="flex flex-col gap-4">
+        {/* First row: Search bar */}
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="flex items-center gap-2 flex-1">
+            <Search className="h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Tìm kiếm theo mã đơn đặt xe..."
+              value={searchOrderId}
+              onChange={(e) => setSearchOrderId(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSearchOrderById();
+                }
+              }}
+              className="flex-1 max-w-md"
+            />
+            <Button
+              onClick={handleSearchOrderById}
+              size="sm"
+              variant="outline"
+              disabled={!searchOrderId.trim()}
+            >
+              Tìm kiếm
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Label>Số dòng mỗi trang:</Label>
+            <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="5">5</SelectItem>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Second row: Filters */}
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          <div className="flex items-center gap-2">
+            <User className="h-4 w-4 text-gray-400" />
+            <Select value={selectedUserId || "all"} onValueChange={(value) => setSelectedUserId(value === "all" ? "" : value)}>
+              <SelectTrigger className="w-[300px]">
+                <SelectValue placeholder="Lọc theo người dùng" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả người dùng</SelectItem>
+                {users.map((user) => (
+                  <SelectItem key={user.id} value={user.id}>
+                    {user.fullName || user.userName} - {user.userEmail}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button 
+              onClick={fetchOrdersByUserId} 
+              size="sm" 
+              variant="outline"
+              disabled={!selectedUserId || selectedUserId === ""}
+            >
+              Lọc
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Building2 className="h-4 w-4 text-gray-400" />
+            <Select value={selectedDepotId || "all"} onValueChange={(value) => setSelectedDepotId(value === "all" ? "" : value)}>
+              <SelectTrigger className="w-[300px]">
+                <SelectValue placeholder="Lọc theo depot" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả depot</SelectItem>
+                {depots.map((depot) => (
+                  <SelectItem key={depot.id} value={depot.id}>
+                    {depot.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button 
+              onClick={fetchOrdersByDepotId} 
+              size="sm" 
+              variant="outline"
+              disabled={!selectedDepotId || selectedDepotId === ""}
+            >
+              Lọc
+            </Button>
+          </div>
+
           <Button
             onClick={() => {
               setSelectedUserId("");
+              setSelectedDepotId("");
+              setSearchOrderId("");
               setPageNumber(1);
               fetchOrders({ pageNumber: 1, pageSize });
             }}
@@ -332,21 +511,6 @@ export default function OrderTable() {
           >
             Xem tất cả
           </Button>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Label>Số dòng mỗi trang:</Label>
-          <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
-            <SelectTrigger className="w-[120px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="5">5</SelectItem>
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="20">20</SelectItem>
-              <SelectItem value="50">50</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
@@ -536,8 +700,8 @@ export default function OrderTable() {
                 <div>
                   <Label className="text-sm font-medium">Xe</Label>
                   <p className="text-sm">
-                    {selectedOrder.carEvs?.model?.brand && selectedOrder.carEvs?.model?.name
-                      ? `${selectedOrder.carEvs.model.brand} ${selectedOrder.carEvs.model.name}`
+                    {selectedOrder.carEvs?.model?.modelName 
+                      ? `${selectedOrder.carEvs.model.modelName}`
                       : "N/A"}
                   </p>
                 </div>

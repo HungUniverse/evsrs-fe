@@ -55,6 +55,10 @@ export const orderBookingAPI = {
     api.get<ItemBaseResponse<OrderBookingDetail[]>>(
       `/api/OrderBooking/user/${id}`
     ),
+  getByDepotId: (id: ID) =>
+    api.get<ItemBaseResponse<OrderBookingDetail[]>>(
+      `/api/OrderBooking/depot/${id}`
+    ),
   checkout: async (id: ID): Promise<OrderBookingDetail> => {
     const res = await api.post<ItemBaseResponse<OrderBookingDetail>>(
       `/api/OrderBooking/${id}/checkout`,
