@@ -7,6 +7,7 @@ export default function AboutMioto() {
 
   const handleLearnMore = () => {
     navigate("/about");
+    window.scrollTo(0, 0);
   };
 
   return (
@@ -51,7 +52,7 @@ export default function AboutMioto() {
             {/* CTA Button */}
             <button
               onClick={handleLearnMore}
-              className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-emerald-500 to-green-500 text-white text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl hover:from-emerald-600 hover:to-green-600 transform hover:scale-105 transition-all duration-300"
+              className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-emerald-700 to-green-600 text-white text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl hover:from-emerald-600 hover:to-green-600 transform hover:scale-105 transition-all duration-300"
             >
               Tìm hiểu thêm
             </button>

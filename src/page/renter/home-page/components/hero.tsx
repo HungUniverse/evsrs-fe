@@ -18,11 +18,11 @@ export default function Hero() {
                       flex flex-col items-center justify-center text-center"
       >
         <h1
-          className="text-3xl md:text-7xl font-black mb-4 text-gradient opacity-0 animate-fade-in"
-          style={{ animationDelay: "0.2s", animationFillMode: "forwards" }}
+          className="text-3xl md:text-7xl font-black mb-4 text-gradient opacity-0 animate-fade-in leading-tight"
+          style={{ animationDelay: "0.1s", animationFillMode: "forwards" }}
         >
           Thuê xe điện dễ dàng, tiện lợi <br className="hidden sm:block" />
-          tại trạm gần bạn
+          <span className="inline-block">tại trạm gần bạn</span>
         </h1>
 
         <p

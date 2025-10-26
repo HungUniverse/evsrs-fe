@@ -66,7 +66,7 @@ export function RegisterDialog({
     setSending(true);
     try {
       const resp = await authAPI.sendOtp({ email, phoneNumber });
-      const payload = (resp && (resp.data ?? resp)) as any;
+      const payload = resp && (resp.data ?? resp);
 
       const ok =
         payload?.success === true ||
@@ -105,7 +105,7 @@ export function RegisterDialog({
       });
 
       // Unwrap cho chắc (AxiosResponse hoặc plain object)
-      const payload = (resp && (resp.data ?? resp)) as any;
+      const payload = resp && (resp.data ?? resp);
 
       const ok =
         payload?.success === true ||
