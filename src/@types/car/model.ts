@@ -33,5 +33,7 @@ export type ModelRequest = {
   sale: number;
   batteryCapacityKwh: string;
   image: string;
+  electricityFee: string;
+  overageFee: string;
   isDeleted: false;
 }
