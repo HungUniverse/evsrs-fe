@@ -1,5 +1,5 @@
 // src/pages/contract/index.tsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ContractParties from "./components/ContractParties";
@@ -16,6 +16,8 @@ import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import type { Contract } from "@/@types/order/contract";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import SignatureDialog from "./components/sign-box";
+import { PrintPdfButton } from "../dowloadpdfbutton";
+import { PrintableContract } from "../printable-paper";
 
 function genContractNumber() {
   const d = new Date();
@@ -25,6 +27,7 @@ function genContractNumber() {
 }
 
 const ContractPage: React.FC = () => {
+  const printRef = useRef<HTMLDivElement>(null);
   const { orderId } = useParams<{ orderId: string }>();
   const { user } = useAuthStore();
 
@@ -154,81 +157,92 @@ const ContractPage: React.FC = () => {
   }
 
   return (
-    <section className="rounded-xl border bg-white">
-      <div className="max-w-4xl mx-auto p-8 space-y-8">
-        <div className="text-center space-y-4">
-          <div className="space-y-2">
-            <h1 className="text-xl font-bold uppercase">
-              CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
-            </h1>
-            <h2 className="text-xl font-bold uppercase">
-              Độc lập – Tự do – Hạnh phúc
-            </h2>
-            <div className="flex justify-center items-center space-x-4">
-              <div className="text-lg">---------------------------------</div>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <h3 className="text-2xl font-bold uppercase text-gray-800">
-              {title}
-            </h3>
-            <div className="text-lg font-medium">
-              Số hợp đồng: {contract?.contractNumber ?? "—"}
-            </div>
-          </div>
-        </div>
-        <div>
-          <ContractParties orderId={orderId!} />
-
-          <ContractCosts orderId={orderId!} />
-        </div>
-
-        <div className="rounded-lg border p-4 bg-white">
-          <div className="flex items-center justify-between mb-3">
-            <p className="font-medium">Chữ ký khách hàng</p>
-
-            {!isSigned && (
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setOpenSign(true)}>
-                  Mở bảng ký
-                </Button>
-                {savingSignature && (
-                  <span className="text-xs text-slate-500">đang lưu...</span>
-                )}
-                {signatureUrl && (
-                  <span className="text-xs text-emerald-700">
-                    ✅ Đã lưu chữ ký
-                  </span>
-                )}
+    <div className="space-y-4">
+      <PrintPdfButton
+        targetRef={printRef as React.RefObject<HTMLElement>}
+        filename="hop-dong-ecorent"
+      />
+      <PrintableContract ref={printRef}>
+        <div className="space-y-8">
+          <div className="text-center space-y-4">
+            <div className="space-y-2">
+              <h1 className="text-xl font-bold uppercase">
+                CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
+              </h1>
+              <h2 className="text-xl font-bold uppercase">
+                Độc lập – Tự do – Hạnh phúc
+              </h2>
+              <div className="flex justify-center items-center space-x-4">
+                <div className="text-lg">---------------------------------</div>
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-2xl font-bold uppercase text-gray-800">
+                {title}
+              </h3>
+              <div className="text-lg font-medium">
+                Số hợp đồng: {contract?.contractNumber ?? "—"}
+              </div>
+            </div>
+          </div>
+          <div>
+            <ContractParties orderId={orderId!} />
+
+            <ContractCosts orderId={orderId!} />
+          </div>
+
+          <div className="rounded-lg border p-4 bg-white">
+            <div className="flex items-center justify-between mb-3">
+              <p className="font-medium">Chữ ký khách hàng</p>
+
+              {!isSigned && (
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => setOpenSign(true)}>
+                    Mở bảng ký
+                  </Button>
+                  {savingSignature && (
+                    <span className="text-xs text-slate-500">đang lưu...</span>
+                  )}
+                  {signatureUrl && (
+                    <span className="text-xs text-emerald-700">
+                      ✅ Đã lưu chữ ký
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {(signatureUrl || contract?.signatureUrl) && (
+              <img
+                src={signatureUrl ?? contract?.signatureUrl ?? ""}
+                className="h-28 border rounded bg-white"
+                alt="Signature preview"
+                crossOrigin="anonymous"
+              />
             )}
           </div>
 
-          {(signatureUrl || contract?.signatureUrl) && (
-            <img
-              src={signatureUrl ?? contract?.signatureUrl ?? ""}
-              className="h-28 border rounded bg-white"
-              alt="Signature preview"
-            />
+          {!isSigned && (
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                onClick={handleCreate}
+                disabled={creating}
+              >
+                {creating ? "Đang lưu..." : "Xác nhận & Tạo hợp đồng"}
+              </Button>
+            </div>
           )}
+
+          <SignatureDialog
+            open={openSign}
+            onOpenChange={setOpenSign}
+            onSave={handleSignatureSaved}
+          />
         </div>
-
-        {!isSigned && (
-          <div className="flex justify-end">
-            <Button onClick={handleCreate} disabled={creating}>
-              {creating ? "Đang lưu..." : "Xác nhận & Tạo hợp đồng"}
-            </Button>
-          </div>
-        )}
-
-        <SignatureDialog
-          open={openSign}
-          onOpenChange={setOpenSign}
-          onSave={handleSignatureSaved}
-        />
-      </div>
-    </section>
+      </PrintableContract>
+    </div>
   );
 };
 

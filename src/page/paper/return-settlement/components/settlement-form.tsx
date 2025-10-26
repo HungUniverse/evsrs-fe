@@ -172,7 +172,7 @@ export default function SettlementForm({
       </div>
 
       <div className="flex justify-end">
-        <Button onClick={handleSubmit} disabled={loading}>
+        <Button variant="outline" onClick={handleSubmit} disabled={loading}>
           Lưu biên bản thanh toán
         </Button>
       </div>

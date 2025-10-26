@@ -78,7 +78,7 @@ export default function CustomerSettlementPage() {
       ) : (
         "Không tìm thấy biên bản thanh toán."
       )}
-      <Button>Thanh toán</Button>
+      <Button variant="outline">Thanh toán</Button>
     </div>
   );
 }
