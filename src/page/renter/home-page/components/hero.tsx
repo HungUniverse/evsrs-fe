@@ -18,7 +18,11 @@ export default function Hero() {
                       flex flex-col items-center justify-center text-center"
       >
         <h1
-          className="text-3xl md:text-7xl font-black mb-4 text-gradient opacity-0 animate-fade-in leading-tight"
+          className="text-3xl md:text-7xl font-black mb-4
+         bg-gradient-to-r from-white via-cyan-200 to-emerald-300
+         bg-clip-text text-transparent
+         text-glow-hero text-shadow-lg
+         opacity-0 animate-fade-in leading-tight"
           style={{ animationDelay: "0.1s", animationFillMode: "forwards" }}
         >
           Thuê xe điện dễ dàng, tiện lợi <br className="hidden sm:block" />
@@ -30,7 +34,7 @@ export default function Hero() {
           style={{ animationDelay: "0.5s", animationFillMode: "forwards" }}
         >
           Trải nghiệm di chuyển xanh – tiết kiệm và bền vững cùng{" "}
-          <span className="text-emerald-500 font-semibold underline decoration-2 underline-offset-4">
+          <span className="text-emerald-300 font-semibold underline decoration-2 underline-offset-4">
             EcoRent
           </span>
           .
@@ -47,7 +51,7 @@ export default function Hero() {
              px-8 md:px-20 py-5 md:py-7
              text-2xl md:text-3xl leading-none tracking-wide
              font-extrabold rounded-full
-             bg-emerald-600 hover:bg-emerald-700 text-white
+             bg-emerald-500 hover:bg-emerald-400 text-white
              shadow-[0_12px_28px_rgba(16,185,129,.35)]
              hover:shadow-[0_16px_40px_rgba(16,185,129,.45)]
              transition-transform duration-300 hover:scale-[1.05]"
