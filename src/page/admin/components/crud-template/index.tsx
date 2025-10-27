@@ -116,13 +116,23 @@ const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>
 
         // Apply additional filters
         Object.entries(filters).forEach(([field, value]) => {
-            if (value) {
+            if (value && value !== "all") {
                 filtered = filtered.filter((record) => {
                     const fieldValue = record[field];
-                    if (typeof fieldValue === 'string') {
-                        return fieldValue.toLowerCase().includes(value.toLowerCase());
+                    const filterValue = value;
+                    
+                    // Convert both to strings for comparison
+                    const fieldStr = String(fieldValue);
+                    const filterStr = String(filterValue);
+                    
+                    // Use exact match for numeric IDs, substring match for text
+                    if (!isNaN(Number(fieldValue)) && !isNaN(Number(value))) {
+                        // Exact match for numeric values
+                        return fieldStr === filterStr;
+                    } else {
+                        // Substring match for text values
+                        return fieldStr.toLowerCase().includes(filterStr.toLowerCase());
                     }
-                    return false;
                 });
             }
         });
@@ -323,7 +333,7 @@ const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>
                                         <span className="text-sm font-medium">{filter.label}:</span>
                                         {filter.type === "select" && filter.options ? (
                                             <Select 
-                                                value={filters[String(filter.field)] || ""} 
+                                                value={filters[String(filter.field)] || "all"} 
                                                 onValueChange={(value) => 
                                                     setFilters(prev => ({ ...prev, [String(filter.field)]: value }))
                                                 }
@@ -332,7 +342,7 @@ const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>
                                                     <SelectValue placeholder={`Chọn ${filter.label.toLowerCase()}`} />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="">Tất cả</SelectItem>
+                                                    <SelectItem value="all">Tất cả</SelectItem>
                                                     {filter.options.map((option) => (
                                                         <SelectItem key={option.value} value={option.value}>
                                                             {option.label}
