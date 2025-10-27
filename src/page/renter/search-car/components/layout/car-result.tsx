@@ -68,7 +68,6 @@ export default function CarResult({ filters, searchForm }: Props) {
     if (location) {
       arr = arr.filter((x) => (x.depot?.province ?? "") === location);
     }
-
     if (seatSet.size > 0) {
       arr = arr.filter((x) => seatSet.has(Number(x.model.seats ?? 0)));
     }
@@ -106,13 +105,11 @@ export default function CarResult({ filters, searchForm }: Props) {
 
   // 3) Gom nhóm thành card Model
   const cards: CarCardVM[] = useMemo(() => {
-    const hasLocation = !!(filters.province || searchForm.location);
-    const currentProvince = filters.province || searchForm.location;
-    // Có chọn location => gom theo modelId (mỗi model 1 card)
-    // Không chọn location => gom theo modelId + province (tránh gộp SG với HN)
+    const location = filters.province || searchForm.location;
     return groupCarEvsToCards(filteredEvs, {
-      groupByProvince: hasLocation ? false : true,
-      currentProvince: currentProvince || null,
+      // Chỉ group by province khi đã chọn location để filter
+      groupByProvince: Boolean(location),
+      currentProvince: location || null,
     });
   }, [filteredEvs, filters, searchForm]);
 

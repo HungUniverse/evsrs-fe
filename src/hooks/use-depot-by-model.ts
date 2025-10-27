@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery } from "@tanstack/react-query";
 import { carEVAPI } from "@/apis/car-ev.api";
 import type { Depot } from "@/@types/car/depot";
@@ -23,6 +22,7 @@ export function useDepotsByModel(opts: {
         pageNumber: 1,
         pageSize,
         modelId: modelId!,
+        status: "AVAILABLE", // Chỉ lấy xe có status AVAILABLE
       });
 
       const items: CarEV[] = res.data.items ?? [];
@@ -31,12 +31,13 @@ export function useDepotsByModel(opts: {
       const map = new Map<string, { depot: Depot; count: number }>();
 
       for (const car of items) {
-        const carModelId = (car as any).modelId ?? (car as any).model?.id;
+        const carModelId = car.modelId ?? car.model?.id;
         if (carModelId !== modelId) continue;
-        if (!isAvailable((car as any).status)) continue;
+        // Double check to ensure only AVAILABLE cars are counted
+        if (onlyAvailable && !isAvailable(car.status)) continue;
 
-        const dep = (car as any).depot as Depot | undefined;
-        const depotId = dep?.id ?? (car as any).depotId;
+        const dep = car.depot as Depot | undefined;
+        const depotId = dep?.id ?? car.depotId;
         if (!depotId || !dep) continue;
 
         if (

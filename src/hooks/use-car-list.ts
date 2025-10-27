@@ -12,9 +12,7 @@ async function fetchModelsByIds(ids: string[]) {
   const models = await Promise.all(uniq.map((id) => modelAPI.getById(id)));
   const map = new Map<string, Model>();
   models
-    .filter(
-      (m: any) => m && (m.isDeleted === undefined || m.isDeleted === false)
-    )
+    .filter((m) => m && (m.isDeleted === undefined || m.isDeleted === false))
     .forEach((m) => map.set(m.id, m));
   return map;
 }
@@ -35,9 +33,28 @@ export function useCarEVList(params = { pageNumber: 1, pageSize: 12 }) {
       if (!items.length) return { list: [] as CarCardVM[], meta: data };
 
       const modelMap = await fetchModelsByIds(items.map((i) => i.modelId));
-      const list = items.map((c) =>
-        groupCarEvsToCards(c, modelMap.get(c.modelId))
-      ); // depot tắt
+
+      // Transform CarEV[] to CarEvItem[]
+      const carEvItems = items.map((c) => ({
+        id: c.id,
+        model: {
+          id: c.modelId,
+          modelName: modelMap.get(c.modelId)?.modelName || "",
+          batteryCapacityKwh: modelMap.get(c.modelId)?.batteryCapacityKwh,
+          rangeKm: modelMap.get(c.modelId)?.rangeKm,
+          limiteDailyKm: modelMap.get(c.modelId)?.limiteDailyKm,
+          manufacturerCarId: modelMap.get(c.modelId)?.manufacturerCarId,
+          amenitiesId: modelMap.get(c.modelId)?.amenitiesId,
+          seats: modelMap.get(c.modelId)?.seats,
+          price: modelMap.get(c.modelId)?.price,
+          sale: modelMap.get(c.modelId)?.sale,
+          image: modelMap.get(c.modelId)?.image,
+        },
+        status: c.status || "AVAILABLE",
+        isDeleted: c.isDeleted,
+      }));
+
+      const list = groupCarEvsToCards(carEvItems);
       return { list, meta: data };
     },
   });

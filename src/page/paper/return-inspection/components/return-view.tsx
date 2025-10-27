@@ -86,7 +86,7 @@ export default function ReturnView({
                   <img
                     src={u}
                     alt={`return-${i}`}
-                    className="w-full h-28 object-cover rounded border cursor-pointer"
+                    className="w-full h-50 object-cover rounded border cursor-pointer"
                   />
                 </DialogTrigger>
                 <DialogContent className="max-w-4xl">

@@ -223,7 +223,7 @@ export default function OrderTable() {
     }
     try {
       setLoading(true);
-      const response = await orderBookingAPI.getByDepotId(selectedDepotId);
+      const response = await orderBookingAPI.getOrderBookingByDepotId(selectedDepotId);
       
       if (response.data) {
         const ordersData = response.data.data;

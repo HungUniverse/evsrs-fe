@@ -16,7 +16,10 @@ export const modelAPI = {
     return res.data.data;
   },
   update: async (id: string, data: ModelRequest): Promise<Model> => {
-    const res = await api.put<ItemBaseResponse<Model>>(`/api/Model/${id}`, data);
+    const res = await api.put<ItemBaseResponse<Model>>(
+      `/api/Model/${id}`,
+      data
+    );
     return res.data.data;
   },
   delete: async (id: string): Promise<void> => {

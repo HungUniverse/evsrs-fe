@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { orderBookingAPI } from "@/apis/order-booking.api";
+import { UserFullAPI } from "@/apis/user.api";
+import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import type { TripFilterValue } from "./components/trip-filter";
 import StaffTripFilter from "./components/trip-filter";
@@ -9,19 +11,12 @@ import UserInfoModal from "./components/user-info-modal";
 
 export default function TripManagement() {
   const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
 
   const [bookings, setBookings] = useState<OrderBookingDetail[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  console.log(
-    "[StaffTripManagement] Component render - bookings:",
-    bookings.length,
-    "loading:",
-    loading,
-    "error:",
-    error
-  );
+  const [staffDepotId, setStaffDepotId] = useState<string | null>(null);
 
   const [filter, setFilter] = useState<TripFilterValue>({
     orderId: "",
@@ -34,30 +29,50 @@ export default function TripManagement() {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    const getStaffDepot = async () => {
+      if (!user?.userId) return;
+
+      try {
+        const userInfo = await UserFullAPI.getDepotByUserId(user.userId);
+        setStaffDepotId(userInfo.depotId || null);
+      } catch (err) {
+        console.error(err);
+        setError("Không lấy được thông tin chi nhánh của nhân viên");
+      }
+    };
+
+    getStaffDepot();
+  }, [user?.userId]);
+
+  useEffect(() => {
     const loadBookings = async () => {
+      if (!staffDepotId) return;
+
       setLoading(true);
       setError(null);
       try {
-        const res = await orderBookingAPI.getAll({
-          pageNumber: 1,
-          pageSize: 100,
-        });
+        const res = await orderBookingAPI.getByDepotId(staffDepotId);
+        const items = res.data.data;
+        // Check if items is an array directly or inside a pagination object
+        const bookingsList = Array.isArray(items) ? items : items?.items || [];
+        setBookings(bookingsList);
 
-        setBookings(res.data.data?.items || []);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
         setError(e.message || "Không tải được danh sách đơn hàng");
       } finally {
         setLoading(false);
-        console.log("[StaffTripManagement] Loading finished");
       }
     };
 
     loadBookings();
-  }, []);
+  }, [staffDepotId]);
 
-  // Filter orders
   const filteredBookings = useMemo(() => {
+    if (!Array.isArray(bookings)) {
+      return [];
+    }
+
     console.log(
       "[StaffTripManagement] Filtering bookings. Total bookings:",
       bookings.length
@@ -73,15 +88,13 @@ export default function TripManagement() {
     const end = filter.dateEnd ? new Date(filter.dateEnd + "T23:59:59") : null;
 
     const filtered = bookings.filter((booking) => {
+      if (!booking) return false;
+
       // Filter by order ID
       if (
         filter.orderId &&
-        !booking.id.toLowerCase().includes(filter.orderId.toLowerCase())
+        !booking.id?.toLowerCase().includes(filter.orderId.toLowerCase())
       ) {
-        console.log(
-          "[StaffTripManagement] Filtered out by order ID:",
-          booking.id
-        );
         return false;
       }
 
@@ -90,20 +103,12 @@ export default function TripManagement() {
         const needle = filter.carModel.toLowerCase();
         const modelName = booking.carEvs?.model?.modelName || "";
         if (!modelName.toLowerCase().includes(needle)) {
-          console.log(
-            "[StaffTripManagement] Filtered out by car model:",
-            modelName
-          );
           return false;
         }
       }
 
       // Filter by status
       if (filter.status !== "all" && booking.status !== filter.status) {
-        console.log(
-          "[StaffTripManagement] Filtered out by status:",
-          booking.status
-        );
         return false;
       }
 
@@ -111,28 +116,15 @@ export default function TripManagement() {
       const bookingStart = new Date(booking.startAt);
       const bookingEnd = new Date(booking.endAt);
       if (start && bookingEnd < start) {
-        console.log(
-          "[StaffTripManagement] Filtered out by start date:",
-          booking.startAt
-        );
         return false;
       }
       if (end && bookingStart > end) {
-        console.log(
-          "[StaffTripManagement] Filtered out by end date:",
-          booking.endAt
-        );
         return false;
       }
 
       return true;
     });
 
-    console.log(
-      "[StaffTripManagement] Filtered result:",
-      filtered.length,
-      "items"
-    );
     return filtered;
   }, [bookings, filter]);
 

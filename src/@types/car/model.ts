@@ -19,9 +19,7 @@ export interface Model {
   createdAt: DateString;
   updatedAt: DateString;
   isDeleted: boolean;
-  [key: string]: unknown; // Add index signature to satisfy BaseRecord constraint
 }
-
 export type ModelRequest = {
   modelName: string;
   manufacturerCarId: string;
@@ -36,4 +34,4 @@ export type ModelRequest = {
   electricityFee: string;
   overageFee: string;
   isDeleted: false;
-}
+};

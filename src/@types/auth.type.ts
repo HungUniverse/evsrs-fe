@@ -1,3 +1,5 @@
+import type { Depot } from "./car/depot";
+
 export type RoleCode = "ADMIN" | "USER" | "STAFF";
 
 export interface User {
@@ -18,10 +20,28 @@ export interface UserFull {
   userEmail: string;
   phoneNumber: string | null;
   fullName: string | null;
-  avatar?: string;
+  profilePicture?: string;
+  role: RoleCode;
+  depotId?: string;
+  depot?: Depot;
+  dateOfBirth: string;
+  isVerify: boolean;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string | null;
+  updatedBy: string | null;
+}
+export interface UserResponse {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  phoneNumber: string | null;
+  fullName: string | null;
   profilePicture?: string;
   depotId?: string;
-  depot?: string;
+  depot?: Depot;
   role: RoleCode;
   dateOfBirth: string;
   isVerify: boolean;

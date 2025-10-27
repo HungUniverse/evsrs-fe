@@ -3,7 +3,6 @@ import CarResult from "./components/layout/car-result";
 import CategoryChip from "./components/layout/category-chip";
 import SearchBar from "./components/layout/search-bar";
 import type { Filters } from "./components/layout/car-result";
-import HeaderLite from "@/components/headerLite";
 
 export default function SearchCar() {
   const [filters, setFilters] = useState<Filters>({});
@@ -15,7 +14,6 @@ export default function SearchCar() {
 
   return (
     <>
-      <HeaderLite />
       <SearchBar
         onSearch={(f) => {
           setFilters((prev) => ({ ...prev, province: f.location }));

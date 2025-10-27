@@ -55,7 +55,7 @@ export const orderBookingAPI = {
     api.get<ItemBaseResponse<OrderBookingDetail[]>>(
       `/api/OrderBooking/user/${id}`
     ),
-  getByDepotId: (id: ID) =>
+  getOrderBookingByDepotId: (id: ID) =>
     api.get<ItemBaseResponse<OrderBookingDetail[]>>(
       `/api/OrderBooking/depot/${id}`
     ),
@@ -80,6 +80,10 @@ export const orderBookingAPI = {
     );
     return res.data.data;
   },
+  getByDepotId: (id: ID) =>
+    api.get<ListBaseResponse<OrderBookingDetail>>(
+      `/api/OrderBooking/depot/${id}`
+    ),
   updateStatus: async (id: ID, status: OrderBookingStatus, paymentStatus: PaymentStatus) => {
     const res = await api.patch<ItemBaseResponse<OrderBookingDetail>>(
       `/api/OrderBooking/${id}/status`,

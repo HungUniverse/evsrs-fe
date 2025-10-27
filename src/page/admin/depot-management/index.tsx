@@ -1,5 +1,4 @@
-import React from 'react'
-import DepotTable from './components/table'
+import DepotTable from "./components/table";
 
 export default function DepotManagementPage() {
   return (
@@ -10,5 +9,5 @@ export default function DepotManagementPage() {
       </div>
       <DepotTable />
     </div>
-  )
+  );
 }

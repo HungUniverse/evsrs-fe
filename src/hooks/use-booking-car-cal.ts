@@ -22,3 +22,7 @@ export function useBookingCalc(
 
   return { days, baseTotal, deposit, salePrice };
 }
+export function toNum(v: string | number | null | undefined) {
+  const n = Number(String(v ?? "0").replace(/[^\d.-]/g, ""));
+  return Number.isFinite(n) ? n : 0;
+}

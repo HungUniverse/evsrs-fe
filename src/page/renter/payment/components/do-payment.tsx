@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useLocation } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -62,7 +61,7 @@ export default function DoPayment() {
 
     const rawCandidates = data?.available ?? [];
     const candidates = rawCandidates.filter(
-      (c: any) => (c?.modelId ?? c?.model?.id) === state?.model?.id
+      (c) => (c?.modelId ?? c?.model?.id) === state?.model?.id
     );
     if (!candidates.length) {
       return toast.error("Không còn xe khả dụng tại trạm này.");

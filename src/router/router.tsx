@@ -25,7 +25,7 @@ import {
 
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import AuthGuard from "@/layouts/guard.layout";
-import { TripManagement } from "@/page/staff";
+import { StaffCarManagement, TripManagement } from "@/page/staff";
 import StaffTripDetails from "@/page/staff/trip-management/components/trip-details";
 import { lazy } from "react";
 import {
@@ -48,15 +48,19 @@ export const router = createBrowserRouter([
       {
         path: "/",
         element: <HomePage />,
-      
       },
       {
         path: "/about",
         element: <AboutPage />,
       },
+
       {
         path: "/search-car",
-        element: <SearchCar />,
+        element: (
+          <AuthGuard>
+            <SearchCar />
+          </AuthGuard>
+        ),
       },
       {
         path: "/book-car/:id",
@@ -160,6 +164,10 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <Navigate to="/staff/trip" replace />,
+          },
+          {
+            path: "car",
+            element: <StaffCarManagement />,
           },
           {
             path: "trip",

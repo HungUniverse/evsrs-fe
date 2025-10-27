@@ -22,8 +22,7 @@ export default function StaffTripDetails() {
         const res = await orderBookingAPI.getById(orderId);
         console.log("[StaffTripDetails] API response:", res);
         setBooking(res.data.data);
-      } catch (e: any) {
-        console.error("[StaffTripDetails] getById error:", e);
+      } catch {
         setError("Không tải được chi tiết đơn hàng");
       } finally {
         setLoading(false);
@@ -32,9 +31,7 @@ export default function StaffTripDetails() {
   }, [orderId]);
 
   if (loading) {
-    return (
-      <div className="p-6 text-slate-600">Đang tải dữ liệu…</div>
-    );
+    return <div className="p-6 text-slate-600">Đang tải dữ liệu…</div>;
   }
 
   if (error || !booking) {
@@ -54,7 +51,7 @@ export default function StaffTripDetails() {
 
         <div className="rounded-xl bg-sky-100 px-4 py-3">
           <span className="text-sm">Mã đơn hàng:&nbsp;</span>
-          <span className="font-medium tracking-wide">{booking.id}</span>
+          <span className="font-medium tracking-wide">{booking.code}</span>
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[1fr_320px]">

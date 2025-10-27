@@ -9,8 +9,10 @@ import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import PartiesSummary from "../hand-over-inspection/components/PartiesSummary";
 import CarInfo from "./components/car-info";
 import SettlementViewCustomer from "./components/settlement-view";
+import InspectionImagesByOrder from "../return-settlement/components/inspection-image";
 import type { ReturnSettlement } from "@/@types/order/return-settlement";
 import { returnSettlementAPI } from "@/apis/return-settlement.api";
+import { Button } from "@/components/ui/button";
 
 export default function CustomerSettlementPage() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -44,8 +46,17 @@ export default function CustomerSettlementPage() {
   if (loading) return <div>Loading...</div>;
   if (!order) return <div>Chưa có biên bản trả xe.</div>;
   return (
-    <div className="container mx-auto py-8 space-y-8">
-      <h1 className="text-2xl font-bold text-center">{title}</h1>
+    <div className="container mx-auto py-8 space-y-10 max-w-5xl px-4">
+      <div className="text-center space-y-3">
+        <h1 className="text-xl font-bold uppercase">
+          CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
+        </h1>
+        <h2 className="text-xl font-bold uppercase">
+          Độc lập – Tự do – Hạnh phúc
+        </h2>
+        <div className="text-lg">---------------------------------</div>
+        <h3 className="text-2xl font-bold uppercase text-gray-800">{title}</h3>
+      </div>
 
       <PartiesSummary order={order} />
 
@@ -55,11 +66,19 @@ export default function CustomerSettlementPage() {
         startAt={order.startAt}
         endAt={order.endAt}
       />
+
+      <InspectionImagesByOrder
+        showHandover={true}
+        showReturn={true}
+        sideBySide={true}
+      />
+
       {settlement ? (
         <SettlementViewCustomer data={settlement} />
       ) : (
         "Không tìm thấy biên bản thanh toán."
       )}
+      <Button variant="outline">Thanh toán</Button>
     </div>
   );
 }
