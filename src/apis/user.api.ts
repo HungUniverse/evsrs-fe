@@ -20,7 +20,7 @@ export const UserFullAPI = {
     return res.data.data;
   },
   updateDepot: async (id: string, depotId: string): Promise<void> => {
-    await api.patch(`/api/User/staff/${id}`, { depotId });
+    await api.put(`/api/User/${id}/depot`, depotId);
   },
   delete: async (id: string): Promise<void> => {
     await api.delete(`/api/User/${id}`);

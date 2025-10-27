@@ -91,6 +91,28 @@ const ModelTable: React.FC = () => {
       render: (value: unknown) => `${value}%`,
     },
     {
+      key: "electricityFee",
+      title: "Phí điện",
+      dataIndex: "electricityFee",
+      render: (value: unknown) => {
+        return new Intl.NumberFormat('vi-VN', {
+          style: 'currency',
+          currency: 'VND'
+        }).format(Number(value) || 0);
+      },
+    },
+    {
+      key: "overageFee",
+      title: "Phí vượt km",
+      dataIndex: "overageFee",
+      render: (value: unknown) => {
+        return new Intl.NumberFormat('vi-VN', {
+          style: 'currency',
+          currency: 'VND'
+        }).format(Number(value) || 0);
+      },
+    },
+    {
       key: "image",
       title: "Hình ảnh",
       dataIndex: "image",
@@ -222,6 +244,20 @@ const ModelTable: React.FC = () => {
       type: "number" as const,
       required: false,
       placeholder: "Nhập phần trăm giảm giá",
+    },
+    {
+      name: "electricityFee",
+      label: "Phí điện",
+      type: "number" as const,
+      required: true,
+      placeholder: "Nhập phí điện",
+    },
+    {
+      name: "overageFee",
+      label: "Phí vượt km",
+      type: "number" as const,
+      required: true,
+      placeholder: "Nhập phí vượt km",
     },
     {
       name: "image",

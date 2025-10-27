@@ -7,6 +7,8 @@ import {
   ModelManagementPage,
   StaffManagementPage,
   DepotManagementPage,
+  OrderManagementPage,
+  CarEVManagementPage,
 } from "@/page/admin/index";
 import {
   AccountProfile,
@@ -115,14 +117,14 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Navigate to="/admin/car-manufacture" replace />,
+            element: <Navigate to="/admin/car-manufacture-management" replace />,
           },
           {
             path: "renter-management",
             element: <RenterManagementPage />,
           },
           {
-            path: "car-manufacture",
+            path: "car-manufacture-management",
             element: <CarManufactureManagementPage />,
           },
           {
@@ -140,6 +142,14 @@ export const router = createBrowserRouter([
           {
             path: "depot-management",
             element: <DepotManagementPage />,
+          },
+          {
+            path: "order-booking-management",
+            element: <OrderManagementPage />,
+          },
+          {
+            path: "carEV-management",
+            element: <CarEVManagementPage />,
           },
         ],
       },
