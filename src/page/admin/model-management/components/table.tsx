@@ -268,6 +268,19 @@ const ModelTable: React.FC = () => {
     },
   ];
 
+  // Define filter options
+  const filterOptions = [
+    {
+      field: "manufacturerCarId" as keyof Model,
+      label: "Nhà sản xuất",
+      type: "select" as const,
+      options: manufacturers.map((manufacturer) => ({
+        value: String(manufacturer.id),
+        label: manufacturer.name,
+      })),
+    },
+  ];
+
   // Define sort options
   const sortOptions = [
     {
@@ -330,6 +343,7 @@ const ModelTable: React.FC = () => {
         }}
         searchField="modelName"
         sortOptions={sortOptions}
+        filterOptions={filterOptions}
       />
     </div>
   );
