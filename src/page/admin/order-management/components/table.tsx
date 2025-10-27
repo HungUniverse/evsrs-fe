@@ -713,6 +713,14 @@ export default function OrderTable() {
                   <Label className="text-sm font-medium">Depot</Label>
                   <p className="text-sm">{selectedOrder.depot?.name || "N/A"}</p>
                 </div>
+                <div>
+                  <Label className="text-sm font-medium">Ngày tạo</Label>
+                  <p className="text-sm">{formatDate(selectedOrder.createdAt)}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Ngày cập nhật</Label>
+                  <p className="text-sm">{formatDate(selectedOrder.updatedAt)}</p>
+                </div>
               </div>
               {selectedOrder.note && (
                 <div>

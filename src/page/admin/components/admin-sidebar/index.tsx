@@ -12,6 +12,7 @@ import {
   Warehouse,
   ListOrdered,
   CarFront,
+  Home,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
@@ -29,6 +30,11 @@ interface NavigationItem {
 }
 
 const navigationItems: NavigationItem[] = [
+  {
+    name: "Dashboard tổng quan",
+    href: "/admin/admin-dashboard",
+    icon: Home,
+  },
   {
     name: "Quản lý hãng xe",
     href: "/admin/car-manufacture-management",

@@ -9,6 +9,7 @@ import {
   DepotManagementPage,
   OrderManagementPage,
   CarEVManagementPage,
+  OverviewDashboardPage,
 } from "@/page/admin/index";
 import {
   AccountProfile,
@@ -117,7 +118,7 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Navigate to="/admin/car-manufacture-management" replace />,
+            element: <Navigate to="/admin/admin-dashboard" replace />,
           },
           {
             path: "renter-management",
@@ -150,6 +151,10 @@ export const router = createBrowserRouter([
           {
             path: "carEV-management",
             element: <CarEVManagementPage />,
+          },
+          {
+            path: "admin-dashboard",
+            element: <OverviewDashboardPage />,
           },
         ],
       },
