@@ -1,6 +1,7 @@
 export type OrderBookingStatus =
   | "PENDING"
   | "CONFIRMED"
+  | "READY_FOR_CHECKOUT"
   | "CHECKED_OUT"
   | "IN_USE"
   | "RETURNED"
