@@ -12,8 +12,8 @@ export interface Model {
   price: number;
   sale: number;
   image: string;
-  electricityFee: number;
-  overageFee: number;
+  electricityFee: string;
+  overageFee: string;
   createdBy: string;
   updatedBy: string | null;
   createdAt: DateString;
@@ -31,5 +31,7 @@ export type ModelRequest = {
   sale: number;
   batteryCapacityKwh: string;
   image: string;
+  electricityFee: string;
+  overageFee: string;
   isDeleted: false;
 };

@@ -1,7 +1,7 @@
 import { api } from "@/lib/axios/axios";
-import type { PaginationResponse } from "@/@types/common/pagination";
 import type { ItemBaseResponse } from "@/@types/response";
 import type { CarEV, CarEVRequest } from "@/@types/car/carEv";
+import type { PaginationResponse } from "@/@types/common/pagination";
 
 export type CarEVListParams = {
   pageNumber?: number;
@@ -16,6 +16,10 @@ export const carEVAPI = {
     api.get<PaginationResponse<CarEV>>("/api/CarEV", { params }),
   getById: async (id: string): Promise<CarEV> => {
     const res = await api.get<ItemBaseResponse<CarEV>>(`/api/CarEV/${id}`);
+    return res.data.data;
+  },
+  getByDepotId: async (depotId: string): Promise<CarEV[]> => {
+    const res = await api.get<ItemBaseResponse<CarEV[]>>(`/api/CarEV/depot/${depotId}`);
     return res.data.data;
   },
   create: async (data: CarEVRequest): Promise<CarEV> => {

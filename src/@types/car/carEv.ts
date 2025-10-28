@@ -5,12 +5,12 @@ import type { Depot } from "./depot";
 
 export interface CarEV {
   id: ID;
-  modelId: ID;
-  licensePlate: string;
   model: Model;
-  depotId: ID;
+  modelId: ID;
   depot: Depot;
-  batteryHealthPercentage: number;
+  depotId: ID;
+  licensePlate: string;
+  batteryHealthPercentage: string;
   status: CarEvStatus; // có thể đổi sang enum
   createdBy: string;
   updatedBy: string | null;

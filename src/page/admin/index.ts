@@ -4,3 +4,6 @@ export { default as CarManufactureManagementPage } from "./car-manufacture-manag
 export { default as StaffManagementPage } from "./staff-management";
 export { default as AmenitiesManagementPage } from "./amenities-management";
 export { default as DepotManagementPage } from "./depot-management";
+export { default as OrderManagementPage } from "./order-management";
+export { default as CarEVManagementPage } from "./car-ev-management";
+export { default as OverviewDashboardPage } from "./overview-dashboard";

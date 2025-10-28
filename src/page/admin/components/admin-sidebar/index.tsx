@@ -10,6 +10,9 @@ import {
   User,
   Building,
   Warehouse,
+  ListOrdered,
+  CarFront,
+  Home,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
@@ -28,8 +31,13 @@ interface NavigationItem {
 
 const navigationItems: NavigationItem[] = [
   {
+    name: "Dashboard tổng quan",
+    href: "/admin/admin-dashboard",
+    icon: Home,
+  },
+  {
     name: "Quản lý hãng xe",
-    href: "/admin/car-manufacture",
+    href: "/admin/car-manufacture-management",
     icon: Factory,
   },
   {
@@ -53,9 +61,19 @@ const navigationItems: NavigationItem[] = [
     icon: Building,
   },
   {
-    name: "Quản lý kho",
+    name: "Quản lý trạm",
     href: "/admin/depot-management",
     icon: Warehouse,
+  },
+  {
+    name: "Quản lý đơn đặt xe",
+    href: "/admin/order-booking-management",
+    icon: ListOrdered,
+  },
+  {
+    name: "Quản lý xe điện",
+    href: "/admin/carEV-management",
+    icon: CarFront,
   }
 ];
 
