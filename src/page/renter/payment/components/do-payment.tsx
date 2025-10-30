@@ -90,31 +90,6 @@ export default function DoPayment() {
       hasAttempted: hasAttemptedCreateRef.current,
     });
 
-    if (!state) {
-      console.log("[DoPayment] No state, skipping order creation");
-      return;
-    }
-    if (orderId) {
-      console.log("[DoPayment] Order already created:", orderId);
-      return;
-    }
-    if (isCreatingOrder) {
-      console.log("[DoPayment] Already creating order");
-      return;
-    }
-    if (hasAttemptedCreateRef.current) {
-      console.log("[DoPayment] Already attempted to create order");
-      return;
-    }
-    if (isLoading) {
-      console.log("[DoPayment] Still loading available cars, waiting...");
-      return;
-    }
-    if (!data) {
-      console.log("[DoPayment] No data yet, waiting...");
-      return;
-    }
-
     console.log("[DoPayment] All conditions met, creating order...");
     hasAttemptedCreateRef.current = true; // Mark as attempted
     createOrder();
@@ -137,7 +112,7 @@ export default function DoPayment() {
 
         if (response.message === SepayOrderStatus.PAID_DEPOSIT) {
           // Payment successful
-
+          toast.success("Thanh toán thành công! Đang chuyển hướng...");
           // Clear localStorage
           localStorage.removeItem("payment_qr_url");
           localStorage.removeItem("payment_order_id");
