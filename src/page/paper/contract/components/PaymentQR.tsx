@@ -35,7 +35,7 @@ export default function PaymentQR({ orderId }: PaymentQRProps) {
           setOpen(false);
 
           setTimeout(() => {
-            navigate("/account/my-trip");
+            navigate(`/account/my-trip/${orderId}`);
           }, 1500);
         }
       } catch (error) {
