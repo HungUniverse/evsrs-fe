@@ -1,8 +1,10 @@
-import { useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { vnd } from "@/lib/utils/currency";
 import { orderBookingAPI } from "@/apis/order-booking.api";
+import { checkSepayOrderStatus } from "@/apis/sepay.api";
+import { SepayOrderStatus } from "@/@types/payment/sepay";
 import type { OrderBookingRequest } from "@/@types/order/order-booking";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import type { Model } from "@/@types/car/model";
@@ -41,10 +43,13 @@ function stripDownloadParam(url: string) {
 export default function DoPayment() {
   const { state } = useLocation() as { state?: PaymentState };
   const { user, isAuthenticated } = useAuthStore();
+  const navigate = useNavigate();
 
-  const [isPosting, setIsPosting] = useState(false);
   const [qrUrl, setQrUrl] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const hasAttemptedCreateRef = useRef(false); // Prevent double creation
 
   const { data, isLoading } = useAvailableCarEVs({
     modelId: state?.model?.id,
@@ -53,22 +58,169 @@ export default function DoPayment() {
 
   const amount = state?.amount ?? 0;
 
-  async function handleCreateOrder() {
-    if (!state) return toast.error("Thiếu dữ liệu thanh toán.");
-    if (!isAuthenticated)
-      return toast.error("Bạn cần đăng nhập trước khi thanh toán.");
-    if (isLoading) return toast.message("Đang tải xe khả dụng...");
+  // Debug logs
+  useEffect(() => {
+    console.log("[DoPayment] Available cars data:", data);
+    console.log("[DoPayment] Is loading:", isLoading);
+    console.log("[DoPayment] State:", state);
+  }, [data, isLoading, state]);
+
+  // Load saved QR and orderId from localStorage on mount
+  useEffect(() => {
+    const savedQr = localStorage.getItem("payment_qr_url");
+    const savedOrderId = localStorage.getItem("payment_order_id");
+
+    console.log("[DoPayment] Load from localStorage:", {
+      savedQr,
+      savedOrderId,
+    });
+
+    if (savedQr) setQrUrl(savedQr);
+    if (savedOrderId) setOrderId(savedOrderId);
+  }, []);
+
+  // Create order automatically when component mounts and data is ready
+  useEffect(() => {
+    console.log("[DoPayment] Create order check:", {
+      hasState: !!state,
+      hasOrderId: !!orderId,
+      isCreating: isCreatingOrder,
+      isLoadingCars: isLoading,
+      hasData: !!data,
+      hasAttempted: hasAttemptedCreateRef.current,
+    });
+
+    if (!state) {
+      console.log("[DoPayment] No state, skipping order creation");
+      return;
+    }
+    if (orderId) {
+      console.log("[DoPayment] Order already created:", orderId);
+      return;
+    }
+    if (isCreatingOrder) {
+      console.log("[DoPayment] Already creating order");
+      return;
+    }
+    if (hasAttemptedCreateRef.current) {
+      console.log("[DoPayment] Already attempted to create order");
+      return;
+    }
+    if (isLoading) {
+      console.log("[DoPayment] Still loading available cars, waiting...");
+      return;
+    }
+    if (!data) {
+      console.log("[DoPayment] No data yet, waiting...");
+      return;
+    }
+
+    console.log("[DoPayment] All conditions met, creating order...");
+    hasAttemptedCreateRef.current = true; // Mark as attempted
+    createOrder();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state, orderId, isCreatingOrder, isLoading, data]);
+
+  // Poll Sepay status every 5 seconds when orderId exists
+  useEffect(() => {
+    if (!orderId || state?.paymentMethod !== "BANKING") {
+      console.log("[DoPayment][Polling] Not starting poll:", {
+        orderId,
+        paymentMethod: state?.paymentMethod,
+      });
+      return;
+    }
+
+    console.log("[DoPayment][Polling] Starting poll for orderId:", orderId);
+
+    const pollStatus = async () => {
+      try {
+        console.log("[DoPayment][Polling] Checking status...");
+        const response = await checkSepayOrderStatus(orderId);
+        console.log("[DoPayment][Polling] Response:", response);
+
+        if (response.message === SepayOrderStatus.PAID_DEPOSIT) {
+          // Payment successful
+          console.log("[DoPayment][Polling] Payment completed!");
+          toast.success("Thanh toán thành công! Đang chuyển hướng...");
+
+          // Clear localStorage
+          localStorage.removeItem("payment_qr_url");
+          localStorage.removeItem("payment_order_id");
+
+          // Stop polling
+          if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current);
+          }
+
+          // Navigate to my trips
+          setTimeout(() => {
+            navigate("/account/my-trip");
+          }, 5500);
+        }
+      } catch (error) {
+        console.error("[Sepay][Poll][Error]", error);
+      }
+    };
+
+    // Start polling
+    pollingIntervalRef.current = setInterval(pollStatus, 5000);
+
+    // Also check immediately
+    pollStatus();
+
+    // Cleanup on unmount
+    return () => {
+      if (pollingIntervalRef.current) {
+        console.log("[DoPayment][Polling] Cleanup interval");
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, [orderId, state?.paymentMethod, navigate]);
+
+  async function createOrder() {
+    console.log("[DoPayment][createOrder] Starting...");
+
+    if (!state) {
+      console.log("[DoPayment][createOrder] No state");
+      toast.error("Thiếu dữ liệu thanh toán.");
+      return;
+    }
+    if (!isAuthenticated) {
+      console.log("[DoPayment][createOrder] Not authenticated");
+      toast.error("Bạn cần đăng nhập trước khi thanh toán.");
+      return;
+    }
+    if (isLoading) {
+      console.log("[DoPayment][createOrder] Still loading cars");
+      toast.message("Đang tải xe khả dụng...");
+      return;
+    }
 
     const rawCandidates = data?.available ?? [];
+    console.log("[DoPayment][createOrder] Raw candidates:", rawCandidates);
+
     const candidates = rawCandidates.filter(
       (c) => (c?.modelId ?? c?.model?.id) === state?.model?.id
     );
+
+    console.log("[DoPayment][createOrder] Filtered candidates:", candidates);
+    console.log(
+      "[DoPayment][createOrder] Looking for modelId:",
+      state?.model?.id
+    );
+
     if (!candidates.length) {
-      return toast.error("Không còn xe khả dụng tại trạm này.");
+      console.log("[DoPayment][createOrder] No candidates found!");
+      toast.error("Không còn xe khả dụng tại trạm này.");
+      return;
     }
 
     const chosen = candidates[0];
-    setIsPosting(true);
+    console.log("[DoPayment][createOrder] Chosen car:", chosen);
+
+    setIsCreatingOrder(true);
+
     try {
       const body: OrderBookingRequest = {
         carEVDetailId: chosen.id as string,
@@ -85,17 +237,32 @@ export default function DoPayment() {
         customerAddress: "",
       };
 
+      console.log("[DoPayment][createOrder] Request body:", body);
+
       const res = await orderBookingAPI.create(body);
+      console.log("[DoPayment][createOrder] Response:", res);
+
       const { qrUrl, orderBooking } = res.data.data;
+      const cleanQrUrl = stripDownloadParam(qrUrl);
+
+      console.log("[DoPayment][createOrder] QR URL:", cleanQrUrl);
+      console.log("[DoPayment][createOrder] Order ID:", orderBooking.id);
 
       setOrderId(orderBooking.id);
-      setQrUrl(stripDownloadParam(qrUrl));
-      toast.success("Tạo đơn thành công. Vui lòng quét mã để đặt cọc.");
+      setQrUrl(cleanQrUrl);
+
+      // Save to localStorage to persist on F5
+      localStorage.setItem("payment_qr_url", cleanQrUrl);
+      localStorage.setItem("payment_order_id", orderBooking.id);
+
+      toast.success("Tạo đơn thành công. Vui lòng quét mã để thanh toán.");
     } catch (e) {
       console.error("[OrderBooking][POST][error]", e);
       toast.error("Không thể khởi tạo thanh toán. Vui lòng thử lại.");
+      // Reset flag on error so user can retry
+      hasAttemptedCreateRef.current = false;
     } finally {
-      setIsPosting(false);
+      setIsCreatingOrder(false);
     }
   }
 
@@ -132,13 +299,11 @@ export default function DoPayment() {
                 )}
               </div>
 
-              <button
-                className="mt-2 inline-flex items-center justify-center rounded-md border px-4 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-60"
-                onClick={handleCreateOrder}
-                disabled={isPosting || isLoading}
-              >
-                {isPosting ? "Đang tạo đơn..." : "Tạo mã QR & đặt cọc"}
-              </button>
+              {isCreatingOrder && (
+                <div className="mt-2 text-sm text-blue-600">
+                  Đang tạo đơn hàng và mã QR...
+                </div>
+              )}
             </div>
           </div>
 
@@ -155,9 +320,11 @@ export default function DoPayment() {
               />
             ) : (
               <div className="w-72 h-72 flex items-center justify-center text-sm text-gray-500">
-                {isLoading
-                  ? "Đang tải xe khả dụng..."
-                  : 'Bấm "Tạo mã QR & đặt cọc" để hiển thị mã.'}
+                {isCreatingOrder
+                  ? "Đang tạo mã QR..."
+                  : isLoading
+                    ? "Đang tải xe khả dụng..."
+                    : "Đang khởi tạo mã QR..."}
               </div>
             )}
           </div>

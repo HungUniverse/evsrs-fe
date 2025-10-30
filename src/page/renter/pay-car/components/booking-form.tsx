@@ -12,6 +12,7 @@ import AddressSelect from "./address-section";
 import UserInfo from "./user-info";
 import PaymentSection from "./payment-section";
 import { useBookingCalc } from "@/hooks/use-booking-car-cal";
+import { useAvailableCarEVs } from "@/hooks/use-available-car";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { vnd } from "@/lib/utils/currency";
@@ -37,9 +38,26 @@ export default function BookingForm({ car, searchForm }: Props) {
     car.sale
   );
   const navigate = useNavigate();
+
+  // Prefetch available cars when depot is selected
+  const { data: availableCars, isLoading: isLoadingCars } = useAvailableCarEVs({
+    modelId: car.id,
+    depotId: selectedDepotId,
+  });
+
+  // Debug log when depot changes
+  useEffect(() => {
+    if (selectedDepotId) {
+      console.log("[BookingForm] Selected depot:", selectedDepotId);
+      console.log("[BookingForm] Loading cars:", isLoadingCars);
+      console.log("[BookingForm] Available cars:", availableCars);
+    }
+  }, [selectedDepotId, isLoadingCars, availableCars]);
+
   useEffect(() => {
     setSelectedDepotId("");
   }, [car.id, searchForm.location]);
+
   const canSubmit = useMemo(
     () => !!selectedDepotId && !!paymentMethod && !isSubmitting,
     [selectedDepotId, paymentMethod, isSubmitting]
@@ -48,9 +66,37 @@ export default function BookingForm({ car, searchForm }: Props) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmit) return;
+
+    // Check if cars are still loading
+    if (isLoadingCars) {
+      toast.message("Đang tải xe khả dụng, vui lòng đợi...");
+      return;
+    }
+
+    // Check if there are available cars
+    const rawCandidates = availableCars?.available ?? [];
+    const candidates = rawCandidates.filter(
+      (c) => (c?.modelId ?? c?.model?.id) === car.id
+    );
+
+    console.log("[BookingForm] Submit check:", {
+      rawCandidates,
+      candidates,
+      modelId: car.id,
+    });
+
+    if (!candidates.length) {
+      toast.error(
+        "Không còn xe khả dụng tại trạm này. Vui lòng chọn trạm khác."
+      );
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
+      // Navigate to payment page with booking data
+      // The actual order creation will happen in payment page
       navigate("/payment", {
         state: {
           amount: deposit,
@@ -64,7 +110,6 @@ export default function BookingForm({ car, searchForm }: Props) {
     } catch (error) {
       console.error("Booking error:", error);
       toast.error("Có lỗi xảy ra khi đặt xe. Vui lòng thử lại.");
-    } finally {
       setIsSubmitting(false);
     }
   };
