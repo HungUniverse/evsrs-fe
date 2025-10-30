@@ -131,29 +131,21 @@ export default function DoPayment() {
       return;
     }
 
-    console.log("[DoPayment][Polling] Starting poll for orderId:", orderId);
-
     const pollStatus = async () => {
       try {
-        console.log("[DoPayment][Polling] Checking status...");
         const response = await checkSepayOrderStatus(orderId);
-        console.log("[DoPayment][Polling] Response:", response);
 
         if (response.message === SepayOrderStatus.PAID_DEPOSIT) {
           // Payment successful
-          console.log("[DoPayment][Polling] Payment completed!");
-          toast.success("Thanh toán thành công! Đang chuyển hướng...");
 
           // Clear localStorage
           localStorage.removeItem("payment_qr_url");
           localStorage.removeItem("payment_order_id");
 
-          // Stop polling
           if (pollingIntervalRef.current) {
             clearInterval(pollingIntervalRef.current);
           }
 
-          // Navigate to my trips
           setTimeout(() => {
             navigate("/account/my-trip");
           }, 5500);
@@ -163,13 +155,10 @@ export default function DoPayment() {
       }
     };
 
-    // Start polling
     pollingIntervalRef.current = setInterval(pollStatus, 5000);
 
-    // Also check immediately
     pollStatus();
 
-    // Cleanup on unmount
     return () => {
       if (pollingIntervalRef.current) {
         console.log("[DoPayment][Polling] Cleanup interval");
@@ -187,8 +176,6 @@ export default function DoPayment() {
       return;
     }
     if (!isAuthenticated) {
-      console.log("[DoPayment][createOrder] Not authenticated");
-      toast.error("Bạn cần đăng nhập trước khi thanh toán.");
       return;
     }
     if (isLoading) {
@@ -237,21 +224,14 @@ export default function DoPayment() {
         customerAddress: "",
       };
 
-      console.log("[DoPayment][createOrder] Request body:", body);
-
       const res = await orderBookingAPI.create(body);
-      console.log("[DoPayment][createOrder] Response:", res);
 
       const { qrUrl, orderBooking } = res.data.data;
       const cleanQrUrl = stripDownloadParam(qrUrl);
 
-      console.log("[DoPayment][createOrder] QR URL:", cleanQrUrl);
-      console.log("[DoPayment][createOrder] Order ID:", orderBooking.id);
-
       setOrderId(orderBooking.id);
       setQrUrl(cleanQrUrl);
 
-      // Save to localStorage to persist on F5
       localStorage.setItem("payment_qr_url", cleanQrUrl);
       localStorage.setItem("payment_order_id", orderBooking.id);
 
@@ -291,12 +271,7 @@ export default function DoPayment() {
                       : "Tiền mặt"}
                   </div>
                 </div>
-                {orderId && (
-                  <div>
-                    <div className="text-gray-600">Mã đơn hệ thống</div>
-                    <div className="font-mono">{orderId}</div>
-                  </div>
-                )}
+                {orderId}
               </div>
 
               {isCreatingOrder && (

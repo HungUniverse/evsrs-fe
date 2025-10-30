@@ -13,6 +13,7 @@ import {
 } from "@/page/admin/index";
 import {
   AccountProfile,
+  AccountTransactions,
   AccountTrips,
   BookCar,
   ChangePassword,
@@ -104,6 +105,7 @@ export const router = createBrowserRouter([
               },
             ],
           },
+          { path: "transactions", element: <AccountTransactions /> },
           { path: "change-password", element: <ChangePassword /> },
         ],
       },

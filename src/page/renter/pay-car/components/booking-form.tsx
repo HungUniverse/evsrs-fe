@@ -23,9 +23,10 @@ import type { Model } from "@/@types/car/model";
 type Props = {
   car: Model;
   searchForm: { location: string; start: string; end: string };
+  onTimeChange?: (start: string, end: string) => void;
 };
 
-export default function BookingForm({ car, searchForm }: Props) {
+export default function BookingForm({ car, searchForm, onTimeChange }: Props) {
   const [selectedDepotId, setSelectedDepotId] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
@@ -205,6 +206,7 @@ export default function BookingForm({ car, searchForm }: Props) {
               car={car}
               searchForm={searchForm}
               depotId={selectedDepotId}
+              onTimeChange={onTimeChange}
             />
           </div>
         </div>
