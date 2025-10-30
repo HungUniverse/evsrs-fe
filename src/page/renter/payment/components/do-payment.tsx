@@ -271,7 +271,6 @@ export default function DoPayment() {
                       : "Tiền mặt"}
                   </div>
                 </div>
-                {orderId}
               </div>
 
               {isCreatingOrder && (
