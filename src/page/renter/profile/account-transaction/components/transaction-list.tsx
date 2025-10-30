@@ -1,6 +1,5 @@
 import type { TransactionResponse } from "@/@types/payment/transaction";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -95,19 +94,7 @@ export default function TransactionList({ transactions, loading }: Props) {
                     <h3 className="font-semibold text-gray-900">
                       {transaction.code}
                     </h3>
-                    <Badge
-                      variant={isIncoming ? "default" : "secondary"}
-                      className={
-                        isIncoming
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                      }
-                    >
-                      {isIncoming ? "Tiền vào" : "Tiền ra"}
-                    </Badge>
                   </div>
-
-                  <p className="text-sm text-gray-600">{transaction.content}</p>
 
                   <div className="flex items-center gap-4 text-xs text-gray-500">
                     <span className="flex items-center gap-1">

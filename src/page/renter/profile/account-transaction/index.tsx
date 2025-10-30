@@ -21,7 +21,6 @@ export default function AccountTransactions() {
   >([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch all transactions on mount
   useEffect(() => {
     if (!user?.userId) return;
 
@@ -29,9 +28,7 @@ export default function AccountTransactions() {
       setLoading(true);
       try {
         const response = await getTransactionsByUserId(user.userId!);
-        console.log("Transaction API response:", response);
 
-        // Handle both array and object responses
         let data: TransactionResponse[] = [];
         if (Array.isArray(response)) {
           data = response;
@@ -39,13 +36,11 @@ export default function AccountTransactions() {
           const responseData = (
             response as { data?: TransactionResponse | TransactionResponse[] }
           ).data;
-          // If data is a single object, wrap it in an array
           if (responseData) {
             data = Array.isArray(responseData) ? responseData : [responseData];
           }
         }
 
-        console.log("Processed transactions:", data);
         setAllTransactions(data);
         setFilteredTransactions(data);
       } catch (error) {
@@ -113,7 +108,6 @@ export default function AccountTransactions() {
 
         <TransactionFilter value={filter} onChange={setFilter} />
 
-        {/* Transaction List */}
         <TransactionList
           transactions={filteredTransactions}
           loading={loading}

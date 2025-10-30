@@ -41,7 +41,7 @@ export default function ShowTrip({ data, onClickCode, onClickUser }: Props) {
 
         {data.map((booking) => {
           const modelName = booking.carEvs?.model?.modelName || "—";
-          const userName = booking.user?.userName || "—";
+          const userName = booking.user?.fullName || "—";
           const depotName = booking.depot?.name || "—";
           const depotAddress = booking.depot
             ? `${booking.depot.street}, ${booking.depot.ward}, ${booking.depot.district}, ${booking.depot.province}`
