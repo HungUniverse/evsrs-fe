@@ -16,7 +16,14 @@ export default function PayCar() {
   };
 
   const [model, setModel] = useState<Model | null>(state?.model ?? null);
-  const searchForm = state?.searchForm;
+  const [searchForm, setSearchForm] = useState(state?.searchForm);
+
+  const handleTimeChange = (start: string, end: string) => {
+    setSearchForm((prev) => {
+      if (!prev) return prev;
+      return { ...prev, start, end };
+    });
+  };
 
   useEffect(() => {
     if (model || !id) return;
@@ -71,7 +78,11 @@ export default function PayCar() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <BookingForm car={model} searchForm={searchForm} />
+      <BookingForm
+        car={model}
+        searchForm={searchForm}
+        onTimeChange={handleTimeChange}
+      />
       <Footer />
     </div>
   );

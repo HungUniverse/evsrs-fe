@@ -1,7 +1,17 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useBookingCalc } from "@/hooks/use-booking-car-cal";
 import { vnd } from "@/lib/utils/currency";
 import type { Model } from "@/@types/car/model";
+import { Button } from "@/components/ui/button";
+import { Clock } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type DepotLite = {
   id: string;
@@ -16,6 +26,7 @@ type Props = {
   searchForm: { location: string; start: string; end: string };
   depotId?: string;
   depots?: DepotLite[];
+  onTimeChange?: (start: string, end: string) => void;
 };
 
 export default function PaymentSection({
@@ -23,7 +34,12 @@ export default function PaymentSection({
   searchForm,
   depotId,
   depots,
+  onTimeChange,
 }: Props) {
+  const [isEditingTime, setIsEditingTime] = useState(false);
+  const [tempStart, setTempStart] = useState(searchForm.start);
+  const [tempEnd, setTempEnd] = useState(searchForm.end);
+
   const { days, baseTotal, deposit, salePrice } = useBookingCalc(
     car.price,
     searchForm.start,
@@ -35,6 +51,19 @@ export default function PaymentSection({
     () => (depots ?? []).find((d) => d.id === depotId),
     [depots, depotId]
   );
+
+  const handleSaveTime = () => {
+    if (onTimeChange) {
+      onTimeChange(tempStart, tempEnd);
+    }
+    setIsEditingTime(false);
+  };
+
+  const handleOpenEdit = () => {
+    setTempStart(searchForm.start);
+    setTempEnd(searchForm.end);
+    setIsEditingTime(true);
+  };
 
   return (
     <div className="space-y-6">
@@ -52,8 +81,19 @@ export default function PaymentSection({
       </div>
 
       <div className="bg-white rounded-lg border p-4 space-y-2">
-        <div className="font-medium text-gray-900">
-          {depot?.province || searchForm.location}
+        <div className="flex items-center justify-between">
+          <div className="font-medium text-gray-900">
+            {depot?.province || searchForm.location}
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleOpenEdit}
+            className="text-emerald-600 hover:text-emerald-700"
+          >
+            <Clock className="h-4 w-4 mr-1" />
+            Sửa thời gian
+          </Button>
         </div>
         <div className="text-sm text-gray-600">
           {days} ngày •{" "}
@@ -122,6 +162,61 @@ export default function PaymentSection({
 
         <p className="text-xs text-gray-400">*Giá thuê xe đã bao gồm VAT.</p>
       </div>
+
+      {/* Edit Time Dialog */}
+      <Dialog open={isEditingTime} onOpenChange={setIsEditingTime}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Chỉnh sửa thời gian thuê xe</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="start-time">Thời gian bắt đầu</Label>
+              <Input
+                id="start-time"
+                type="datetime-local"
+                value={tempStart}
+                onChange={(e) => setTempStart(e.target.value)}
+                className="w-full"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="end-time">Thời gian kết thúc</Label>
+              <Input
+                id="end-time"
+                type="datetime-local"
+                value={tempEnd}
+                onChange={(e) => setTempEnd(e.target.value)}
+                className="w-full"
+              />
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-sm text-blue-800">
+                💡 Thời gian thuê tối thiểu là 1 ngày
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setIsEditingTime(false)}
+              className="flex-1"
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={handleSaveTime}
+              className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+            >
+              Lưu thay đổi
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
