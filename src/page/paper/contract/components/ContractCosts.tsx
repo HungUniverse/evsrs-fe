@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState, useMemo } from "react";
 import { api } from "@/lib/axios/axios";
 import type { ItemBaseResponse } from "@/@types/response";

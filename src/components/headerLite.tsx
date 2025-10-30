@@ -30,7 +30,6 @@ export default function HeaderLite() {
       const userId = user?.userId || user?.id;
 
       if (!userId) {
-        console.log("[HeaderLite] No user ID found, skipping avatar fetch");
         setAvatarUrl("");
         return;
       }
@@ -51,7 +50,6 @@ export default function HeaderLite() {
   const handleLogout = async () => {
     try {
       const { refreshToken } = useAuthStore.getState();
-      console.log("refreshToken =", refreshToken);
 
       await authAPI.logout({ refreshToken: refreshToken ?? "" });
 
