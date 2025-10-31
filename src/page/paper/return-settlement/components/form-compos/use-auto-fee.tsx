@@ -15,6 +15,9 @@ export type AutoFeeParams = {
   startAt?: string | null;
   endAt?: string | null;
   ratePerKm?: number;
+  batteryCapacityKwh?: string | number | null;
+  batteryHealthPercentage?: string | number | null;
+  electricityFee?: string | number | null;
 };
 
 export function useAutoFees(p: AutoFeeParams) {
@@ -27,6 +30,9 @@ export function useAutoFees(p: AutoFeeParams) {
     startAt,
     endAt,
     ratePerKm,
+    batteryCapacityKwh,
+    batteryHealthPercentage,
+    electricityFee,
   } = p;
 
   const { days } = useBookingCalc(
@@ -50,6 +56,12 @@ export function useAutoFees(p: AutoFeeParams) {
 
     const overKmFee = Math.max(0, exceededKm) * (ratePerKm ?? 0);
 
+    // Phí pin: batteryCapacity × batteryHealth% × pinChenhLech × giá điện
+    const capacity = toNum(batteryCapacityKwh);
+    const healthPercent = toNum(batteryHealthPercentage) / 100; // Convert % to decimal
+    const elecFee = toNum(electricityFee);
+    const batteryFee = capacity * healthPercent * Math.abs(batDiff) * elecFee;
+
     return {
       days,
       odoDiff,
@@ -57,7 +69,8 @@ export function useAutoFees(p: AutoFeeParams) {
       permittedKm,
       exceededKm,
       overKmFee,
-      autoFeesTotal: overKmFee,
+      batteryFee,
+      autoFeesTotal: overKmFee + batteryFee,
       ratePerKm,
       daily,
     };
@@ -69,6 +82,9 @@ export function useAutoFees(p: AutoFeeParams) {
     limitDailyKm,
     days,
     ratePerKm,
+    batteryCapacityKwh,
+    batteryHealthPercentage,
+    electricityFee,
   ]);
 
   return calc;
