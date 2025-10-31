@@ -21,3 +21,12 @@ export const SepayOrderStatus = {
 
 export type SepayOrderStatusType =
   (typeof SepayOrderStatus)[keyof typeof SepayOrderStatus];
+export interface SepayCreateRemainQR {
+  data: {
+    qrUrl: string;
+    orderbookingId: string;
+  };
+  message: string;
+  statusCode: number;
+  code: string;
+}
