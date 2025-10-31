@@ -81,20 +81,43 @@ export default function DoPayment() {
 
   // Create order automatically when component mounts and data is ready
   useEffect(() => {
-    console.log("[DoPayment] Create order check:", {
-      hasState: !!state,
-      hasOrderId: !!orderId,
-      isCreating: isCreatingOrder,
-      isLoadingCars: isLoading,
-      hasData: !!data,
-      hasAttempted: hasAttemptedCreateRef.current,
-    });
+    // Prevent double creation
+    if (hasAttemptedCreateRef.current) {
+      console.log("[DoPayment] Already attempted to create order, skipping");
+      return;
+    }
+
+    // Only create if we don't already have an orderId
+    if (orderId) {
+      console.log("[DoPayment] Already have orderId, skipping creation");
+      return;
+    }
+
+    if (!state) {
+      console.log("[DoPayment] No state available");
+      return;
+    }
+
+    if (isCreatingOrder) {
+      console.log("[DoPayment] Already creating order");
+      return;
+    }
+
+    if (isLoading) {
+      console.log("[DoPayment] Still loading car data");
+      return;
+    }
+
+    if (!data) {
+      console.log("[DoPayment] No car data available");
+      return;
+    }
 
     console.log("[DoPayment] All conditions met, creating order...");
-    hasAttemptedCreateRef.current = true; // Mark as attempted
+    hasAttemptedCreateRef.current = true; // Mark as attempted BEFORE calling
     createOrder();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state, orderId, isCreatingOrder, isLoading, data]);
+  }, [isLoading, data]); // Only re-run when loading state or data changes
 
   // Poll Sepay status every 5 seconds when orderId exists
   useEffect(() => {
