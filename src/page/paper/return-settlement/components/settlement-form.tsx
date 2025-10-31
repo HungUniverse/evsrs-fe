@@ -22,22 +22,26 @@ function toNum(v: string | number | null | undefined) {
 
 type Props = {
   staffDisplay: string;
-  defaultSubtotal: string;
   limitDailyKm?: number | string | null;
   overageFee?: number;
   startAt?: string | null;
   endAt?: string | null;
+  batteryCapacityKwh?: string | number | null;
+  batteryHealthPercentage?: string | number | null;
+  electricityFee?: string | number | null;
   loading?: boolean;
   onSubmit: (payload: ReturnSettlementRequest) => Promise<void> | void;
 };
 
 export default function SettlementForm({
   staffDisplay,
-  defaultSubtotal,
   limitDailyKm,
   overageFee,
   startAt,
   endAt,
+  batteryCapacityKwh,
+  batteryHealthPercentage,
+  electricityFee,
   loading,
   onSubmit,
 }: Props) {
@@ -75,8 +79,6 @@ export default function SettlementForm({
     })();
   }, [orderId]);
 
-  const baseSubtotal = useMemo(() => toNum(defaultSubtotal), [defaultSubtotal]);
-
   const auto = useAutoFees({
     odoReceive: handover?.odometer,
     batReceive: handover?.batteryPercent,
@@ -86,13 +88,16 @@ export default function SettlementForm({
     startAt,
     endAt,
     ratePerKm: overageFee,
+    batteryCapacityKwh,
+    batteryHealthPercentage,
+    electricityFee,
   });
 
   const itemsTotal = useMemo(
     () => items.reduce((s, it) => s + toNum(it.amount), 0),
     [items]
   );
-  const subtotal = baseSubtotal + auto.autoFeesTotal + itemsTotal;
+  const subtotal = auto.autoFeesTotal + itemsTotal;
 
   async function handleSubmit() {
     const payload: ReturnSettlementRequest = {
@@ -146,11 +151,12 @@ export default function SettlementForm({
 
         <FeesSummary
           staffDisplay={staffDisplay}
-          baseSubtotal={baseSubtotal}
           itemsTotal={itemsTotal}
           overKmFee={auto.overKmFee}
           exceededKm={auto.exceededKm}
           ratePerKm={auto.ratePerKm}
+          batteryFee={auto.batteryFee}
+          batDiff={auto.batDiff}
           subtotal={subtotal}
         />
       </div>

@@ -1,21 +1,23 @@
 type Props = {
   staffDisplay: string;
-  baseSubtotal: number;
   itemsTotal: number;
   overKmFee: number;
   exceededKm: number;
   ratePerKm?: number;
+  batteryFee: number;
+  batDiff: number;
   subtotal: number;
 };
 
 export default function FeesSummary(p: Props) {
   const {
     staffDisplay,
-    baseSubtotal,
     itemsTotal,
     overKmFee,
     exceededKm,
     ratePerKm,
+    batteryFee,
+    batDiff,
     subtotal,
   } = p;
 
@@ -24,11 +26,6 @@ export default function FeesSummary(p: Props) {
       <div className="font-medium">Tổng kết</div>
       <div className="text-sm text-slate-600">
         Nhân viên: <b>{staffDisplay}</b>
-      </div>
-
-      <div className="text-sm">
-        Subtotal gốc (còn lại từ đơn):{" "}
-        <b>{baseSubtotal.toLocaleString("vi-VN")}</b>
       </div>
 
       <div className="text-sm">
@@ -43,12 +40,24 @@ export default function FeesSummary(p: Props) {
       </div>
 
       <div className="text-sm">
-        Phát sinh khác: <b>{itemsTotal.toLocaleString("vi-VN")}</b>
+        Phí pin: <b>{batteryFee.toLocaleString("vi-VN")}</b>
+        {batDiff > 0 && (
+          <span className="text-slate-500">
+            {" "}
+            ({batDiff.toFixed(2)}% chênh lệch)
+          </span>
+        )}
       </div>
 
       <div className="text-sm">
-        <span className="font-medium">Subtotal mới:</span>{" "}
-        <b>{subtotal.toLocaleString("vi-VN")}</b>
+        Phát sinh khác: <b>{itemsTotal.toLocaleString("vi-VN")}</b>
+      </div>
+
+      <div className="text-sm border-t pt-2 mt-2">
+        <span className="font-medium">Tổng thanh toán:</span>{" "}
+        <b className="text-emerald-600 text-lg">
+          {subtotal.toLocaleString("vi-VN")}
+        </b>
       </div>
     </div>
   );

@@ -18,11 +18,6 @@ import SettlementForm from "./components/settlement-form";
 import CarInfo from "../customer-settlement/components/car-info";
 import InspectionImages from "./components/inspection-image";
 
-function toNum(v: string | number | null | undefined) {
-  const n = Number(String(v ?? "0").replace(/[^\d.-]/g, ""));
-  return Number.isFinite(n) ? n : 0;
-}
-
 export default function ReturnSettlementPage() {
   const { orderId } = useParams<{ orderId: string }>();
   const { user } = useAuthStore();
@@ -118,11 +113,8 @@ export default function ReturnSettlementPage() {
     },
     [createSettlement]
   );
-
-  const defaultSubtotal = String(
-    toNum(order?.totalAmount ?? order?.remainingAmount ?? "0")
-  );
-
+  const batteryHealthPercentage =
+    Number(order?.carEvs?.batteryHealthPercentage) / 100;
   // ---- UI
   if (loading) {
     return (
@@ -192,7 +184,6 @@ export default function ReturnSettlementPage() {
         ) : (
           <SettlementForm
             staffDisplay={user?.name || user?.userName || user?.userId || ""}
-            defaultSubtotal={defaultSubtotal}
             limitDailyKm={
               order?.carEvs?.model?.limiteDailyKm ??
               order?.carEvs?.model?.limiteDailyKm ??
@@ -202,6 +193,9 @@ export default function ReturnSettlementPage() {
             overageFee={Number(order?.carEvs.model.overageFee)}
             startAt={order?.startAt ?? null}
             endAt={order?.endAt ?? null}
+            batteryCapacityKwh={order?.carEvs?.model?.batteryCapacityKwh}
+            batteryHealthPercentage={batteryHealthPercentage}
+            electricityFee={order?.carEvs?.model?.electricityFee}
             loading={creating}
             onSubmit={handleCreate}
           />
