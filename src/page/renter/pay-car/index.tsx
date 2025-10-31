@@ -35,7 +35,8 @@ export default function PayCar() {
         setModel(null);
       }
     })();
-  }, [id, model]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]); // Only depend on id to prevent infinite loop
 
   if (!model) {
     return (
