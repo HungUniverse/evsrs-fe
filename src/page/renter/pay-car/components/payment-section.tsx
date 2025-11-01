@@ -40,7 +40,7 @@ export default function PaymentSection({
   const [tempStart, setTempStart] = useState(searchForm.start);
   const [tempEnd, setTempEnd] = useState(searchForm.end);
 
-  const { days, baseTotal, deposit, salePrice } = useBookingCalc(
+  const { days, hours, baseTotal, deposit, salePrice } = useBookingCalc(
     car.price,
     searchForm.start,
     searchForm.end,
@@ -80,11 +80,9 @@ export default function PaymentSection({
         )}
       </div>
 
-      <div className="bg-white rounded-lg border p-4 space-y-2">
+      <div className="bg-white rounded-lg border p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <div className="font-medium text-gray-900">
-            {depot?.province || searchForm.location}
-          </div>
+          <h3 className="font-semibold text-gray-900">Thời gian thuê</h3>
           <Button
             variant="ghost"
             size="sm"
@@ -95,29 +93,82 @@ export default function PaymentSection({
             Sửa thời gian
           </Button>
         </div>
-        <div className="text-sm text-gray-600">
-          {days} ngày •{" "}
-          {new Date(searchForm.start).toLocaleString("vi-VN", {
-            hour: "2-digit",
-            minute: "2-digit",
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-          })}
-          {" → "}
-          {new Date(searchForm.end).toLocaleString("vi-VN", {
-            hour: "2-digit",
-            minute: "2-digit",
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-          })}
+
+        <div className="space-y-2 text-sm">
+          <div className="flex items-start justify-between">
+            <span className="text-gray-600">Bắt đầu:</span>
+            <span className="text-gray-900 font-medium text-right">
+              {new Date(searchForm.start).toLocaleString("vi-VN", {
+                hour: "2-digit",
+                minute: "2-digit",
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              })}
+            </span>
+          </div>
+
+          <div className="flex items-start justify-between">
+            <span className="text-gray-600">Kết thúc:</span>
+            <span className="text-gray-900 font-medium text-right">
+              {new Date(searchForm.end).toLocaleString("vi-VN", {
+                hour: "2-digit",
+                minute: "2-digit",
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              })}
+            </span>
+          </div>
+
+          <div className="flex items-start justify-between border-t pt-2">
+            <span className="text-gray-600">Tổng thời lượng:</span>
+            <span className="text-gray-900 font-medium text-right">
+              {days} ngày
+            </span>
+          </div>
         </div>
+
         {depot && (
-          <div className="text-sm text-gray-700 mt-2">
+          <div className="text-sm text-gray-700 mt-2 pt-2 border-t">
+            <span className="text-gray-600">Nơi nhận xe: </span>
             {depot.name} — {depot.street}, {depot.district}
           </div>
         )}
+      </div>
+
+      <div className="bg-white rounded-lg border p-4 space-y-3">
+        <h3 className="font-semibold text-gray-900">Bảng giá áp dụng</h3>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">Giá thuê theo ngày</span>
+            <span className="text-sm">
+              {car.sale && car.sale > 0 ? (
+                <div className="text-sm">
+                  <span className="line-through text-gray-400 mr-2">
+                    {vnd(car.price)}đ/ngày
+                  </span>
+                  <span className="text-red-600 font-medium">
+                    {vnd(salePrice)}đ/ngày (-{car.sale}%)
+                  </span>
+                </div>
+              ) : (
+                <span className="text-sm">{vnd(car.price)}đ/ngày</span>
+              )}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">
+              Giá được quy đổi tự động theo số giờ chênh lệch (1 ngày = 24 giờ).
+            </span>
+          </div>
+
+          <div className="text-xs text-gray-500 italic mt-1">
+            (Áp dụng khi tổng giờ không tròn ngày)
+          </div>
+        </div>
       </div>
 
       <div className="bg-white rounded-lg border p-4 space-y-3">
@@ -125,21 +176,10 @@ export default function PaymentSection({
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Cước phí niêm yết</span>
-            <span className="text-sm">
-              {car.sale && car.sale > 0 ? (
-                <div className="text-sm">
-                  <span className="line-through text-gray-400 mr-2">
-                    {vnd(car.price)}₫
-                  </span>
-                  <span className="text-red-600 font-medium">
-                    {vnd(salePrice)}₫ (-{car.sale}%)
-                  </span>
-                </div>
-              ) : (
-                <span className="text-sm">{vnd(car.sale)}₫</span>
-              )}
+            <span className="text-sm text-gray-600">
+              Số giờ thuê: {hours} giờ
             </span>
+            <span className="text-sm"></span>
           </div>
 
           <div className="flex items-center justify-between border-t pt-2">
@@ -148,7 +188,7 @@ export default function PaymentSection({
           </div>
 
           <div className="flex items-center justify-between">
-            <span className="font-medium">Tiền đặt cọc(30%)</span>
+            <span className="font-medium">Tiền đặt cọc (30%)</span>
             <span className="font-medium">{vnd(deposit)}₫</span>
           </div>
 

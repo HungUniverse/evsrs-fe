@@ -6,10 +6,7 @@ export default function DetailPrice({
   booking: OrderBookingDetail;
 }) {
   const totalPrice = parseFloat(booking.subTotal ?? "0");
-  const depositAmount = parseFloat(booking.depositAmount ?? "0");
-  const remaining = parseFloat(
-    booking.remainingAmount ?? `${totalPrice - depositAmount}`
-  );
+
   const discount = parseFloat(booking.discount ?? "0");
 
   return (
@@ -24,9 +21,6 @@ export default function DetailPrice({
             value={-(totalPrice * discount) / 100}
           />
         )}
-        <PriceRow label="Tiền cọc" value={-depositAmount} />
-        <hr className="border-slate-200" />
-        <PriceRow label="Số tiền còn lại" value={remaining} bold />
       </div>
     </section>
   );

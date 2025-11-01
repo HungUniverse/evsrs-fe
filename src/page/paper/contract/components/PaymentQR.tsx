@@ -57,7 +57,6 @@ export default function PaymentQR({ orderId }: PaymentQRProps) {
       if (response.data?.qrUrl) {
         setQrUrl(response.data.qrUrl);
         setOpen(true);
-        toast.success("Đã tạo mã QR thanh toán");
       } else {
         toast.error("Không thể tạo mã QR");
       }
