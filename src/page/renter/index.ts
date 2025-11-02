@@ -8,3 +8,4 @@ export { default as AccountTrips } from "./profile/account-trips";
 export { default as AccountProfile } from "./profile/account-profile";
 export { default as ChangePassword } from "./profile/change-password";
 export { default as TripDetails } from "./profile/account-trips/details";
+export { default as AccountTransactions } from "./profile/account-transaction";

@@ -32,8 +32,7 @@ export default function ExtraItems({ items, onAdd, onRemove }: Props) {
 
   function handleSelect(v: string) {
     setQuick(v);
-    if (v === "battery-fee") setDesc("Phí pin");
-    else if (v === "cleaning") setDesc("Phí vệ sinh");
+    if (v === "cleaning") setDesc("Phí vệ sinh");
     else if (v === "other-depot") setDesc("Phí trả khác trạm");
     else if (v === "highway") setDesc("Phí cao tốc");
     else if (v === "other-fee") setDesc("Phí khác");
@@ -61,7 +60,6 @@ export default function ExtraItems({ items, onAdd, onRemove }: Props) {
             <SelectValue placeholder="Chọn nhanh khoản phí" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="battery-fee">Phí pin</SelectItem>
             <SelectItem value="cleaning">Phí vệ sinh</SelectItem>
             <SelectItem value="other-depot">Phí trả khác trạm</SelectItem>
             <SelectItem value="highway">Phí cao tốc</SelectItem>

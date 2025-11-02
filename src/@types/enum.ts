@@ -1,6 +1,7 @@
 export type OrderBookingStatus =
   | "PENDING"
   | "CONFIRMED"
+  | "READY_FOR_CHECKOUT"
   | "CHECKED_OUT"
   | "IN_USE"
   | "RETURNED"
@@ -55,3 +56,8 @@ export type NotificationType =
 export type RoleCode = "ADMIN" | "USER" | "STAFF";
 export type IdentifyDocumentStatus = "PENDING" | "APPROVED" | "REJECTED";
 export type HandoverInspectionType = "HANDOVER" | "RETURN";
+export type SystemConfigType =
+  | "General"
+  | "PaymentGateway"
+  | "Notification"
+  | "Security";

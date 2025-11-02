@@ -18,6 +18,9 @@ import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import SignatureDialog from "./components/sign-box";
 import { PrintPdfButton } from "../dowloadpdfbutton";
 import { PrintableContract } from "../printable-paper";
+import PaymentQR from "./components/PaymentQR";
+import { checkSepayOrderStatus } from "@/apis/sepay.api";
+import { SepayOrderStatus } from "@/@types/payment/sepay";
 
 function genContractNumber() {
   const d = new Date();
@@ -37,15 +40,14 @@ const ContractPage: React.FC = () => {
   // NEW: state về contract hiện tại
   const [contract, setContract] = useState<Contract | null>(null);
   const [checkingContract, setCheckingContract] = useState(false);
-
   // Sign UI
   const [openSign, setOpenSign] = useState(false);
   const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
   const [savingSignature, setSavingSignature] = useState(false);
 
   const [creating, setCreating] = useState(false);
+  const [isPaid, setIsPaid] = useState(false);
 
-  // Load order
   useEffect(() => {
     (async () => {
       if (!orderId) return;
@@ -63,14 +65,12 @@ const ContractPage: React.FC = () => {
     })();
   }, [orderId]);
 
-  // NEW: Load contract theo orderId
   async function refetchContract() {
     if (!orderId) return;
     setCheckingContract(true);
     try {
       const c = await contractAPI.getByOrderId(orderId);
       setContract(c);
-      // nếu đã có contract (kể cả F5), show luôn chữ ký
       if (c?.signatureUrl) setSignatureUrl(c.signatureUrl);
     } finally {
       setCheckingContract(false);
@@ -80,6 +80,24 @@ const ContractPage: React.FC = () => {
   useEffect(() => {
     refetchContract();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderId]);
+
+  useEffect(() => {
+    const checkPaymentStatus = async () => {
+      if (!orderId) return;
+
+      try {
+        const response = await checkSepayOrderStatus(orderId);
+
+        if (response.message === SepayOrderStatus.PAID_DEPOSIT_COMPLETED) {
+          setIsPaid(true);
+        }
+      } catch (error) {
+        console.error("Error checking payment status:", error);
+      }
+    };
+
+    checkPaymentStatus();
   }, [orderId]);
 
   const title = useMemo(() => "HỢP ĐỒNG THUÊ XE Ô TÔ", []);
@@ -222,6 +240,10 @@ const ContractPage: React.FC = () => {
               />
             )}
           </div>
+
+          {isSigned && orderId && !isPaid && <PaymentQR orderId={orderId} />}
+
+          {isSigned && isPaid && ""}
 
           {!isSigned && (
             <div className="flex justify-end">
