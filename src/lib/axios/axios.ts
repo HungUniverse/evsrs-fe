@@ -24,9 +24,9 @@ let pendingQueue: Array<(token: string) => void> = [];
 async function doRefreshToken(
   refreshToken: string
 ): Promise<RefreshTokenResponse> {
-  const res = await axios.post(`${BASE_URL}/api/Auth/refresh-token`, {
-    refreshToken,
-  });
+  // Import authAPI dynamically to avoid circular dependency
+  const { authAPI } = await import("@/apis/auth.api");
+  const res = await authAPI.refreshToken(refreshToken);
   return res.data?.data ?? res.data;
 }
 
@@ -58,15 +58,18 @@ api.interceptors.response.use(
 
       try {
         isRefreshing = true;
+        console.log("[Axios] Token expired, attempting refresh...");
+
         const { accessToken, refreshToken } = await doRefreshToken(
           store.refreshToken
         );
-        useAuthStore
-          .getState()
-          .save({
-            accessToken,
-            refreshToken: refreshToken || store.refreshToken,
-          });
+
+        console.log("[Axios] Token refreshed successfully");
+
+        useAuthStore.getState().save({
+          accessToken,
+          refreshToken: refreshToken || store.refreshToken,
+        });
 
         pendingQueue.forEach((cb) => cb(accessToken));
         pendingQueue = [];
@@ -75,6 +78,7 @@ api.interceptors.response.use(
         original.headers.Authorization = `Bearer ${accessToken}`;
         return api(original);
       } catch (e) {
+        console.log("[Axios] Refresh token failed, clearing auth state");
         useAuthStore.getState().clear();
         return Promise.reject(e);
       } finally {
