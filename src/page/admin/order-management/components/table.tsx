@@ -39,7 +39,7 @@ import {
 } from "lucide-react";
 import { orderBookingAPI, type OrderBookingQuery } from "@/apis/order-booking.api";
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
-import type { OrderBookingStatus, PaymentStatus } from "@/@types/enum";
+import type { OrderBookingStatus, PaymentStatus, PaymentMethod, PaymentType } from "@/@types/enum";
 import { formatDate } from "@/lib/utils/formatDate";
 import { vnd } from "@/lib/utils/currency";
 import { UserFullAPI } from "@/apis/user.api";
@@ -54,12 +54,13 @@ type OrderBookingQueryParams = {
 };
 
 const statusOptions: { value: OrderBookingStatus; label: string }[] = [
-  { value: "PENDING", label: "Chờ xử lý" },
+  { value: "PENDING", label: "Chờ xác nhận" },
   { value: "CONFIRMED", label: "Đã xác nhận" },
-  { value: "CHECKED_OUT", label: "Đã xuất xe" },
+  { value: "READY_FOR_CHECKOUT", label: "Có thể nhận xe" },
+  { value: "CHECKED_OUT", label: "Đã nhận xe" },
   { value: "IN_USE", label: "Đang sử dụng" },
   { value: "RETURNED", label: "Đã trả xe" },
-  { value: "COMPLETED", label: "Hoàn thành" },
+  { value: "COMPLETED", label: "Hoàn tất" },
   { value: "CANCELLED", label: "Đã hủy" },
 ];
 
@@ -71,6 +72,16 @@ const paymentStatusOptions: { value: PaymentStatus; label: string }[] = [
   { value: "COMPLETED", label: "Hoàn thành" },
   { value: "REFUNDED", label: "Đã hoàn tiền" },
   { value: "FAILED", label: "Thất bại" },
+];
+
+const paymentMethodOptions: { value: PaymentMethod; label: string }[] = [
+  { value: "BANKING", label: "Chuyển khoản ngân hàng" },
+  { value: "CASH", label: "Tiền mặt" },
+];
+
+const paymentTypeOptions: { value: PaymentType; label: string }[] = [
+  { value: "DEPOSIT", label: "Đặt cọc" },
+  { value: "FULL", label: "Thanh toán đầy đủ" },
 ];
 
 export default function OrderTable() {
@@ -156,7 +167,7 @@ export default function OrderTable() {
       }
     } catch (error) {
       console.error("Error fetching depots:", error);
-      toast.error("Không thể tải danh sách depot");
+      toast.error("Không thể tải danh sách trạm xe điện");
     }
   };
 
@@ -218,7 +229,7 @@ export default function OrderTable() {
   // Fetch orders by depot ID
   const fetchOrdersByDepotId = async () => {
     if (!selectedDepotId) {
-      toast.error("Vui lòng chọn depot");
+      toast.error("Vui lòng chọn trạm xe điện");
       return;
     }
     try {
@@ -241,7 +252,7 @@ export default function OrderTable() {
           setTotalCount(0);
           setHasNextPage(false);
           setHasPreviousPage(false);
-          toast.info("Không tìm thấy đơn đặt xe nào cho depot này");
+          toast.info("Không tìm thấy đơn đặt xe nào cho trạm xe điện này");
         }
       } else {
         setOrders([]);
@@ -249,11 +260,11 @@ export default function OrderTable() {
         setTotalCount(0);
         setHasNextPage(false);
         setHasPreviousPage(false);
-        toast.info("Không tìm thấy đơn đặt xe nào cho depot này");
+        toast.info("Không tìm thấy đơn đặt xe nào cho trạm xe điện này");
       }
     } catch (error) {
-      console.error("Error fetching depot orders:", error);
-      toast.error("Không thể tải đơn đặt xe của depot này");
+      console.error("Error fetching orders by depot ID:", error);
+      toast.error("Không thể tải đơn đặt xe của trạm xe điện này");
       setOrders([]);
       setTotalPages(0);
       setTotalCount(0);
@@ -321,6 +332,13 @@ export default function OrderTable() {
   const handleDelete = async () => {
     if (!selectedOrder) return;
 
+    // Check if order can be deleted (only PENDING or CANCELLED)
+    if (selectedOrder.status !== "PENDING" && selectedOrder.status !== "CANCELLED") {
+      toast.error("Chỉ có thể xóa đơn đặt xe ở trạng thái 'Chờ xác nhận' hoặc 'Đã hủy'");
+      setDeleteDialogOpen(false);
+      return;
+    }
+
     try {
       await orderBookingAPI.delete(selectedOrder.id);
       toast.success("Xóa đơn đặt xe thành công");
@@ -367,8 +385,10 @@ export default function OrderTable() {
         return "bg-yellow-500";
       case "CONFIRMED":
         return "bg-blue-500";
-      case "CHECKED_OUT":
+      case "READY_FOR_CHECKOUT":
         return "bg-purple-500";
+      case "CHECKED_OUT":
+        return "bg-indigo-500";
       case "IN_USE":
         return "bg-green-500";
       case "RETURNED":
@@ -477,10 +497,10 @@ export default function OrderTable() {
             <Building2 className="h-4 w-4 text-gray-400" />
             <Select value={selectedDepotId || "all"} onValueChange={(value) => setSelectedDepotId(value === "all" ? "" : value)}>
               <SelectTrigger className="w-[300px]">
-                <SelectValue placeholder="Lọc theo depot" />
+                <SelectValue placeholder="Lọc theo trạm xe điện" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tất cả depot</SelectItem>
+                <SelectItem value="all">Tất cả trạm xe điện</SelectItem>
                 {depots.map((depot) => (
                   <SelectItem key={depot.id} value={depot.id}>
                     {depot.name}
@@ -638,16 +658,31 @@ export default function OrderTable() {
 
       {/* View Order Details Dialog */}
       <Dialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
-        <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Chi tiết đơn đặt xe</DialogTitle>
           </DialogHeader>
           {selectedOrder && (
             <div className="space-y-4">
+              {/* Car Image */}
+              {selectedOrder.carEvs?.model?.image && (
+                <div className="flex justify-center">
+                  <img
+                    src={selectedOrder.carEvs.model.image}
+                    alt={selectedOrder.carEvs.model.modelName}
+                    className="w-full max-h-60 object-cover rounded-lg shadow-md"
+                  />
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="text-sm font-medium">ID</Label>
                   <p className="text-sm">{selectedOrder.id}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Mã đơn</Label>
+                  <p className="text-sm">{selectedOrder.code || "N/A"}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Người dùng</Label>
@@ -683,11 +718,17 @@ export default function OrderTable() {
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Phương thức thanh toán</Label>
-                  <p className="text-sm">{selectedOrder.paymentMethod}</p>
+                  <p className="text-sm">
+                    {paymentMethodOptions.find((m) => m.value === selectedOrder.paymentMethod)?.label ||
+                      selectedOrder.paymentMethod}
+                  </p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Loại thanh toán</Label>
-                  <p className="text-sm">{selectedOrder.paymentType}</p>
+                  <p className="text-sm">
+                    {paymentTypeOptions.find((t) => t.value === selectedOrder.paymentType)?.label ||
+                      selectedOrder.paymentType}
+                  </p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Tổng tiền</Label>
@@ -710,7 +751,7 @@ export default function OrderTable() {
                   <p className="text-sm">{selectedOrder.carEvs?.licensePlate || "N/A"}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Depot</Label>
+                  <Label className="text-sm font-medium">Trạm xe điện</Label>
                   <p className="text-sm">{selectedOrder.depot?.name || "N/A"}</p>
                 </div>
                 <div>
@@ -793,14 +834,29 @@ export default function OrderTable() {
           <DialogHeader>
             <DialogTitle>Xác nhận xóa đơn đặt xe</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa đơn đặt xe này? Hành động này không thể hoàn tác.
+              {selectedOrder && (selectedOrder.status === "PENDING" || selectedOrder.status === "CANCELLED") ? (
+                <>Bạn có chắc chắn muốn xóa đơn đặt xe này? Hành động này không thể hoàn tác.</>
+              ) : (
+                <>
+                  <div className="text-red-600 font-semibold mb-2">
+                    Cảnh báo: Chỉ có thể xóa đơn đặt xe ở trạng thái "Chờ xác nhận" hoặc "Đã hủy".
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Trạng thái hiện tại: <span className="font-medium">{statusOptions.find((s) => s.value === selectedOrder?.status)?.label || selectedOrder?.status}</span>
+                  </div>
+                </>
+              )}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
               Hủy
             </Button>
-            <Button variant="destructive" onClick={handleDelete}>
+            <Button 
+              variant="destructive" 
+              onClick={handleDelete}
+              disabled={selectedOrder ? selectedOrder.status !== "PENDING" && selectedOrder.status !== "CANCELLED" : true}
+            >
               Xóa
             </Button>
           </DialogFooter>

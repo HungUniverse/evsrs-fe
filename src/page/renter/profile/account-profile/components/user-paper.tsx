@@ -143,9 +143,9 @@ export default function UserPaper() {
           response.code === "SUCCESS" &&
           (response.statusCode === 201 || response.statusCode === 200)
         ) {
-          toast.success(response.message || "Đã gửi giấy tờ để xác thực");
+          toast.success("Đã gửi giấy tờ để xác thực");
         } else {
-          toast.error(response.message || "Lưu thất bại, thử lại sau");
+          toast.error("Lưu thất bại, thử lại sau");
           setIsLoading(false);
           return;
         }
@@ -165,9 +165,9 @@ export default function UserPaper() {
           response.code === "SUCCESS" &&
           (response.statusCode === 200 || response.statusCode === 204)
         ) {
-          toast.success(response.message || "Cập nhật giấy tờ thành công");
+          toast.success("Cập nhật giấy tờ thành công");
         } else {
-          toast.error(response.message || "Cập nhật thất bại, thử lại sau");
+          toast.error("Cập nhật thất bại, thử lại sau");
           setIsLoading(false);
           return;
         }
@@ -203,10 +203,7 @@ export default function UserPaper() {
       setIsLoading(false);
     } catch (error: unknown) {
       console.error("Upload error:", error);
-      const errorMessage =
-        (error as { response?: { data?: { message?: string } } })?.response
-          ?.data?.message || "Lưu thất bại, thử lại sau";
-      toast.error(errorMessage);
+      toast.error("Lưu thất bại, thử lại sau");
       setIsLoading(false);
     }
   }
