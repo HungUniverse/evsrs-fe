@@ -27,7 +27,11 @@ import {
 
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import AuthGuard from "@/layouts/guard.layout";
-import { StaffCarManagement, TripManagement } from "@/page/staff";
+import {
+  StaffCarManagement,
+  StaffDashboard,
+  TripManagement,
+} from "@/page/staff";
 import StaffTripDetails from "@/page/staff/trip-management/components/trip-details";
 import { lazy } from "react";
 import {
@@ -171,6 +175,10 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <Navigate to="/staff/car" replace />,
+          },
+          {
+            path: "dashboard",
+            element: <StaffDashboard />,
           },
           {
             path: "car",

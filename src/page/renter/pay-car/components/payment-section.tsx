@@ -40,7 +40,7 @@ export default function PaymentSection({
   const [tempStart, setTempStart] = useState(searchForm.start);
   const [tempEnd, setTempEnd] = useState(searchForm.end);
 
-  const { days, hours, baseTotal, deposit, salePrice } = useBookingCalc(
+  const { hours, baseTotal, deposit, salePrice } = useBookingCalc(
     car.price,
     searchForm.start,
     searchForm.end,
@@ -124,7 +124,7 @@ export default function PaymentSection({
           <div className="flex items-start justify-between border-t pt-2">
             <span className="text-gray-600">Tổng thời lượng:</span>
             <span className="text-gray-900 font-medium text-right">
-              {days} ngày
+              {hours} giờ
             </span>
           </div>
         </div>
@@ -154,19 +154,15 @@ export default function PaymentSection({
                   </span>
                 </div>
               ) : (
-                <span className="text-sm">{vnd(car.price)}đ/ngày</span>
+                <span className="text-sm">{vnd(car.price)}đ/24 giờ</span>
               )}
             </span>
           </div>
 
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">
-              Giá được quy đổi tự động theo số giờ chênh lệch (1 ngày = 24 giờ).
+              Quá 30 phút sẽ làm tròn thành 1 giờ
             </span>
-          </div>
-
-          <div className="text-xs text-gray-500 italic mt-1">
-            (Áp dụng khi tổng giờ không tròn ngày)
           </div>
         </div>
       </div>

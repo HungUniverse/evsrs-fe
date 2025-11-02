@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   UserRound,
@@ -33,6 +33,14 @@ const items: Item[] = [
 ];
 
 export default function AccountSidebar() {
+  const location = useLocation();
+
+  const handleNavClick = (to: string) => {
+    // If clicking on the same route, refresh the page
+    if (location.pathname === to) {
+      window.location.reload();
+    }
+  };
   return (
     <aside className="w-full lg:w-64 border-r bg-white">
       <div className="px-4 py-5">
@@ -44,6 +52,7 @@ export default function AccountSidebar() {
           <NavLink
             key={to}
             to={to}
+            onClick={() => handleNavClick(to)}
             end={end}
             className={({ isActive }) =>
               cn(
