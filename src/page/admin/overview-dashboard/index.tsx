@@ -1,5 +1,20 @@
+/**
+ * Dashboard tổng quan cho Admin
+ * 
+ * Layout:
+ * 1. Stats - 4 thẻ thống kê tổng quan (khách hàng, đơn hàng, doanh thu, pending)
+ * 2. Graph - Biểu đồ doanh thu theo ngày
+ * 3. Top 3 Depot & Model - Grid 2 cột hiển thị top trạm và top model
+ * 4. Depot Revenue - Biểu đồ doanh thu theo trạm theo tháng (đầy chiều rộng)
+ * 5. Depot Model - Model xe phổ biến tại từng trạm (đầy chiều rộng)
+ */
+
 import Stats from './components/stats'
 import Graph from './components/graph'
+import DepotStats from './components/depot-stats'
+import DepotRevenue from './components/depot-revenue'
+import ModelStats from './components/model-stats'
+import DepotModel from './components/depot-model'
 
 export default function OverviewDashboard() {
   return (
@@ -11,6 +26,14 @@ export default function OverviewDashboard() {
       
       <Stats />
       <Graph />
+      
+      <div className="grid gap-6 lg:grid-cols-2">
+        <DepotStats />
+        <ModelStats />
+      </div>
+      
+      <DepotRevenue />
+      <DepotModel />
     </div>
   )
 }
