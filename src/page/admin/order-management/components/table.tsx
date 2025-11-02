@@ -54,12 +54,13 @@ type OrderBookingQueryParams = {
 };
 
 const statusOptions: { value: OrderBookingStatus; label: string }[] = [
-  { value: "PENDING", label: "Chờ xử lý" },
+  { value: "PENDING", label: "Chờ xác nhận" },
   { value: "CONFIRMED", label: "Đã xác nhận" },
-  { value: "CHECKED_OUT", label: "Đã xuất xe" },
+  { value: "READY_FOR_CHECKOUT", label: "Có thể nhận xe" },
+  { value: "CHECKED_OUT", label: "Đã nhận xe" },
   { value: "IN_USE", label: "Đang sử dụng" },
   { value: "RETURNED", label: "Đã trả xe" },
-  { value: "COMPLETED", label: "Hoàn thành" },
+  { value: "COMPLETED", label: "Hoàn tất" },
   { value: "CANCELLED", label: "Đã hủy" },
 ];
 
@@ -367,8 +368,10 @@ export default function OrderTable() {
         return "bg-yellow-500";
       case "CONFIRMED":
         return "bg-blue-500";
-      case "CHECKED_OUT":
+      case "READY_FOR_CHECKOUT":
         return "bg-purple-500";
+      case "CHECKED_OUT":
+        return "bg-indigo-500";
       case "IN_USE":
         return "bg-green-500";
       case "RETURNED":
