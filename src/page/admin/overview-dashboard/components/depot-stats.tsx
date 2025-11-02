@@ -106,10 +106,10 @@ export default function DepotStats() {
           <div className="p-2 bg-blue-100 rounded-lg">
             <MapPin className="h-5 w-5 text-blue-600" />
           </div>
-          <CardTitle className="text-xl">Top 3 Trạm Thuê Xe</CardTitle>
+          <CardTitle className="text-xl">Trạm được thuê nhiều nhất</CardTitle>
         </div>
         <p className="text-sm text-muted-foreground mt-1">
-          Trạm được thuê nhiều nhất
+          Xếp hạng theo số lượt thuê
         </p>
       </CardHeader>
       <CardContent>

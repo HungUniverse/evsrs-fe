@@ -64,7 +64,7 @@ export default function DepotModel() {
         const depotId = order.depotId
         const depotName = order.depot.name
         const location = `${order.depot.district}, ${order.depot.province}`
-        const modelId = order.carEvs.modelId
+        const modelId = order.carEvs.model.id
         const modelName = order.carEvs.model.modelName
         const modelImage = order.carEvs.model.image
         
@@ -127,10 +127,10 @@ export default function DepotModel() {
           <div className="p-2 bg-orange-100 rounded-lg">
             <Car className="h-5 w-5 text-orange-600" />
           </div>
-          <CardTitle className="text-xl">Model Xe Được Thuê Nhiều Nhất Từng Trạm</CardTitle>
+          <CardTitle className="text-xl">Mẫu xe được thuê nhiều nhất tại mỗi trạm</CardTitle>
         </div>
         <p className="text-sm text-muted-foreground mt-1">
-          Sản phẩm bán chạy tại mỗi trạm
+          Mẫu xe được thuê nhiều nhất tại mỗi trạm
         </p>
       </CardHeader>
       <CardContent>

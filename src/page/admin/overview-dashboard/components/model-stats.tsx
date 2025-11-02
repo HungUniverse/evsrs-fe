@@ -123,10 +123,10 @@ export default function ModelStats() {
           <div className="p-2 bg-indigo-100 rounded-lg">
             <Car className="h-5 w-5 text-indigo-600" />
           </div>
-          <CardTitle className="text-xl">Top 3 Loại Xe Được Thuê Nhiều Nhất</CardTitle>
+          <CardTitle className="text-xl">Mẫu xe được thuê nhiều nhất</CardTitle>
         </div>
         <p className="text-sm text-muted-foreground mt-1">
-          Xếp hạng theo số lượt thuê
+          Xếp hạng theo số lượt thuê và doanh thu
         </p>
       </CardHeader>
       <CardContent>
