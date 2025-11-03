@@ -57,6 +57,7 @@ export interface OrderBookingDetail {
   paymentType: PaymentType;
   paymentStatus: PaymentStatus;
   note: string;
+  refundAmount: string;
   createdAt: DateString;
   updatedAt: DateString;
   createdBy: string;

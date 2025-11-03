@@ -6,6 +6,16 @@ import type { UserFull } from "@/@types/auth.type";
 import type { IdentifyDocumentResponse } from "@/@types/identify-document";
 import type { IdentifyDocumentStatus } from "@/@types/enum";
 
+// Helper function to translate status to Vietnamese
+function getStatusLabel(status: IdentifyDocumentStatus | "APPROVED" | "REJECTED"): string {
+  const statusMap: Record<string, string> = {
+    PENDING: "Đang chờ",
+    APPROVED: "Đã duyệt",
+    REJECTED: "Đã từ chối",
+  };
+  return statusMap[status] || status;
+}
+
 interface StatusChangeDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -69,7 +79,7 @@ export function StatusChangeDialog({
                         : "outline"
                   }
                 >
-                  {currentStatus}
+                  {getStatusLabel(currentStatus)}
                 </Badge>
               </div>
               <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -81,7 +91,7 @@ export function StatusChangeDialog({
                       : "destructive"
                   }
                 >
-                  {newStatus}
+                  {getStatusLabel(newStatus)}
                 </Badge>
               </div>
             </div>

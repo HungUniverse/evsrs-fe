@@ -9,11 +9,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { MoreHorizontal, ShieldCheck, AlertTriangle, Minus, ArrowUpDown, FileText, User, Eye, Trash2, Loader2 } from "lucide-react";
+import { MoreHorizontal, ShieldCheck, AlertTriangle, Minus, ArrowUpDown, FileText, User, Eye, Trash2, Loader2, RotateCcw, CheckCircle2, XCircle, CalendarPlus, Edit, UserPlus, Globe, CreditCard, Shield, MessageSquare } from "lucide-react";
 import { UserFullAPI } from "@/apis/user.api";
 import { formatDate } from "@/lib/utils/formatDate";
 import type { IdentifyDocumentStatus } from "@/@types/enum";
@@ -54,6 +54,16 @@ function getDocStatus(
   if (!hasImage) return "missing" as const;
   if (status === "APPROVED") return "ok" as const;
   return "review" as const;
+}
+
+// Helper function to translate status to Vietnamese
+function getStatusLabel(status: IdentifyDocumentStatus): string {
+  const statusMap: Record<IdentifyDocumentStatus, string> = {
+    PENDING: "Đang chờ",
+    APPROVED: "Đã duyệt",
+    REJECTED: "Đã từ chối",
+  };
+  return statusMap[status] || status;
 }
 
 export function RenterTable() {
@@ -447,8 +457,6 @@ export function RenterTable() {
                   <SelectContent>
                     <SelectItem value="fullName-asc">Tên A→Z</SelectItem>
                     <SelectItem value="fullName-desc">Tên Z→A</SelectItem>
-                    <SelectItem value="role-asc">Vai trò A→Z</SelectItem>
-                    <SelectItem value="role-desc">Vai trò Z→A</SelectItem>
                     <SelectItem value="createdAt-desc">Ngày tạo (mới nhất)</SelectItem>
                     <SelectItem value="createdAt-asc">Ngày tạo (cũ nhất)</SelectItem>
                   </SelectContent>
@@ -460,8 +468,14 @@ export function RenterTable() {
           {/* Phần bên phải: Actions */}
           <div className="flex items-center gap-2">
             {hasActiveFilters && (
-              <Button variant="outline" size="sm" onClick={clearFilters}>
-                Xóa bộ lọc
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={clearFilters}
+                className="group text-red-600 hover:text-red-700 border-red-600 hover:bg-red-50"
+              >
+                <RotateCcw className="h-4 w-4 mr-2 transition-transform duration-300 group-hover:rotate-180" />
+                Đặt lại bộ lọc
               </Button>
             )}
             
@@ -489,7 +503,6 @@ export function RenterTable() {
               <TableHead className="w-[40px]"></TableHead>
               <TableHead>Người dùng</TableHead>
               <TableHead>Số điện thoại / Email</TableHead>
-              <TableHead>Vai trò</TableHead>
               {showDocumentColumns && <TableHead>Tài liệu</TableHead>}
               {showDocumentColumns && <TableHead>Xác thực</TableHead>}
               <TableHead>Ngày tạo</TableHead>
@@ -538,9 +551,17 @@ export function RenterTable() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <img
-                          src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.fullName || "User")}`}
+                          src={
+                            u.profilePicture && u.profilePicture.trim() !== ""
+                              ? u.profilePicture
+                              : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.fullName || "User")}`
+                          }
                           alt={u.fullName || "Người dùng"}
                           className="size-8 rounded-full object-cover"
+                          onError={(e) => {
+                            const target = e.currentTarget as HTMLImageElement;
+                            target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.fullName || "User")}`;
+                          }}
                         />
                         <div>
                           <div className="font-medium leading-tight">
@@ -560,20 +581,6 @@ export function RenterTable() {
                           {u.userEmail || "Chưa có email"}
                         </span>
                       </div>
-                    </TableCell>
-                    {/* Vai trò */}
-                    <TableCell>
-                      <Badge
-                        variant={
-                          u.role === "ADMIN"
-                            ? "destructive"
-                            : u.role === "STAFF"
-                              ? "secondary"
-                              : "outline"
-                        }
-                      >
-                        {u.role || "Chưa có"}
-                      </Badge>
                     </TableCell>
                     {/* Tài liệu - Chỉ hiển thị cho role USER */}
                     {showDocumentColumns && (
@@ -655,7 +662,7 @@ export function RenterTable() {
                                       : "outline"
                                 }
                               >
-                                {document.status}
+                                {getStatusLabel(document.status)}
                               </Badge>
 
                               {document.status !== "PENDING" && (
@@ -730,9 +737,7 @@ export function RenterTable() {
                               Xác thực tài liệu
                             </DropdownMenuItem>
                           )}
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>Nhật ký kiểm tra</DropdownMenuItem>
-                          <DropdownMenuSeparator />
+                          
                           <DropdownMenuItem 
                             className="text-red-600 focus:text-red-600"
                             onClick={(e) => {
@@ -766,56 +771,66 @@ export function RenterTable() {
                                 <User className="size-4" />
                                 Thông tin cơ bản
                               </h4>
-                              <div className="grid grid-cols-2 gap-3 text-sm">
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Role:
-                                  </span>
-                                  <span className="ml-2">
-                                    <Badge variant="outline">{u.role || "Chưa có"}</Badge>
-                                  </span>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Đã xác thực:
-                                  </span>
-                                  <span className="ml-2">
+                              <div className="space-y-3">
+                                <div className="flex items-center gap-3 p-3 rounded-lg border bg-card">
+                                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-emerald-50">
+                                    {u.isVerify ? (
+                                      <CheckCircle2 className="size-5 text-emerald-600" />
+                                    ) : (
+                                      <XCircle className="size-5 text-red-600" />
+                                    )}
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="text-xs text-muted-foreground mb-0.5">Trạng thái xác thực</div>
                                     <Badge
-                                      variant={
-                                        u.isVerify ? "default" : "secondary"
-                                      }
+                                      variant={u.isVerify ? "default" : "secondary"}
+                                      className="text-sm"
                                     >
-                                      {u.isVerify ? "Có" : "Không"}
+                                      {u.isVerify ? "Đã xác thực" : "Chưa xác thực"}
                                     </Badge>
-                                  </span>
+                                  </div>
                                 </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Tạo lúc:
-                                  </span>
-                                  <span className="ml-2">
-                                    {u.createdAt ? formatDate(u.createdAt) : "Chưa xác định"}
-                                  </span>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Cập nhật:
-                                  </span>
-                                  <span className="ml-2">
-                                    {u.updatedAt ? formatDate(u.updatedAt) : "Chưa xác định"}
-                                  </span>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Tạo bởi:
-                                  </span>
-                                  <span className="ml-2">{u.createdBy || "Hệ thống"}</span>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Cập nhật bởi:
-                                  </span>
-                                  <span className="ml-2">{u.updatedBy || "Chưa cập nhật"}</span>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div className="flex items-start gap-2 p-3 rounded-lg border bg-card">
+                                    <CalendarPlus className="size-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                                    <div className="flex-1 min-w-0">
+                                      <div className="text-xs text-muted-foreground mb-0.5">Tạo lúc</div>
+                                      <div className="text-sm font-medium truncate">
+                                        {u.createdAt ? formatDate(u.createdAt) : "Chưa xác định"}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-start gap-2 p-3 rounded-lg border bg-card">
+                                    <Edit className="size-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                                    <div className="flex-1 min-w-0">
+                                      <div className="text-xs text-muted-foreground mb-0.5">Cập nhật</div>
+                                      <div className="text-sm font-medium truncate">
+                                        {u.updatedAt ? formatDate(u.updatedAt) : "Chưa xác định"}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-start gap-2 p-3 rounded-lg border bg-card">
+                                    <UserPlus className="size-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                                    <div className="flex-1 min-w-0">
+                                      <div className="text-xs text-muted-foreground mb-0.5">Tạo bởi</div>
+                                      <div className="text-sm font-medium truncate">
+                                        {u.createdBy || "Hệ thống"}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-start gap-2 p-3 rounded-lg border bg-card">
+                                    <User className="size-4 text-cyan-600 mt-0.5 flex-shrink-0" />
+                                    <div className="flex-1 min-w-0">
+                                      <div className="text-xs text-muted-foreground mb-0.5">Cập nhật bởi</div>
+                                      <div className="text-sm font-medium truncate">
+                                        {u.updatedBy || "Chưa cập nhật"}
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -837,20 +852,22 @@ export function RenterTable() {
                                 ) : document ? (
                                   <div className="space-y-3">
                                     <div className="grid grid-cols-2 gap-3">
-                                      <div>
-                                        <span className="text-sm text-muted-foreground">
-                                          Mã quốc gia:
-                                        </span>
-                                        <div className="text-sm">
-                                          {document.countryCode || "Chưa có mã quốc gia"}
+                                      <div className="flex items-start gap-2 p-3 rounded-lg border bg-card">
+                                        <Globe className="size-4 text-indigo-600 mt-0.5 flex-shrink-0" />
+                                        <div className="flex-1 min-w-0">
+                                          <div className="text-xs text-muted-foreground mb-0.5">Mã quốc gia</div>
+                                          <div className="text-sm font-medium">
+                                            {document.countryCode || "Chưa có mã quốc gia"}
+                                          </div>
                                         </div>
                                       </div>
-                                      <div>
-                                        <span className="text-sm text-muted-foreground">
-                                          Số GPLX:
-                                        </span>
-                                        <div className="text-sm">
-                                          {document.numberMasked || "Chưa có số GPLX"}
+                                      <div className="flex items-start gap-2 p-3 rounded-lg border bg-card">
+                                        <CreditCard className="size-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                                        <div className="flex-1 min-w-0">
+                                          <div className="text-xs text-muted-foreground mb-0.5">Số GPLX</div>
+                                          <div className="text-sm font-medium">
+                                            {document.numberMasked || "Chưa có số GPLX"}
+                                          </div>
                                         </div>
                                       </div>
                                     </div>
@@ -947,30 +964,37 @@ export function RenterTable() {
                                       </div>
                                     </div>
 
-                                    <div className="text-sm">
-                                      <span className="text-muted-foreground">
-                                        Xác thực bởi:
-                                      </span>
-                                      <span className="ml-2">
-                                        {document.verifiedBy || "Chưa được xác thực"}
-                                      </span>
+                                    <div className="grid grid-cols-2 gap-3">
+                                      <div className="flex items-start gap-2 p-3 rounded-lg border bg-card">
+                                        <Shield className="size-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                                        <div className="flex-1 min-w-0">
+                                          <div className="text-xs text-muted-foreground mb-0.5">Xác thực bởi</div>
+                                          <div className="text-sm font-medium truncate">
+                                            {document.verifiedBy || "Chưa được xác thực"}
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div className="flex items-start gap-2 p-3 rounded-lg border bg-card">
+                                        <CalendarPlus className="size-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                                        <div className="flex-1 min-w-0">
+                                          <div className="text-xs text-muted-foreground mb-0.5">Ngày xác thực</div>
+                                          <div className="text-sm font-medium truncate">
+                                            {document.verifiedAt ? formatDate(document.verifiedAt) : "Chưa xác thực"}
+                                          </div>
+                                        </div>
+                                      </div>
                                     </div>
-                                    <div className="text-sm">
-                                      <span className="text-muted-foreground">
-                                        Ngày xác thực:
-                                      </span>
-                                      <span className="ml-2">
-                                        {document.verifiedAt ? formatDate(document.verifiedAt) : "Chưa xác thực"}
-                                      </span>
-                                    </div>
-                                    <div className="text-sm">
-                                      <span className="text-muted-foreground">
-                                        Ghi chú:
-                                      </span>
-                                      <span className="ml-2">
-                                        {document.note || "Không có ghi chú"}
-                                      </span>
-                                    </div>
+                                    {document.note && (
+                                      <div className="flex items-start gap-2 p-3 rounded-lg border bg-card">
+                                        <MessageSquare className="size-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                                        <div className="flex-1 min-w-0">
+                                          <div className="text-xs text-muted-foreground mb-0.5">Ghi chú</div>
+                                          <div className="text-sm font-medium">
+                                            {document.note}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
                                   </div>
                                 ) : (
                                   <div className="text-sm text-muted-foreground">

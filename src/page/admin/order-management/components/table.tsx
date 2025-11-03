@@ -20,6 +20,12 @@ import {
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -36,6 +42,9 @@ import {
   ChevronRight,
   User,
   Building2,
+  ListChecks,
+  CircleDollarSign,
+  RotateCcw,
 } from "lucide-react";
 import { orderBookingAPI, type OrderBookingQuery } from "@/apis/order-booking.api";
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
@@ -45,8 +54,11 @@ import { vnd } from "@/lib/utils/currency";
 import { UserFullAPI } from "@/apis/user.api";
 import type { UserFull } from "@/@types/auth.type";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 import { depotAPI } from "@/apis/depot.api";
 import type { Depot } from "@/@types/car/depot";
+import UserInfoModal from "@/page/staff/trip-management/components/user-info-modal";
 
 type OrderBookingQueryParams = {
   pageNumber?: number;
@@ -62,12 +74,13 @@ const statusOptions: { value: OrderBookingStatus; label: string }[] = [
   { value: "RETURNED", label: "Đã trả xe" },
   { value: "COMPLETED", label: "Hoàn tất" },
   { value: "CANCELLED", label: "Đã hủy" },
+  { value: "REFUND_PENDING", label: "Chờ hoàn tiền" },
 ];
 
 const paymentStatusOptions: { value: PaymentStatus; label: string }[] = [
   { value: "PENDING", label: "Chờ thanh toán" },
   { value: "PAID_DEPOSIT", label: "Đã trả cọc" },
-  { value: "PAID_DEPOSIT_COMPLETED", label: "Hoàn tất cọc" },
+  { value: "PAID_DEPOSIT_COMPLETED", label: "Đã trả đủ tiền nhận xe" },
   { value: "PAID_FULL", label: "Đã thanh toán đầy đủ" },
   { value: "COMPLETED", label: "Hoàn thành" },
   { value: "REFUNDED", label: "Đã hoàn tiền" },
@@ -104,8 +117,19 @@ export default function OrderTable() {
   const [status, setStatus] = useState<OrderBookingStatus>("PENDING");
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("PENDING");
   const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [userInfoUserId, setUserInfoUserId] = useState<string | null>(null);
   const [searchOrderId, setSearchOrderId] = useState<string>("");
   const [selectedDepotId, setSelectedDepotId] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState<string>("all");
+  const [startDateFilter, setStartDateFilter] = useState<string>("");
+  const [endDateFilter, setEndDateFilter] = useState<string>("");
+  
+  // Refund dialog state
+  const [refundDialogOpen, setRefundDialogOpen] = useState(false);
+  const [refundedAmount, setRefundedAmount] = useState<string>("");
+  const [adminRefundNote, setAdminRefundNote] = useState<string>("");
+  const [submittingRefund, setSubmittingRefund] = useState(false);
   
   // User list and depot list for selection
   const [users, setUsers] = useState<UserFull[]>([]);
@@ -120,8 +144,12 @@ export default function OrderTable() {
         pageSize: query.pageSize ?? pageSize,
       };
 
-      const response = await orderBookingAPI.getAll(params);
-      
+      // Use refund-pending API when filtering by REFUND_PENDING
+      const isRefundPending = statusFilter === "REFUND_PENDING";
+      const response = isRefundPending
+        ? await orderBookingAPI.getRefundPending(params)
+        : await orderBookingAPI.getAll(params);
+
       if (response.data?.data) {
         setOrders(response.data.data.items);
         setTotalPages(response.data.data.totalPages);
@@ -168,110 +196,6 @@ export default function OrderTable() {
     } catch (error) {
       console.error("Error fetching depots:", error);
       toast.error("Không thể tải danh sách trạm xe điện");
-    }
-  };
-
-  // Fetch orders by user ID
-  const fetchOrdersByUserId = async () => {
-    if (!selectedUserId) {
-      toast.error("Vui lòng chọn người dùng");
-      return;
-    }
-    try {
-      setLoading(true);
-      const response = await orderBookingAPI.getByUserId(selectedUserId);
-      
-      console.log("Response from getByUserId:", response);
-      
-      // Check if response.data exists
-      if (response.data) {
-        // Response structure is ItemBaseResponse<OrderBookingDetail[]>
-        // response.data.data should be an array
-        const ordersData = response.data.data;
-        
-        if (Array.isArray(ordersData) && ordersData.length > 0) {
-          setOrders(ordersData);
-          setTotalPages(1);
-          setTotalCount(ordersData.length);
-          setHasNextPage(false);
-          setHasPreviousPage(false);
-          toast.success(`Tìm thấy ${ordersData.length} đơn đặt xe`);
-        } else {
-          // Handle empty array or non-array response
-          setOrders([]);
-          setTotalPages(0);
-          setTotalCount(0);
-          setHasNextPage(false);
-          setHasPreviousPage(false);
-          toast.info("Không tìm thấy đơn đặt xe nào cho người dùng này");
-        }
-      } else {
-        setOrders([]);
-        setTotalPages(0);
-        setTotalCount(0);
-        setHasNextPage(false);
-        setHasPreviousPage(false);
-        toast.info("Không tìm thấy đơn đặt xe nào cho người dùng này");
-      }
-    } catch (error) {
-      console.error("Error fetching user orders:", error);
-      toast.error("Không thể tải đơn đặt xe của người dùng này");
-      setOrders([]);
-      setTotalPages(0);
-      setTotalCount(0);
-      setHasNextPage(false);
-      setHasPreviousPage(false);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fetch orders by depot ID
-  const fetchOrdersByDepotId = async () => {
-    if (!selectedDepotId) {
-      toast.error("Vui lòng chọn trạm xe điện");
-      return;
-    }
-    try {
-      setLoading(true);
-      const response = await orderBookingAPI.getOrderBookingByDepotId(selectedDepotId);
-      
-      if (response.data) {
-        const ordersData = response.data.data;
-        
-        if (Array.isArray(ordersData) && ordersData.length > 0) {
-          setOrders(ordersData);
-          setTotalPages(1);
-          setTotalCount(ordersData.length);
-          setHasNextPage(false);
-          setHasPreviousPage(false);
-          toast.success(`Tìm thấy ${ordersData.length} đơn đặt xe`);
-        } else {
-          setOrders([]);
-          setTotalPages(0);
-          setTotalCount(0);
-          setHasNextPage(false);
-          setHasPreviousPage(false);
-          toast.info("Không tìm thấy đơn đặt xe nào cho trạm xe điện này");
-        }
-      } else {
-        setOrders([]);
-        setTotalPages(0);
-        setTotalCount(0);
-        setHasNextPage(false);
-        setHasPreviousPage(false);
-        toast.info("Không tìm thấy đơn đặt xe nào cho trạm xe điện này");
-      }
-    } catch (error) {
-      console.error("Error fetching orders by depot ID:", error);
-      toast.error("Không thể tải đơn đặt xe của trạm xe điện này");
-      setOrders([]);
-      setTotalPages(0);
-      setTotalCount(0);
-      setHasNextPage(false);
-      setHasPreviousPage(false);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -328,6 +252,33 @@ export default function OrderTable() {
     }
   };
 
+  // Confirm refund
+  const handleConfirmRefund = async () => {
+    if (!selectedOrder) return;
+    const amountNumber = Number(refundedAmount);
+    if (Number.isNaN(amountNumber) || amountNumber < 0) {
+      toast.error("Vui lòng nhập số tiền hoàn hợp lệ");
+      return;
+    }
+    try {
+      setSubmittingRefund(true);
+      await orderBookingAPI.refundOrderBooking(selectedOrder.id, {
+        refundedAmount: amountNumber,
+        adminNote: adminRefundNote || "",
+      });
+      toast.success("Xác nhận hoàn tiền thành công");
+      setRefundDialogOpen(false);
+      setRefundedAmount("");
+      setAdminRefundNote("");
+      fetchOrders({ pageNumber, pageSize });
+    } catch (error) {
+      console.error("Error confirming refund:", error);
+      toast.error("Không thể xác nhận hoàn tiền");
+    } finally {
+      setSubmittingRefund(false);
+    }
+  };
+
   // Delete order
   const handleDelete = async () => {
     if (!selectedOrder) return;
@@ -378,46 +329,95 @@ export default function OrderTable() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Status badge colors
-  const getStatusColor = (status: OrderBookingStatus) => {
+  // Refetch when status filter toggles refund mode
+  useEffect(() => {
+    setPageNumber(1);
+    fetchOrders({ pageNumber: 1, pageSize });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter]);
+
+  // Client-side filtered dataset
+  const displayedOrders = orders.filter((order) => {
+    const matchStatus = statusFilter === "all" || order.status === (statusFilter as OrderBookingStatus);
+    const matchPaymentStatus =
+      paymentStatusFilter === "all" || order.paymentStatus === (paymentStatusFilter as PaymentStatus);
+    const matchUser = !selectedUserId || order.user?.id === selectedUserId;
+    const matchDepot = !selectedDepotId || order.depot?.id === selectedDepotId;
+    // Date filters (client-side)
+    let matchStartDate = true;
+    let matchEndDate = true;
+    // If only start date is provided, match orders that START exactly on that calendar day
+    if (startDateFilter && !endDateFilter) {
+      const orderStart = new Date(order.startAt);
+      const startOnly = new Date(orderStart);
+      startOnly.setHours(0, 0, 0, 0);
+      const selectedStart = new Date(startDateFilter);
+      selectedStart.setHours(0, 0, 0, 0);
+      matchStartDate = startOnly.getTime() === selectedStart.getTime();
+    } else if (endDateFilter && !startDateFilter) {
+      const orderEnd = new Date(order.endAt);
+      const endOnly = new Date(orderEnd);
+      endOnly.setHours(0, 0, 0, 0);
+      const selectedEnd = new Date(endDateFilter);
+      selectedEnd.setHours(0, 0, 0, 0);
+      matchEndDate = endOnly.getTime() === selectedEnd.getTime();
+    } else {
+      if (startDateFilter) {
+        const orderStart = new Date(order.startAt);
+        const selectedStart = new Date(startDateFilter);
+        selectedStart.setHours(0, 0, 0, 0);
+        matchStartDate = orderStart >= selectedStart;
+      }
+      if (endDateFilter) {
+        const orderEnd = new Date(order.endAt);
+        const selectedEnd = new Date(endDateFilter);
+        selectedEnd.setHours(23, 59, 59, 999);
+        matchEndDate = orderEnd <= selectedEnd;
+      }
+    }
+    return matchStatus && matchPaymentStatus && matchUser && matchDepot && matchStartDate && matchEndDate;
+  });
+
+  // Status badge variants (using shadcn Badge variants)
+  const getStatusVariant = (status: OrderBookingStatus) => {
     switch (status) {
       case "PENDING":
-        return "bg-yellow-500";
+        return "soft-yellow" as const;
       case "CONFIRMED":
-        return "bg-blue-500";
+        return "soft-blue" as const;
       case "READY_FOR_CHECKOUT":
-        return "bg-purple-500";
+        return "soft-purple" as const;
       case "CHECKED_OUT":
-        return "bg-indigo-500";
+        return "soft-indigo" as const;
       case "IN_USE":
-        return "bg-green-500";
+        return "soft-green" as const;
       case "RETURNED":
-        return "bg-orange-500";
+        return "soft-orange" as const;
       case "COMPLETED":
-        return "bg-green-700";
+        return "soft-green" as const;
       case "CANCELLED":
-        return "bg-red-600";
+        return "soft-red" as const;
       default:
-        return "bg-gray-500";
+        return "soft-gray" as const;
     }
   };
 
-  const getPaymentStatusColor = (status: PaymentStatus) => {
+  const getPaymentStatusVariant = (status: PaymentStatus) => {
     switch (status) {
       case "PENDING":
-        return "bg-yellow-500";
+        return "soft-yellow" as const;
       case "PAID_DEPOSIT":
       case "PAID_DEPOSIT_COMPLETED":
-        return "bg-blue-500";
+        return "soft-blue" as const;
       case "PAID_FULL":
       case "COMPLETED":
-        return "bg-green-500";
+        return "soft-green" as const;
       case "REFUNDED":
-        return "bg-orange-500";
+        return "soft-orange" as const;
       case "FAILED":
-        return "bg-red-600";
+        return "soft-red" as const;
       default:
-        return "bg-gray-500";
+        return "soft-gray" as const;
     }
   };
 
@@ -467,15 +467,38 @@ export default function OrderTable() {
         </div>
 
         {/* Second row: Filters */}
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start sm:items-center">
+          {/* Client-side filter: Start Date */}
+          <div className="flex items-center gap-2">
+            <Label>Ngày bắt đầu từ</Label>
+            <Input
+              type="date"
+              value={startDateFilter}
+              onChange={(e) => setStartDateFilter(e.target.value)}
+              className="w-[180px]"
+            />
+          </div>
+
+          {/* Client-side filter: End Date */}
+          <div className="flex items-center gap-2">
+            <Label>Ngày kết thúc đến</Label>
+            <Input
+              type="date"
+              value={endDateFilter}
+              onChange={(e) => setEndDateFilter(e.target.value)}
+              className="w-[180px]"
+            />
+          </div>
+
+          {/* Client-side filter: User */}
           <div className="flex items-center gap-2">
             <User className="h-4 w-4 text-gray-400" />
             <Select value={selectedUserId || "all"} onValueChange={(value) => setSelectedUserId(value === "all" ? "" : value)}>
               <SelectTrigger className="w-[300px]">
-                <SelectValue placeholder="Lọc theo người dùng" />
+                <SelectValue placeholder="Lọc theo khách hàng" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tất cả người dùng</SelectItem>
+                <SelectItem value="all">Tất cả khách hàng</SelectItem>
                 {users.map((user) => (
                   <SelectItem key={user.id} value={user.id}>
                     {user.fullName || user.userName} - {user.userEmail}
@@ -483,16 +506,9 @@ export default function OrderTable() {
                 ))}
               </SelectContent>
             </Select>
-            <Button 
-              onClick={fetchOrdersByUserId} 
-              size="sm" 
-              variant="outline"
-              disabled={!selectedUserId || selectedUserId === ""}
-            >
-              Lọc
-            </Button>
           </div>
 
+          {/* Client-side filter: Depot */}
           <div className="flex items-center gap-2">
             <Building2 className="h-4 w-4 text-gray-400" />
             <Select value={selectedDepotId || "all"} onValueChange={(value) => setSelectedDepotId(value === "all" ? "" : value)}>
@@ -508,14 +524,42 @@ export default function OrderTable() {
                 ))}
               </SelectContent>
             </Select>
-            <Button 
-              onClick={fetchOrdersByDepotId} 
-              size="sm" 
-              variant="outline"
-              disabled={!selectedDepotId || selectedDepotId === ""}
-            >
-              Lọc
-            </Button>
+          </div>
+
+          {/* Client-side filter: Status */}
+          <div className="flex items-center gap-2">
+            <ListChecks className="h-4 w-4 text-gray-400" />
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v)}>
+              <SelectTrigger className="w-[220px]">
+                <SelectValue placeholder="Lọc theo trạng thái" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                {statusOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Client-side filter: Payment Status */}
+          <div className="flex items-center gap-2">
+            <CircleDollarSign className="h-4 w-4 text-gray-400" />
+            <Select value={paymentStatusFilter} onValueChange={(v) => setPaymentStatusFilter(v)}>
+              <SelectTrigger className="w-[240px]">
+                <SelectValue placeholder="Lọc theo thanh toán" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả tình trạng thanh toán</SelectItem>
+                {paymentStatusOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <Button
@@ -523,13 +567,19 @@ export default function OrderTable() {
               setSelectedUserId("");
               setSelectedDepotId("");
               setSearchOrderId("");
+              setStartDateFilter("");
+              setEndDateFilter("");
+              setStatusFilter("all");
+              setPaymentStatusFilter("all");
               setPageNumber(1);
               fetchOrders({ pageNumber: 1, pageSize });
             }}
             size="sm"
             variant="outline"
+            className="sm:ml-auto group text-red-600 hover:text-red-700 border-red-600 hover:bg-red-50"
           >
-            Xem tất cả
+            <RotateCcw className="h-3 w-3 mr-2 transition-transform duration-300 group-hover:rotate-180" />
+            Đặt lại bộ lọc
           </Button>
         </div>
       </div>
@@ -539,56 +589,80 @@ export default function OrderTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Người dùng</TableHead>
+              <TableHead>Mã đơn</TableHead>
+              <TableHead>Ảnh xe</TableHead>
+              <TableHead>Model</TableHead>
+              <TableHead>Người thuê</TableHead>
               <TableHead>Ngày bắt đầu</TableHead>
               <TableHead>Ngày kết thúc</TableHead>
+              <TableHead>Tổng tiền</TableHead>
               <TableHead>Trạng thái</TableHead>
               <TableHead>Tình trạng thanh toán</TableHead>
-              <TableHead>Tổng tiền</TableHead>
               <TableHead>Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
+                <TableCell colSpan={10} className="text-center py-8">
                   <div className="flex items-center justify-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     <span>Đang tải...</span>
                   </div>
                 </TableCell>
               </TableRow>
-            ) : orders.length === 0 ? (
+            ) : displayedOrders.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
+                <TableCell colSpan={10} className="text-center py-8">
                   Không có dữ liệu
                 </TableCell>
               </TableRow>
             ) : (
-              orders.map((order) => (
+              displayedOrders.map((order) => (
                 <TableRow key={order.id}>
-                  <TableCell className="font-medium">{order.id ? order.id.slice(0, 8) + "..." : "N/A"}</TableCell>
+                  <TableCell className="font-medium text-green-600">{order.code ? order.code.slice(0, 8) + "..." : "N/A"}</TableCell>
+                  <TableCell>
+                    {order.carEvs?.model?.image ? (
+                      <img
+                        src={order.carEvs.model.image}
+                        alt={order.carEvs.model.modelName}
+                        className="h-10 w-16 object-cover rounded-md border"
+                      />
+                    ) : (
+                      <span className="text-xs text-gray-500">N/A</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {order.carEvs?.model?.modelName || "N/A"}
+                  </TableCell>
                   <TableCell>
                     <div>
-                      <div className="font-medium">{order.user?.fullName || order.user?.userName || "N/A"}</div>
+                      <button
+                        type="button"
+                        className="font-medium text-blue-600 hover:underline"
+                        onClick={() => {
+                          if (order.user?.id) setUserInfoUserId(order.user.id);
+                        }}
+                      >
+                        {order.user?.fullName || order.user?.userName || "N/A"}
+                      </button>
                       <div className="text-sm text-gray-500">{order.user?.userEmail}</div>
                     </div>
                   </TableCell>
                   <TableCell>{formatDate(order.startAt)}</TableCell>
                   <TableCell>{formatDate(order.endAt)}</TableCell>
+                  <TableCell>{vnd(parseFloat(order.totalAmount))} VNĐ</TableCell>
                   <TableCell>
-                    <Badge className={getStatusColor(order.status)}>
+                    <Badge variant={getStatusVariant(order.status)}>
                       {statusOptions.find((s) => s.value === order.status)?.label || order.status}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge className={getPaymentStatusColor(order.paymentStatus)}>
+                    <Badge variant={getPaymentStatusVariant(order.paymentStatus)}>
                       {paymentStatusOptions.find((s) => s.value === order.paymentStatus)?.label ||
                         order.paymentStatus}
                     </Badge>
                   </TableCell>
-                  <TableCell>{vnd(parseFloat(order.totalAmount))} VNĐ</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Button
@@ -598,18 +672,50 @@ export default function OrderTable() {
                       >
                         <Eye className="h-3 w-3" />
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedOrder(order);
-                          setStatus(order.status);
-                          setPaymentStatus(order.paymentStatus);
-                          setUpdateStatusDialogOpen(true);
-                        }}
-                      >
-                        <Edit2 className="h-3 w-3" />
-                      </Button>
+                      {statusFilter === "REFUND_PENDING" ? (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <Edit2 className="h-3 w-3" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedOrder(order);
+                                setStatus(order.status);
+                                setPaymentStatus(order.paymentStatus);
+                                setUpdateStatusDialogOpen(true);
+                              }}
+                            >
+                              Cập nhật trạng thái
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedOrder(order);
+                                setRefundedAmount(order.refundAmount || "0");
+                                setAdminRefundNote("");
+                                setRefundDialogOpen(true);
+                              }}
+                            >
+                              Tiến hành hoàn tiền
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedOrder(order);
+                            setStatus(order.status);
+                            setPaymentStatus(order.paymentStatus);
+                            setUpdateStatusDialogOpen(true);
+                          }}
+                        >
+                          <Edit2 className="h-3 w-3" />
+                        </Button>
+                      )}
                       <Button
                         variant="destructive"
                         size="sm"
@@ -663,111 +769,162 @@ export default function OrderTable() {
             <DialogTitle>Chi tiết đơn đặt xe</DialogTitle>
           </DialogHeader>
           {selectedOrder && (
-            <div className="space-y-4">
+            <div className="space-y-6">
+              {/* Order Header */}
+              <div className="w-full rounded-lg bg-blue-50 border border-blue-200 px-4 py-3">
+                <span className="text-sm text-gray-600">Mã đơn hàng: </span>
+                <span className="text-base font-semibold text-blue-900">{selectedOrder.code || "N/A"}</span>
+              </div>
+
               {/* Car Image */}
               {selectedOrder.carEvs?.model?.image && (
                 <div className="flex justify-center">
                   <img
                     src={selectedOrder.carEvs.model.image}
                     alt={selectedOrder.carEvs.model.modelName}
-                    className="w-full max-h-60 object-cover rounded-lg shadow-md"
+                    className="w-full max-h-60 object-cover rounded-lg shadow-md border"
                   />
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-sm font-medium">ID</Label>
-                  <p className="text-sm">{selectedOrder.id}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Mã đơn</Label>
-                  <p className="text-sm">{selectedOrder.code || "N/A"}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Người dùng</Label>
-                  <p className="text-sm">{selectedOrder.user?.fullName || selectedOrder.user?.userName}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Email</Label>
-                  <p className="text-sm">{selectedOrder.user?.userEmail}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Điện thoại</Label>
-                  <p className="text-sm">{selectedOrder.user?.phoneNumber || "N/A"}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Ngày bắt đầu</Label>
-                  <p className="text-sm">{formatDate(selectedOrder.startAt)}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Ngày kết thúc</Label>
-                  <p className="text-sm">{formatDate(selectedOrder.endAt)}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Trạng thái</Label>
-                  <Badge className={getStatusColor(selectedOrder.status)}>
-                    {statusOptions.find((s) => s.value === selectedOrder.status)?.label}
-                  </Badge>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Tình trạng thanh toán</Label>
-                  <Badge className={getPaymentStatusColor(selectedOrder.paymentStatus)}>
-                    {paymentStatusOptions.find((s) => s.value === selectedOrder.paymentStatus)?.label}
-                  </Badge>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Phương thức thanh toán</Label>
-                  <p className="text-sm">
-                    {paymentMethodOptions.find((m) => m.value === selectedOrder.paymentMethod)?.label ||
-                      selectedOrder.paymentMethod}
-                  </p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Loại thanh toán</Label>
-                  <p className="text-sm">
-                    {paymentTypeOptions.find((t) => t.value === selectedOrder.paymentType)?.label ||
-                      selectedOrder.paymentType}
-                  </p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Tổng tiền</Label>
-                  <p className="text-sm font-bold">{vnd(parseFloat(selectedOrder.totalAmount))} VNĐ</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Tiền cọc</Label>
-                  <p className="text-sm">{vnd(parseFloat(selectedOrder.depositAmount))} VNĐ</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Xe</Label>
-                  <p className="text-sm">
-                    {selectedOrder.carEvs?.model?.modelName 
-                      ? `${selectedOrder.carEvs.model.modelName}`
-                      : "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Biển số xe</Label>
-                  <p className="text-sm">{selectedOrder.carEvs?.licensePlate || "N/A"}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Trạm xe điện</Label>
-                  <p className="text-sm">{selectedOrder.depot?.name || "N/A"}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Ngày tạo</Label>
-                  <p className="text-sm">{formatDate(selectedOrder.createdAt)}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Ngày cập nhật</Label>
-                  <p className="text-sm">{formatDate(selectedOrder.updatedAt)}</p>
+              {/* Customer Information Section */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Thông tin khách hàng</h3>
+                <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                  <div>
+                    <Label className="text-xs font-medium text-gray-500">Người dùng</Label>
+                    <p className="text-sm font-medium mt-1">{selectedOrder.user?.fullName || selectedOrder.user?.userName || "N/A"}</p>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-medium text-gray-500">Email</Label>
+                    <p className="text-sm mt-1">{selectedOrder.user?.userEmail || "N/A"}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-xs font-medium text-gray-500">Điện thoại</Label>
+                    <p className="text-sm mt-1">{selectedOrder.user?.phoneNumber || "N/A"}</p>
+                  </div>
                 </div>
               </div>
-              {selectedOrder.note && (
-                <div>
-                  <Label className="text-sm font-medium">Ghi chú</Label>
-                  <p className="text-sm">{selectedOrder.note}</p>
+
+              <Separator />
+
+              {/* Booking Information Section */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Thông tin đặt xe</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-xs font-medium text-gray-500">Ngày bắt đầu</Label>
+                    <p className="text-sm font-medium mt-1">{formatDate(selectedOrder.startAt)}</p>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-medium text-gray-500">Ngày kết thúc</Label>
+                    <p className="text-sm font-medium mt-1">{formatDate(selectedOrder.endAt)}</p>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-medium text-gray-500">Trạng thái</Label>
+                    <div className="mt-1">
+                      <Badge variant={getStatusVariant(selectedOrder.status)}>
+                        {statusOptions.find((s) => s.value === selectedOrder.status)?.label}
+                      </Badge>
+                    </div>
+                  </div>
                 </div>
+              </div>
+
+              <Separator />
+
+              {/* Payment Information Section */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Thông tin thanh toán</h3>
+                <div className="grid grid-cols-2 gap-4 bg-green-50 p-4 rounded-lg border border-green-100">
+                  <div className="col-span-2">
+                    <Label className="text-xs font-medium text-gray-500">Tình trạng thanh toán</Label>
+                    <div className="mt-1">
+                      <Badge variant={getPaymentStatusVariant(selectedOrder.paymentStatus)}>
+                        {paymentStatusOptions.find((s) => s.value === selectedOrder.paymentStatus)?.label}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-medium text-gray-500">Phương thức thanh toán</Label>
+                    <p className="text-sm mt-1">
+                      {paymentMethodOptions.find((m) => m.value === selectedOrder.paymentMethod)?.label ||
+                        selectedOrder.paymentMethod}
+                    </p>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-medium text-gray-500">Loại thanh toán</Label>
+                    <p className="text-sm mt-1">
+                      {paymentTypeOptions.find((t) => t.value === selectedOrder.paymentType)?.label ||
+                        selectedOrder.paymentType}
+                    </p>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-medium text-gray-500">Tổng tiền</Label>
+                    <p className="text-base font-bold text-green-700 mt-1">{vnd(parseFloat(selectedOrder.totalAmount))} VNĐ</p>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-medium text-gray-500">Tiền cọc</Label>
+                    <p className="text-sm font-medium mt-1">{vnd(parseFloat(selectedOrder.depositAmount))} VNĐ</p>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-medium text-gray-500">Số tiền hoàn</Label>
+                    <p className="text-sm mt-1">{vnd(parseFloat(selectedOrder.refundAmount || "0"))} VNĐ</p>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Car Information Section */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Thông tin xe</h3>
+                <div className="grid grid-cols-2 gap-4 bg-purple-50 p-4 rounded-lg border border-purple-100">
+                  <div>
+                    <Label className="text-xs font-medium text-gray-500">Xe</Label>
+                    <p className="text-sm font-medium mt-1">
+                      {selectedOrder.carEvs?.model?.modelName || "N/A"}
+                    </p>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-medium text-gray-500">Biển số xe</Label>
+                    <p className="text-sm font-medium mt-1">{selectedOrder.carEvs?.licensePlate || "N/A"}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-xs font-medium text-gray-500">Trạm xe điện</Label>
+                    <p className="text-sm mt-1">{selectedOrder.depot?.name || "N/A"}</p>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* System Information Section */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Thông tin hệ thống</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-xs font-medium text-gray-500">Ngày tạo</Label>
+                    <p className="text-sm mt-1">{formatDate(selectedOrder.createdAt)}</p>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-medium text-gray-500">Ngày cập nhật</Label>
+                    <p className="text-sm mt-1">{formatDate(selectedOrder.updatedAt)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Notes Section */}
+              {selectedOrder.note && (
+                <>
+                  <Separator />
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Ghi chú</h3>
+                    <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{selectedOrder.note}</p>
+                    </div>
+                  </div>
+                </>
               )}
             </div>
           )}
@@ -862,6 +1019,62 @@ export default function OrderTable() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Refund Dialog */}
+      <Dialog open={refundDialogOpen} onOpenChange={setRefundDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Tiến hành hoàn tiền</DialogTitle>
+            <DialogDescription>
+              Nhập số tiền cần hoàn và ghi chú cho đơn đặt xe.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Số tiền hoàn (VNĐ)</Label>
+              <Input
+                type="number"
+                placeholder="Nhập số tiền hoàn"
+                value={refundedAmount}
+                onChange={(e) => setRefundedAmount(e.target.value)}
+                min={0}
+              />
+            </div>
+            <div>
+              <Label>Ghi chú của quản trị viên</Label>
+              <Textarea
+                placeholder="Nhập ghi chú (không bắt buộc)"
+                value={adminRefundNote}
+                onChange={(e) => setAdminRefundNote(e.target.value)}
+                className="min-h-[96px]"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setRefundDialogOpen(false);
+              }}
+              disabled={submittingRefund}
+            >
+              Hủy
+            </Button>
+            <Button onClick={handleConfirmRefund} disabled={submittingRefund}>
+              {submittingRefund ? "Đang xử lý..." : "Xác nhận hoàn tiền"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* User Info Modal */}
+      <UserInfoModal
+        open={!!userInfoUserId}
+        onOpenChange={(open) => {
+          if (!open) setUserInfoUserId(null);
+        }}
+        userId={userInfoUserId}
+      />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import CrudTemplate from "@/page/admin/components/crud-template";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 import { CarManufactureAPI } from "@/apis/manufacture.api";
 import { AmenityAPI } from "@/apis/amentities.api";
 import { modelAPI } from "@/apis/model-ev.api";
@@ -9,10 +10,14 @@ import type { CarManufacture } from "@/@types/car/carManufacture";
 import type { Amenity } from "@/@types/car/amentities";
 import type { Model, ModelRequest } from "@/@types/car/model";
 import type { UseFormRegister } from "react-hook-form";
+import { uploadFileToCloudinary } from "@/lib/utils/cloudinary";
+import { Loader2 } from "lucide-react";
 
 const ModelTable: React.FC = () => {
   const [manufacturers, setManufacturers] = useState<CarManufacture[]>([]);
   const [amenities, setAmenities] = useState<Amenity[]>([]);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   // Fetch manufacturers and amenities for dropdowns
   useEffect(() => {
@@ -118,11 +123,23 @@ const ModelTable: React.FC = () => {
       dataIndex: "image",
       render: (value: unknown) => (
         value ? (
-          <img src={value as string} alt="Model" className="w-12 h-8 object-contain" />
+          <img src={value as string} alt="Model" className="w-16 h-10 object-contain" />
         ) : (
           <span className="text-muted-foreground">No image</span>
         )
       ),
+    },
+    {
+      key: "createdAt",
+      title: "Ngày tạo",
+      dataIndex: "createdAt",
+      render: (value: unknown) => new Date(value as string).toLocaleString(),
+    },
+    {
+      key: "updatedAt",
+      title: "Ngày cập nhật",
+      dataIndex: "updatedAt",
+      render: (value: unknown) => new Date(value as string).toLocaleString(),
     },
     {
       key: "isDeleted",
@@ -133,12 +150,6 @@ const ModelTable: React.FC = () => {
           {!value ? "Hoạt động" : "Đã xóa"}
         </Badge>
       ),
-    },
-    {
-      key: "createdAt",
-      title: "Ngày tạo",
-      dataIndex: "createdAt",
-      render: (value: unknown) => new Date(value as string).toLocaleString(),
     },
   ];
 
@@ -155,7 +166,7 @@ const ModelTable: React.FC = () => {
       name: "manufacturerCarId",
       label: "Nhà sản xuất",
       required: true,
-      render: (register: UseFormRegister<Model>) => (
+      render: ({ register }: { register: UseFormRegister<Model> }) => (
         <div className="space-y-2">
           <Label htmlFor="manufacturerCarId">
             Nhà sản xuất <span className="text-red-500 ml-1">*</span>
@@ -181,7 +192,7 @@ const ModelTable: React.FC = () => {
       name: "amenitiesId",
       label: "Tiện nghi",
       required: true,
-      render: (register: UseFormRegister<Model>) => (
+      render: ({ register }: { register: UseFormRegister<Model> }) => (
         <div className="space-y-2">
           <Label htmlFor="amenitiesId">
             Tiện nghi <span className="text-red-500 ml-1">*</span>
@@ -261,10 +272,78 @@ const ModelTable: React.FC = () => {
     },
     {
       name: "image",
-      label: "URL hình ảnh",
-      type: "text" as const,
+      label: "Hình ảnh",
       required: false,
-      placeholder: "Nhập URL hình ảnh",
+      render: ({ setValue, getValues }: {
+        setValue: (name: keyof Model, value: Model[keyof Model]) => void;
+        getValues: (name: keyof Model) => Model[keyof Model];
+      }) => {
+        const currentUrl = (getValues("image") as string) || "";
+        const displayUrl = imagePreview || currentUrl;
+
+        const handleFiles = async (files: FileList | null) => {
+          const file = files?.[0];
+          if (!file) return;
+          try {
+            toast.loading("Đang tải ảnh lên...", { id: "image-upload" });
+            const objectUrl = URL.createObjectURL(file);
+            setImagePreview(objectUrl);
+            setImageUploading(true);
+            const url = await uploadFileToCloudinary(file);
+            setValue("image" as keyof Model, url as unknown as Model[keyof Model]);
+            setImagePreview(url);
+            toast.success("Tải ảnh thành công", { id: "image-upload" });
+          } catch (error) {
+            console.error(error);
+            toast.error("Tải ảnh thất bại", { id: "image-upload" });
+          } finally {
+            setImageUploading(false);
+          }
+        };
+
+        return (
+          <div className="space-y-2">
+            <Label htmlFor="image">Hình ảnh</Label>
+            <div
+              className="relative flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50"
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleFiles(e.dataTransfer.files);
+              }}
+              onClick={() => {
+                const input = document.getElementById("imageInput") as HTMLInputElement | null;
+                input?.click();
+              }}
+            >
+              <p className="text-sm text-muted-foreground">Kéo & thả ảnh vào đây, hoặc nhấn để chọn</p>
+              <input
+                id="imageInput"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleFiles(e.target.files)}
+              />
+              {displayUrl ? (
+                <div className="relative mt-2">
+                  <img src={displayUrl} alt="Preview" className="h-24 w-auto object-contain" />
+                  {imageUploading && (
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded">
+                      <Loader2 className="h-6 w-6 animate-spin text-white" />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <span className="text-xs text-muted-foreground">Chưa có ảnh</span>
+              )}
+            </div>
+          </div>
+        );
+      },
     },
   ];
 
@@ -332,8 +411,8 @@ const ModelTable: React.FC = () => {
         columns={columns}
         formItems={formItems}
         addButtonText="Thêm model xe"
-        editButtonText="Sửa"
-        deleteButtonText="Xóa"
+        editButtonText=""
+        deleteButtonText=""
         deleteConfirmTitle="Xóa model xe"
         deleteConfirmDescription="Bạn có chắc chắn muốn xóa model xe này? Thao tác này không thể hoàn tác và sẽ ảnh hưởng đến tất cả các xe liên quan."
         successMessages={{

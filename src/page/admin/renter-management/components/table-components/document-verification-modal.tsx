@@ -5,6 +5,17 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import type { UserFull } from "@/@types/auth.type";
 import type { IdentifyDocumentResponse } from "@/@types/identify-document";
+import type { IdentifyDocumentStatus } from "@/@types/enum";
+
+// Helper function to translate status to Vietnamese
+function getStatusLabel(status: IdentifyDocumentStatus): string {
+  const statusMap: Record<IdentifyDocumentStatus, string> = {
+    PENDING: "Đang chờ",
+    APPROVED: "Đã duyệt",
+    REJECTED: "Đã từ chối",
+  };
+  return statusMap[status] || status;
+}
 
 interface DocumentVerificationModalProps {
   isOpen: boolean;
@@ -65,7 +76,7 @@ export function DocumentVerificationModal({
                           : "outline"
                     }
                   >
-                    {document.status}
+                    {getStatusLabel(document.status)}
                   </Badge>
                 </div>
               </div>

@@ -19,16 +19,6 @@ const AmenitiesTable: React.FC = () => {
       render: (value: unknown) => (value ? String(value) : "-")
     },
     {
-      key: "isDeleted",
-      title: "Trạng thái",
-      dataIndex: "isDeleted",
-      render: (value: unknown) => (
-        <Badge variant={!value ? "default" : "secondary"}>
-          {!value ? "Hoạt động" : "Đã xóa"}
-        </Badge>
-      ),
-    },
-    {
       key: "createdAt",
       title: "Ngày tạo",
       dataIndex: "createdAt",
@@ -39,6 +29,16 @@ const AmenitiesTable: React.FC = () => {
       title: "Cập nhật",
       dataIndex: "updatedAt",
       render: (value: unknown) => (value ? new Date(String(value)).toLocaleString() : "")
+    },
+    {
+      key: "isDeleted",
+      title: "Trạng thái",
+      dataIndex: "isDeleted",
+      render: (value: unknown) => (
+        <Badge variant={!value ? "default" : "secondary"}>
+          {!value ? "Hoạt động" : "Đã xóa"}
+        </Badge>
+      ),
     },
   ];
 
