@@ -6,6 +6,7 @@ import type {
   OrderBookingDetail,
   ID,
   DateString,
+  OrderBookingOfflineRequest,
 } from "@/@types/order/order-booking";
 import type {
   OrderBookingStatus,
@@ -108,9 +109,12 @@ export const orderBookingAPI = {
     );
   },
   cancel: async (id: ID, reason: string) => {
-    await api.post<ItemBaseResponse<OrderBookingDetail>>(
-      `/api/OrderBooking/${id}/cancel`,
-      { reason }
+    await api.post(`/api/OrderBooking/${id}/cancel`, { reason });
+  },
+  orderOffline: async (body: OrderBookingOfflineRequest) => {
+    return await api.post<OrderBookingResponse>(
+      "/api/OrderBooking/offline",
+      body
     );
   },
 };

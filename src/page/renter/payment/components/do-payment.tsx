@@ -65,18 +65,15 @@ export default function DoPayment() {
     console.log("[DoPayment] State:", state);
   }, [data, isLoading, state]);
 
-  // Load saved QR and orderId from localStorage on mount
+  // Clear old QR and orderId from localStorage on mount to generate new one
   useEffect(() => {
-    const savedQr = localStorage.getItem("payment_qr_url");
-    const savedOrderId = localStorage.getItem("payment_order_id");
+    console.log("[DoPayment] Clearing old payment data from localStorage");
+    localStorage.removeItem("payment_qr_url");
+    localStorage.removeItem("payment_order_id");
 
-    console.log("[DoPayment] Load from localStorage:", {
-      savedQr,
-      savedOrderId,
-    });
-
-    if (savedQr) setQrUrl(savedQr);
-    if (savedOrderId) setOrderId(savedOrderId);
+    // Reset states to ensure fresh start
+    setQrUrl(null);
+    setOrderId(null);
   }, []);
 
   // Create order automatically when component mounts and data is ready

@@ -7,21 +7,29 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { generateSepayRemainQR, checkSepayOrderStatus } from "@/apis/sepay.api";
+import {
+  generateSepayRemainQR,
+  generateSepayQR,
+  checkSepayOrderStatus,
+} from "@/apis/sepay.api";
 import { toast } from "sonner";
 import { CreditCard, Loader2, QrCode, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { SepayOrderStatus } from "@/@types/payment/sepay";
+import type { PaymentType } from "@/@types/enum";
+import { useAuthStore } from "@/lib/zustand/use-auth-store";
 
 interface PaymentQRProps {
   orderId: string;
+  paymentType: PaymentType;
 }
 
-export default function PaymentQR({ orderId }: PaymentQRProps) {
+export default function PaymentQR({ orderId, paymentType }: PaymentQRProps) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [qrUrl, setQrUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     if (!open || !orderId) return;
@@ -30,12 +38,19 @@ export default function PaymentQR({ orderId }: PaymentQRProps) {
       try {
         const response = await checkSepayOrderStatus(orderId);
 
-        if (response.message === SepayOrderStatus.PAID_DEPOSIT_COMPLETED) {
+        if (
+          response.message === SepayOrderStatus.PAID_DEPOSIT_COMPLETED ||
+          response.message === SepayOrderStatus.PAID_FULL
+        ) {
           toast.success("Thanh toán thành công! Đang chuyển hướng...");
           setOpen(false);
 
           setTimeout(() => {
-            navigate(`/account/my-trip/${orderId}`);
+            if (user?.role === "STAFF") {
+              navigate(`/staff/trip/${orderId}`);
+            } else {
+              navigate(`/account/my-trip/${orderId}`);
+            }
           }, 1500);
         }
       } catch (error) {
@@ -48,12 +63,17 @@ export default function PaymentQR({ orderId }: PaymentQRProps) {
     const intervalId = setInterval(checkPaymentStatus, 5000);
 
     return () => clearInterval(intervalId);
-  }, [open, orderId, navigate]);
+  }, [open, orderId, navigate, user?.role]);
 
   const handleGenerateQR = async () => {
     setLoading(true);
     try {
-      const response = await generateSepayRemainQR(orderId);
+      // Choose API based on payment type
+      const response =
+        paymentType === "FULL"
+          ? await generateSepayQR(orderId)
+          : await generateSepayRemainQR(orderId);
+
       if (response.data?.qrUrl) {
         setQrUrl(response.data.qrUrl);
         setOpen(true);

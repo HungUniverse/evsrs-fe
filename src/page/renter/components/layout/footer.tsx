@@ -8,18 +8,13 @@ export default function Footer() {
           <h4 className="text-slate-100 font-semibold mb-4">Sản phẩm</h4>
           <ul className="space-y-3 text-slate-300">
             <li>
-              <a href="#" className="hover:text-white">
+              <a href="/search-car" className="hover:text-white">
                 Thuê xe tự lái
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-white">
+              <a href="/search-car" className="hover:text-white">
                 Thuê theo ngày
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-white">
-                Bảng giá
               </a>
             </li>
           </ul>
@@ -35,17 +30,17 @@ export default function Footer() {
             </li>
             <li>
               <a href="#" className="hover:text-white">
-                Blog
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-white">
                 Hỗ trợ
               </a>
             </li>
             <li>
+              <a href="/security-policies" className="hover:text-white">
+                Chính sách bảo mật
+              </a>
+            </li>
+            <li>
               <a href="/policies" className="hover:text-white">
-                Chính sách &amp; Điều khoản
+                Chính sách &amp; Điều khoản thuê xe
               </a>
             </li>
           </ul>
@@ -55,23 +50,8 @@ export default function Footer() {
           <h4 className="text-slate-100 font-semibold mb-4">Công ty</h4>
           <ul className="space-y-3 text-slate-300">
             <li>
-              <a href="#" className="hover:text-white">
+              <a href="/about" className="hover:text-white">
                 Về chúng tôi
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-white">
-                Tuyển dụng
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-white">
-                Liên hệ
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-white">
-                Đối tác
               </a>
             </li>
           </ul>

@@ -153,7 +153,6 @@ export default function BookingForm({ car, searchForm, onTimeChange }: Props) {
                     <SelectItem value="BANKING">
                       Chuyển khoản ngân hàng (SePay)
                     </SelectItem>
-                    <SelectItem value="CASH">Tiền mặt</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -173,7 +172,10 @@ export default function BookingForm({ car, searchForm, onTimeChange }: Props) {
                   <Checkbox id="terms" required />
                   <Label htmlFor="terms" className="text-sm text-slate-600">
                     Bạn đã đọc và đồng ý với{" "}
-                    <a href="#" className="text-blue-600 hover:underline">
+                    <a
+                      href="/policies"
+                      className="text-blue-600 hover:underline"
+                    >
                       Điều khoản thanh toán của EcoRent
                     </a>
                   </Label>
@@ -182,7 +184,10 @@ export default function BookingForm({ car, searchForm, onTimeChange }: Props) {
                   <Checkbox id="privacy" required />
                   <Label htmlFor="privacy" className="text-sm text-slate-600">
                     Tôi đồng ý để lại thông tin cá nhân theo{" "}
-                    <a href="#" className="text-blue-600 hover:underline">
+                    <a
+                      href="/security-policies"
+                      className="text-blue-600 hover:underline"
+                    >
                       Điều khoản chia sẻ dữ liệu cá nhân của EcoRent
                     </a>
                   </Label>
