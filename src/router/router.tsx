@@ -20,6 +20,7 @@ import {
   HomePage,
   PayCar,
   Payment,
+  PoliciesPage,
   Profile,
   SearchCar,
   TripDetails,
@@ -58,6 +59,10 @@ export const router = createBrowserRouter([
       {
         path: "/about",
         element: <AboutPage />,
+      },
+      {
+        path: "/policies",
+        element: <PoliciesPage />,
       },
 
       {

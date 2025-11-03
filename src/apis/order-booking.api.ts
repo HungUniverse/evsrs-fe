@@ -84,7 +84,11 @@ export const orderBookingAPI = {
     api.get<ListBaseResponse<OrderBookingDetail>>(
       `/api/OrderBooking/depot/${id}`
     ),
-  updateStatus: async (id: ID, status: OrderBookingStatus, paymentStatus: PaymentStatus) => {
+  updateStatus: async (
+    id: ID,
+    status: OrderBookingStatus,
+    paymentStatus: PaymentStatus
+  ) => {
     const res = await api.patch<ItemBaseResponse<OrderBookingDetail>>(
       `/api/OrderBooking/${id}/status`,
       { status, paymentStatus }
@@ -101,6 +105,12 @@ export const orderBookingAPI = {
   delete: async (id: ID) => {
     await api.delete<ItemBaseResponse<OrderBookingDetail>>(
       `/api/OrderBooking/${id}`
+    );
+  },
+  cancel: async (id: ID, reason: string) => {
+    await api.post<ItemBaseResponse<OrderBookingDetail>>(
+      `/api/OrderBooking/${id}/cancel`,
+      { reason }
     );
   },
 };
