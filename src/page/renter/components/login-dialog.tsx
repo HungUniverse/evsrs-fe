@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/page/renter/components/login-dialog.tsx
 import React from "react";
 import { useForm } from "react-hook-form";

@@ -4,7 +4,7 @@ export interface TransactionResponse {
   userId: string;
   sepayId: string;
   gateway: string;
-  transactionDate: string; // ISO datetime: "2025-10-29T12:08:00Z"
+  transactionDate: string;
   accountNumber: string;
   code: string; // ví dụ: "ORD5432036"
   content: string; // nội dung chuyển khoản gốc

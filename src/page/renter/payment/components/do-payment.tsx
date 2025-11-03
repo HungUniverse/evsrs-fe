@@ -113,7 +113,6 @@ export default function DoPayment() {
       return;
     }
 
-    console.log("[DoPayment] All conditions met, creating order...");
     hasAttemptedCreateRef.current = true; // Mark as attempted BEFORE calling
     createOrder();
     // eslint-disable-next-line react-hooks/exhaustive-deps
