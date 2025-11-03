@@ -30,7 +30,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Edit2, Trash2, Plus, Search, ArrowUpDown, Loader2, Filter } from "lucide-react";
+import { Edit2, Trash2, Plus, Search, ArrowUpDown, Loader2, Filter, RotateCcw } from "lucide-react";
 
 // Types
 interface BaseRecord extends FieldValues {
@@ -96,6 +96,7 @@ const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>
         handleSubmit,
         reset,
         setValue,
+        getValues,
         formState: { errors },
     } = useForm<T>();
 
@@ -268,7 +269,7 @@ const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>
     //Render form item
     const renderFormItem = (item: FormItem<T>) => {
         if (item.render) {
-            return item.render(register);
+            return item.render({ register, setValue, getValues });
         }
 
         return (
@@ -322,7 +323,7 @@ const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>
 
                 {/* Filter and Sort Row */}
                 {(filterOptions.length > 0 || sortOptions.length > 0) && (
-                    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                    <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start sm:items-center">
                         {/* Filter Controls */}
                         {filterOptions.length > 0 && (
                             <div className="flex items-center gap-2 flex-wrap">
@@ -384,6 +385,25 @@ const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>
                                 </Select>
                             </div>
                         )}
+
+                        {/* Reset Filters Button - always visible (disabled when nothing active) */}
+                        {(() => {
+                            const hasActive = Boolean(
+                                searchTerm || sortBy !== "none" || Object.values(filters).some(v => v && v !== "all")
+                            );
+                            return (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => { setSearchTerm(""); setSortBy("none"); setFilters({}); }}
+                                    disabled={!hasActive}
+                                    className="group text-red-600 hover:text-red-700 border-red-600 hover:bg-red-50 sm:ml-auto"
+                                >
+                                    <RotateCcw className="h-4 w-4 mr-2 transition-transform duration-300 group-hover:rotate-180" />
+                                    Đặt lại bộ lọc
+                                </Button>
+                            );
+                        })()}
                     </div>
                 )}
             </div>
@@ -395,7 +415,7 @@ const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>
                             {columns.map((column) => (
                                 <TableHead key={column.key}>{column.title}</TableHead>
                             ))}
-                            <TableHead className="w-[100px]">Actions</TableHead>
+                            <TableHead className="w-[100px]">Hành động</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -404,7 +424,7 @@ const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>
                                 <TableCell colSpan={columns.length + 1} className="text-center py-8">
                                     <div className="flex items-center justify-center gap-2">
                                         <Loader2 className="h-4 w-4 animate-spin" />
-                                        <span>Loading...</span>
+                                        <span>Đang tải dữ liệu...</span>
                                     </div>
                                 </TableCell>
                             </TableRow>

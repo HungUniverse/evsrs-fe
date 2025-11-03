@@ -11,11 +11,6 @@ const columns = [
     dataIndex: "name",
   },
   {
-    key: "mapId",
-    title: "Map ID",
-    dataIndex: "mapId",
-  },
-  {
     key: "province",
     title: "Tỉnh/Thành phố",
     dataIndex: "province",

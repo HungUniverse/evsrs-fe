@@ -10,11 +10,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { MoreHorizontal, ArrowUpDown, User, Trash2, Loader2, MapPin, Plus } from "lucide-react";
+import { MoreHorizontal, ArrowUpDown, User, Trash2, Loader2, MapPin, Plus, RotateCcw, CheckCircle2, XCircle, CalendarPlus, UserPlus, Edit } from "lucide-react";
 import { UserFullAPI } from "@/apis/user.api";
 import { depotAPI } from "@/apis/depot.api";
 import { formatDate } from "@/lib/utils/formatDate";
@@ -390,8 +390,14 @@ export function StaffTable() {
             </Button>
 
             {hasActiveFilters && (
-              <Button variant="outline" size="sm" onClick={clearFilters}>
-                Xóa bộ lọc
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={clearFilters}
+                className="group text-red-600 hover:text-red-700 border-red-600 hover:bg-red-50"
+              >
+                <RotateCcw className="h-4 w-4 mr-2 transition-transform duration-300 group-hover:rotate-180" />
+                Đặt lại bộ lọc
               </Button>
             )}
             
@@ -419,10 +425,9 @@ export function StaffTable() {
               <TableHead className="w-[40px]"></TableHead>
               <TableHead>Nhân viên</TableHead>
               <TableHead>Số điện thoại / Email</TableHead>
-              <TableHead>Vai trò</TableHead>
               <TableHead>Ngày tạo</TableHead>
               <TableHead>Ngày cập nhật</TableHead>
-              <TableHead>Kho</TableHead>
+              <TableHead>Trạm</TableHead>
               <TableHead className="w-[60px]">Hành động</TableHead>
             </TableRow>
           </TableHeader>
@@ -455,9 +460,17 @@ export function StaffTable() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <img
-                          src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.fullName || "User")}`}
+                          src={
+                            u.profilePicture && u.profilePicture.trim() !== ""
+                              ? u.profilePicture
+                              : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.fullName || "User")}`
+                          }
                           alt={u.fullName || "Nhân viên"}
                           className="size-8 rounded-full object-cover"
+                          onError={(e) => {
+                            const target = e.currentTarget as HTMLImageElement;
+                            target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.fullName || "User")}`;
+                          }}
                         />
                         <div>
                           <div className="font-medium leading-tight">
@@ -477,12 +490,6 @@ export function StaffTable() {
                           {u.userEmail || "Chưa có email"}
                         </span>
                       </div>
-                    </TableCell>
-                    {/* Vai trò */}
-                    <TableCell>
-                      <Badge variant="secondary">
-                        {u.role || "STAFF"}
-                      </Badge>
                     </TableCell>
                     {/* Created */}
                     <TableCell>{u.createdAt ? formatDate(u.createdAt) : "Chưa xác định"}</TableCell>
@@ -516,13 +523,11 @@ export function StaffTable() {
                                   openChangeDepotForUser(u);
                                 }}
                               >
-                                Thay đổi Kho
+                                Thay đổi Trạm
                               </DropdownMenuItem>
                             </DropdownMenuSubContent>
                           </DropdownMenuSub>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>Nhật ký kiểm tra</DropdownMenuItem>
-                          <DropdownMenuSeparator />
+                          
                           <DropdownMenuItem 
                             className="text-red-600 focus:text-red-600"
                             onClick={(e) => {
@@ -533,7 +538,7 @@ export function StaffTable() {
                               });
                             }}
                           >
-                            <Trash2 className="size-4 mr-2" />
+                            <Trash2 className="size-4 mr-2 text-red-600" />
                             Xóa nhân viên
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -556,78 +561,86 @@ export function StaffTable() {
                                 <User className="size-4" />
                                 Thông tin cơ bản
                               </h4>
-                              <div className="grid grid-cols-2 gap-3 text-sm">
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Role:
-                                  </span>
-                                  <span className="ml-2">
-                                    <Badge variant="secondary">{u.role || "STAFF"}</Badge>
-                                  </span>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Đã xác thực:
-                                  </span>
-                                  <span className="ml-2">
-                                    <Badge
-                                      variant={
-                                        u.isVerify ? "default" : "secondary"
-                                      }
-                                    >
-                                      {u.isVerify ? "Có" : "Không"}
-                                    </Badge>
-                                  </span>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Tạo lúc:
-                                  </span>
-                                  <span className="ml-2">
-                                    {u.createdAt ? formatDate(u.createdAt) : "Chưa xác định"}
-                                  </span>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Cập nhật:
-                                  </span>
-                                  <span className="ml-2">
-                                    {u.updatedAt ? formatDate(u.updatedAt) : "Chưa xác định"}
-                                  </span>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Tạo bởi:
-                                  </span>
-                                  <span className="ml-2">{u.createdBy || "Hệ thống"}</span>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Cập nhật bởi:
-                                  </span>
-                                  <span className="ml-2">{u.updatedBy || "Chưa cập nhật"}</span>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Kho làm việc:
-                                  </span>
-                                  <span className="ml-2">
-                                    <Badge variant="outline" className="flex items-center gap-1 w-fit">
-                                      <MapPin className="size-3" />
-                                      {getDepotName(u.depotId)}
-                                    </Badge>
-                                  </span>
-                                </div>
-                                {u.depotId && depots[u.depotId] && (
-                                  <div className="col-span-2">
-                                    <span className="text-muted-foreground">
-                                      Địa chỉ kho:
-                                    </span>
-                                    <span className="ml-2 text-sm">
-                                      {depots[u.depotId].street}, {depots[u.depotId].ward}, {depots[u.depotId].district}, {depots[u.depotId].province}
-                                    </span>
+                              <div className="space-y-3">
+                                <div className="flex items-center gap-3 p-3 rounded-lg border bg-card">
+                                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-emerald-50">
+                                    {u.isVerify ? (
+                                      <CheckCircle2 className="size-5 text-emerald-600" />
+                                    ) : (
+                                      <XCircle className="size-5 text-red-600" />
+                                    )}
                                   </div>
-                                )}
+                                  <div className="flex-1">
+                                    <div className="text-xs text-muted-foreground mb-0.5">Trạng thái xác thực</div>
+                                    <Badge
+                                      variant={u.isVerify ? "default" : "secondary"}
+                                      className="text-sm"
+                                    >
+                                      {u.isVerify ? "Đã xác thực" : "Chưa xác thực"}
+                                    </Badge>
+                                  </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div className="flex items-start gap-2 p-3 rounded-lg border bg-card">
+                                    <CalendarPlus className="size-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                                    <div className="flex-1 min-w-0">
+                                      <div className="text-xs text-muted-foreground mb-0.5">Tạo lúc</div>
+                                      <div className="text-sm font-medium truncate">
+                                        {u.createdAt ? formatDate(u.createdAt) : "Chưa xác định"}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-start gap-2 p-3 rounded-lg border bg-card">
+                                    <Edit className="size-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                                    <div className="flex-1 min-w-0">
+                                      <div className="text-xs text-muted-foreground mb-0.5">Cập nhật</div>
+                                      <div className="text-sm font-medium truncate">
+                                        {u.updatedAt ? formatDate(u.updatedAt) : "Chưa xác định"}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-start gap-2 p-3 rounded-lg border bg-card">
+                                    <UserPlus className="size-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                                    <div className="flex-1 min-w-0">
+                                      <div className="text-xs text-muted-foreground mb-0.5">Tạo bởi</div>
+                                      <div className="text-sm font-medium truncate">
+                                        {u.createdBy || "Hệ thống"}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-start gap-2 p-3 rounded-lg border bg-card">
+                                    <User className="size-4 text-cyan-600 mt-0.5 flex-shrink-0" />
+                                    <div className="flex-1 min-w-0">
+                                      <div className="text-xs text-muted-foreground mb-0.5">Cập nhật bởi</div>
+                                      <div className="text-sm font-medium truncate">
+                                        {u.updatedBy || "Chưa cập nhật"}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="p-3 rounded-lg border bg-card">
+                                  <div className="flex items-start gap-2">
+                                    <MapPin className="size-4 text-rose-600 mt-0.5 flex-shrink-0" />
+                                    <div className="flex-1 min-w-0">
+                                      <div className="text-xs text-muted-foreground mb-2">Trạm làm việc</div>
+                                      <Badge variant="outline" className="flex items-center gap-1 w-fit mb-2">
+                                        <MapPin className="size-3" />
+                                        {getDepotName(u.depotId)}
+                                      </Badge>
+                                      {u.depotId && depots[u.depotId] && (
+                                        <div className="text-sm text-muted-foreground">
+                                          <MapPin className="size-3 inline mr-1" />
+                                          {depots[u.depotId].street}, {depots[u.depotId].ward}, {depots[u.depotId].district}, {depots[u.depotId].province}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -655,19 +668,19 @@ export function StaffTable() {
       <Dialog open={changeDepotDialog.isOpen} onOpenChange={(open) => (open ? null : closeChangeDepotDialog())}>
         <DialogContent className="sm:max-w-[420px]">
           <DialogHeader>
-            <DialogTitle>Thay đổi kho làm việc</DialogTitle>
+            <DialogTitle>Thay đổi trạm làm việc</DialogTitle>
             <DialogDescription>
-              Chọn kho mới cho nhân viên {changeDepotDialog.user?.fullName || changeDepotDialog.user?.userName}
+              Chọn trạm mới cho nhân viên {changeDepotDialog.user?.fullName || changeDepotDialog.user?.userName}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <Label>Kho làm việc</Label>
+            <Label>Trạm làm việc</Label>
             <Select
               value={changeDepotDialog.selectedDepotId}
               onValueChange={(val) => setChangeDepotDialog((s) => ({ ...s, selectedDepotId: val }))}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Chọn kho" />
+                <SelectValue placeholder="Chọn trạm" />
               </SelectTrigger>
               <SelectContent>
                 {depotList.map((d) => (
@@ -822,14 +835,14 @@ export function StaffTable() {
               {/* Depot Selection */}
               <div className="space-y-2">
                 <Label htmlFor="depotId">
-                  Kho làm việc <span className="text-red-500 ml-1">*</span>
+                  Trạm làm việc <span className="text-red-500 ml-1">*</span>
                 </Label>
                 <Select
                   onValueChange={(value) => setValue("depotId", value)}
                   value={watch("depotId") || ""}
                 >
                   <SelectTrigger className={errors.depotId ? "border-red-500" : ""}>
-                    <SelectValue placeholder="Chọn kho làm việc" />
+                    <SelectValue placeholder="Chọn trạm làm việc" />
                   </SelectTrigger>
                   <SelectContent>
                     {depotList.map((depot) => (
