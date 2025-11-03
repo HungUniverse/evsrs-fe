@@ -105,6 +105,11 @@ export default function ContractCosts({ orderId }: { orderId: string }) {
                 so với lúc nhận xe, khách hàng sẽ chịu phí sạc pin theo bảng giá{" "}
                 {order?.carEvs?.model?.electricityFee}đ/%.
               </span>
+              <br />
+              <span className="ml-2 text-gray-800">
+                - Công thức tính sẽ là Dung lượng pin (kWh) × Tỷ lệ chênh lệch
+                (%) × Đơn giá điện (VNĐ/kWh) × (Sức khỏe pin / 100).
+              </span>
 
               <br />
               <span className="ml-2 text-gray-800">

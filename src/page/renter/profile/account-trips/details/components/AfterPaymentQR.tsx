@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { generateSepayRemainQR, checkSepayOrderStatus } from "@/apis/sepay.api";
+import { checkSepayOrderStatus, generateSepayQR } from "@/apis/sepay.api";
 import { toast } from "sonner";
 import { CreditCard, Loader2, QrCode, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -17,7 +17,7 @@ interface PaymentQRProps {
   orderId: string;
 }
 
-export default function PaymentQR({ orderId }: PaymentQRProps) {
+export default function AfterPaymentQR({ orderId }: PaymentQRProps) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [qrUrl, setQrUrl] = useState<string | null>(null);
@@ -30,12 +30,15 @@ export default function PaymentQR({ orderId }: PaymentQRProps) {
       try {
         const response = await checkSepayOrderStatus(orderId);
 
-        if (response.message === SepayOrderStatus.PAID_DEPOSIT_COMPLETED) {
+        if (response.message === SepayOrderStatus.PAID_DEPOSIT) {
           toast.success("Thanh toán thành công! Đang chuyển hướng...");
           setOpen(false);
 
           setTimeout(() => {
             navigate(`/account/my-trip/${orderId}`);
+            setTimeout(() => {
+              window.location.reload();
+            }, 300);
           }, 1500);
         }
       } catch (error) {
@@ -53,7 +56,7 @@ export default function PaymentQR({ orderId }: PaymentQRProps) {
   const handleGenerateQR = async () => {
     setLoading(true);
     try {
-      const response = await generateSepayRemainQR(orderId);
+      const response = await generateSepayQR(orderId);
       if (response.data?.qrUrl) {
         setQrUrl(response.data.qrUrl);
         setOpen(true);
@@ -76,11 +79,11 @@ export default function PaymentQR({ orderId }: PaymentQRProps) {
             <div className="flex items-center gap-2">
               <CreditCard className="h-6 w-6 text-emerald-600" />
               <h3 className="text-xl font-bold text-gray-900">
-                Thanh toán hợp đồng
+                Thanh toán tiền cọc
               </h3>
             </div>
             <p className="text-sm text-gray-600">
-              Quét mã QR để hoàn tất thanh toán cho hợp đồng này
+              Quét mã QR để hoàn tất thanh toán
             </p>
           </div>
 

@@ -5,6 +5,7 @@ import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import DetailInformation from "../../../renter/profile/account-trips/details/components/detail-information";
 import StaffDetailPaper from "./detail-paper";
 import DetailPrice from "../../../renter/profile/account-trips/details/components/detail-price";
+import { TRIP_STATUS_LABEL } from "@/lib/constants/trip-status";
 
 export default function StaffTripDetails() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -49,9 +50,14 @@ export default function StaffTripDetails() {
       <section className="rounded-2xl border bg-white p-5 md:p-6">
         <div className="text-lg font-semibold mb-4">Chi tiết đơn hàng</div>
 
-        <div className="rounded-xl bg-sky-100 px-4 py-3">
-          <span className="text-sm">Mã đơn hàng:&nbsp;</span>
-          <span className="font-medium tracking-wide">{booking.code}</span>
+        <div className="rounded-xl bg-sky-100 px-4 py-3 flex items-center justify-between">
+          <div>
+            <span className="text-sm">Mã đơn hàng:&nbsp;</span>
+            <span className="font-medium tracking-wide">{booking.code}</span>
+          </div>
+          <span className="text-sm font-medium text-slate-600">
+            {TRIP_STATUS_LABEL[booking.status]}
+          </span>
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[1fr_320px]">

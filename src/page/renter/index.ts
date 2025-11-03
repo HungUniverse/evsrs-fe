@@ -9,3 +9,4 @@ export { default as AccountProfile } from "./profile/account-profile";
 export { default as ChangePassword } from "./profile/change-password";
 export { default as TripDetails } from "./profile/account-trips/details";
 export { default as AccountTransactions } from "./profile/account-transaction";
+export { default as PoliciesPage } from "./home-page/policies-page";

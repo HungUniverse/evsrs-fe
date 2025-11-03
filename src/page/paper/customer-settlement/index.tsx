@@ -9,10 +9,10 @@ import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import PartiesSummary from "../hand-over-inspection/components/PartiesSummary";
 import CarInfo from "./components/car-info";
 import SettlementViewCustomer from "./components/settlement-view";
+import SettlementPaymentQR from "./components/settle-payment-qr";
 import InspectionImagesByOrder from "../return-settlement/components/inspection-image";
 import type { ReturnSettlement } from "@/@types/order/return-settlement";
 import { returnSettlementAPI } from "@/apis/return-settlement.api";
-import { Button } from "@/components/ui/button";
 
 export default function CustomerSettlementPage() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -78,7 +78,16 @@ export default function CustomerSettlementPage() {
       ) : (
         "Không tìm thấy biên bản thanh toán."
       )}
-      <Button variant="outline">Thanh toán</Button>
+
+      {settlement &&
+        settlement.id &&
+        order.status !== "COMPLETED" &&
+        order.paymentStatus !== "COMPLETED" && (
+          <SettlementPaymentQR
+            settlementId={settlement.id}
+            orderBookingId={orderId}
+          />
+        )}
     </div>
   );
 }

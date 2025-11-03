@@ -19,12 +19,44 @@ export const SepayOrderStatus = {
   NOT_FOUND: "NOT_FOUND",
 } as const;
 
+export const SepaySettlementStatus = {
+  PAID: "PAID",
+  PENDING: "PENDING",
+};
 export type SepayOrderStatusType =
   (typeof SepayOrderStatus)[keyof typeof SepayOrderStatus];
 export interface SepayCreateRemainQR {
   data: {
     qrUrl: string;
     orderbookingId: string;
+  };
+  message: string;
+  statusCode: number;
+  code: string;
+}
+export interface SepayCreateSettlementQR {
+  data: string;
+  message: string;
+  statusCode: number;
+  code: string;
+}
+export interface SepaySettlementQRResponse {
+  data: {
+    id: string;
+    orderBookingId: string;
+    paymentStatus: string;
+    paymentMethod: string | null;
+    paymentDate: string | null;
+    total: string;
+    isPaymentRequired: boolean;
+    isPaymentOverdue: boolean;
+    paymentDueDate: string | null;
+    qrCodeUrl: string;
+    createdAt: string;
+    updatedAt: string;
+    orderCode: string;
+    customerName: string;
+    customerPhone: string;
   };
   message: string;
   statusCode: number;

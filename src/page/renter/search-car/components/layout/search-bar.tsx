@@ -32,8 +32,8 @@ const PROVINCES = ["TP. Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Cần Thơ
 export default function SearchBar({ onSearch }: Props) {
   const [form, setForm] = useState<SearchForm>({
     location: "TP. Hồ Chí Minh",
-    start: toLocalDatetimeValue(new Date()),
-    end: toLocalDatetimeValue(new Date(Date.now() + 24 * 60 * 60 * 1000)),
+    start: toLocalDatetimeValue(new Date(Date.now() + 60 * 60 * 1000)),
+    end: toLocalDatetimeValue(new Date(Date.now() + 25 * 60 * 60 * 1000)),
   });
 
   const handleSubmit = (e: React.FormEvent) => {

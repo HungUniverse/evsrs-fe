@@ -150,7 +150,7 @@ export default function HandoverInspectionPage() {
   }
 
   const canCheckout =
-    isStaff && hasInspection && order?.status !== "CHECKED_OUT";
+    isStaff && hasInspection && order?.status === "READY_FOR_CHECKOUT";
 
   async function handleCheckout() {
     if (!orderId) return;
@@ -276,13 +276,14 @@ export default function HandoverInspectionPage() {
           </div>
         )}
         <div className="flex justify-end gap-3">
-          {isStaff && (
+          {isStaff && canCheckout && (
             <Button
               onClick={handleCheckout}
+              variant="secondary"
               disabled={!canCheckout || checkingOut}
               title={!canCheckout ? "Cần có biên bản/hoặc đã checkout" : ""}
             >
-              {checkingOut ? "Đang checkout..." : "Checkout"}
+              {checkingOut ? "Đang checkout..." : "Xác nhân giao xe"}
             </Button>
           )}
 
