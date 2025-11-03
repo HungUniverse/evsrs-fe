@@ -1,9 +1,10 @@
 import { api } from "@/lib/axios/axios";
 import type { ItemBaseResponse } from "@/@types/response"; // nếu không có, bỏ wrapper này đi
-import type {
-  LoginRequest,
-  LoginResponse,
-  LogoutBody,
+import {
+  type RefreshTokenResponse,
+  type LoginRequest,
+  type LoginResponse,
+  type LogoutBody,
 } from "@/@types/auth.type";
 
 export const authAPI = {
@@ -30,4 +31,9 @@ export const authAPI = {
     phoneNumber: string;
     password: string;
   }) => api.post("/api/Auth/complete-register", data),
+  refreshToken: (refreshToken: string) =>
+    api.post<ItemBaseResponse<RefreshTokenResponse>>(
+      "/api/Auth/refresh-token",
+      { refreshToken }
+    ),
 };

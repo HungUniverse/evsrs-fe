@@ -6,8 +6,8 @@ export type OrderBookingStatus =
   | "IN_USE"
   | "RETURNED"
   | "COMPLETED"
-  | "CANCELLED"
-  | "REFUND_PENDING";
+  | "REFUND_PENDING"
+  | "CANCELLED";
 
 // -------------------- OrderType --------------------
 export type OrderType = "RENTAL" | "WARRANTY";

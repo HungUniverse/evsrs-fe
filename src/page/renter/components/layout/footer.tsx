@@ -44,13 +44,8 @@ export default function Footer() {
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-white">
+              <a href="/policies" className="hover:text-white">
                 Chính sách &amp; Điều khoản
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-white">
-                Chính sách bảo mật dữ liệu
               </a>
             </li>
           </ul>
