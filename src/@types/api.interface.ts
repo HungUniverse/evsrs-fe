@@ -1,4 +1,4 @@
-import type { UseFormRegister, FieldValues } from "react-hook-form";
+import type { UseFormRegister, FieldValues, UseFormGetValues, UseFormSetValue } from "react-hook-form";
 import type { ListBaseResponse } from "./response";
 import type { AxiosResponse } from "axios";
 
@@ -18,7 +18,11 @@ export interface FormItem<T extends FieldValues = Record<string, unknown>> {
   type?: "text" | "number" | "email" | "password" | "date";
   required?: boolean;
   placeholder?: string;
-  render?: (register: UseFormRegister<T>) => React.ReactNode;
+  render?: (methods: {
+    register: UseFormRegister<T>;
+    setValue: UseFormSetValue<T>;
+    getValues: UseFormGetValues<T>;
+  }) => React.ReactNode;
 }
 
 // Generic interface for sort options
