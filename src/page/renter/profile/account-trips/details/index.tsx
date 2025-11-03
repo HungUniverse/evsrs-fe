@@ -16,6 +16,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 export default function TripDetails() {
@@ -25,6 +27,7 @@ export default function TripDetails() {
   const [error, setError] = useState<string | null>(null);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
 
   useEffect(() => {
     if (!orderId) return;
@@ -48,13 +51,31 @@ export default function TripDetails() {
   const canCancelBooking = useMemo(() => {
     if (!booking) return false;
 
+    // Only allow cancel if status is PENDING or CONFIRMED
     const isPendingOrConfirmed =
       booking.status === "PENDING" || booking.status === "CONFIRMED";
+
+    if (!isPendingOrConfirmed) return false;
+
+    // Compare dates only (ignore time)
     const startDate = new Date(booking.startAt);
     const now = new Date();
-    const isBeforeStartDate = now < startDate;
 
-    return isPendingOrConfirmed && isBeforeStartDate;
+    // Get date-only values (remove time component)
+    const startDateOnly = new Date(
+      startDate.getFullYear(),
+      startDate.getMonth(),
+      startDate.getDate()
+    );
+    const nowDateOnly = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+
+    // Can cancel only if current date is before start date
+    // (cannot cancel on the same day or after)
+    return nowDateOnly < startDateOnly;
   }, [booking]);
 
   const handleCancelClick = () => {
@@ -66,15 +87,12 @@ export default function TripDetails() {
 
     setCancelling(true);
     try {
-      await orderBookingAPI.updateStatus(
-        orderId,
-        "CANCELLED",
-        booking?.paymentStatus || "PENDING"
-      );
+      await orderBookingAPI.cancel(orderId, cancelReason);
       toast.success("Đã hủy chuyến thuê thành công");
       const res = await orderBookingAPI.getById(orderId);
       setBooking(res.data.data);
       setShowCancelDialog(false);
+      setCancelReason("");
     } catch (error) {
       console.error("Cancel booking error:", error);
       toast.error("Không thể hủy chuyến. Vui lòng thử lại.");
@@ -129,17 +147,21 @@ export default function TripDetails() {
       {booking.status === "PENDING" && <AfterPaymentQR orderId={booking.id} />}
 
       {/* Cancel Booking Button */}
-      {canCancelBooking && (
-        <div className="flex justify-end">
-          <Button
-            variant="destructive"
-            onClick={handleCancelClick}
-            className="hover:bg-red-600 transition-colors"
-          >
-            Hủy chuyến
-          </Button>
-        </div>
-      )}
+      <div className="flex justify-end">
+        <Button
+          variant="destructive"
+          onClick={handleCancelClick}
+          disabled={!canCancelBooking}
+          className="hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          title={
+            !canCancelBooking
+              ? "Không thể hủy chuyến (đã qua thời gian cho phép hoặc trạng thái không phù hợp)"
+              : "Hủy chuyến"
+          }
+        >
+          Hủy chuyến
+        </Button>
+      </div>
 
       {/* Cancel Confirmation Dialog */}
       <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
@@ -153,7 +175,7 @@ export default function TripDetails() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="py-4">
+          <div className="py-4 space-y-4">
             <p className="text-sm text-gray-700">
               Vui lòng đọc chính sách hủy chuyến của chúng tôi{" "}
               <Link
@@ -165,6 +187,20 @@ export default function TripDetails() {
               </Link>
               .
             </p>
+
+            <div className="space-y-2">
+              <Label htmlFor="cancel-reason" className="text-sm font-medium">
+                Lý do hủy chuyến <span className="text-red-500">*</span>
+              </Label>
+              <Textarea
+                id="cancel-reason"
+                placeholder="Vui lòng nhập lý do hủy chuyến..."
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                className="min-h-[100px] resize-none"
+                disabled={cancelling}
+              />
+            </div>
           </div>
 
           <DialogFooter className="flex gap-2">

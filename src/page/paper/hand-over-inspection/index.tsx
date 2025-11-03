@@ -170,7 +170,12 @@ export default function HandoverInspectionPage() {
     }
   }
 
-  const canStart = isUser && order?.status === "CHECKED_OUT";
+  const canStart =
+    (isUser && order?.status === "CHECKED_OUT") ||
+    (isStaff &&
+      order?.status === "CHECKED_OUT" &&
+      order?.paymentType === "FULL");
+
   async function handleStart() {
     if (!orderId) return;
     try {

@@ -8,7 +8,7 @@ export default function DetailInformation({
 }) {
   const customer = booking.user?.userName ?? "—";
   const modelName = booking.carEvs?.model?.modelName ?? "—";
-  const depotName = booking.depot?.name ?? "—";
+  const depotAddress = `${booking.depot?.street}, ${booking.depot?.ward}, ${booking.depot?.district}, ${booking.depot?.province}`;
 
   return (
     <aside className="rounded-xl border bg-white p-4">
@@ -17,9 +17,10 @@ export default function DetailInformation({
 
       <div className="text-slate-600 text-sm mt-3">Xe thuê</div>
       <div className="font-medium">{modelName}</div>
-
+      <div className="text-slate-600 text-sm mt-3">Biển số xe</div>
+      <div className="font-medium">{booking.carEvs.licensePlate}</div>
       <div className="text-slate-600 text-sm mt-3">Trạm nhận xe</div>
-      <div className="font-medium">{depotName}</div>
+      <div className="font-medium">{depotAddress}</div>
 
       <div className="text-slate-600 text-sm mt-3">Thời gian thuê</div>
       <div className="font-medium">

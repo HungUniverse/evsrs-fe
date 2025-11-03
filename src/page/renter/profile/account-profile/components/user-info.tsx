@@ -73,9 +73,9 @@ export default function UserInfo() {
           />
         </div>
         <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="Họ tên" value={userFull?.fullName || user.name} />
+          <Field label="Họ tên" value={userFull?.fullName} />
           <Field
-            label="Tên đăng nhập"
+            label="Tên tài khoản"
             value={userFull?.userName || user.userName}
           />
           <Field label="Email" value={userFull?.userEmail || user.email} />
@@ -83,15 +83,6 @@ export default function UserInfo() {
             label="Số điện thoại"
             value={userFull?.phoneNumber || user.phone}
           />
-          <Field
-            label="Ngày sinh"
-            value={
-              userFull?.dateOfBirth
-                ? new Date(userFull.dateOfBirth).toLocaleDateString("vi-VN")
-                : ""
-            }
-          />
-          <Field label="Vai trò" value={userFull?.role || user.role} />
         </div>
       </div>
     </section>
