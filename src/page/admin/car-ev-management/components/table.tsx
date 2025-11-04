@@ -29,7 +29,8 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Edit2, Trash2, Plus, Search, ArrowUpDown, Loader2, Filter, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Edit2, Trash2, Plus, Search, ArrowUpDown, Loader2, Filter, ChevronLeft, ChevronRight, MapPin, CarFront, CircleDot, RotateCcw } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { carEVAPI } from "@/apis/car-ev.api";
 import { depotAPI } from "@/apis/depot.api";
 import { modelAPI } from "@/apis/model-ev.api";
@@ -153,9 +154,9 @@ export default function CarEVTable() {
     const fetchCarEVData = async () => {
         try {
             setLoading(true);
-            const response = await carEVAPI.getAll({ 
-                pageNumber: 1, 
-                pageSize: 1000 
+            const response = await carEVAPI.getAll({
+                pageNumber: 1,
+                pageSize: 1000
             });
             setData(response.data.items || []);
         } catch (error) {
@@ -323,7 +324,7 @@ export default function CarEVTable() {
         setCurrentPage(1);
     }, [searchTerm, filters]);
 
-  return (
+    return (
         <div className="space-y-4">
             {/* Search, Filter, Sort Controls and Add Button */}
             <div className="space-y-4">
@@ -348,24 +349,35 @@ export default function CarEVTable() {
                 </div>
 
                 {/* Filter and Sort Row */}
-                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start sm:items-center">
                     {/* Filter Controls */}
                     <div className="flex items-center gap-2 flex-wrap">
                         <Filter className="h-4 w-4 text-gray-400" />
                         <span className="text-sm text-gray-600">Lọc theo:</span>
-                        
-                        {/* Depot Filter */}
+
+                        {/* Station (Depot) Filter */}
                         <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium">Depot:</span>
-                            <Select 
-                                value={filters.depotId} 
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="p-2 rounded-md bg-gray-100 text-gray-700">
+                                            <MapPin className="h-4 w-4" />
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        Trạm xe điện
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                            <Select
+                                value={filters.depotId}
                                 onValueChange={handleDepotFilterChange}
                             >
-                                <SelectTrigger className="w-[200px]">
-                                    <SelectValue placeholder="Chọn depot" />
+                                <SelectTrigger className="w-[220px] h-9">
+                                    <SelectValue placeholder="Chọn trạm xe điện" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">Tất cả depot</SelectItem>
+                                    <SelectItem value="all">Tất cả trạm xe điện</SelectItem>
                                     {depots.map((depot) => (
                                         <SelectItem key={depot.id} value={depot.id}>
                                             {depot.name}
@@ -377,12 +389,23 @@ export default function CarEVTable() {
 
                         {/* Model Filter */}
                         <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium">Model:</span>
-                            <Select 
-                                value={filters.modelId} 
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="p-2 rounded-md bg-gray-100 text-gray-700">
+                                            <CarFront className="h-4 w-4" />
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        Model xe
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                            <Select
+                                value={filters.modelId}
                                 onValueChange={handleModelFilterChange}
                             >
-                                <SelectTrigger className="w-[200px]">
+                                <SelectTrigger className="w-[220px] h-9">
                                     <SelectValue placeholder="Chọn model" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -398,12 +421,23 @@ export default function CarEVTable() {
 
                         {/* Status Filter */}
                         <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium">Trạng thái:</span>
-                            <Select 
-                                value={filters.status} 
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="p-2 rounded-md bg-gray-100 text-gray-700">
+                                            <CircleDot className="h-4 w-4" />
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        Trạng thái
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                            <Select
+                                value={filters.status}
                                 onValueChange={handleStatusFilterChange}
                             >
-                                <SelectTrigger className="w-[200px]">
+                                <SelectTrigger className="w-[220px] h-9">
                                     <SelectValue placeholder="Chọn trạng thái" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -417,36 +451,38 @@ export default function CarEVTable() {
                             </Select>
                         </div>
 
+                        {/* Sort Dropdown */}
+                        <div className="flex items-center gap-2">
+                            <ArrowUpDown className="h-4 w-4 text-gray-400" />
+                            <Select value={sortBy} onValueChange={setSortBy}>
+                                <SelectTrigger className="w-[200px]">
+                                    <SelectValue placeholder="Sắp xếp theo..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">Không sắp xếp</SelectItem>
+                                    <SelectItem value="licensePlate">Biển số xe</SelectItem>
+                                    <SelectItem value="modelName">Tên model</SelectItem>
+                                    <SelectItem value="depotName">Tên depot</SelectItem>
+                                    <SelectItem value="status">Trạng thái</SelectItem>
+                                    <SelectItem value="batteryHealth">Tình trạng pin</SelectItem>
+                                    <SelectItem value="createdAt">Ngày tạo</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
                         {/* Clear Filters Button */}
-                        <Button 
-                            variant="outline" 
+                        <Button
+                            variant="outline"
                             size="sm"
                             onClick={handleClearFilters}
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-2 group text-red-600 hover:text-red-700 border-red-600 hover:bg-red-50 sm:ml-auto"
                         >
-                            <X className="h-4 w-4" />
-                            Xóa bộ lọc
+                            <RotateCcw className="h-4 w-4 transition-transform duration-300 group-hover:rotate-180" />
+                            Đặt lại bộ lọc
                         </Button>
                     </div>
 
-                    {/* Sort Dropdown */}
-                    <div className="flex items-center gap-2">
-                        <ArrowUpDown className="h-4 w-4 text-gray-400" />
-                        <Select value={sortBy} onValueChange={setSortBy}>
-                            <SelectTrigger className="w-[200px]">
-                                <SelectValue placeholder="Sắp xếp theo..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="none">Không sắp xếp</SelectItem>
-                                <SelectItem value="licensePlate">Biển số xe</SelectItem>
-                                <SelectItem value="modelName">Tên model</SelectItem>
-                                <SelectItem value="depotName">Tên depot</SelectItem>
-                                <SelectItem value="status">Trạng thái</SelectItem>
-                                <SelectItem value="batteryHealth">Tình trạng pin</SelectItem>
-                                <SelectItem value="createdAt">Ngày tạo</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+
                 </div>
             </div>
 
@@ -455,19 +491,21 @@ export default function CarEVTable() {
                 <Table>
                     <TableHeader>
                         <TableRow>
+                            <TableHead>Hình ảnh</TableHead>
                             <TableHead>Biển số xe</TableHead>
                             <TableHead>Model</TableHead>
-                            <TableHead>Depot</TableHead>
+                            <TableHead>Trạm xe điện</TableHead>
                             <TableHead>Tình trạng pin (%)</TableHead>
-                            <TableHead>Trạng thái</TableHead>
                             <TableHead>Ngày tạo</TableHead>
+                            <TableHead>Ngày cập nhật</TableHead>
+                            <TableHead>Trạng thái</TableHead>
                             <TableHead className="w-[100px]">Thao tác</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {loading ? (
                             <TableRow>
-                                <TableCell colSpan={7} className="text-center py-8">
+                                <TableCell colSpan={9} className="text-center py-8">
                                     <div className="flex items-center justify-center gap-2">
                                         <Loader2 className="h-4 w-4 animate-spin" />
                                         <span>Đang tải...</span>
@@ -476,25 +514,57 @@ export default function CarEVTable() {
                             </TableRow>
                         ) : filteredAndSortedData.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={7} className="text-center py-8">
+                                <TableCell colSpan={9} className="text-center py-8">
                                     {searchTerm || (filters.depotId && filters.depotId !== "all") || (filters.modelId && filters.modelId !== "all") || (filters.status && filters.status !== "all")
-                                        ? "Không tìm thấy kết quả phù hợp" 
+                                        ? "Không tìm thấy kết quả phù hợp"
                                         : "Không có dữ liệu"}
                                 </TableCell>
                             </TableRow>
                         ) : (
                             paginatedData.map((record) => (
                                 <TableRow key={record.id}>
+                                    <TableCell>
+                                        {record.model?.image ? (
+                                            <img
+                                                src={record.model.image}
+                                                alt={record.model.modelName || "Model image"}
+                                                className="w-16 h-16 object-cover rounded-md"
+                                            />
+                                        ) : (
+                                            <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center text-gray-400 text-xs">
+                                                Không có ảnh
+                                            </div>
+                                        )}
+                                    </TableCell>
                                     <TableCell className="font-medium">
                                         {record.licensePlate}
                                     </TableCell>
                                     <TableCell>{record.model?.modelName || "N/A"}</TableCell>
                                     <TableCell>{record.depot?.name || "N/A"}</TableCell>
                                     <TableCell>{record.batteryHealthPercentage}%</TableCell>
-                                    <TableCell>{getStatusBadge(record.status)}</TableCell>
                                     <TableCell>
-                                        {new Date(record.createdAt).toLocaleDateString('vi-VN')}
+                                        {new Date(record.createdAt).toLocaleString('vi-VN', {
+                                            year: 'numeric',
+                                            month: '2-digit',
+                                            day: '2-digit',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            hour12: false,
+                                            timeZone: 'Asia/Ho_Chi_Minh'
+                                        })}
                                     </TableCell>
+                                    <TableCell>
+                                        {new Date(record.updatedAt).toLocaleString('vi-VN', {
+                                            year: 'numeric',
+                                            month: '2-digit',
+                                            day: '2-digit',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            hour12: false,
+                                            timeZone: 'Asia/Ho_Chi_Minh'
+                                        })}
+                                    </TableCell>
+                                    <TableCell>{getStatusBadge(record.status)}</TableCell>
                                     <TableCell>
                                         <div className="flex items-center gap-2">
                                             <Button
@@ -611,14 +681,14 @@ export default function CarEVTable() {
                             {/* Depot Selection */}
                             <div className="space-y-2">
                                 <Label htmlFor="depotId">
-                                    Depot <span className="text-red-500 ml-1">*</span>
+                                    Trạm xe điện <span className="text-red-500 ml-1">*</span>
                                 </Label>
                                 <Select
                                     value={watchedDepotId || ""}
                                     onValueChange={(value) => setValue("depotId", value)}
                                 >
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Chọn depot" />
+                                        <SelectValue placeholder="Chọn trạm xe điện" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {depots.map((depot) => (

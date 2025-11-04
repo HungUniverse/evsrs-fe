@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Users, Package, TrendingDown, TrendingUp, Clock } from 'lucide-react'
 import { vnd } from '@/lib/utils/currency'
 import type { OrderBookingDetail } from '@/@types/order/order-booking'
+import type { UserFull } from '@/@types/auth.type'
 
 // Helper function to calculate percentage change
 const calculateChange = (current: number, previous: number): number => {
@@ -14,23 +15,38 @@ const calculateChange = (current: number, previous: number): number => {
 }
 
 export default function Stats() {
-  // Get total users (current)
-  const { data: usersData } = useQuery({
-    queryKey: ['total-users'],
-    queryFn: async () => {
-      const response = await UserFullAPI.getAll(1, 1)
-      return response.data.data.totalCount
+  // Get all users to filter customers (role === "USER")
+  const { data: allUsersData } = useQuery<UserFull[]>({
+    queryKey: ['all-users-for-customers'],
+    queryFn: async (): Promise<UserFull[]> => {
+      let allItems: UserFull[] = []
+      let pageNumber = 1
+      let hasMore = true
+      
+      while (hasMore) {
+        const response = await UserFullAPI.getAll(pageNumber, 1000)
+        const items = response.data.data.items
+        allItems = [...allItems, ...items]
+        
+        hasMore = pageNumber < response.data.data.totalPages
+        pageNumber++
+      }
+      
+      return allItems
     },
   })
 
-  // Get total users (yesterday) - simplified calculation
-  const { data: usersYesterdayData } = useQuery({
-    queryKey: ['total-users-yesterday'],
-    queryFn: async () => {
-      const response = await UserFullAPI.getAll(1, 1)
-      return Math.floor(response.data.data.totalCount * 0.92)
-    },
-  })
+  // Calculate total customers (users with role "USER")
+  const usersData = useMemo(() => {
+    if (!allUsersData) return undefined
+    return allUsersData.filter(user => user.role === 'USER').length
+  }, [allUsersData])
+
+  // Get total customers (yesterday) - simplified calculation
+  const usersYesterdayData = useMemo(() => {
+    if (!usersData) return undefined
+    return Math.floor(usersData * 0.92)
+  }, [usersData])
 
   // Get all orders (only fetch totalCount)
   const { data: ordersData } = useQuery({
@@ -191,7 +207,7 @@ export default function Stats() {
 
   const stats = [
     {
-      title: 'Tổng người dùng',
+      title: 'Tổng khách hàng',
       value: usersData?.toLocaleString() || '0',
       change: totalUserChange,
       changeText: totalUserChange >= 0 ? 'Tăng so với hôm qua' : 'Giảm so với hôm qua',

@@ -7,13 +7,8 @@ import type { FormItem, SortOption, FilterOption } from "@/@types/api.interface"
 const columns = [
   {
     key: "name",
-    title: "Tên kho",
+    title: "Tên trạm",
     dataIndex: "name",
-  },
-  {
-    key: "mapId",
-    title: "Map ID",
-    dataIndex: "mapId",
   },
   {
     key: "province",
@@ -50,8 +45,8 @@ const columns = [
 const formItems: FormItem<Depot>[] = [
   {
     name: "name",
-    label: "Tên kho",
-    placeholder: "Nhập tên kho",
+    label: "Tên trạm",
+    placeholder: "Nhập tên trạm",
     required: true,
     type: "text",
   },
@@ -124,12 +119,12 @@ const formItems: FormItem<Depot>[] = [
 const sortOptions: SortOption<Depot>[] = [
   {
     value: "name-asc",
-    label: "Tên kho (A-Z)",
+    label: "Tên trạm (A-Z)",
     sortFn: (a, b) => a.name.localeCompare(b.name),
   },
   {
     value: "name-desc", 
-    label: "Tên kho (Z-A)",
+    label: "Tên trạm (Z-A)",
     sortFn: (a, b) => b.name.localeCompare(a.name),
   },
   {
@@ -199,15 +194,15 @@ export default function DepotTable() {
       columns={columns}
       api={depotAPI}
       formItems={formItems}
-      addButtonText="Thêm kho mới"
+      addButtonText="Thêm trạm mới"
       editButtonText="Sửa"
       deleteButtonText="Xóa"
-      deleteConfirmTitle="Xóa kho"
-      deleteConfirmDescription="Bạn có chắc chắn muốn xóa kho này? Hành động này không thể hoàn tác."
+      deleteConfirmTitle="Xóa trạm"
+      deleteConfirmDescription="Bạn có chắc chắn muốn xóa trạm này? Hành động này không thể hoàn tác."
       successMessages={{
-        create: "Thêm kho thành công!",
-        update: "Cập nhật kho thành công!",
-        delete: "Xóa kho thành công!",
+        create: "Thêm trạm thành công!",
+        update: "Cập nhật trạm thành công!",
+        delete: "Xóa trạm thành công!",
       }}
       searchField="name"
       sortOptions={sortOptions}

@@ -36,9 +36,9 @@ const navigationItems: NavigationItem[] = [
     icon: Home,
   },
   {
-    name: "Quản lý hãng xe",
-    href: "/admin/car-manufacture-management",
-    icon: Factory,
+    name: "Quản lý đơn đặt xe",
+    href: "/admin/order-booking-management",
+    icon: ListOrdered,
   },
   {
     name: "Quản lý người thuê",
@@ -51,9 +51,19 @@ const navigationItems: NavigationItem[] = [
     icon: User,
   },
   {
+    name: "Quản lý hãng xe",
+    href: "/admin/car-manufacture-management",
+    icon: Factory,
+  },
+  {
     name: "Quản lý model",
     href: "/admin/model-management",
     icon: Car,
+  },
+  {
+    name: "Quản lý xe điện",
+    href: "/admin/carEV-management",
+    icon: CarFront,
   },
   {
     name: "Quản lý tiện nghi",
@@ -64,17 +74,8 @@ const navigationItems: NavigationItem[] = [
     name: "Quản lý trạm",
     href: "/admin/depot-management",
     icon: Warehouse,
-  },
-  {
-    name: "Quản lý đơn đặt xe",
-    href: "/admin/order-booking-management",
-    icon: ListOrdered,
-  },
-  {
-    name: "Quản lý xe điện",
-    href: "/admin/carEV-management",
-    icon: CarFront,
   }
+
 ];
 
 interface AdminSidebarProps {
@@ -115,7 +116,10 @@ export default function AdminSidebar({
         sidebarCollapsed ? "w-16" : "w-64"
       } ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
     >
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full pt-16">
+        <div className="px-4 py-5">
+          <h2 className="text-xl font-semibold text-slate-800">{!sidebarCollapsed && "Xin chào Admin!"}</h2>
+        </div>
         {/* Navigation */}
         <nav className="flex-1 px-2 py-4 space-y-1">
           {navigationItems.map((item) => {

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import AdminSidebar from "@/page/admin/components/admin-sidebar";
@@ -9,6 +10,20 @@ export default function AdminLayout() {
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
   };
+
+  // Override HeaderLite z-index for admin layout
+  useEffect(() => {
+    const headerElement = document.querySelector('header[class*="z-40"]') as HTMLElement;
+    if (headerElement) {
+      headerElement.style.zIndex = '60';
+    }
+    
+    return () => {
+      if (headerElement) {
+        headerElement.style.zIndex = '';
+      }
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
