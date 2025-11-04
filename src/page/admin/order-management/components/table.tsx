@@ -652,13 +652,13 @@ export default function OrderTable() {
                   <TableCell>{formatDate(order.startAt)}</TableCell>
                   <TableCell>{formatDate(order.endAt)}</TableCell>
                   <TableCell>{vnd(parseFloat(order.totalAmount))} VNĐ</TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusVariant(order.status)}>
+                  <TableCell className="h-[40px]">
+                    <Badge variant={getStatusVariant(order.status)} className="whitespace-nowrap">
                       {statusOptions.find((s) => s.value === order.status)?.label || order.status}
                     </Badge>
                   </TableCell>
-                  <TableCell>
-                    <Badge variant={getPaymentStatusVariant(order.paymentStatus)}>
+                  <TableCell className="h-[40px]">
+                    <Badge variant={getPaymentStatusVariant(order.paymentStatus)} className="whitespace-nowrap">
                       {paymentStatusOptions.find((s) => s.value === order.paymentStatus)?.label ||
                         order.paymentStatus}
                     </Badge>
