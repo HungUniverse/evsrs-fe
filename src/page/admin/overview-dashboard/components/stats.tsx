@@ -11,7 +11,10 @@ import type { UserFull } from '@/@types/auth.type'
 // Helper function to calculate percentage change
 const calculateChange = (current: number, previous: number): number => {
   if (previous === 0) return current > 0 ? 100 : 0
-  return ((current - previous) / previous) * 100
+  const change = ((current - previous) / previous) * 100
+  // Giới hạn phần trăm tối đa để tránh hiển thị số quá lớn không thực tế
+  // Nếu phần trăm > 1000%, có thể là do giá trị trước đó quá nhỏ, nên giới hạn ở 999%
+  return Math.min(Math.abs(change), 999) * (change >= 0 ? 1 : -1)
 }
 
 export default function Stats() {
