@@ -6,6 +6,7 @@ import {
   Calendar,
   CreditCard,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 type Props = {
   transactions: TransactionResponse[];
@@ -91,9 +92,18 @@ export default function TransactionList({ transactions, loading }: Props) {
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-gray-900">
-                      {transaction.code}
-                    </h3>
+                    {transaction.orderBookingId ? (
+                      <Link
+                        to={`/account/my-trip/${transaction.orderBookingId}`}
+                        className="font-semibold text-sky-600 hover:text-sky-800 hover:underline"
+                      >
+                        {transaction.code}
+                      </Link>
+                    ) : (
+                      <h3 className="font-semibold text-gray-900">
+                        {transaction.code}
+                      </h3>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-4 text-xs text-gray-500">

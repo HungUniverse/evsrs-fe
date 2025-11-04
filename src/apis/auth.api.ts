@@ -5,6 +5,8 @@ import {
   type LoginRequest,
   type LoginResponse,
   type LogoutBody,
+  type UserAtDepotRequest,
+  type UserAtDepotResponse,
 } from "@/@types/auth.type";
 
 export const authAPI = {
@@ -35,5 +37,10 @@ export const authAPI = {
     api.post<ItemBaseResponse<RefreshTokenResponse>>(
       "/api/Auth/refresh-token",
       { refreshToken }
+    ),
+  registerAtDepot: (data: UserAtDepotRequest) =>
+    api.post<ItemBaseResponse<UserAtDepotResponse>>(
+      "/api/Auth/register-at-depot",
+      data
     ),
 };

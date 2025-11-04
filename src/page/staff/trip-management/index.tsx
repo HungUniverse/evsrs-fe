@@ -8,6 +8,7 @@ import type { TripFilterValue } from "./components/trip-filter";
 import StaffTripFilter from "./components/trip-filter";
 import ShowTrip from "./components/show-trip";
 import UserInfoModal from "./components/user-info-modal";
+import { Button } from "@/components/ui/button";
 
 export default function TripManagement() {
   const navigate = useNavigate();
@@ -162,6 +163,12 @@ export default function TripManagement() {
         value={filter}
         onChange={(p) => setFilter((prev) => ({ ...prev, ...p }))}
       />
+      <Button
+        className="bg-blue-500 text-white hover:bg-blue-400"
+        onClick={() => navigate("/staff/create-user-at-depot")}
+      >
+        Đặt xe tại trạm
+      </Button>
 
       <ShowTrip
         data={filteredBookings}

@@ -63,3 +63,11 @@ export interface OrderBookingDetail {
   createdBy: string;
   updatedBy: string | null;
 }
+export interface OrderBookingOfflineRequest {
+  carEVDetailID: string;
+  userId: string;
+  startAt: DateString;
+  endAt: DateString;
+  paymentMethod: PaymentMethod;
+  note?: string;
+}

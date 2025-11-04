@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { CreditCard, Loader2, QrCode, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { SepaySettlementStatus } from "@/@types/payment/sepay";
+import { useAuthStore } from "@/lib/zustand/use-auth-store";
 
 interface SettlementPaymentQRProps {
   settlementId: string;
@@ -29,6 +30,7 @@ export default function SettlementPaymentQR({
   const [open, setOpen] = useState(false);
   const [qrUrl, setQrUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const user = useAuthStore((state) => state.user);
   const [paymentInfo, setPaymentInfo] = useState<{
     total: string;
     orderCode: string;
@@ -57,7 +59,11 @@ export default function SettlementPaymentQR({
           setTimeout(() => {
             // Refresh page or navigate to trip detail
             if (orderBookingId) {
-              navigate(`/account/my-trip/${orderBookingId}`);
+              if (user?.role === "STAFF") {
+                navigate(`/staff/trip/${orderBookingId}`);
+              } else {
+                navigate(`/account/my-trip/${orderBookingId}`);
+              }
             } else {
               window.location.reload();
             }

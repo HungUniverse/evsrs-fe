@@ -52,6 +52,7 @@ export function LoginDialog({
   const onSubmit = async (form: LoginForm) => {
     try {
       const res = await authAPI.login(form);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const payload: any = res?.data ?? res;
       const ok =
         payload?.success === true ||
@@ -120,10 +121,9 @@ export function LoginDialog({
             </label>
             <Input
               type="text"
-              placeholder="Nhập email hoặc số điện thoại"
+              placeholder="Nhập email hoặc username"
               {...register("identifier", {
-                required: "Vui lòng nhập email hoặc số điện thoại",
-                minLength: { value: 5, message: "Tối thiểu 5 ký tự" },
+                required: "Vui lòng nhập email hoặc username",
               })}
             />
             {errors.identifier && (

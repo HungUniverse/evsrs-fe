@@ -14,6 +14,7 @@ export interface SepayStatusResponse {
 export const SepayOrderStatus = {
   PAID_DEPOSIT: "PAID_DEPOSIT",
   PAID_DEPOSIT_COMPLETED: "PAID_DEPOSIT_COMPLETED",
+  PAID_FULL: "PAID_FULL",
   PENDING: "PENDING",
   FAILED: "FAILED",
   NOT_FOUND: "NOT_FOUND",

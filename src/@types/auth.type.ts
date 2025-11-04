@@ -1,4 +1,5 @@
 import type { Depot } from "./car/depot";
+import type { DateString } from "./common/pagination";
 
 export type RoleCode = "ADMIN" | "USER" | "STAFF";
 
@@ -19,7 +20,7 @@ export interface UserFull {
   userName: string;
   userEmail: string;
   phoneNumber: string | null;
-  fullName: string | null;
+  fullName: string;
   profilePicture?: string;
   role: RoleCode;
   depotId?: string;
@@ -51,7 +52,24 @@ export interface UserResponse {
   createdBy: string | null;
   updatedBy: string | null;
 }
-
+export interface UserAtDepotRequest {
+  userEmail: string;
+  password: string;
+  fullName: string;
+  phoneNumber: string;
+  frontImage: string;
+  backImage: string;
+  countryCode: string;
+  numberMasked: string;
+  licenseClass: string;
+  expiredAt: DateString;
+}
+export interface UserAtDepotResponse {
+  userId: string;
+  userEmail: string;
+  fullName: string;
+  phoneNumber: string;
+}
 export interface StaffRequest {
   userName: string;
   userEmail: string;
