@@ -59,7 +59,7 @@ export default function ShowMyTrip({ data, onClickCode }: Props) {
 
           const start = ob.startAt;
           const end = ob.endAt;
-          const depotName = ob.depot?.name ?? "-";
+          const depotAddress = `${ob.depot?.street}, ${ob.depot?.ward}, ${ob.depot?.district}, ${ob.depot?.province}`;
           const status = ob.status as OrderBookingStatus | undefined;
 
           return (
@@ -88,10 +88,10 @@ export default function ShowMyTrip({ data, onClickCode }: Props) {
               </div>
 
               <div
-                className="px-4 py-3 text-slate-700 truncate"
-                title={depotName}
+                className="px-4 py-3 text-slate-700 break-words"
+                title={depotAddress}
               >
-                {depotName}
+                {depotAddress}
               </div>
 
               <div className="px-4 py-3">

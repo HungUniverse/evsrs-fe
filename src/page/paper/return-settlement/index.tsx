@@ -17,6 +17,7 @@ import SettlementView from "./components/settlement-view";
 import SettlementForm from "./components/settlement-form";
 import CarInfo from "../customer-settlement/components/car-info";
 import InspectionImages from "./components/inspection-image";
+import SettlementPaymentQR from "../customer-settlement/components/settle-payment-qr";
 
 export default function ReturnSettlementPage() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -178,8 +179,19 @@ export default function ReturnSettlementPage() {
         )}
         <InspectionImages />
         {settlement ? (
-          <div>
+          <div className="space-y-6">
             <SettlementView data={settlement} />
+
+            {/* Payment QR Section */}
+            {settlement.id &&
+              order &&
+              order.status !== "COMPLETED" &&
+              order.paymentStatus !== "COMPLETED" && (
+                <SettlementPaymentQR
+                  settlementId={settlement.id}
+                  orderBookingId={orderId}
+                />
+              )}
           </div>
         ) : (
           <SettlementForm

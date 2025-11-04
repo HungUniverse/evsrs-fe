@@ -20,6 +20,7 @@ import {
   HomePage,
   PayCar,
   Payment,
+  PoliciesPage,
   Profile,
   SearchCar,
   TripDetails,
@@ -28,6 +29,8 @@ import {
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import AuthGuard from "@/layouts/guard.layout";
 import {
+  CreateOrderAtDepot,
+  CreateUserAtDepot,
   StaffCarManagement,
   StaffDashboard,
   TripManagement,
@@ -41,6 +44,7 @@ import {
 } from "@/page/paper";
 import AmenitiesManagementPage from "@/page/admin/amenities-management";
 import AboutPage from "@/page/renter/home-page/components/aboutEV";
+import { SecurityPolicies } from "@/page/public-page";
 
 const ContractPage = lazy(() => import("@/page/paper/contract"));
 const HandoverInspectionPage = lazy(
@@ -59,7 +63,14 @@ export const router = createBrowserRouter([
         path: "/about",
         element: <AboutPage />,
       },
-
+      {
+        path: "/policies",
+        element: <PoliciesPage />,
+      },
+      {
+        path: "/security-policies",
+        element: <SecurityPolicies />,
+      },
       {
         path: "/search-car",
         element: (
@@ -187,6 +198,14 @@ export const router = createBrowserRouter([
           {
             path: "trip",
             element: <TripManagement />,
+          },
+          {
+            path: "create-user-at-depot",
+            element: <CreateUserAtDepot />,
+          },
+          {
+            path: "create-order-at-depot",
+            element: <CreateOrderAtDepot />,
           },
           {
             path: "trip/:orderId",

@@ -37,7 +37,7 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
 
-    if (error.response?.status === 401 && !original._retry) {
+    if (error.response?.status === 403 && !original._retry) {
       original._retry = true;
       const store = useAuthStore.getState();
 

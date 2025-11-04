@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { SystemConfigUtils } from "./use-system-config";
 
 export function useBookingCalc(
   pricePerDay: number,
@@ -13,7 +14,7 @@ export function useBookingCalc(
     const h = Math.ceil((e.getTime() - s.getTime()) / (1000 * 60 * 60));
     return h > 0 ? h : 1;
   }, [start, end]);
-
+  const systemDepositPercent = SystemConfigUtils.getDepositPercent();
   // Calculate days for display (keep for UI)
   const days = useMemo(() => {
     const s = new Date(start);
@@ -33,7 +34,7 @@ export function useBookingCalc(
 
   // Calculate total based on hours
   const baseTotal = Math.round(pricePerHour * hours);
-  const deposit = Math.round(baseTotal * 0.3);
+  const deposit = Math.round((baseTotal * systemDepositPercent) / 100);
 
   return { days, hours, baseTotal, deposit, salePrice, pricePerHour };
 }

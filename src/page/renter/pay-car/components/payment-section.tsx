@@ -4,6 +4,7 @@ import { vnd } from "@/lib/utils/currency";
 import type { Model } from "@/@types/car/model";
 import { Button } from "@/components/ui/button";
 import { Clock } from "lucide-react";
+import { SystemConfigUtils } from "@/hooks/use-system-config";
 import {
   Dialog,
   DialogContent,
@@ -47,6 +48,8 @@ export default function PaymentSection({
     car.sale
   );
 
+  // Get deposit percentage from system config
+  const systemDepositPercent = SystemConfigUtils.getDepositPercent();
   const depot = useMemo(
     () => (depots ?? []).find((d) => d.id === depotId),
     [depots, depotId]
@@ -184,7 +187,9 @@ export default function PaymentSection({
           </div>
 
           <div className="flex items-center justify-between">
-            <span className="font-medium">Tiền đặt cọc (30%)</span>
+            <span className="font-medium">
+              Tiền đặt cọc ({systemDepositPercent}%)
+            </span>
             <span className="font-medium">{vnd(deposit)}₫</span>
           </div>
 

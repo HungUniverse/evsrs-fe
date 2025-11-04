@@ -89,7 +89,10 @@ const ContractPage: React.FC = () => {
       try {
         const response = await checkSepayOrderStatus(orderId);
 
-        if (response.message === SepayOrderStatus.PAID_DEPOSIT_COMPLETED) {
+        if (
+          response.message === SepayOrderStatus.PAID_DEPOSIT_COMPLETED ||
+          response.message === SepayOrderStatus.PAID_FULL
+        ) {
           setIsPaid(true);
         }
       } catch (error) {
@@ -102,6 +105,27 @@ const ContractPage: React.FC = () => {
 
   const title = useMemo(() => "HỢP ĐỒNG THUÊ XE Ô TÔ", []);
   const isSigned = contract?.signStatus === "SIGNED";
+
+  // Check if rental date has arrived (only compare date, not time)
+  const isRentalDateValid = useMemo(() => {
+    if (!order?.startAt) return false;
+    const now = new Date();
+    const startDate = new Date(order.startAt);
+
+    // Set both dates to start of day (00:00:00) for date-only comparison
+    const nowDateOnly = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+    const startDateOnly = new Date(
+      startDate.getFullYear(),
+      startDate.getMonth(),
+      startDate.getDate()
+    );
+
+    return nowDateOnly >= startDateOnly;
+  }, [order?.startAt]);
 
   async function handleSignatureSaved(dataUrl: string) {
     try {
@@ -129,7 +153,7 @@ const ContractPage: React.FC = () => {
     setCreating(true);
     try {
       await handoverContractAPI.create({
-        userId: user.userId,
+        userId: order.userId,
         orderBookingId: orderId,
         contractNumber: genContractNumber(),
         startDate: order.startAt,
@@ -176,6 +200,38 @@ const ContractPage: React.FC = () => {
 
   return (
     <div className="space-y-4">
+      {/* Warning banner if rental date hasn't arrived yet */}
+      {!isRentalDateValid && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <svg
+              className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <div>
+              <p className="font-medium text-yellow-900">
+                Chưa đến ngày thuê xe
+              </p>
+              <p className="text-sm text-yellow-700 mt-1">
+                Hiện tại chưa đến ngày thuê, bạn chỉ có thể xem hợp đồng. Vui
+                lòng quay lại vào ngày{" "}
+                <strong>
+                  {new Date(order.startAt).toLocaleDateString("vi-VN")}
+                </strong>{" "}
+                để ký hợp đồng và nhận xe.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <PrintPdfButton
         targetRef={printRef as React.RefObject<HTMLElement>}
         filename="hop-dong-ecorent"
@@ -214,7 +270,7 @@ const ContractPage: React.FC = () => {
             <div className="flex items-center justify-between mb-3">
               <p className="font-medium">Chữ ký khách hàng</p>
 
-              {!isSigned && (
+              {!isSigned && isRentalDateValid && (
                 <div className="flex gap-2">
                   <Button variant="outline" onClick={() => setOpenSign(true)}>
                     Mở bảng ký
@@ -241,7 +297,9 @@ const ContractPage: React.FC = () => {
             )}
           </div>
 
-          {isSigned && orderId && !isPaid && <PaymentQR orderId={orderId} />}
+          {isSigned && orderId && !isPaid && order && (
+            <PaymentQR orderId={orderId} paymentType={order.paymentType} />
+          )}
 
           {isSigned && isPaid && ""}
 
@@ -250,10 +308,16 @@ const ContractPage: React.FC = () => {
               <Button
                 variant="outline"
                 onClick={handleCreate}
-                disabled={creating}
+                disabled={creating || !isRentalDateValid}
               >
                 {creating ? "Đang lưu..." : "Xác nhận & Tạo hợp đồng"}
               </Button>
+            </div>
+          )}
+
+          {!isRentalDateValid && (
+            <div className="text-center text-sm text-gray-600 italic py-4">
+              Hiện tại chưa đến ngày thuê, bạn chỉ có thể xem hợp đồng
             </div>
           )}
 

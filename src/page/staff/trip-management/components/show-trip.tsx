@@ -42,7 +42,6 @@ export default function ShowTrip({ data, onClickCode, onClickUser }: Props) {
         {data.map((booking) => {
           const modelName = booking.carEvs?.model?.modelName || "—";
           const userName = booking.user?.fullName || "—";
-          const depotName = booking.depot?.name || "—";
           const depotAddress = booking.depot
             ? `${booking.depot.street}, ${booking.depot.ward}, ${booking.depot.district}, ${booking.depot.province}`
             : "—";
@@ -93,11 +92,8 @@ export default function ShowTrip({ data, onClickCode, onClickUser }: Props) {
               </div>
 
               {/* 6. Địa chỉ nhận xe */}
-              <div
-                className="px-4 py-3 text-slate-700 truncate"
-                title={depotAddress}
-              >
-                {depotName}
+              <div className="px-4 py-3 text-slate-700 " title={depotAddress}>
+                {depotAddress}
               </div>
 
               {/* 7. Trạng thái */}
