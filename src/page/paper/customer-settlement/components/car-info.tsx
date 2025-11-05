@@ -39,12 +39,6 @@ export default function CarInfo({ car, orderId, startAt, endAt }: Props) {
     })();
   }, [orderId]);
 
-  console.log("CarInfo Inspections:", {
-    handoverOdo: handoverInspection?.odometer,
-    returnOdo: returnInspection?.odometer,
-    handoverBattery: handoverInspection?.batteryPercent,
-    returnBattery: returnInspection?.batteryPercent,
-  });
   return (
     <section className="rounded-lg border p-4 space-y-4">
       <div className="font-semibold">2. Thông tin xe và thời gian thuê</div>

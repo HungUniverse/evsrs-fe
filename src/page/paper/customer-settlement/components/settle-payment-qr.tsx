@@ -85,6 +85,7 @@ export default function SettlementPaymentQR({
         clearInterval(pollingIntervalRef.current);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, settlementId, orderBookingId, navigate]);
 
   const handleGenerateQR = async () => {

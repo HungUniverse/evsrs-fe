@@ -49,8 +49,10 @@ export function useAutoFees(p: AutoFeeParams) {
     const daily = toNum(limitDailyKm);
 
     const odoDiff = oReturn - oReceive;
-    const batDiff = bReceive - bReturn; // % hao
-
+    let batDiff = bReceive - bReturn; // % hao
+    if (batDiff < 0) {
+      batDiff = 0;
+    }
     const permittedKm = daily * (days > 0 ? days : 1);
     const exceededKm = Math.max(0, odoDiff - permittedKm);
 

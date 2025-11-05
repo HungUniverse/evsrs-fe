@@ -36,7 +36,6 @@ export default function CarInfo() {
   );
 
   useEffect(() => {
-    console.log("id =", id);
     if (!id) {
       setError("Không có id");
       setLoading(false);
@@ -47,7 +46,6 @@ export default function CarInfo() {
         setLoading(true);
         const m = await modelAPI.getById(id);
         setModel(m);
-        console.log("Loaded model:", m);
         if (m?.amenitiesId) {
           try {
             const res = await AmenityAPI.getById(m.amenitiesId);
@@ -78,8 +76,7 @@ export default function CarInfo() {
         );
         const isApproved = response.data?.status === "APPROVED";
         setHasApprovedLicense(isApproved);
-      } catch (error) {
-        console.error("Error checking license status:", error);
+      } catch {
         setHasApprovedLicense(false);
       }
     };

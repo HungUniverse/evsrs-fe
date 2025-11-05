@@ -9,8 +9,8 @@ import type { CarManufacture } from "@/@types/car/carManufacture";
 import StatCard from "./components/stat-card";
 import FilterCarDepot from "./components/filter-car-depot";
 import { CarTable } from "./components/car-table";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import ViewCarDialog from "./components/view-car";
+import UpdateCarDialog from "./components/update-car";
 
 export default function CarManagementPage() {
   const { user } = useAuthStore();
@@ -30,19 +30,14 @@ export default function CarManagementPage() {
 
   useEffect(() => {
     const fetchDepot = async () => {
-      const userId = user?.userId || user?.id;
+      const userId = user?.userId;
       if (!userId) {
-        console.log("No user ID available. User object:", user);
         return;
       }
 
       try {
-        console.log("Fetching depot for user:", userId);
         const userData = await UserFullAPI.getById(userId);
-        console.log("User data received:", userData);
-
         if (userData?.depotId) {
-          console.log("Setting depotId:", userData.depotId);
           setDepotId(userData.depotId);
         } else {
           console.log("No depotId found in userData");
@@ -58,7 +53,7 @@ export default function CarManagementPage() {
     };
 
     fetchDepot();
-  }, [user?.id, user?.userId, user]);
+  }, [user?.userId, user]);
 
   useEffect(() => {
     const fetchManufacturers = async () => {
@@ -77,15 +72,13 @@ export default function CarManagementPage() {
   useEffect(() => {
     const fetchCars = async () => {
       if (!depotId) {
-        console.log("No depotId, skipping car fetch");
+        setLoading(false);
         return;
       }
 
-      console.log("Fetching cars for depotId:", depotId);
       setLoading(true);
       try {
         const response = await carEVAPI.getCarByDepotId(depotId);
-        console.log("Cars response received:", response);
         setCars(response?.items || []);
       } catch (error) {
         console.error("Error fetching cars:", error);
@@ -171,6 +164,25 @@ export default function CarManagementPage() {
     setEditDialogOpen(true);
   };
 
+  const handleUpdateSuccess = async () => {
+    // Refetch cars after successful update
+    if (!depotId) {
+      console.log("No depotId, cannot refetch");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await carEVAPI.getCarByDepotId(depotId);
+      setCars(response?.items || []);
+    } catch (error) {
+      console.error("Error refetching cars:", error);
+      toast.error("Không thể tải lại danh sách xe");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -238,17 +250,13 @@ export default function CarManagementPage() {
           selectedCar={selectedCar}
         />
 
-        {/* Edit Dialog - Placeholder */}
-        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-          <DialogContent>
-            <div className="p-4">
-              <h2 className="text-xl font-bold mb-4">Cập nhật xe</h2>
-              <p className="text-gray-600">
-                Chức năng cập nhật đang được phát triển
-              </p>
-            </div>
-          </DialogContent>
-        </Dialog>
+        {/* Edit Dialog */}
+        <UpdateCarDialog
+          car={selectedCar || null}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onSuccess={handleUpdateSuccess}
+        />
       </div>
     </div>
   );

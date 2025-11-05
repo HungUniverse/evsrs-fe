@@ -13,6 +13,7 @@ import UserInfo from "./user-info";
 import PaymentSection from "./payment-section";
 import { useBookingCalc } from "@/hooks/use-booking-car-cal";
 import { useAvailableCarEVs } from "@/hooks/use-available-car";
+import { useDepotsByModel } from "@/hooks/use-depot-by-model";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { vnd } from "@/lib/utils/currency";
@@ -40,6 +41,25 @@ export default function BookingForm({ car, searchForm, onTimeChange }: Props) {
   );
   const navigate = useNavigate();
 
+  // Get depot list for the model
+  const { data: depotData = [] } = useDepotsByModel({
+    modelId: car.id,
+    province: searchForm.location,
+  });
+
+  // Transform depot data to DepotLite format
+  const depots = useMemo(() => {
+    return depotData.map(({ depot }) => ({
+      id: depot.id,
+      name: depot.name,
+      province: depot.province,
+      district: depot.district,
+      street: depot.street,
+      openTime: depot.openTime,
+      closeTime: depot.closeTime,
+    }));
+  }, [depotData]);
+
   // Prefetch available cars when depot is selected
   const { data: availableCars, isLoading: isLoadingCars } = useAvailableCarEVs({
     modelId: car.id,
@@ -47,13 +67,6 @@ export default function BookingForm({ car, searchForm, onTimeChange }: Props) {
   });
 
   // Debug log when depot changes
-  useEffect(() => {
-    if (selectedDepotId) {
-      console.log("[BookingForm] Selected depot:", selectedDepotId);
-      console.log("[BookingForm] Loading cars:", isLoadingCars);
-      console.log("[BookingForm] Available cars:", availableCars);
-    }
-  }, [selectedDepotId, isLoadingCars, availableCars]);
 
   useEffect(() => {
     setSelectedDepotId("");
@@ -211,6 +224,7 @@ export default function BookingForm({ car, searchForm, onTimeChange }: Props) {
               car={car}
               searchForm={searchForm}
               depotId={selectedDepotId}
+              depots={depots}
               onTimeChange={onTimeChange}
             />
           </div>

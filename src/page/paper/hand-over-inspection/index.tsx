@@ -30,12 +30,6 @@ function isStaffRole(r?: string | number | null) {
     .toUpperCase();
   return s === "STAFF";
 }
-function isUserRole(r?: string | number | null) {
-  const s = String(r ?? "")
-    .trim()
-    .toUpperCase();
-  return s === "USER";
-}
 
 export default function HandoverInspectionPage() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -53,7 +47,6 @@ export default function HandoverInspectionPage() {
   const [imageUrls, setImageUrls] = useState<string>("");
 
   const isStaff = isStaffRole(user?.role);
-  const isUser = isUserRole(user?.role);
 
   const hasInspection = inspection !== null;
   const showForm = isStaff && !hasInspection;
@@ -171,10 +164,9 @@ export default function HandoverInspectionPage() {
   }
 
   const canStart =
-    (isUser && order?.status === "CHECKED_OUT") ||
-    (isStaff &&
-      order?.status === "CHECKED_OUT" &&
-      order?.paymentType === "FULL");
+    isStaff &&
+    order?.status === "CHECKED_OUT" &&
+    (order?.paymentType === "FULL" || order?.paymentType === "DEPOSIT");
 
   async function handleStart() {
     if (!orderId) return;

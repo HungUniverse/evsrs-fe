@@ -1,10 +1,20 @@
+import { useEffect } from "react";
 import Hero from "./components/hero";
 import WhyEcoRent from "./components/whyEco";
 import Footer from "../components/layout/footer";
 import HowToRentSteps from "./components/howToRent";
 import AboutMioto from "./components/aboutMioto";
+import { useSystemConfig } from "@/hooks/use-system-config";
 
 export default function HomePage() {
+  const { fetchAndSave } = useSystemConfig("Tiền cọc");
+
+  // Fetch system configs on homepage load
+  useEffect(() => {
+    // Fetch deposit amount config and save to localStorage
+    fetchAndSave();
+  }, [fetchAndSave]);
+
   return (
     <>
       <Hero />

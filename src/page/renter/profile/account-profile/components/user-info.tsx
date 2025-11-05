@@ -55,9 +55,6 @@ export default function UserInfo() {
     );
   }
 
-  console.log("JWT User:", user);
-  console.log("Full User:", userFull);
-
   return (
     <section className="rounded-xl border bg-white p-6">
       <h3 className="text-lg font-semibold mb-4">Thông tin tài khoản</h3>
