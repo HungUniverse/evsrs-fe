@@ -14,7 +14,36 @@ type Props = {
   days: number;
   dailyLimit: number;
 };
+function formatDayAndShift(day: number): string {
+  // Làm tròn 2 chữ số thập phân cho an toàn
+  const rounded = Number(day.toFixed(2));
 
+  // Kiểm tra phần thập phân
+  const wholeDays = Math.floor(rounded);
+  const decimal = rounded - wholeDays;
+
+  if (decimal === 0) {
+    return wholeDays === 1 ? "1 ngày" : `${wholeDays} ngày`;
+  }
+
+  // Ca sáng = 0.4
+  if (Math.abs(decimal - 0.4) < 0.01) {
+    return wholeDays === 0 ? "Ca sáng" : `${wholeDays} ngày và ca sáng`;
+  }
+
+  // Ca chiều = 0.6
+  if (Math.abs(decimal - 0.6) < 0.01) {
+    return wholeDays === 0 ? "Ca chiều" : `${wholeDays} ngày và ca chiều`;
+  }
+
+  // 1 ngày đầy đủ (cả 2 ca) = 1.0
+  if (Math.abs(rounded - 1.0) < 0.01) {
+    return "1 ngày";
+  }
+
+  // Mặc định fallback
+  return `${rounded} ngày`;
+}
 export default function StatusCompare({
   odoReceive,
   batReceive,
@@ -67,8 +96,9 @@ export default function StatusCompare({
         Hao pin: <b>{Number.isFinite(batDiff) ? batDiff : "—"}</b> %
       </div>
       <div className="text-xs text-slate-500">
-        Giới hạn: {permittedKm.toLocaleString("vi-VN")} km ({dailyLimit} km/ngày
-        × {days} ngày)
+        Giới hạn: <b>{permittedKm.toLocaleString("vi-VN")}</b> km ({dailyLimit}{" "}
+        km/ngày × <span className="font-medium">{formatDayAndShift(days)}</span>
+        )
       </div>
     </div>
   );

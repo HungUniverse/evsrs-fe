@@ -19,7 +19,9 @@ export const carEVAPI = {
     return res.data.data;
   },
   getByDepotId: async (depotId: string): Promise<CarEV[]> => {
-    const res = await api.get<ItemBaseResponse<CarEV[]>>(`/api/CarEV/depot/${depotId}`);
+    const res = await api.get<ItemBaseResponse<CarEV[]>>(
+      `/api/CarEV/depot/${depotId}`
+    );
     return res.data.data;
   },
   create: async (data: CarEVRequest): Promise<CarEV> => {
@@ -38,7 +40,7 @@ export const carEVAPI = {
   },
   getCarByDepotId: async (depotId: string) => {
     const res = await api.get<ItemBaseResponse<PaginationResponse<CarEV>>>(
-      `/api/CarEV/depot/${depotId}/paginated`
+      `api/CarEV/depot/${depotId}/paginated`
     );
     return res.data.data;
   },

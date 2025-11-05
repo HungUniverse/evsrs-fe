@@ -23,6 +23,7 @@ import {
   PoliciesPage,
   Profile,
   SearchCar,
+  SecurityPolicies,
   TripDetails,
 } from "@/page/renter";
 
@@ -44,7 +45,6 @@ import {
 } from "@/page/paper";
 import AmenitiesManagementPage from "@/page/admin/amenities-management";
 import AboutPage from "@/page/renter/home-page/components/aboutEV";
-import { SecurityPolicies } from "@/page/public-page";
 
 const ContractPage = lazy(() => import("@/page/paper/contract"));
 const HandoverInspectionPage = lazy(

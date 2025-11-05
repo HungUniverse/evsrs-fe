@@ -18,7 +18,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import { toast } from "sonner";
 import { authAPI } from "@/apis/auth.api";
-
 type LoginDialogProps = {
   children: React.ReactElement;
   open?: boolean;
@@ -53,7 +52,7 @@ export function LoginDialog({
   const onSubmit = async (form: LoginForm) => {
     try {
       const res = await authAPI.login(form);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       const payload: any = res?.data ?? res;
       const ok =
         payload?.success === true ||
