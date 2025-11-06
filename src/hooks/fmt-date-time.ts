@@ -37,3 +37,42 @@ export function fmtRange(s: string, e: string) {
   if (Number.isNaN(ds.getTime()) || Number.isNaN(de.getTime())) return "—";
   return `${f(ds)} → ${f(de)}`;
 }
+export const fmtHHMM = (mins: number) =>
+  `${String(Math.floor(mins / 60)).padStart(2, "0")}:${String(mins % 60).padStart(2, "0")}`;
+export const SLOTS = (() => {
+  const arr: string[] = [];
+  for (let t = 6 * 60; t <= 23 * 60 + 30; t += 30) arr.push(fmtHHMM(t));
+  return arr;
+})();
+
+export const toDate = (isoDate: string) => {
+  const [y, m, d] = isoDate.split("-").map(Number);
+  const dt = new Date();
+  dt.setFullYear(y, (m ?? 1) - 1, d ?? 1);
+  dt.setHours(0, 0, 0, 0);
+  return dt;
+};
+
+export const formatDateISO = (date: Date) => {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+};
+export const fmtVN = (isoDate: string) => {
+  const [y, m, d] = isoDate.split("-");
+  return `${d}/${m}/${y}`;
+};
+export function toLocalDatetimeValue(d = new Date()) {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  const yyyy = d.getFullYear();
+  const mm = pad(d.getMonth() + 1);
+  const dd = pad(d.getDate());
+  const hh = pad(d.getHours());
+  const mi = pad(d.getMinutes());
+  return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+}
+export const toMinutes = (hhmm: string) => {
+  const [h, m] = hhmm.split(":").map(Number);
+  return h * 60 + m;
+};

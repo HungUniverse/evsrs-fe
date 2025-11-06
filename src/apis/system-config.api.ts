@@ -4,7 +4,7 @@ import { api } from "@/lib/axios/axios";
 
 export const SystemConfig = {
   getByKey: async (key: string): Promise<SystemConfigTypeResponse> => {
-    const res = await api.post<ItemBaseResponse<SystemConfigTypeResponse>>(
+    const res = await api.get<ItemBaseResponse<SystemConfigTypeResponse>>(
       `/api/SystemConfig/key/${key}`
     );
     return res.data.data;

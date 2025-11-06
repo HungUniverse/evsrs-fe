@@ -1,5 +1,5 @@
 import { Check, X } from "lucide-react";
-import Footer from "../components/layout/footer";
+import Footer from "../../renter/components/layout/footer";
 
 function PoliciesPage() {
   return (
@@ -133,7 +133,13 @@ function PoliciesPage() {
               • Xe phải được trả đúng thời gian và địa điểm ghi trong hợp đồng
               (trừ khi có đăng ký trả tại chi nhánh khác).
             </p>
-
+            <p className="text-gray-800 text-lg leading-relaxed">
+              {" "}
+              • Đối với các đơn hàng trả xe trong khung giờ từ 6:00 đến 7:00
+              sáng, hệ thống sẽ <strong>miễn tính phí</strong> ca sáng. Nếu trả
+              xe sau 7:00 sáng, thời gian này sẽ được{" "}
+              <strong>tính phí thuê</strong> như bình thường.{" "}
+            </p>
             <p className="text-gray-800 text-lg leading-relaxed">
               • Nếu trả muộn hơn thời gian thỏa thuận, hệ thống sẽ tính{" "}
               <strong>phí vượt giờ</strong> theo quy định (1.5 lần giá gốc/giờ).
@@ -187,64 +193,61 @@ function PoliciesPage() {
         </section>
 
         {/* Pricing Policy */}
+        {/* Pricing Policy */}
         <section className="mb-8">
           <h2 className="text-4xl font-semibold text-black mb-6">
-            4. Chi phí thuê xe & dịch vụ liên quan
+            4. Giá thuê xe & Phí dịch vụ
           </h2>
 
-          <div className="space-y-6">
-            <div>
-              <h3 className="font-bold text-black mb-3 text-lg">
-                Giá thuê cơ bản:
-              </h3>
-              <p className="text-gray-800 text-lg mb-2">
-                <strong>Giá thuê:</strong> 500.000 – 1.200.000 VNĐ/ngày (tùy
-                dòng xe)
-              </p>
-              <p className="text-gray-800 text-lg">
-                <strong>Đặt cọc:</strong> 30% giá trị đơn hàng, thanh toán trong
-                1 giờ sau khi đặt. Phần còn lại sẽ trả sau khi kí hợp đồng
-              </p>
-            </div>
+          <div className="space-y-5 text-gray-800 text-lg leading-relaxed">
+            <p>
+              • <strong>Giá thuê cơ bản:</strong> từ 500.000 – 1.200.000
+              VNĐ/ngày (tùy dòng xe).
+            </p>
 
-            <div>
-              <h3 className="font-bold  text-black mb-3 text-lg ">
-                Phí sử dụng:
-              </h3>
-              <p className="text-gray-800 text-lg">
-                • Phí sạc điện: quy đổi 1% pin = giá tiền điện hiện hành/kWh
-              </p>
-              <p className="text-gray-800 text-lg">
-                • Phí vượt km: 3.000 – 5.000 VNĐ/km (Tùy loại xe)
-              </p>
-              <p className="text-gray-800 text-lg">
-                • Phí vượt giờ: 1.5 lần giá thuê/giờ
-              </p>
-            </div>
+            <p>
+              • Hệ thống chia 2 <strong>ca thuê trong ngày</strong>:{" "}
+              <strong>Ca sáng</strong> từ 06:00 – 12:00 (40% giá ngày) và{" "}
+              <strong>Ca chiều</strong> từ 12:01 – 22:00 (60% giá ngày). Nếu
+              khách thuê ca sáng và trả xe trong ca chiều cùng ngày thì được
+              tính giá trọn ngày.
+            </p>
 
-            <div>
-              <h3 className="font-bold text-black mb-3 text-lg">
-                Dịch vụ khác:
-              </h3>
-              <p className="text-gray-800 text-lg">
-                • Vệ sinh xe: 200.000 – 500.000 VNĐ nếu bẩn vượt mức
-              </p>
-              <p className="text-gray-800 text-lg">
-                • Mất giấy tờ/chìa khóa: 1.000.000 – 3.000.000 VNĐ
-              </p>
-              <p className="text-gray-800 text-lg">
-                • Cứu hộ hết pin: 500.000 – 1.000.000 VNĐ/lần
-              </p>
-            </div>
+            <p>
+              • <strong>Đặt cọc:</strong> 30% giá trị đơn hàng, thanh toán trong
+              vòng 1 giờ sau khi đặt. Phần còn lại được thanh toán khi ký hợp
+              đồng.
+            </p>
 
-            <div>
-              <h3 className="font-bold text-black mb-3 text-lg">
-                Phí trả xe khác chi nhánh:
-              </h3>
-              <p className="text-gray-800 text-lg">
-                200.000 – 500.000 VNĐ/lần, hoặc 10.000 – 15.000 VNĐ/km
-              </p>
-            </div>
+            <p>
+              • <strong>Phí sạc điện:</strong> quy đổi 1% pin = đơn giá điện
+              hiện hành (VNĐ/kWh).
+            </p>
+
+            <p>
+              • <strong>Phí vượt km:</strong> 3.000 – 5.000 VNĐ/km (tùy loại
+              xe).
+            </p>
+
+            <p>
+              • <strong>Phí vượt giờ:</strong> 1.5 lần giá thuê/giờ.
+            </p>
+
+            <p>
+              • <strong>Dịch vụ khác:</strong> Vệ sinh xe (200.000 – 500.000
+              VNĐ), mất giấy tờ hoặc chìa khóa (1.000.000 – 3.000.000 VNĐ), cứu
+              hộ hết pin (500.000 – 1.000.000 VNĐ/lần).
+            </p>
+
+            <p>
+              • <strong>Phí trả xe khác chi nhánh:</strong> 200.000 – 500.000
+              VNĐ/lần, hoặc 10.000 – 15.000 VNĐ/km (tùy khoảng cách).
+            </p>
+
+            <p className="italic text-gray-600">
+              *Mức giá trên chưa bao gồm phụ phí phát sinh (hư hỏng, hoặc các
+              chi phí đặc biệt khác nếu có).
+            </p>
           </div>
         </section>
 

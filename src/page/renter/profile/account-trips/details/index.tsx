@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { orderBookingAPI } from "@/apis/order-booking.api";
+import { contractAPI } from "@/apis/contract.api";
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import { TRIP_STATUS_LABEL } from "@/lib/constants/trip-status";
 import DetailInformation from "./components/detail-information";
@@ -28,19 +29,30 @@ export default function TripDetails() {
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
+  const [hasContract, setHasContract] = useState(false);
+  const [checkingContract, setCheckingContract] = useState(false);
 
   useEffect(() => {
     if (!orderId) return;
-    console.log("[TripDetails] Loading order:", orderId);
     setLoading(true);
     setError(null);
     (async () => {
       try {
         const res = await orderBookingAPI.getById(orderId);
-
         setBooking(res.data.data);
-      } catch (e) {
-        console.error("[TripDetails] getById error:", e);
+
+        // Check if contract exists
+        setCheckingContract(true);
+        try {
+          const contract = await contractAPI.getByOrderId(orderId);
+          setHasContract(!!contract);
+        } catch {
+          // If contract doesn't exist or error, allow cancel
+          setHasContract(false);
+        } finally {
+          setCheckingContract(false);
+        }
+      } catch {
         setError("Không tải được chi tiết đơn hàng.");
       } finally {
         setLoading(false);
@@ -57,26 +69,11 @@ export default function TripDetails() {
 
     if (!isPendingOrConfirmed) return false;
 
-    // Compare dates only (ignore time)
-    const startDate = new Date(booking.startAt);
-    const now = new Date();
+    // Cannot cancel if contract exists
+    if (hasContract) return false;
 
-    // Get date-only values (remove time component)
-    const startDateOnly = new Date(
-      startDate.getFullYear(),
-      startDate.getMonth(),
-      startDate.getDate()
-    );
-    const nowDateOnly = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate()
-    );
-
-    // Can cancel only if current date is before start date
-    // (cannot cancel on the same day or after)
-    return nowDateOnly < startDateOnly;
-  }, [booking]);
+    return true;
+  }, [booking, hasContract]);
 
   const handleCancelClick = () => {
     setShowCancelDialog(true);
@@ -93,8 +90,7 @@ export default function TripDetails() {
       setBooking(res.data.data);
       setShowCancelDialog(false);
       setCancelReason("");
-    } catch (error) {
-      console.error("Cancel booking error:", error);
+    } catch {
       toast.error("Không thể hủy chuyến. Vui lòng thử lại.");
     } finally {
       setCancelling(false);
@@ -105,12 +101,6 @@ export default function TripDetails() {
     return <div className="p-6 text-slate-600">Đang tải dữ liệu…</div>;
   }
   if (error || !booking) {
-    console.log(
-      "[TripDetails] Rendering error/not found state. Error:",
-      error,
-      "Booking:",
-      booking
-    );
     return (
       <div className="p-6">
         <h2 className="text-lg font-semibold mb-2">Không tìm thấy đơn hàng</h2>
@@ -151,15 +141,19 @@ export default function TripDetails() {
         <Button
           variant="destructive"
           onClick={handleCancelClick}
-          disabled={!canCancelBooking}
+          disabled={!canCancelBooking || checkingContract}
           className="hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           title={
-            !canCancelBooking
-              ? "Không thể hủy chuyến (đã qua thời gian cho phép hoặc trạng thái không phù hợp)"
-              : "Hủy chuyến"
+            checkingContract
+              ? "Đang kiểm tra..."
+              : !canCancelBooking
+                ? hasContract
+                  ? "Không thể hủy chuyến (đã có hợp đồng)"
+                  : "Không thể hủy chuyến (trạng thái không phù hợp)"
+                : "Hủy chuyến"
           }
         >
-          Hủy chuyến
+          {checkingContract ? "Đang kiểm tra..." : "Hủy chuyến"}
         </Button>
       </div>
 
