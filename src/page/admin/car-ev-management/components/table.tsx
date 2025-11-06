@@ -659,6 +659,7 @@ export default function CarEVTable() {
                                 <Select
                                     value={watchedModelId || ""}
                                     onValueChange={(value) => setValue("modelId", value)}
+                                    disabled={!!selectedRecord}
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Chọn model xe" />
@@ -713,6 +714,7 @@ export default function CarEVTable() {
                                 <Input
                                     id="licensePlate"
                                     placeholder="Nhập biển số xe"
+                                    disabled={!!selectedRecord}
                                     {...register("licensePlate", {
                                         required: "Biển số xe là bắt buộc",
                                     })}
