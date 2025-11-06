@@ -47,7 +47,7 @@ const CarManufacturePage: React.FC = () => {
       title: "Trạng thái",
       dataIndex: "isDeleted",
       render: (value: unknown, _record: CarManufacture) => (
-        <Badge variant={!value ? "default" : "secondary"}>
+        <Badge variant={!value ? "soft-green" : "soft-gray"}>
           {!value ? "Hoạt động" : "Không hoạt động"}
         </Badge>
       ),

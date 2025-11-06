@@ -7,3 +7,4 @@ export { default as DepotManagementPage } from "./depot-management";
 export { default as OrderManagementPage } from "./order-management";
 export { default as CarEVManagementPage } from "./car-ev-management";
 export { default as OverviewDashboardPage } from "./overview-dashboard";
+export { default as TransactionsPage } from "./transactions";

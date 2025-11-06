@@ -146,7 +146,7 @@ const ModelTable: React.FC = () => {
       title: "Trạng thái",
       dataIndex: "isDeleted",
       render: (value: unknown) => (
-        <Badge variant={!value ? "default" : "secondary"}>
+        <Badge variant={!value ? "soft-green" : "soft-gray"} className="whitespace-nowrap">
           {!value ? "Hoạt động" : "Đã xóa"}
         </Badge>
       ),
