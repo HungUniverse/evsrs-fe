@@ -1,4 +1,4 @@
-import type { UseFormRegister, FieldValues, UseFormGetValues, UseFormSetValue } from "react-hook-form";
+import type { UseFormRegister, FieldValues, UseFormGetValues, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import type { ListBaseResponse } from "./response";
 import type { AxiosResponse } from "axios";
 
@@ -22,6 +22,7 @@ export interface FormItem<T extends FieldValues = Record<string, unknown>> {
     register: UseFormRegister<T>;
     setValue: UseFormSetValue<T>;
     getValues: UseFormGetValues<T>;
+    watch: UseFormWatch<T>;
   }) => React.ReactNode;
 }
 

@@ -97,6 +97,7 @@ const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>
         reset,
         setValue,
         getValues,
+        watch,
         formState: { errors },
     } = useForm<T>();
 
@@ -269,7 +270,7 @@ const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>
     //Render form item
     const renderFormItem = (item: FormItem<T>) => {
         if (item.render) {
-            return item.render({ register, setValue, getValues });
+            return item.render({ register, setValue, getValues, watch });
         }
 
         return (
@@ -315,7 +316,7 @@ const CrudTemplate = <T extends FieldValues = BaseRecord, TRequest = Partial<T>>
                     </div>
 
                     {/* Add Button */}
-                    <Button onClick={() => setOpen(true)} className="flex items-center gap-2">
+                    <Button onClick={() => { setSelectedRecord(null); reset(); setOpen(true); }} className="flex items-center gap-2">
                         <Plus className="h-4 w-4" />
                         {addButtonText}
                     </Button>
