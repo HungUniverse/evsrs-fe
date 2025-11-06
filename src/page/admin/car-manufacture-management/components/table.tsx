@@ -8,7 +8,7 @@ import type { FormItem } from "@/@types/api.interface";
 import { uploadFileToCloudinary } from "@/lib/utils/cloudinary";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { UseFormGetValues, UseFormRegister, UseFormSetValue } from "react-hook-form";
+import type { UseFormGetValues, UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
 
 const CarManufacturePage: React.FC = () => {
   // Define table columns
@@ -58,6 +58,7 @@ const CarManufacturePage: React.FC = () => {
     register: UseFormRegister<CarManufacture>;
     setValue: UseFormSetValue<CarManufacture>;
     getValues: UseFormGetValues<CarManufacture>;
+    watch: UseFormWatch<CarManufacture>;
   };
 
   const LogoUploader: React.FC<{ methods: LogoUploaderMethods }> = ({ methods }) => {
@@ -65,10 +66,11 @@ const CarManufacturePage: React.FC = () => {
     const [previewUrl, setPreviewUrl] = React.useState<string>("");
     const [isUploading, setIsUploading] = React.useState<boolean>(false);
 
+    const logoValue = methods.watch("logo");
     React.useEffect(() => {
-      const initial = (methods.getValues("logo") as unknown as string) || "";
+      const initial = (logoValue as unknown as string) || "";
       setPreviewUrl(initial);
-    }, [methods]);
+    }, [logoValue]);
 
     const onFileSelected = async (file?: File) => {
       if (!file) return;
@@ -154,8 +156,8 @@ const CarManufacturePage: React.FC = () => {
       name: "logo",
       label: "Logo",
       required: false,
-      render: ({ register, setValue, getValues }) => (
-        <LogoUploader methods={{ register, setValue, getValues }} />
+      render: ({ register, setValue, getValues, watch }) => (
+        <LogoUploader methods={{ register, setValue, getValues, watch }} />
       ),
     },
   ];
