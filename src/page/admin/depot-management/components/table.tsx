@@ -3,6 +3,8 @@ import CrudTemplate from "@/page/admin/components/crud-template";
 import { depotAPI } from "@/apis/depot.api";
 import type { Depot, DepotRequest } from "@/@types/car/depot";
 import type { FormItem, SortOption, FilterOption } from "@/@types/api.interface";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const columns = [
   {
@@ -55,7 +57,23 @@ const formItems: FormItem<Depot>[] = [
     label: "Map ID",
     placeholder: "Nhập Map ID",
     required: true,
-    type: "text",
+    render: ({ register, watch }) => (
+      <div className="space-y-2">
+        <Label htmlFor="mapId">
+          Map ID
+          <span className="text-red-500 ml-1">*</span>
+        </Label>
+        <Input
+          id="mapId"
+          type="text"
+          placeholder="Nhập Map ID"
+          disabled={Boolean(watch("id"))}
+          {...register("mapId" as unknown as never, {
+            required: "Map ID is required",
+          })}
+        />
+      </div>
+    ),
   },
   {
     name: "province",
@@ -90,28 +108,60 @@ const formItems: FormItem<Depot>[] = [
     label: "Vĩ độ",
     placeholder: "Nhập vĩ độ",
     required: true,
-    type: "text",
+    render: ({ register }) => (
+      <div className="space-y-2">
+        <Label htmlFor="lattitude">
+          Vĩ độ
+          <span className="text-red-500 ml-1">*</span>
+        </Label>
+        <Input
+          id="lattitude"
+          type="number"
+          step="any"
+          placeholder="Nhập vĩ độ"
+          {...register("lattitude" as unknown as never, {
+            required: "Vĩ độ là bắt buộc",
+          })}
+        />
+      </div>
+    ),
   },
   {
     name: "longitude",
     label: "Kinh độ",
     placeholder: "Nhập kinh độ",
     required: true,
-    type: "text",
+    render: ({ register }) => (
+      <div className="space-y-2">
+        <Label htmlFor="longitude">
+          Kinh độ
+          <span className="text-red-500 ml-1">*</span>
+        </Label>
+        <Input
+          id="longitude"
+          type="number"
+          step="any"
+          placeholder="Nhập kinh độ"
+          {...register("longitude" as unknown as never, {
+            required: "Kinh độ là bắt buộc",
+          })}
+        />
+      </div>
+    ),
   },
   {
     name: "openTime",
     label: "Giờ mở cửa",
     placeholder: "HH:MM",
     required: true,
-    type: "text",
+    type: "time",
   },
   {
     name: "closeTime",
     label: "Giờ đóng cửa",
     placeholder: "HH:MM",
     required: true,
-    type: "text",
+    type: "time",
   },
 ];
 

@@ -15,7 +15,7 @@ export interface CrudAPI<T, TRequest = Partial<T>> {
 export interface FormItem<T extends FieldValues = Record<string, unknown>> {
   name: string;
   label: string;
-  type?: "text" | "number" | "email" | "password" | "date";
+  type?: "text" | "number" | "email" | "password" | "date" | "time";
   required?: boolean;
   placeholder?: string;
   render?: (methods: {
