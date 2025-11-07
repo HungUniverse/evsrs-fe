@@ -131,13 +131,6 @@ export default function BookingForm({ car, searchForm, onTimeChange }: Props) {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-7xl overflow-hidden">
-        <div className="flex justify-between items-center p-6 border-b">
-          <h1 className="text-2xl font-bold text-gray-900">Đăng ký thuê xe</h1>
-          <button className="text-gray-400 hover:text-gray-600 text-2xl">
-            ×
-          </button>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
           <div className="p-6 space-y-6">
             <form onSubmit={handleSubmit} className="space-y-6">
