@@ -13,6 +13,7 @@ import {
   ListOrdered,
   CarFront,
   Home,
+  Shield,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
@@ -74,6 +75,11 @@ const navigationItems: NavigationItem[] = [
     name: "Trạm xe",
     href: "/admin/depot-management",
     icon: Warehouse,
+  },
+  {
+    name: "Cấu hình hạng thành viên",
+    href: "/admin/membership-config-management",
+    icon: Shield,
   }
 
 ];
