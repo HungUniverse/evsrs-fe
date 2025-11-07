@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview --host 0.0.0.0 --port 8080"
+    "preview": "vite preview --host 0.0.0.0 --port 8080",
+    "postinstall": "patch-package || true"
   },
   "dependencies": {
     "@floating-ui/react-dom": "^2.1.6",
@@ -81,6 +82,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
+    "patch-package": "^8.0.0",
     "tailwind-scrollbar": "^4.0.2",
     "tw-animate-css": "^1.3.8",
     "typescript": "~5.8.3",
