@@ -2,12 +2,12 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Edit, Trash2 } from "lucide-react";
-import type { Amenity } from "@/@types/car/amentities";
+import type { Model } from "@/@types/car/model";
 
 interface RowActionsProps {
-  item: Amenity;
-  onEdit: (item: Amenity) => void;
-  onDelete: (item: Amenity) => void;
+  item: Model;
+  onEdit: (item: Model) => void;
+  onDelete: (item: Model) => void;
 }
 
 const RowActions: React.FC<RowActionsProps> = ({ item, onEdit, onDelete }) => {
@@ -34,5 +34,4 @@ const RowActions: React.FC<RowActionsProps> = ({ item, onEdit, onDelete }) => {
 };
 
 export default RowActions;
-
 

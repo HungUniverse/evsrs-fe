@@ -6,6 +6,7 @@ import HeaderActions from "./components/header-actions";
 import FilterBar from "./components/filter-bar";
 import AmenityTable from "./components/amenity-table";
 import AmenityFormDialog from "./components/amenity-form-dialog";
+import DeleteConfirmationDialog from "./components/delete-confirmation-dialog";
 
 export default function AmenitiesManagementPage() {
   const tableState = useAmenitiesTableState();
@@ -34,7 +35,7 @@ export default function AmenitiesManagementPage() {
         <AmenityTable
           data={data?.items || []}
           onEdit={form.startEdit}
-          onDelete={form.confirmDelete}
+          onDelete={form.startDelete}
         />
 
         <AmenityFormDialog
@@ -42,6 +43,14 @@ export default function AmenitiesManagementPage() {
           onOpenChange={form.setOpen}
           initialData={form.editing || undefined}
           onSubmit={form.submit}
+        />
+
+        <DeleteConfirmationDialog
+          open={form.deleteDialogOpen}
+          onOpenChange={form.setDeleteDialogOpen}
+          item={form.itemToDelete}
+          onConfirm={form.confirmDelete}
+          isDeleting={form.isDeleting}
         />
 
         {isLoading ? (

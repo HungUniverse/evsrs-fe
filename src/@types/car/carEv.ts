@@ -6,9 +6,9 @@ import type { Depot } from "./depot";
 export interface CarEV {
   id: ID;
   model: Model;
-  modelId: ID;
+  modelId: ID; //placeholder not real API response
   depot: Depot;
-  depotId: ID;
+  depotId: ID; //placeholder not real API response
   licensePlate: string;
   batteryHealthPercentage: string;
   status: CarEvStatus; // có thể đổi sang enum
