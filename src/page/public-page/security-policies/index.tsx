@@ -22,7 +22,7 @@ function SecurityPolicies() {
       {/* Content Section */}
       <div className="max-w-6xl mx-auto px-8 py-12">
         {/* Introduction */}
-        <section className="mb-16">
+        <section className="mb-8">
           <h2 className="text-3xl font-bold text-black mb-6">1. Giới thiệu</h2>
 
           <p className="text-gray-700 leading-relaxed">
@@ -34,7 +34,7 @@ function SecurityPolicies() {
         </section>
 
         {/* Data Collection Scope */}
-        <section className="mb-16">
+        <section className="mb-8">
           <h2 className="text-3xl font-bold text-black mb-6">
             2. Phạm vi thu thập dữ liệu
           </h2>
@@ -62,7 +62,7 @@ function SecurityPolicies() {
         </section>
 
         {/* Purpose of Use */}
-        <section className="mb-16">
+        <section className="mb-8">
           <h2 className="text-3xl font-bold text-black mb-6">
             3. Mục đích sử dụng
           </h2>
@@ -92,7 +92,7 @@ function SecurityPolicies() {
         </section>
 
         {/* User Rights */}
-        <section className="mb-16">
+        <section className="mb-8">
           <h2 className="text-3xl font-bold text-black mb-6">
             4. Quyền của người dùng
           </h2>
@@ -115,7 +115,7 @@ function SecurityPolicies() {
         </section>
 
         {/* Security and Sharing */}
-        <section className="mb-16">
+        <section className="mb-8">
           <h2 className="text-3xl font-bold text-black mb-6">
             5. Bảo mật và chia sẻ thông tin
           </h2>
@@ -147,7 +147,7 @@ function SecurityPolicies() {
         </section>
 
         {/* Policy Updates */}
-        <section className="mb-16">
+        <section className="mb-8">
           <h2 className="text-3xl font-bold text-black mb-6">
             6. Cập nhật chính sách
           </h2>
