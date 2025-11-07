@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import type { TripFilterValue } from "./components/trip-filter";
 import type { OrderBookingStatus } from "@/@types/enum";
-import { toDateOnlyISO, toLocalDateOnly } from "@/hooks/fmt-date-time";
+import { toLocalDateOnly } from "@/hooks/fmt-date-time";
 import { useModelNames } from "@/hooks/use-model-name";
 import TripFilter from "./components/trip-filter";
 import ShowMyTrip from "./components/show-my-trip";
@@ -29,27 +29,6 @@ export default function SearchOrderBooking() {
   const [error, setError] = useState<string | null>(null);
   const location = useLocation();
 
-  const params = useMemo(() => {
-    const search = `${filter.orderId} ${filter.carModel}`.trim() || undefined;
-    const status =
-      filter.status !== "all"
-        ? (filter.status as OrderBookingStatus)
-        : undefined;
-    const from = toDateOnlyISO(filter.dateStart);
-    const to = toDateOnlyISO(filter.dateEnd);
-
-    const p = {
-      pageNumber: 1,
-      pageSize: 20,
-      userId: uid,
-      status,
-      from,
-      to,
-      search,
-    };
-    return p;
-  }, [filter, uid]);
-
   useEffect(() => {
     if (!uid) {
       setBookings([]);
@@ -62,16 +41,10 @@ export default function SearchOrderBooking() {
 
     (async () => {
       try {
-        const res = await orderBookingAPI.getAll(params);
-        const payload = res.data?.data;
-        // Hỗ trợ cả 2 shape: pagination (items) hoặc mảng thẳng
-        const items: OrderBookingDetail[] = Array.isArray(payload)
-          ? payload
-          : (payload?.items ?? []);
+        const res = await orderBookingAPI.getByUserId(uid);
+        const items: OrderBookingDetail[] = res.data?.data ?? [];
 
-        const filteredItems = items.filter((item) => item.userId === uid);
-
-        if (!cancelled) setBookings(filteredItems);
+        if (!cancelled) setBookings(items);
       } catch (err) {
         console.error("[SearchOrderBooking] API error:", err);
         if (!cancelled) {
@@ -86,7 +59,7 @@ export default function SearchOrderBooking() {
     return () => {
       cancelled = true;
     };
-  }, [params, uid]);
+  }, [uid]);
 
   const modelIds = useMemo(() => {
     const s = new Set<string>();

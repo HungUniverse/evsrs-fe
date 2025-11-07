@@ -43,16 +43,24 @@ function calculateMultiplier(
 
   // Check special case: đặt ca sáng, trả 6h-7h sáng
   const startDay = dayStart(start);
-  const [startMorningBegin, startMorningEnd] = windowOn(startDay, 6, 0, 12, 30);
+  const [startMorningBegin, startMorningEnd] = windowOn(startDay, 6, 0, 12, 0);
   const startInMorningShift =
     start >= startMorningBegin && start < startMorningEnd;
+  const [startAfternoonBegin, startAfternoonEnd] = windowOn(
+    startDay,
+    12,
+    30,
+    22,
+    0
+  );
+  const startInAfternoonShift =
+    start >= startAfternoonBegin && start < startAfternoonEnd;
 
   const endHour = end.getHours();
   const endMinute = end.getMinutes();
   const endInGracePeriod = endHour === 6 || (endHour === 7 && endMinute === 0);
 
   // Nếu đặt sáng và trả trong khung 6h-7h sáng, chỉ tính số ngày nguyên
-  const applyGracePeriod = startInMorningShift && endInGracePeriod;
 
   let cursor = dayStart(start);
   let multiplier = 0;
@@ -67,7 +75,7 @@ function calculateMultiplier(
 
     // Shift windows of this day
     const [mStart, mEnd] = windowOn(cursor, 6, 0, 12, 0); // sáng 6:00–12:00
-    const [aStart, aEnd] = windowOn(cursor, 12, 0, 22, 0); // chiều 12:00–22:00
+    const [aStart, aEnd] = windowOn(cursor, 12, 30, 22, 0); // chiều 12:30–22:00
 
     const hitMorning = overlaps(segStart, segEnd, mStart, mEnd);
     const hitAfternoon = overlaps(segStart, segEnd, aStart, aEnd);
@@ -78,10 +86,21 @@ function calculateMultiplier(
     cursor = nextDay;
   }
 
+  console.log("Before grace period:", {
+    multiplier,
+    startInAfternoonShift,
+    endInGracePeriod,
+    startTime: start.toISOString(),
+    endTime: end.toISOString(),
+  });
+  const case1 = startInMorningShift && endInGracePeriod;
+  const case2 = startInAfternoonShift && endInGracePeriod && multiplier > 1.0;
+
+  const applyGracePeriod = case1 || case2;
   // Áp dụng grace period: nếu đặt sáng và trả 6h-7h sáng, làm tròn xuống số ngày nguyên
   if (applyGracePeriod) {
-    const wholeDays = Math.floor(multiplier);
-    multiplier = wholeDays;
+    multiplier = multiplier - 0.4;
+    console.log("mul" + multiplier);
   }
 
   // Label cho trường hợp hiển thị

@@ -141,13 +141,14 @@ function PoliciesPage() {
               <strong>tính phí thuê</strong> như bình thường.{" "}
             </p>
             <p className="text-gray-800 text-lg leading-relaxed">
-              • Nếu trả muộn hơn thời gian thỏa thuận, hệ thống sẽ tính{" "}
-              <strong>phí vượt giờ</strong> theo quy định (1.5 lần giá gốc/giờ).
+              • Nếu trả muộn hơn thời gian thỏa thuận, nhân viên quản lý trạm sẽ
+              tính <strong>phí vượt giờ</strong> theo quy định (1.5 lần giá
+              gốc).
             </p>
 
             <p className="text-gray-800 text-lg leading-relaxed">
-              • Nếu giữ xe quá 6 giờ mà không báo trước, hệ thống có quyền tính
-              phí phạt lên đến <strong>2 lần giá thuê/ngày</strong>.
+              • Nếu giữ xe quá 6 giờ mà không báo trước, nhân viên quản lý có
+              quyền tính phí phạt lên đến <strong>2 lần giá thuê/ngày</strong>.
             </p>
 
             <p className="text-gray-800 text-lg leading-relaxed">
