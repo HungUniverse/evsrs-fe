@@ -4,7 +4,7 @@ import { api } from "@/lib/api";
 export const getTransactionsByUserId = async (
   userId: string
 ): Promise<TransactionResponse[]> => {
-  return api<TransactionResponse[]>(`api/Transaction/user/${userId}`, {
+  return api<TransactionResponse[]>(`/api/Transaction/user/${userId}`, {
     method: "GET",
   });
 };

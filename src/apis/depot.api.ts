@@ -8,7 +8,7 @@ export const depotAPI = {
       params: { pageNumber, pageSize },
     }),
   getById: async (id: string): Promise<Depot> => {
-    const res = await api.get<ItemBaseResponse<Depot>>(`api/Depot/${id}`);
+    const res = await api.get<ItemBaseResponse<Depot>>(`/api/Depot/${id}`);
     return res.data.data;
   },
   create: async (data: DepotRequest): Promise<Depot> => {
@@ -16,10 +16,13 @@ export const depotAPI = {
     return res.data.data;
   },
   update: async (id: string, data: DepotRequest): Promise<Depot> => {
-    const res = await api.put<ItemBaseResponse<Depot>>(`api/Depot/${id}`, data);
+    const res = await api.put<ItemBaseResponse<Depot>>(
+      `/api/Depot/${id}`,
+      data
+    );
     return res.data.data;
   },
   delete: async (id: string): Promise<void> => {
-    await api.delete(`api/Depot/${id}`);
+    await api.delete(`/api/Depot/${id}`);
   },
 };
