@@ -40,7 +40,7 @@ export const carEVAPI = {
   },
   getCarByDepotId: async (depotId: string) => {
     const res = await api.get<ItemBaseResponse<PaginationResponse<CarEV>>>(
-      `api/CarEV/depot/${depotId}/paginated`
+      `/api/CarEV/depot/${depotId}/paginated`
     );
     return res.data.data;
   },
