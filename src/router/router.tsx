@@ -10,6 +10,9 @@ import {
   OrderManagementPage,
   CarEVManagementPage,
   OverviewDashboardPage,
+  MembershipConfigManagementPage,
+  SystemConfigManagementPage,
+  TransactionsPage,
 } from "@/page/admin/index";
 import {
   AccountProfile,
@@ -172,6 +175,18 @@ export const router = createBrowserRouter([
           {
             path: "admin-dashboard",
             element: <OverviewDashboardPage />,
+          },
+          {
+            path: "membership-config-management",
+            element: <MembershipConfigManagementPage />,
+          },
+          {
+            path: "system-config-management",
+            element: <SystemConfigManagementPage />,
+          },
+          {
+            path: "transactions",
+            element: <TransactionsPage />,
           },
         ],
       },

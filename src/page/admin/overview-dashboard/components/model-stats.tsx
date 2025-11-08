@@ -78,14 +78,18 @@ export default function ModelStats() {
             image: model.image
           }
         }
-        modelCounts[modelId].count++
-        modelCounts[modelId].revenue += parseFloat(order.totalAmount) || 0
+        // Only count and calculate revenue for completed orders
+        if (order.status === 'COMPLETED') {
+          modelCounts[modelId].count++
+          modelCounts[modelId].revenue += parseFloat(order.totalAmount) || 0
+        }
       }
     })
 
-    // Sort by count and get top 3
+    // Sort by count, filter out models with 0 rentals or 0 revenue, and get top 3
     return Object.entries(modelCounts)
       .map(([id, data]) => ({ id, ...data }))
+      .filter((model) => model.count > 0 && model.revenue > 0)
       .sort((a, b) => b.count - a.count)
       .slice(0, 3)
   }, [allOrdersData])

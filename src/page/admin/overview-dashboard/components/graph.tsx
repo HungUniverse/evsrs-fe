@@ -45,10 +45,11 @@ export default function Graph() {
   const chartData = useMemo(() => {
     if (!ordersData) return []
 
-    // Filter orders by selected month and year
+    // Filter orders by selected month, year, and status (only completed orders)
     const filtered = ordersData.filter((order) => {
       const orderDate = new Date(order.createdAt)
       return (
+        order.status === 'COMPLETED' &&
         orderDate.getMonth() === selectedMonth &&
         orderDate.getFullYear() === selectedYear
       )
@@ -63,7 +64,7 @@ export default function Graph() {
       monthData[i] = 0
     }
 
-    // Sum sales by day
+    // Sum sales by day (only completed orders)
     filtered.forEach((order) => {
       const orderDate = new Date(order.createdAt)
       const day = orderDate.getDate()

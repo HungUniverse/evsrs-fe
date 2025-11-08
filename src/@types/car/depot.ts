@@ -8,7 +8,7 @@ export interface Depot {
   district: string;
   ward: string;
   street: string;
-  latitude: number;
+  lattitude: number;
   longitude: number;
   openTime: string;
   closeTime: string;

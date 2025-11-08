@@ -13,6 +13,9 @@ import {
   ListOrdered,
   CarFront,
   Home,
+  Shield,
+  Settings,
+  CreditCard,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
@@ -31,49 +34,64 @@ interface NavigationItem {
 
 const navigationItems: NavigationItem[] = [
   {
-    name: "Dashboard tổng quan",
+    name: "Dashboard",
     href: "/admin/admin-dashboard",
     icon: Home,
   },
   {
-    name: "Quản lý đơn đặt xe",
+    name: "Đơn đặt xe",
     href: "/admin/order-booking-management",
     icon: ListOrdered,
   },
   {
-    name: "Quản lý người thuê",
+    name: "Giao dịch",
+    href: "/admin/transactions",
+    icon: CreditCard,
+  },
+  {
+    name: "Người thuê",
     href: "/admin/renter-management",
     icon: Users,
   },
   {
-    name: "Quản lý nhân viên",
+    name: "Nhân viên",
     href: "/admin/staff-management",
     icon: User,
   },
   {
-    name: "Quản lý hãng xe",
+    name: "Hãng xe",
     href: "/admin/car-manufacture-management",
     icon: Factory,
   },
   {
-    name: "Quản lý model",
+    name: "Model",
     href: "/admin/model-management",
     icon: Car,
   },
   {
-    name: "Quản lý xe điện",
+    name: "Xe điện",
     href: "/admin/carEV-management",
     icon: CarFront,
   },
   {
-    name: "Quản lý tiện nghi",
+    name: "Tiện nghi",
     href: "/admin/amenities-management",
     icon: Building,
   },
   {
-    name: "Quản lý trạm",
+    name: "Trạm xe",
     href: "/admin/depot-management",
     icon: Warehouse,
+  },
+  {
+    name: "Cấu hình hạng thành viên",
+    href: "/admin/membership-config-management",
+    icon: Shield,
+  },
+  {
+    name: "Cấu hình hệ thống",
+    href: "/admin/system-config-management",
+    icon: Settings,
   }
 
 ];
@@ -113,7 +131,7 @@ export default function AdminSidebar({
   return (
     <div
       className={`fixed inset-y-0 left-0 z-50 bg-white shadow-lg transform transition-all duration-300 ease-in-out ${
-        sidebarCollapsed ? "w-16" : "w-64"
+        sidebarCollapsed ? "w-auto min-w-[76px]" : "w-auto min-w-[256px]"
       } ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
     >
       <div className="flex flex-col h-full pt-16">
@@ -121,7 +139,7 @@ export default function AdminSidebar({
           <h2 className="text-xl font-semibold text-slate-800">{!sidebarCollapsed && "Xin chào Admin!"}</h2>
         </div>
         {/* Navigation */}
-        <nav className="flex-1 px-2 py-4 space-y-1">
+        <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
           {navigationItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.href;

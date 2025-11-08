@@ -11,7 +11,10 @@ import type { UserFull } from '@/@types/auth.type'
 // Helper function to calculate percentage change
 const calculateChange = (current: number, previous: number): number => {
   if (previous === 0) return current > 0 ? 100 : 0
-  return ((current - previous) / previous) * 100
+  const change = ((current - previous) / previous) * 100
+  // Giới hạn phần trăm tối đa để tránh hiển thị số quá lớn không thực tế
+  // Nếu phần trăm > 1000%, có thể là do giá trị trước đó quá nhỏ, nên giới hạn ở 999%
+  return Math.min(Math.abs(change), 999) * (change >= 0 ? 1 : -1)
 }
 
 export default function Stats() {
@@ -81,16 +84,18 @@ export default function Stats() {
     },
   })
 
-  // Calculate total sales from all orders
+  // Calculate total sales from completed orders only
   const totalSales = useMemo(() => {
     if (!allOrdersData) return 0
-    return allOrdersData.reduce((sum, order) => {
-      const amount = parseFloat(order.totalAmount) || 0
-      return sum + amount
-    }, 0)
+    return allOrdersData
+      .filter((order) => order.status === 'COMPLETED')
+      .reduce((sum, order) => {
+        const amount = parseFloat(order.totalAmount) || 0
+        return sum + amount
+      }, 0)
   }, [allOrdersData])
 
-  // Calculate sales today - filter from allOrdersData
+  // Calculate sales today - filter from allOrdersData (only completed orders)
   const salesToday = useMemo(() => {
     if (!allOrdersData) return 0
     const today = new Date()
@@ -100,7 +105,11 @@ export default function Stats() {
     return allOrdersData
       .filter((order) => {
         const orderDate = new Date(order.createdAt)
-        return orderDate >= startOfToday && orderDate <= endOfToday
+        return (
+          order.status === 'COMPLETED' &&
+          orderDate >= startOfToday && 
+          orderDate <= endOfToday
+        )
       })
       .reduce((sum, order) => {
         const amount = parseFloat(order.totalAmount) || 0
@@ -108,7 +117,7 @@ export default function Stats() {
       }, 0)
   }, [allOrdersData])
 
-  // Calculate sales yesterday - filter from allOrdersData
+  // Calculate sales yesterday - filter from allOrdersData (only completed orders)
   const salesYesterday = useMemo(() => {
     if (!allOrdersData) return 0
     const yesterday = new Date()
@@ -119,7 +128,11 @@ export default function Stats() {
     return allOrdersData
       .filter((order) => {
         const orderDate = new Date(order.createdAt)
-        return orderDate >= startOfYesterday && orderDate <= endOfYesterday
+        return (
+          order.status === 'COMPLETED' &&
+          orderDate >= startOfYesterday && 
+          orderDate <= endOfYesterday
+        )
       })
       .reduce((sum, order) => {
         const amount = parseFloat(order.totalAmount) || 0
