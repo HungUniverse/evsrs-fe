@@ -9,7 +9,6 @@ import {
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Edit2, Trash2, Eye } from "lucide-react";
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
-import { formatDate } from "@/lib/utils/formatDate";
 import { vnd } from "@/lib/utils/currency";
 import { getStatusVariant, getPaymentStatusVariant, getStatusLabel, getPaymentStatusLabel } from "../utils/utils";
 
@@ -63,8 +62,16 @@ export function OrderTableRow({
           <div className="text-sm text-muted-foreground">{order.user?.userEmail}</div>
         </div>
       </TableCell>
-      <TableCell>{formatDate(order.startAt)}</TableCell>
-      <TableCell>{formatDate(order.endAt)}</TableCell>
+      <TableCell>
+        <div className="font-medium">
+          {order.depot?.name || "N/A"}
+        </div>
+        {order.depot?.district && order.depot?.province && (
+          <div className="text-sm text-muted-foreground">
+            {order.depot.district}, {order.depot.province}
+          </div>
+        )}
+      </TableCell>
       <TableCell className="font-semibold">{vnd(parseFloat(order.totalAmount))} VNĐ</TableCell>
       <TableCell>
         <Badge

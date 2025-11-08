@@ -62,10 +62,13 @@ export default function DepotRevenue() {
   const chartData = useMemo(() => {
     if (!allOrdersData) return []
 
-    // Filter orders by selected year
+    // Filter orders by selected year and status (only completed orders)
     const filtered = allOrdersData.filter((order) => {
       const orderDate = new Date(order.createdAt)
-      return orderDate.getFullYear() === selectedYear
+      return (
+        order.status === 'COMPLETED' &&
+        orderDate.getFullYear() === selectedYear
+      )
     })
 
     // Get unique depots from orders
@@ -85,7 +88,7 @@ export default function DepotRevenue() {
       }
     })
 
-    // Calculate revenue per depot per month
+    // Calculate revenue per depot per month (only completed orders)
     filtered.forEach((order) => {
       const orderDate = new Date(order.createdAt)
       const month = orderDate.getMonth()
@@ -98,10 +101,10 @@ export default function DepotRevenue() {
     })
 
     // Convert to array format for chart
-    const result = []
+    const result: Record<string, number | string>[] = []
     for (let month = 0; month < 12; month++) {
       const monthName = new Date(selectedYear, month).toLocaleDateString('vi-VN', { month: 'short' })
-      const entry: any = { month: monthName }
+      const entry: Record<string, number | string> = { month: monthName }
       
       uniqueDepots.forEach((depot, depotId) => {
         entry[depot.name] = monthlyData[depotId][month]
@@ -119,19 +122,28 @@ export default function DepotRevenue() {
     '#06b6d4', '#ec4899', '#14b8a6', '#f97316', '#6366f1'
   ]
 
-  // Get all depot names for legend
+  // Get depot names for legend (only depots with revenue in selected year)
   const depotNames = useMemo(() => {
     if (!allOrdersData) return []
     
-    const uniqueDepots = new Map<string, string>()
-    allOrdersData.forEach((order) => {
-      if (order.depot && !uniqueDepots.has(order.depotId)) {
-        uniqueDepots.set(order.depotId, order.depot.name)
+    // Get depots that have revenue in the selected year
+    const depotsWithRevenue = new Map<string, string>()
+    const filtered = allOrdersData.filter((order) => {
+      const orderDate = new Date(order.createdAt)
+      return (
+        order.status === 'COMPLETED' &&
+        orderDate.getFullYear() === selectedYear
+      )
+    })
+    
+    filtered.forEach((order) => {
+      if (order.depot && !depotsWithRevenue.has(order.depotId)) {
+        depotsWithRevenue.set(order.depotId, order.depot.name)
       }
     })
     
-    return Array.from(uniqueDepots.values())
-  }, [allOrdersData])
+    return Array.from(depotsWithRevenue.values())
+  }, [allOrdersData, selectedYear])
 
   return (
     <Card className="border-2 hover:shadow-lg transition-shadow">

@@ -32,8 +32,7 @@ export function OrderTable({
             <TableHead>Ảnh xe</TableHead>
             <TableHead>Model</TableHead>
             <TableHead>Người thuê</TableHead>
-            <TableHead>Ngày bắt đầu</TableHead>
-            <TableHead>Ngày kết thúc</TableHead>
+            <TableHead>Trạm</TableHead>
             <TableHead>Tổng tiền</TableHead>
             <TableHead>Trạng thái</TableHead>
             <TableHead>Tình trạng thanh toán</TableHead>
@@ -43,7 +42,7 @@ export function OrderTable({
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={10} className="text-center py-8">
+              <TableCell colSpan={9} className="text-center py-8">
                 <div className="flex items-center justify-center gap-2 text-muted-foreground">
                   <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
                   <span>Đang tải...</span>
@@ -52,7 +51,7 @@ export function OrderTable({
             </TableRow>
           ) : orders.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={10} className="text-center py-12">
+              <TableCell colSpan={9} className="text-center py-12">
                 <div className="flex flex-col items-center gap-3 text-muted-foreground">
                   <Package className="size-8" />
                   <div>

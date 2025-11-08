@@ -84,16 +84,18 @@ export default function Stats() {
     },
   })
 
-  // Calculate total sales from all orders
+  // Calculate total sales from completed orders only
   const totalSales = useMemo(() => {
     if (!allOrdersData) return 0
-    return allOrdersData.reduce((sum, order) => {
-      const amount = parseFloat(order.totalAmount) || 0
-      return sum + amount
-    }, 0)
+    return allOrdersData
+      .filter((order) => order.status === 'COMPLETED')
+      .reduce((sum, order) => {
+        const amount = parseFloat(order.totalAmount) || 0
+        return sum + amount
+      }, 0)
   }, [allOrdersData])
 
-  // Calculate sales today - filter from allOrdersData
+  // Calculate sales today - filter from allOrdersData (only completed orders)
   const salesToday = useMemo(() => {
     if (!allOrdersData) return 0
     const today = new Date()
@@ -103,7 +105,11 @@ export default function Stats() {
     return allOrdersData
       .filter((order) => {
         const orderDate = new Date(order.createdAt)
-        return orderDate >= startOfToday && orderDate <= endOfToday
+        return (
+          order.status === 'COMPLETED' &&
+          orderDate >= startOfToday && 
+          orderDate <= endOfToday
+        )
       })
       .reduce((sum, order) => {
         const amount = parseFloat(order.totalAmount) || 0
@@ -111,7 +117,7 @@ export default function Stats() {
       }, 0)
   }, [allOrdersData])
 
-  // Calculate sales yesterday - filter from allOrdersData
+  // Calculate sales yesterday - filter from allOrdersData (only completed orders)
   const salesYesterday = useMemo(() => {
     if (!allOrdersData) return 0
     const yesterday = new Date()
@@ -122,7 +128,11 @@ export default function Stats() {
     return allOrdersData
       .filter((order) => {
         const orderDate = new Date(order.createdAt)
-        return orderDate >= startOfYesterday && orderDate <= endOfYesterday
+        return (
+          order.status === 'COMPLETED' &&
+          orderDate >= startOfYesterday && 
+          orderDate <= endOfYesterday
+        )
       })
       .reduce((sum, order) => {
         const amount = parseFloat(order.totalAmount) || 0

@@ -50,10 +50,13 @@ export default function DepotStats() {
   const topDepots = useMemo(() => {
     if (!allOrdersData) return []
 
-    // Count rentals by depot
+    // Count rentals by depot (only completed orders)
     const depotCounts: Record<string, { name: string; count: number; location: string }> = {}
     
     allOrdersData.forEach((order) => {
+      // Only count completed orders
+      if (order.status !== 'COMPLETED') return
+      
       const depotId = order.depotId
       const depotName = order.depot?.name || 'Unknown'
       const location = order.depot?.district && order.depot?.province 
@@ -66,9 +69,10 @@ export default function DepotStats() {
       depotCounts[depotId].count++
     })
 
-    // Sort by count and get top 3
+    // Sort by count, filter out depots with 0 rentals, and get top 3
     return Object.entries(depotCounts)
       .map(([id, data]) => ({ id, ...data }))
+      .filter((depot) => depot.count > 0)
       .sort((a, b) => b.count - a.count)
       .slice(0, 3)
   }, [allOrdersData])
