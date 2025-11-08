@@ -9,3 +9,4 @@ export { default as CarEVManagementPage } from "./car-ev-management";
 export { default as OverviewDashboardPage } from "./overview-dashboard";
 export { default as TransactionsPage } from "./transactions";
 export { default as MembershipConfigManagementPage } from "./membership-config-management";
+export { default as SystemConfigManagementPage } from "./system-config-management";

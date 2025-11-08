@@ -14,6 +14,7 @@ import {
   CarFront,
   Home,
   Shield,
+  Settings,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
@@ -80,6 +81,11 @@ const navigationItems: NavigationItem[] = [
     name: "Cấu hình hạng thành viên",
     href: "/admin/membership-config-management",
     icon: Shield,
+  },
+  {
+    name: "Cấu hình hệ thống",
+    href: "/admin/system-config-management",
+    icon: Settings,
   }
 
 ];
