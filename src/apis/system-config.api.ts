@@ -3,7 +3,7 @@ import type { SystemConfigTypeResponse } from "@/@types/system-config";
 import type { SystemConfigType } from "@/@types/enum";
 import { api } from "@/lib/axios/axios";
 
-export const SystemConfig = {
+export const SystemConfigApi = {
   getById: async (id: string): Promise<SystemConfigTypeResponse> => {
     const res = await api.get<ItemBaseResponse<SystemConfigTypeResponse>>(
       `/api/SystemConfig/${id}`

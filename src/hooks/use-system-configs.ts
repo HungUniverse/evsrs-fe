@@ -1,8 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { SystemConfig } from "@/apis/system-config.api";
+import { SystemConfigApi } from "@/apis/system-config.api";
 import type { SystemConfigTypeResponse } from "@/@types/system-config";
 import type { SystemConfigType } from "@/@types/enum";
-import type { ListBaseResponse } from "@/@types/response";
 
 export type SystemConfigsListParams = {
   key?: string;
@@ -21,10 +20,10 @@ export function useSystemConfigsList(params: SystemConfigsListParams) {
       
       if (params.configType) {
         // Filter by config type
-        items = await SystemConfig.getByConfigType(params.configType);
+        items = await SystemConfigApi.getByConfigType(params.configType);
       } else {
         // Get all configs
-        const res = await SystemConfig.getAll();
+        const res = await SystemConfigApi.getAll();
         items = res.data?.items || [];
       }
       
@@ -49,18 +48,18 @@ export function useSystemConfigMutations() {
 
   const create = useMutation({
     mutationFn: (data: { key: string; value: string; configType: SystemConfigType }) => 
-      SystemConfig.createConfig(data),
+      SystemConfigApi.createConfig(data),
     onSuccess: invalidateList,
   });
 
   const update = useMutation({
     mutationFn: ({ id, data }: { id: string; data: { key: string; value: string; configType: SystemConfigType } }) => 
-      SystemConfig.updateConfig(id, data),
+      SystemConfigApi.updateConfig(id, data),
     onSuccess: invalidateList,
   });
 
   const remove = useMutation({
-    mutationFn: (id: string) => SystemConfig.deleteConfig(id),
+    mutationFn: (id: string) => SystemConfigApi.deleteConfig(id),
     onSuccess: invalidateList,
   });
 

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { SystemConfig } from "@/apis/system-config.api";
+import { SystemConfigApi } from "@/apis/system-config.api";
 
 const STORAGE_PREFIX = "system_config_";
 
@@ -16,7 +16,7 @@ export function useSystemConfig(key: string) {
     setLoading(true);
     setError(null);
     try {
-      const response = await SystemConfig.getByKey(key);
+      const response = await SystemConfigApi.getByKey(key);
       const configValue = response.value || "";
 
       // Save to localStorage
@@ -78,7 +78,7 @@ export const SystemConfigUtils = {
   // Fetch deposit amount from API and save to localStorage
   fetchDepositAmount: async (): Promise<number> => {
     try {
-      const response = await SystemConfig.getByKey("Tiền cọc");
+      const response = await SystemConfigApi.getByKey("Tiền cọc");
       const value = response.value || "0";
       SystemConfigUtils.set("Tiền cọc", value);
       return parseFloat(value) || 0;

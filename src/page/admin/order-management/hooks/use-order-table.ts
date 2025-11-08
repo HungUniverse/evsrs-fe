@@ -27,8 +27,8 @@ export interface UseOrderTableResult {
   handlePreviousPage: () => void;
 
   // Filters
-  searchOrderId: string;
-  setSearchOrderId: (value: string) => void;
+  searchOrderCode: string;
+  setSearchOrderCode: (value: string) => void;
   selectedUserId: string;
   setSelectedUserId: (value: string) => void;
   selectedDepotId: string;
@@ -72,7 +72,7 @@ export interface UseOrderTableResult {
 
   // Actions
   fetchOrders: () => Promise<void>;
-  handleSearchOrderById: () => Promise<void>;
+  handleSearchOrderByCode: () => Promise<void>;
   handleUpdateStatus: () => Promise<void>;
   handleDelete: () => Promise<void>;
   handleConfirmRefund: () => Promise<void>;
@@ -99,7 +99,7 @@ export function useOrderTable(): UseOrderTableResult {
   const [status, setStatus] = useState<OrderBookingStatus>("PENDING");
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("PENDING");
   const [selectedUserId, setSelectedUserId] = useState<string>("");
-  const [searchOrderId, setSearchOrderId] = useState<string>("");
+  const [searchOrderCode, setSearchOrderCode] = useState<string>("");
   const [selectedDepotId, setSelectedDepotId] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState<string>("all");
@@ -155,16 +155,22 @@ export function useOrderTable(): UseOrderTableResult {
     }
   };
 
-  const handleSearchOrderById = async () => {
-    if (!searchOrderId.trim()) {
-      toast.error("Vui lòng nhập mã đơn đặt xe");
+  const handleSearchOrderByCode = async () => {
+    if (!searchOrderCode.trim()) {
+      toast.error("Vui lòng nhập mã đơn hàng");
       return;
     }
     try {
       setLoading(true);
-      const order = await OrderTableApi.fetchOrderById(searchOrderId);
-      if (order) {
-        setOrders([order]);
+      const trimmedCode = searchOrderCode.trim();
+      const result = await OrderTableApi.fetchOrdersByCode(trimmedCode, { pageNumber: 1, pageSize: 100 });
+      
+      // Filter để chỉ lấy đơn hàng có code chính xác (exact match)
+      // Vì code là unique nên chỉ nên có tối đa 1 đơn hàng
+      const exactMatchOrders = result?.items?.filter((order) => order.code === trimmedCode) || [];
+      
+      if (exactMatchOrders.length > 0) {
+        setOrders(exactMatchOrders);
         setTotalPages(1);
         setTotalCount(1);
         setHasNextPage(false);
@@ -179,7 +185,7 @@ export function useOrderTable(): UseOrderTableResult {
         toast.info("Không tìm thấy đơn đặt xe với mã này");
       }
     } catch (error) {
-      console.error("Error searching order:", error);
+      console.error("Error searching order by code:", error);
       toast.error("Không tìm thấy đơn đặt xe với mã này");
       setOrders([]);
       setTotalPages(0);
@@ -266,7 +272,7 @@ export function useOrderTable(): UseOrderTableResult {
   const clearFilters = () => {
     setSelectedUserId("");
     setSelectedDepotId("");
-    setSearchOrderId("");
+    setSearchOrderCode("");
     setStartDateFilter("");
     setEndDateFilter("");
     setStatusFilter("all");
@@ -322,7 +328,6 @@ export function useOrderTable(): UseOrderTableResult {
   useEffect(() => {
     fetchUsers();
     fetchDepots();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -375,8 +380,8 @@ export function useOrderTable(): UseOrderTableResult {
     setPageSize,
     handleNextPage,
     handlePreviousPage,
-    searchOrderId,
-    setSearchOrderId,
+    searchOrderCode,
+    setSearchOrderCode,
     selectedUserId,
     setSelectedUserId,
     selectedDepotId,
@@ -412,7 +417,7 @@ export function useOrderTable(): UseOrderTableResult {
     setAdminRefundNote,
     submittingRefund,
     fetchOrders,
-    handleSearchOrderById,
+    handleSearchOrderByCode,
     handleUpdateStatus,
     handleDelete,
     handleConfirmRefund,

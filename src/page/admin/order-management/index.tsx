@@ -27,8 +27,8 @@ export default function OrderManagementPage() {
     setPageSize,
     handleNextPage,
     handlePreviousPage,
-    searchOrderId,
-    setSearchOrderId,
+    searchOrderCode,
+    setSearchOrderCode,
     selectedUserId,
     setSelectedUserId,
     selectedDepotId,
@@ -63,7 +63,7 @@ export default function OrderManagementPage() {
     adminRefundNote,
     setAdminRefundNote,
     submittingRefund,
-    handleSearchOrderById,
+    handleSearchOrderByCode,
     handleUpdateStatus,
     handleDelete,
     handleConfirmRefund,
@@ -77,14 +77,14 @@ export default function OrderManagementPage() {
         <p className="text-muted-foreground">Quản lý đơn đặt xe để quản lý các đơn đặt xe trên hệ thống.</p>
       </div>
 
-      {loading && orders.length === 0 ? (
+      {loading && (!orders || orders.length === 0) ? (
         <OrderTableLoadingState />
       ) : (
         <div className="space-y-4">
           <OrderTableToolbar
-            searchOrderId={searchOrderId}
-            onSearchOrderIdChange={setSearchOrderId}
-            onSearch={handleSearchOrderById}
+            searchOrderCode={searchOrderCode}
+            onSearchOrderCodeChange={setSearchOrderCode}
+            onSearch={handleSearchOrderByCode}
             pageSize={pageSize}
             onPageSizeChange={(size) => setPageSize(Number(size))}
             selectedUserId={selectedUserId}

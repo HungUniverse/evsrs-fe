@@ -1,8 +1,9 @@
-import { ArrowUpDown, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { ArrowUpDown, Plus, RotateCcw, Trash2, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
 import type { SortState } from "../hooks/use-staff-table";
 
 interface StaffTableToolbarProps {
@@ -38,74 +39,93 @@ export function StaffTableToolbar({
   onDeleteSelected,
 }: StaffTableToolbarProps) {
   return (
-    <div className="space-y-3">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-          <div className="flex items-center gap-2">
-            <Input
-              placeholder="Tìm nhanh (tên / tên đăng nhập / số điện thoại / email)"
-              value={query}
-              onChange={(event) => onQueryChange(event.target.value)}
-              className="w-[280px] sm:w-[320px]"
-            />
+    <Card className="shadow-sm border">
+      <CardContent className="p-6 space-y-6">
+        {/* Search Section */}
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="flex items-center gap-3 flex-1 w-full sm:max-w-2xl">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Tìm nhanh (tên / tên đăng nhập / số điện thoại / email)"
+                value={query}
+                onChange={(event) => onQueryChange(event.target.value)}
+                className="pl-10 pr-4 h-10"
+              />
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <ArrowUpDown className="size-4 text-muted-foreground" />
-            <Label htmlFor="staff-sort-filter" className="text-sm text-muted-foreground whitespace-nowrap">
-              Sắp xếp:
-            </Label>
-            <Select
-              value={`${sortState.field}-${sortState.direction}`}
-              onValueChange={(value) => {
-                const [field, direction] = value.split("-") as [SortState["field"], SortState["direction"]];
-                onSortChange({ field, direction });
-              }}
-            >
-              <SelectTrigger id="staff-sort-filter" className="w-[180px]">
-                <SelectValue placeholder="Sắp xếp theo" />
-              </SelectTrigger>
-              <SelectContent>
-                {SORT_OPTIONS.map((option) => (
-                  <SelectItem
-                    key={`${option.value.field}-${option.value.direction}`}
-                    value={`${option.value.field}-${option.value.direction}`}
-                  >
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button onClick={onOpenCreate} className="h-10">
+              <Plus className="h-4 w-4 mr-2" />
+              Thêm nhân viên
+            </Button>
+            {isAnySelected && (
+              <Button variant="destructive" size="sm" onClick={onDeleteSelected} className="h-10">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Xóa đã chọn ({selectedCount})
+              </Button>
+            )}
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button onClick={onOpenCreate} className="flex items-center gap-2" size="sm">
-            <Plus className="size-4" />
-            Thêm nhân viên
-          </Button>
+        {/* Divider */}
+        <div className="border-t" />
 
+        {/* Filters Section */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <Filter className="h-4 w-4" />
+            <span>Bộ lọc</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="staff-sort-filter" className="text-sm font-medium flex items-center gap-2">
+                <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+                Sắp xếp
+              </Label>
+              <Select
+                value={`${sortState.field}-${sortState.direction}`}
+                onValueChange={(value) => {
+                  const [field, direction] = value.split("-") as [SortState["field"], SortState["direction"]];
+                  onSortChange({ field, direction });
+                }}
+              >
+                <SelectTrigger id="staff-sort-filter" className="h-10">
+                  <SelectValue placeholder="Sắp xếp theo" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SORT_OPTIONS.map((option) => (
+                    <SelectItem
+                      key={`${option.value.field}-${option.value.direction}`}
+                      value={`${option.value.field}-${option.value.direction}`}
+                    >
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Reset Button */}
           {hasActiveFilters && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onClearFilters}
-              className="group text-red-600 hover:text-red-700 border-red-600 hover:bg-red-50"
-            >
-              <RotateCcw className="h-4 w-4 mr-2 transition-transform duration-300 group-hover:rotate-180" />
-              Đặt lại bộ lọc
-            </Button>
-          )}
-
-          {isAnySelected && (
-            <Button variant="destructive" size="sm" onClick={onDeleteSelected} className="flex items-center gap-2">
-              <Trash2 className="size-4" />
-              Xóa đã chọn ({selectedCount})
-            </Button>
+            <div className="flex justify-end pt-2">
+              <Button
+                onClick={onClearFilters}
+                variant="outline"
+                size="sm"
+                className="h-9 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+              >
+                <RotateCcw className="h-3.5 w-3.5 mr-2" />
+                Đặt lại bộ lọc
+              </Button>
+            </div>
           )}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 

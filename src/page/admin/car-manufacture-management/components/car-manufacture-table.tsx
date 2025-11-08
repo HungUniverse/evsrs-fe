@@ -12,7 +12,7 @@ interface CarManufactureTableProps {
 
 const CarManufactureTable: React.FC<CarManufactureTableProps> = ({ data, onEdit, onDelete }) => {
   return (
-    <div className="rounded-md border">
+    <div className="rounded-lg border bg-white shadow-sm">
       <Table>
         <TableHeader>
           <TableRow>

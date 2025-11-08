@@ -24,7 +24,7 @@ export function OrderTable({
   onViewUser,
 }: OrderTableProps) {
   return (
-    <div className="rounded-xl border bg-background shadow-sm">
+    <div className="rounded-lg border bg-white shadow-sm">
       <Table>
         <TableHeader>
           <TableRow>
@@ -49,7 +49,7 @@ export function OrderTable({
                 </div>
               </TableCell>
             </TableRow>
-          ) : orders.length === 0 ? (
+          ) : (!orders || orders.length === 0) ? (
             <TableRow>
               <TableCell colSpan={9} className="text-center py-12">
                 <div className="flex flex-col items-center gap-3 text-muted-foreground">

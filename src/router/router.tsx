@@ -12,6 +12,7 @@ import {
   OverviewDashboardPage,
   MembershipConfigManagementPage,
   SystemConfigManagementPage,
+  TransactionsPage,
 } from "@/page/admin/index";
 import {
   AccountProfile,
@@ -182,6 +183,10 @@ export const router = createBrowserRouter([
           {
             path: "system-config-management",
             element: <SystemConfigManagementPage />,
+          },
+          {
+            path: "transactions",
+            element: <TransactionsPage />,
           },
         ],
       },

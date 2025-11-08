@@ -30,7 +30,7 @@ export function StaffTableContent({
   const hasData = rows.length > 0;
 
   return (
-    <div className="rounded-xl border bg-background shadow-sm">
+    <div className="rounded-lg border bg-white shadow-sm">
       <Table>
         <TableHeader>
           <TableRow>

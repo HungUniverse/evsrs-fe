@@ -78,6 +78,35 @@ async function fetchOrderById(orderId: string): Promise<OrderBookingDetail | nul
   }
 }
 
+async function fetchOrdersByCode(code: string, query: OrderBookingQuery = {}): Promise<{
+  items: OrderBookingDetail[];
+  totalPages: number;
+  totalCount: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}> {
+  const response = await orderBookingAPI.getAll({ ...query, search: code });
+  const data = response.data?.data;
+  
+  if (!data) {
+    return {
+      items: [],
+      totalPages: 0,
+      totalCount: 0,
+      hasNextPage: false,
+      hasPreviousPage: false,
+    };
+  }
+
+  return {
+    items: data.items || [],
+    totalPages: data.totalPages || 0,
+    totalCount: data.totalCount || 0,
+    hasNextPage: data.hasNextPage || false,
+    hasPreviousPage: data.hasPreviousPage || false,
+  };
+}
+
 async function fetchUsers(): Promise<UserFull[]> {
   try {
     const response = await UserFullAPI.getAll(DEFAULT_PAGINATION.page, DEFAULT_PAGINATION.limit);
@@ -126,6 +155,7 @@ export const OrderTableApi = {
   fetchOrders,
   fetchRefundPendingOrders,
   fetchOrderById,
+  fetchOrdersByCode,
   fetchUsers,
   fetchDepots,
   updateOrderStatus,

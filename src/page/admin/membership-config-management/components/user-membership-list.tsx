@@ -77,7 +77,7 @@ export default function UserMembershipList() {
           <Users className="h-5 w-5 text-muted-foreground" />
           <h2 className="text-xl font-semibold">Danh sách thành viên</h2>
         </div>
-        <div className="rounded-md border">
+        <div className="rounded-lg border bg-white shadow-sm">
           <Table>
             <TableHeader>
               <TableRow>
@@ -130,7 +130,7 @@ export default function UserMembershipList() {
           <Users className="h-5 w-5 text-muted-foreground" />
           <h2 className="text-xl font-semibold">Danh sách thành viên</h2>
         </div>
-        <div className="rounded-md border p-8 text-center">
+        <div className="rounded-lg border bg-white shadow-sm p-8 text-center">
           <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-sm text-muted-foreground">Không có người dùng nào trong hệ thống</p>
         </div>
@@ -148,7 +148,7 @@ export default function UserMembershipList() {
         </Badge>
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-lg border bg-white shadow-sm">
         <Table>
           <TableHeader>
             <TableRow>

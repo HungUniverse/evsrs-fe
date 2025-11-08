@@ -27,7 +27,7 @@ const SystemConfigTable: React.FC<SystemConfigTableProps> = ({ data, onEdit, onD
   };
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-lg border bg-white shadow-sm">
       <Table>
         <TableHeader>
           <TableRow>
