@@ -4,7 +4,7 @@ import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import logo from "../images/logo.png";
 import { Button } from "@/components/ui/button";
 
-import { Bell, Settings, LogOut, IdCard, User as UserIcon } from "lucide-react";
+import { Settings, LogOut, IdCard, User as UserIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -92,20 +92,6 @@ export default function HeaderLite() {
 
           {isAuthenticated ? (
             <>
-              <button
-                aria-label="Thông báo"
-                className="inline-flex items-center justify-center rounded-md p-2 hover:bg-slate-100 transition"
-              >
-                <Bell className="h-5 w-5" />
-              </button>
-
-              <button
-                aria-label="Cài đặt"
-                className="inline-flex items-center justify-center rounded-md p-2 hover:bg-slate-100 transition"
-              >
-                <Settings className="h-5 w-5" />
-              </button>
-
               {/* Dropdown tài khoản */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

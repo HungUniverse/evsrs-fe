@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
+import { useBookingCalc } from "@/hooks/use-booking-car-cal";
 
 // Helper functions
 const toMinutes = (hhmm: string) => {
@@ -194,6 +195,11 @@ export default function DatePicker({
     onChange({ ...value, endTime: val });
   };
 
+  // Calculate booking duration using useBookingCalc
+  const startISO = `${startDate}T${startTime}:00`;
+  const endISO = `${endDate}T${endTime}:00`;
+  const { shiftLabel } = useBookingCalc(0, startISO, endISO);
+
   // Summary display
   const summary = `${startTime}, ${fmtVN(startDate)} - ${endTime}, ${fmtVN(endDate)}`;
 
@@ -305,17 +311,24 @@ export default function DatePicker({
         )}
 
         {/* Footer tóm tắt + Tiếp tục */}
-        <div className="mt-2 flex items-center justify-between">
-          <div className="text-md">
-            <span className="font-medium">{summary}</span>
+        <div className="mt-2 space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="text-md">
+              <span className="font-medium">{summary}</span>
+            </div>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => onOpenChange(false)}
+            >
+              Tiếp tục
+            </Button>
           </div>
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => onOpenChange(false)}
-          >
-            Tiếp tục
-          </Button>
+          {/* Display rental duration */}
+          <div className="text-md text-slate-600 text-left">
+            Thời gian thuê:{" "}
+            <span className="font-semibold text-slate-800">{shiftLabel}</span>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -24,16 +24,70 @@ type Props = {
 
 const PROVINCES = ["TP. Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Cần Thơ"];
 
+// Làm tròn lên 30 phút và cộng thêm 1 giờ, đảm bảo trong khung 6h-22h
+function getRoundedStartTime() {
+  const now = new Date();
+  let minutes = now.getMinutes();
+  let hours = now.getHours();
+
+  // Làm tròn lên 30 phút
+  if (minutes > 30) {
+    hours += 1;
+    minutes = 0;
+  } else if (minutes > 0) {
+    minutes = 30;
+  }
+
+  // Cộng thêm 1 giờ
+  hours += 1;
+
+  // Xử lý overflow ngày
+  if (hours >= 24) {
+    now.setDate(now.getDate() + 1);
+    hours = hours % 24;
+  }
+
+  // Kiểm tra giờ làm việc (6h-22h)
+  if (hours < 6) {
+    hours = 6;
+    minutes = 0;
+  } else if (hours >= 22) {
+    // Nếu >= 22h, set sang 6h sáng hôm sau
+    now.setDate(now.getDate() + 1);
+    hours = 6;
+    minutes = 0;
+  }
+
+  now.setHours(hours, minutes, 0, 0);
+  return now;
+}
+
+// End time = start time + 24h, đảm bảo trong khung 6h-22h
+function getRoundedEndTime(startTime: Date) {
+  const endTime = new Date(startTime);
+  endTime.setHours(endTime.getHours() + 24);
+
+  const hours = endTime.getHours();
+
+  // Nếu end time vượt quá 22h, điều chỉnh về 22h cùng ngày
+  if (hours > 22 || hours < 6) {
+    endTime.setHours(22, 0, 0, 0);
+  }
+
+  return endTime;
+}
+
 // build 06:00 -> 23:30 step 30'
 
 export default function SearchBar({ onSearch }: Props) {
-  const nowPlus1h = new Date(Date.now() + 60 * 60 * 1000);
-  const tomorrowPlus1h = new Date(Date.now() + 25 * 60 * 60 * 1000);
+  const startTime = getRoundedStartTime();
+  const endTime = getRoundedEndTime(startTime);
+
   const [pickerOpen, setPickerOpen] = useState(false);
   const [form, setForm] = useState<SearchForm>({
     location: "TP. Hồ Chí Minh",
-    start: toLocalDatetimeValue(nowPlus1h),
-    end: toLocalDatetimeValue(tomorrowPlus1h),
+    start: toLocalDatetimeValue(startTime),
+    end: toLocalDatetimeValue(endTime),
   });
 
   // DateRange for DatePicker component
