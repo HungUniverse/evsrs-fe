@@ -34,15 +34,15 @@ const CarEVTable: React.FC<CarEVTableProps> = ({ data, onEdit, onDelete }) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[180px]">Hình ảnh</TableHead>
-            <TableHead>Biển số xe</TableHead>
-            <TableHead>Model</TableHead>
-            <TableHead>Trạm xe điện</TableHead>
-            <TableHead>Tình trạng pin (%)</TableHead>
-            <TableHead>Ngày tạo</TableHead>
-            <TableHead>Ngày cập nhật</TableHead>
-            <TableHead>Trạng thái</TableHead>
-            <TableHead className="w-[100px] text-right">Thao tác</TableHead>
+            <TableHead className="w-[180px] whitespace-nowrap">Hình ảnh</TableHead>
+            <TableHead className="whitespace-nowrap">Biển số xe</TableHead>
+            <TableHead className="whitespace-nowrap">Model</TableHead>
+            <TableHead className="whitespace-nowrap">Trạm xe điện</TableHead>
+            <TableHead className="whitespace-nowrap">Tình trạng pin (%)</TableHead>
+            <TableHead className="whitespace-nowrap">Ngày tạo</TableHead>
+            <TableHead className="whitespace-nowrap">Ngày cập nhật</TableHead>
+            <TableHead className="whitespace-nowrap">Trạng thái</TableHead>
+            <TableHead className="w-[100px] text-right whitespace-nowrap">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -53,10 +53,10 @@ const CarEVTable: React.FC<CarEVTableProps> = ({ data, onEdit, onDelete }) => {
                   <img
                     src={item.model.image}
                     alt={item.model.modelName || "Model image"}
-                    className="w-40 h-48 object-cover rounded-lg"
+                    className="w-40 h-20 object-cover rounded-lg"
                   />
                 ) : (
-                  <div className="w-40 h-48 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-xs">
+                  <div className="w-40 h-20 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-xs">
                     Không có ảnh
                   </div>
                 )}

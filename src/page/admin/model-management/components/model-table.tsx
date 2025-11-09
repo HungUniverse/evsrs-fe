@@ -37,28 +37,35 @@ const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities,
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[180px]">Hình ảnh</TableHead>
-            <TableHead className="w-[15%]">Tên model</TableHead>
-            <TableHead>Nhà sản xuất</TableHead>
-            <TableHead>Tiện nghi</TableHead>
-            <TableHead>Dung lượng pin (kWh)</TableHead>
-            <TableHead>Tầm hoạt động (km)</TableHead>
-            <TableHead>Số ghế</TableHead>
-            <TableHead>Giá thuê</TableHead>
-            <TableHead>Giảm giá (%)</TableHead>
-            <TableHead>Ngày tạo</TableHead>
-            <TableHead>Trạng thái</TableHead>
-            <TableHead className="text-right">Thao tác</TableHead>
+            <TableHead className="whitespace-nowrap" style={{ width: '220px', minWidth: '220px' }}>Hình ảnh</TableHead>
+            <TableHead className="w-[15%] whitespace-nowrap">Tên model</TableHead>
+            <TableHead className="whitespace-nowrap">Nhà sản xuất</TableHead>
+            <TableHead className="whitespace-nowrap">Tiện nghi</TableHead>
+            <TableHead className="whitespace-nowrap">Dung lượng pin (kWh)</TableHead>
+            <TableHead className="whitespace-nowrap">Tầm hoạt động (km)</TableHead>
+            <TableHead className="whitespace-nowrap">Số ghế</TableHead>
+            <TableHead className="whitespace-nowrap">Giá thuê</TableHead>
+            <TableHead className="whitespace-nowrap">Giảm giá (%)</TableHead>
+            <TableHead className="whitespace-nowrap">Ngày tạo</TableHead>
+            <TableHead className="whitespace-nowrap">Trạng thái</TableHead>
+            <TableHead className="text-right whitespace-nowrap">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.map((item) => (
             <TableRow key={item.id}>
-              <TableCell>
+              <TableCell style={{ width: '220px', minWidth: '220px', padding: '1rem' }}>
                 {item.image ? (
-                  <img src={item.image} alt="Model" className="w-40 h-48 object-cover rounded-lg" />
+                  <img 
+                    src={item.image} 
+                    alt="Model" 
+                    style={{ width: '200px', height: '80px', objectFit: 'cover', display: 'block' }}
+                    className="rounded-lg" 
+                  />
                 ) : (
-                  <span className="text-muted-foreground text-sm">No image</span>
+                  <div style={{ width: '200px', height: '80px' }} className="bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-xs">
+                    No image
+                  </div>
                 )}
               </TableCell>
               <TableCell className="font-medium">{item.modelName}</TableCell>
