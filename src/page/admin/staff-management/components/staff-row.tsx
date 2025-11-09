@@ -165,7 +165,7 @@ export function StaffTableRow({
                       </div>
                       <div>
                         <div className="text-xs text-muted-foreground mb-1">Trạng thái xác thực</div>
-                        <Badge variant={user.isVerify ? "default" : "secondary"} className="text-sm px-3 py-1">
+                        <Badge variant={user.isVerify ? "default" : "secondary"} className="whitespace-nowrap text-sm px-3 py-1">
                           {user.isVerify ? "Đã xác thực" : "Chưa xác thực"}
                         </Badge>
                       </div>
@@ -204,7 +204,7 @@ export function StaffTableRow({
                   <div className="space-y-4">
                     <div className="p-4 rounded-xl border bg-card shadow-sm">
                       <div className="flex items-start gap-2">
-                        <Badge variant="outline" className="flex items-center gap-1 px-3 py-1">
+                        <Badge variant="outline" className="whitespace-nowrap flex items-center gap-1 px-3 py-1">
                           <MapPin className="size-3" />
                           {getDepotName(user.depotId)}
                         </Badge>

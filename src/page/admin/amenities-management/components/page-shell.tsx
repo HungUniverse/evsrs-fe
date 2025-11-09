@@ -9,7 +9,7 @@ interface PageShellProps {
 
 const PageShell: React.FC<PageShellProps> = ({ title, subtitle, actions, children }) => {
   return (
-    <div>
+    <div className="px-4 sm:px-6">
       <div className="flex flex-col gap-2 mb-4">
         <div className="flex items-center justify-between gap-2">
           <div>

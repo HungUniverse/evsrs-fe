@@ -47,7 +47,7 @@ const SystemConfigTable: React.FC<SystemConfigTableProps> = ({ data, onEdit, onD
                 {item.value}
               </TableCell>
               <TableCell>
-                <Badge variant={getConfigTypeBadgeVariant(item.configType)}>
+                <Badge variant={getConfigTypeBadgeVariant(item.configType)} className="whitespace-nowrap">
                   {item.configType}
                 </Badge>
               </TableCell>

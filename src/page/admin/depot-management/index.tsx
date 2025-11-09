@@ -4,7 +4,6 @@ import { useDepotForm } from "@/hooks/use-depot-form";
 import { useDepotPagination } from "@/hooks/use-depot-pagination";
 import type { Depot } from "@/@types/car/depot";
 import PageShell from "./components/page-shell";
-import HeaderActions from "./components/header-actions";
 import FilterBar from "./components/filter-bar";
 import DepotTable from "./components/depot-table";
 import DepotFormDialog from "./components/depot-form-dialog";
@@ -29,7 +28,6 @@ export default function DepotManagementPage() {
     <PageShell
       title="Quản lý trạm"
       subtitle="Quản lý trạm để quản lý các trạm trên hệ thống."
-      actions={<HeaderActions onAdd={form.startCreate} />}
     >
       <div className="space-y-4">
         <FilterBar
@@ -47,6 +45,7 @@ export default function DepotManagementPage() {
           ward={tableState.ward}
           onWardChange={pagination.handleFilterChange(tableState.setWard)}
           onClearFilters={tableState.clearFilters}
+          onAdd={form.startCreate}
         />
 
         <DepotTable

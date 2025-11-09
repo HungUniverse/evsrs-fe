@@ -5,7 +5,6 @@ import { useCarEVDropdowns } from "@/hooks/use-car-ev-dropdowns";
 import { useCarEVPagination } from "@/hooks/use-car-ev-pagination";
 import type { CarEV } from "@/@types/car/carEv";
 import PageShell from "./components/page-shell";
-import HeaderActions from "./components/header-actions";
 import FilterBar from "./components/filter-bar";
 import CarEVTable from "./components/car-ev-table";
 import CarEVFormDialog from "./components/car-ev-form-dialog";
@@ -31,7 +30,6 @@ export default function CarEVManagementPage() {
     <PageShell
       title="Quản lý xe điện"
       subtitle="Quản lý xe điện để quản lý các xe điện trên hệ thống."
-      actions={<HeaderActions onAdd={form.startCreate} />}
     >
       <div className="space-y-4">
         <FilterBar
@@ -51,6 +49,7 @@ export default function CarEVManagementPage() {
           onClearFilters={tableState.clearFilters}
           depots={depots}
           models={models}
+          onAdd={form.startCreate}
         />
 
         <CarEVTable

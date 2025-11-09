@@ -41,10 +41,10 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/20">
               <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
             </div>
-            <DialogTitle className="text-left">Xác nhận xóa tiện ích</DialogTitle>
+            <DialogTitle className="text-left">Xác nhận xóa tiện nghi</DialogTitle>
           </div>
           <DialogDescription className="text-left pt-2">
-            Bạn có chắc chắn muốn xóa tiện ích <strong>"{item.name}"</strong> không?
+            Bạn có chắc chắn muốn xóa tiện nghi <strong>"{item.name}"</strong> không?
             <br />
             <span className="text-red-600 dark:text-red-400 font-medium">
               Thao tác này không thể hoàn tác.

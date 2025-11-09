@@ -23,7 +23,7 @@ const CarEVTable: React.FC<CarEVTableProps> = ({ data, onEdit, onDelete }) => {
   const getStatusBadge = (status: CarEvStatus) => {
     const statusOption = statusOptions.find(opt => opt.value === status);
     return (
-      <Badge className={statusOption?.color || "bg-gray-100 text-gray-800"}>
+      <Badge className={`whitespace-nowrap ${statusOption?.color || "bg-gray-100 text-gray-800"}`}>
         {statusOption?.label || status}
       </Badge>
     );

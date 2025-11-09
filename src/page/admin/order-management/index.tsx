@@ -2,9 +2,8 @@ import { useOrderTable } from "./hooks/use-order-table";
 import { OrderTableToolbar } from "./components/toolbar";
 import { OrderTable } from "./components/table";
 import { OrderTableLoadingState } from "./components/loading-state";
-import { OrderDetailDialog } from "./components/detail-dialog";
 import { UpdateStatusDialog } from "./components/update-status-dialog";
-import { DeleteDialog } from "./components/delete-dialog";
+// import { DeleteDialog } from "./components/delete-dialog"; // Commented out - delete function removed
 import { RefundDialog } from "./components/refund-dialog";
 import { OrderTablePagination } from "./components/pagination";
 import UserInfoModal from "@/page/staff/trip-management/components/user-info-modal";
@@ -42,17 +41,14 @@ export default function OrderManagementPage() {
     endDateFilter,
     setEndDateFilter,
     clearFilters,
-    detailDialogOpen,
-    setDetailDialogOpen,
     updateStatusDialogOpen,
     setUpdateStatusDialogOpen,
-    deleteDialogOpen,
-    setDeleteDialogOpen,
+    // deleteDialogOpen,
+    // setDeleteDialogOpen,
     refundDialogOpen,
     setRefundDialogOpen,
     userInfoUserId,
     setUserInfoUserId,
-    selectedOrder,
     setSelectedOrder,
     status,
     setStatus,
@@ -65,13 +61,12 @@ export default function OrderManagementPage() {
     submittingRefund,
     handleSearchOrderByCode,
     handleUpdateStatus,
-    handleDelete,
+    // handleDelete,
     handleConfirmRefund,
-    viewOrderDetails,
   } = controller;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 sm:px-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Quản lý đơn đặt xe</h1>
         <p className="text-muted-foreground">Quản lý đơn đặt xe để quản lý các đơn đặt xe trên hệ thống.</p>
@@ -107,16 +102,11 @@ export default function OrderManagementPage() {
           <OrderTable
             orders={displayedOrders}
             loading={loading}
-            onViewDetails={viewOrderDetails}
             onUpdateStatus={(order) => {
               setSelectedOrder(order);
               setStatus(order.status);
               setPaymentStatus(order.paymentStatus);
               setUpdateStatusDialogOpen(true);
-            }}
-            onDelete={(order) => {
-              setSelectedOrder(order);
-              setDeleteDialogOpen(true);
             }}
             onRefund={(order) => {
               setSelectedOrder(order);
@@ -138,8 +128,6 @@ export default function OrderManagementPage() {
             onPreviousPage={handlePreviousPage}
           />
 
-          <OrderDetailDialog isOpen={detailDialogOpen} onClose={() => setDetailDialogOpen(false)} order={selectedOrder} />
-
           <UpdateStatusDialog
             isOpen={updateStatusDialogOpen}
             onClose={() => setUpdateStatusDialogOpen(false)}
@@ -148,13 +136,6 @@ export default function OrderManagementPage() {
             onStatusChange={setStatus}
             onPaymentStatusChange={setPaymentStatus}
             onConfirm={handleUpdateStatus}
-          />
-
-          <DeleteDialog
-            isOpen={deleteDialogOpen}
-            onClose={() => setDeleteDialogOpen(false)}
-            order={selectedOrder}
-            onConfirm={handleDelete}
           />
 
           <RefundDialog

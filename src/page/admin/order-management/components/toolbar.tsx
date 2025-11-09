@@ -1,4 +1,4 @@
-import { Search, User, Building2, ListChecks, CircleDollarSign, RotateCcw, Calendar, Filter } from "lucide-react";
+import { Search, RotateCcw, Calendar, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -54,15 +54,22 @@ export function OrderTableToolbar({
   depots,
 }: OrderTableToolbarProps) {
   return (
-    <Card className="shadow-sm border">
-      <CardContent className="p-6 space-y-6">
-        {/* Search Section */}
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="flex items-center gap-3 flex-1 w-full sm:max-w-2xl">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+    <Card className="shadow-sm border bg-muted/30 rounded-lg">
+      <CardContent className="p-4">
+        {/* Header with Filter Icon and Title */}
+        <div className="flex items-center gap-2 mb-3">
+          <Filter className="h-4 w-4 text-foreground" />
+          <span className="text-sm font-semibold text-foreground">Bộ lọc tìm kiếm</span>
+        </div>
+
+        {/* Horizontal Filters Row - Compact Layout */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Search Order Code Input */}
+          <div className="flex-1 min-w-[150px] max-w-[200px]">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
               <Input
-                placeholder="Tìm kiếm theo mã đơn hàng"
+                placeholder="Mã đơn hàng"
                 value={searchOrderCode}
                 onChange={(e) => onSearchOrderCodeChange(e.target.value)}
                 onKeyDown={(e) => {
@@ -70,25 +77,112 @@ export function OrderTableToolbar({
                     onSearch();
                   }
                 }}
-                className="pl-10 pr-4 h-10"
+                className="pl-8 h-9 bg-background text-sm"
               />
             </div>
-            <Button 
-              onClick={onSearch} 
-              size="default"
-              disabled={!searchOrderCode.trim()}
-              className="h-10 px-6"
-            >
-              Tìm kiếm
-            </Button>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
-            <Label htmlFor="page-size" className="text-sm font-medium whitespace-nowrap">
-              Số dòng/trang:
+          {/* User Filter */}
+          <div className="flex-1 min-w-[140px] max-w-[180px]">
+            <Select value={selectedUserId || "all"} onValueChange={(value) => onSelectedUserIdChange(value === "all" ? "" : value)}>
+              <SelectTrigger className="h-9 bg-background text-sm">
+                <SelectValue placeholder="Tất cả khách hàng" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả khách hàng</SelectItem>
+                {users.map((user) => (
+                  <SelectItem key={user.id} value={user.id}>
+                    {user.fullName || user.userName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Depot Filter */}
+          <div className="flex-1 min-w-[140px] max-w-[180px]">
+            <Select value={selectedDepotId || "all"} onValueChange={(value) => onSelectedDepotIdChange(value === "all" ? "" : value)}>
+              <SelectTrigger className="h-9 bg-background text-sm">
+                <SelectValue placeholder="Tất cả trạm" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả trạm</SelectItem>
+                {depots.map((depot) => (
+                  <SelectItem key={depot.id} value={depot.id}>
+                    {depot.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Status Filter */}
+          <div className="flex-1 min-w-[140px] max-w-[180px]">
+            <Select value={statusFilter} onValueChange={onStatusFilterChange}>
+              <SelectTrigger className="h-9 bg-background text-sm">
+                <SelectValue placeholder="Tất cả trạng thái" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                {STATUS_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Payment Status Filter */}
+          <div className="flex-1 min-w-[140px] max-w-[180px]">
+            <Select value={paymentStatusFilter} onValueChange={onPaymentStatusFilterChange}>
+              <SelectTrigger className="h-9 bg-background text-sm">
+                <SelectValue placeholder="Tất cả thanh toán" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả</SelectItem>
+                {PAYMENT_STATUS_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Start Date Picker */}
+          <div className="flex-1 min-w-[130px] max-w-[160px]">
+            <div className="relative">
+              <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+              <Input
+                type="date"
+                value={startDateFilter}
+                onChange={(e) => onStartDateFilterChange(e.target.value)}
+                className="pl-8 h-9 bg-background text-sm"
+              />
+            </div>
+          </div>
+
+          {/* End Date Picker */}
+          <div className="flex-1 min-w-[130px] max-w-[160px]">
+            <div className="relative">
+              <Calendar className="absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+              <Input
+                type="date"
+                value={endDateFilter}
+                onChange={(e) => onEndDateFilterChange(e.target.value)}
+                className="pr-8 h-9 bg-background text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Page Size Select - Compact */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <Label htmlFor="page-size" className="text-xs font-medium whitespace-nowrap text-muted-foreground">
+              Số dòng:
             </Label>
             <Select value={pageSize.toString()} onValueChange={onPageSizeChange}>
-              <SelectTrigger id="page-size" className="w-[100px] h-10">
+              <SelectTrigger id="page-size" className="w-[70px] h-9 bg-background text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -99,147 +193,19 @@ export function OrderTableToolbar({
               </SelectContent>
             </Select>
           </div>
-        </div>
 
-        {/* Divider */}
-        <div className="border-t" />
-
-        {/* Filters Section */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-            <Filter className="h-4 w-4" />
-            <span>Bộ lọc</span>
-          </div>
-
-          {/* Date Range Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="start-date" className="text-sm font-medium flex items-center gap-2">
-                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                Từ ngày
-              </Label>
-              <Input
-                id="start-date"
-                type="date"
-                value={startDateFilter}
-                onChange={(e) => onStartDateFilterChange(e.target.value)}
-                className="h-10"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="end-date" className="text-sm font-medium flex items-center gap-2">
-                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                Đến ngày
-              </Label>
-              <Input
-                id="end-date"
-                type="date"
-                value={endDateFilter}
-                onChange={(e) => onEndDateFilterChange(e.target.value)}
-                className="h-10"
-              />
-            </div>
-          </div>
-
-          {/* Dropdown Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="user-filter" className="text-sm font-medium flex items-center gap-2">
-                <User className="h-3.5 w-3.5 text-muted-foreground" />
-                Khách hàng
-              </Label>
-              <Select value={selectedUserId || "all"} onValueChange={(value) => onSelectedUserIdChange(value === "all" ? "" : value)}>
-                <SelectTrigger id="user-filter" className="h-10">
-                  <SelectValue placeholder="Chọn khách hàng" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả khách hàng</SelectItem>
-                  {users.map((user) => (
-                    <SelectItem key={user.id} value={user.id}>
-                      {user.fullName || user.userName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="depot-filter" className="text-sm font-medium flex items-center gap-2">
-                <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
-                Trạm xe điện
-              </Label>
-              <Select value={selectedDepotId || "all"} onValueChange={(value) => onSelectedDepotIdChange(value === "all" ? "" : value)}>
-                <SelectTrigger id="depot-filter" className="h-10">
-                  <SelectValue placeholder="Chọn trạm" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả trạm</SelectItem>
-                  {depots.map((depot) => (
-                    <SelectItem key={depot.id} value={depot.id}>
-                      {depot.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="status-filter" className="text-sm font-medium flex items-center gap-2">
-                <ListChecks className="h-3.5 w-3.5 text-muted-foreground" />
-                Trạng thái
-              </Label>
-              <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-                <SelectTrigger id="status-filter" className="h-10">
-                  <SelectValue placeholder="Chọn trạng thái" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                  {STATUS_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="payment-filter" className="text-sm font-medium flex items-center gap-2">
-                <CircleDollarSign className="h-3.5 w-3.5 text-muted-foreground" />
-                Thanh toán
-              </Label>
-              <Select value={paymentStatusFilter} onValueChange={onPaymentStatusFilterChange}>
-                <SelectTrigger id="payment-filter" className="h-10">
-                  <SelectValue placeholder="Chọn trạng thái thanh toán" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả</SelectItem>
-                  {PAYMENT_STATUS_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Reset Button */}
-          <div className="flex justify-end pt-2">
-            <Button
-              onClick={onClearFilters}
-              variant="outline"
-              size="sm"
-              className="h-9 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
-            >
-              <RotateCcw className="h-3.5 w-3.5 mr-2" />
-              Đặt lại bộ lọc
-            </Button>
-          </div>
+          {/* Reset Button - Compact */}
+          <Button
+            onClick={onClearFilters}
+            variant="outline"
+            size="sm"
+            className="h-9 px-3 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground shrink-0 text-sm"
+          >
+            <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
+            Đặt lại
+          </Button>
         </div>
       </CardContent>
     </Card>
   );
 }
-

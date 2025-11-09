@@ -2,7 +2,6 @@ import { useSystemConfigsList } from "@/hooks/use-system-configs";
 import { useSystemConfigTableState } from "@/hooks/use-system-config-table-state";
 import { useSystemConfigForm } from "@/hooks/use-system-config-form";
 import PageShell from "./components/page-shell";
-import HeaderActions from "./components/header-actions";
 import FilterBar from "./components/filter-bar";
 import SystemConfigTable from "./components/system-config-table";
 import SystemConfigFormDialog from "./components/system-config-form-dialog";
@@ -20,7 +19,6 @@ export default function SystemConfigManagementPage() {
     <PageShell
       title="Quản lý cấu hình hệ thống"
       subtitle="Quản lý các cấu hình hệ thống như cấu hình chung, cổng thanh toán, thông báo và bảo mật."
-      actions={<HeaderActions onAdd={form.startCreate} />}
     >
       <div className="space-y-4">
         <FilterBar
@@ -29,6 +27,7 @@ export default function SystemConfigManagementPage() {
           configType={tableState.configType}
           onConfigTypeChange={tableState.setConfigType}
           onClearFilters={tableState.clearFilters}
+          onAdd={form.startCreate}
         />
 
         <SystemConfigTable

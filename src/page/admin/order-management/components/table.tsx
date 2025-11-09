@@ -7,9 +7,7 @@ import { TableCell } from "@/components/ui/table";
 interface OrderTableProps {
   orders: OrderBookingDetail[];
   loading: boolean;
-  onViewDetails: (order: OrderBookingDetail) => void;
   onUpdateStatus: (order: OrderBookingDetail) => void;
-  onDelete: (order: OrderBookingDetail) => void;
   onRefund: (order: OrderBookingDetail) => void;
   onViewUser: (userId: string) => void;
 }
@@ -17,9 +15,7 @@ interface OrderTableProps {
 export function OrderTable({
   orders,
   loading,
-  onViewDetails,
   onUpdateStatus,
-  onDelete,
   onRefund,
   onViewUser,
 }: OrderTableProps) {
@@ -66,9 +62,7 @@ export function OrderTable({
               <OrderTableRow
                 key={order.id}
                 order={order}
-                onViewDetails={onViewDetails}
                 onUpdateStatus={onUpdateStatus}
-                onDelete={onDelete}
                 onRefund={onRefund}
                 onViewUser={onViewUser}
               />
