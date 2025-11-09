@@ -16,7 +16,7 @@ const AmenityTable: React.FC<AmenityTableProps> = ({ data, onEdit, onDelete }) =
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[40%]">Tên tiện ích</TableHead>
+            <TableHead className="w-[40%]">Tên tiện nghi</TableHead>
             <TableHead>Biểu tượng (URL/Tên)</TableHead>
             <TableHead>Ngày tạo</TableHead>
             <TableHead>Cập nhật</TableHead>

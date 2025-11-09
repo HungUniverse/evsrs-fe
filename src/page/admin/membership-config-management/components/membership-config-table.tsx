@@ -13,6 +13,23 @@ interface MembershipConfigTableProps {
   onDelete: (item: MembershipLevel) => void;
 }
 
+// Translate level to Vietnamese
+const translateLevel = (level: string): string => {
+  const normalized = level.toUpperCase();
+  switch (normalized) {
+    case "BRONZE":
+      return "Đồng";
+    case "SILVER":
+      return "Bạc";
+    case "GOLD":
+      return "Vàng";
+    case "NONE":
+      return "Không có";
+    default:
+      return level;
+  }
+};
+
 const getLevelBadgeProps = (level: string) => {
   const normalized = level.toUpperCase();
 
@@ -68,12 +85,12 @@ const MembershipConfigTable: React.FC<MembershipConfigTableProps> = ({ data, onE
             return (
               <TableRow key={item.id}>
                 <TableCell className="font-medium whitespace-nowrap">
-                  <Badge variant={badgeProps.variant} className={cn("capitalize", badgeProps.className)}>
+                  <Badge variant={badgeProps.variant} className={cn("whitespace-nowrap capitalize", badgeProps.className)}>
                     <Award className="h-3 w-3 mr-1" />
-                    {item.level}
+                    {translateLevel(item.level)}
                   </Badge>
                 </TableCell>
-                <TableCell className="whitespace-nowrap">{item.levelName}</TableCell>
+                <TableCell className="whitespace-nowrap">{item.levelName || translateLevel(item.level)}</TableCell>
                 <TableCell className="whitespace-nowrap">
                   <span className="font-semibold text-green-600">{item.discountPercent}%</span>
                 </TableCell>

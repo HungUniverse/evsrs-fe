@@ -1,6 +1,5 @@
 import { useMembershipConfigs } from "@/hooks/use-membership-configs";
 import { useMembershipConfigForm } from "@/hooks/use-membership-config-form";
-import HeaderActions from "./header-actions";
 import MembershipConfigTable from "./membership-config-table";
 import MembershipConfigFormDialog from "./membership-config-form-dialog";
 import DeleteConfirmationDialog from "./delete-confirmation-dialog";
@@ -32,12 +31,9 @@ export default function MembershipConfigList() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Award className="h-5 w-5 text-muted-foreground" />
-          <h2 className="text-xl font-semibold">Quản lý hạng thành viên</h2>
-        </div>
-        <HeaderActions onAdd={form.startCreate} />
+      <div className="flex items-center gap-2 mb-4">
+        <Award className="h-5 w-5 text-muted-foreground" />
+        <h2 className="text-xl font-semibold">Quản lý hạng thành viên</h2>
       </div>
 
       <MembershipConfigTable

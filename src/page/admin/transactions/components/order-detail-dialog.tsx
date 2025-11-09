@@ -32,6 +32,22 @@ interface OrderDetailDialogProps {
 export function OrderDetailDialog({ isOpen, onClose, order, loading = false, orderId, onFetchOrder }: OrderDetailDialogProps) {
   const fetchedOrderIdRef = useRef<string | null>(null);
 
+  // Format depot address
+  const formatDepotAddress = () => {
+    if (!order?.depot) return "—";
+    const parts = [];
+    if (order.depot.street) parts.push(order.depot.street);
+    if (order.depot.ward) {
+      const ward = order.depot.ward.toLowerCase().startsWith("ward") 
+        ? order.depot.ward 
+        : `Ward ${order.depot.ward}`;
+      parts.push(ward);
+    }
+    if (order.depot.district) parts.push(order.depot.district);
+    if (order.depot.province) parts.push(order.depot.province);
+    return parts.length > 0 ? parts.join(", ") : "—";
+  };
+
   // Fetch order detail when dialog opens and orderId changes
   useEffect(() => {
     if (isOpen && orderId && onFetchOrder) {
@@ -199,9 +215,15 @@ export function OrderDetailDialog({ isOpen, onClose, order, loading = false, ord
                 <Label className="text-xs font-medium text-muted-foreground">Biển số xe</Label>
                 <p className="text-sm font-medium mt-1">{order.carEvs?.licensePlate || "N/A"}</p>
               </div>
-              <div className="col-span-2">
-                <Label className="text-xs font-medium text-muted-foreground">Trạm xe điện</Label>
-                <p className="text-sm mt-1">{order.depot?.name || "N/A"}</p>
+              <div className="col-span-2 flex flex-row gap-4">
+                <div className="flex-1">
+                  <Label className="text-xs font-medium text-muted-foreground">Trạm xe điện</Label>
+                  <p className="text-sm font-medium mt-1">{order.depot?.name || "N/A"}</p>
+                </div>
+                <div className="flex-1">
+                  <Label className="text-xs font-medium text-muted-foreground">Địa chỉ</Label>
+                  <p className="text-sm mt-1">{formatDepotAddress()}</p>
+                </div>
               </div>
             </div>
           </div>

@@ -1,10 +1,9 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Filter, MapPin, CarFront, CircleDot, ArrowUpDown, RotateCcw } from "lucide-react";
+import { Search, Filter, RotateCcw, Plus } from "lucide-react";
 import type { SortValue } from "@/hooks/use-car-ev-table-state";
 import type { Depot } from "@/@types/car/depot";
 import type { Model } from "@/@types/car/model";
@@ -32,6 +31,7 @@ interface FilterBarProps {
   onClearFilters: () => void;
   depots: Depot[];
   models: Model[];
+  onAdd: () => void;
 }
 
 const FilterBar: React.FC<FilterBarProps> = ({
@@ -48,45 +48,39 @@ const FilterBar: React.FC<FilterBarProps> = ({
   onClearFilters,
   depots,
   models,
+  onAdd,
 }) => {
   return (
-    <Card className="shadow-sm border">
-      <CardContent className="p-6 space-y-6">
-        {/* Search Section */}
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="flex items-center gap-3 flex-1 w-full sm:max-w-2xl">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Tìm kiếm theo biển số xe..."
-                value={search}
-                onChange={(e) => onSearchChange(e.target.value)}
-                className="pl-10 pr-4 h-10"
-              />
-            </div>
-          </div>
+    <Card className="shadow-sm border bg-muted/30 rounded-lg">
+      <CardContent className="p-4">
+        {/* Header with Filter Icon and Title */}
+        <div className="flex items-center gap-2 mb-3">
+          <Filter className="h-4 w-4 text-foreground" />
+          <span className="text-sm font-semibold text-foreground">Bộ lọc tìm kiếm</span>
         </div>
 
-        {/* Divider */}
-        <div className="border-t" />
+        {/* Horizontal Filters Row - Compact Layout */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Filters Section - Left Side */}
+          <div className="flex flex-wrap items-center gap-2.5 flex-1">
+            {/* Search Input */}
+            <div className="flex-1 min-w-[150px] max-w-[200px]">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                <Input
+                  placeholder="Biển số xe"
+                  value={search}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  className="pl-8 h-9 bg-background text-sm"
+                />
+              </div>
+            </div>
 
-        {/* Filters Section */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-            <Filter className="h-4 w-4" />
-            <span>Bộ lọc</span>
-          </div>
-
-          {/* Dropdown Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="depot-filter" className="text-sm font-medium flex items-center gap-2">
-                <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-                Trạm xe điện
-              </Label>
+            {/* Depot Filter */}
+            <div className="flex-1 min-w-[130px] max-w-[170px]">
               <Select value={depotId || "all"} onValueChange={(v) => onDepotChange(v === "all" ? "" : v)}>
-                <SelectTrigger id="depot-filter" className="h-10">
-                  <SelectValue placeholder="Chọn trạm" />
+                <SelectTrigger className="h-9 bg-background text-sm">
+                  <SelectValue placeholder="Tất cả trạm" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tất cả trạm</SelectItem>
@@ -99,14 +93,11 @@ const FilterBar: React.FC<FilterBarProps> = ({
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="model-filter" className="text-sm font-medium flex items-center gap-2">
-                <CarFront className="h-3.5 w-3.5 text-muted-foreground" />
-                Model xe
-              </Label>
+            {/* Model Filter */}
+            <div className="flex-1 min-w-[130px] max-w-[170px]">
               <Select value={modelId || "all"} onValueChange={(v) => onModelChange(v === "all" ? "" : v)}>
-                <SelectTrigger id="model-filter" className="h-10">
-                  <SelectValue placeholder="Chọn model" />
+                <SelectTrigger className="h-9 bg-background text-sm">
+                  <SelectValue placeholder="Tất cả model" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tất cả model</SelectItem>
@@ -119,14 +110,11 @@ const FilterBar: React.FC<FilterBarProps> = ({
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="status-filter" className="text-sm font-medium flex items-center gap-2">
-                <CircleDot className="h-3.5 w-3.5 text-muted-foreground" />
-                Trạng thái
-              </Label>
+            {/* Status Filter */}
+            <div className="flex-1 min-w-[130px] max-w-[170px]">
               <Select value={status || "all"} onValueChange={(v) => onStatusChange(v === "all" ? "" : v)}>
-                <SelectTrigger id="status-filter" className="h-10">
-                  <SelectValue placeholder="Chọn trạng thái" />
+                <SelectTrigger className="h-9 bg-background text-sm">
+                  <SelectValue placeholder="Tất cả trạng thái" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tất cả trạng thái</SelectItem>
@@ -139,14 +127,11 @@ const FilterBar: React.FC<FilterBarProps> = ({
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="sort-filter" className="text-sm font-medium flex items-center gap-2">
-                <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-                Sắp xếp
-              </Label>
+            {/* Sort Filter */}
+            <div className="flex-1 min-w-[130px] max-w-[170px]">
               <Select value={sort} onValueChange={(v) => onSortChange(v as SortValue)}>
-                <SelectTrigger id="sort-filter" className="h-10">
-                  <SelectValue placeholder="Sắp xếp theo..." />
+                <SelectTrigger className="h-9 bg-background text-sm">
+                  <SelectValue placeholder="Không sắp xếp" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Không sắp xếp</SelectItem>
@@ -159,20 +144,24 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 </SelectContent>
               </Select>
             </div>
-          </div>
 
-          {/* Reset Button */}
-          <div className="flex justify-end pt-2">
+            {/* Reset Button */}
             <Button
               onClick={onClearFilters}
               variant="outline"
               size="sm"
-              className="h-9 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+              className="h-9 px-3 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground shrink-0 text-sm"
             >
-              <RotateCcw className="h-3.5 w-3.5 mr-2" />
-              Đặt lại bộ lọc
+              <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
+              Đặt lại
             </Button>
           </div>
+
+          {/* Add Button - Right Side */}
+          <Button onClick={onAdd} className="h-9 shrink-0 text-sm ml-auto">
+            <Plus className="h-3.5 w-3.5 mr-1.5" />
+            Thêm xe điện
+          </Button>
         </div>
       </CardContent>
     </Card>
@@ -180,4 +169,3 @@ const FilterBar: React.FC<FilterBarProps> = ({
 };
 
 export default FilterBar;
-

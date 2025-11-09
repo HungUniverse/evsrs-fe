@@ -11,6 +11,7 @@ interface TransactionTableProps {
   loading: boolean;
   onViewDetails: (transaction: TransactionResponse) => void;
   onViewUser: (userId: string) => void;
+  onViewOrder: (orderId: string) => void;
   usersMap: Map<string, UserFull>;
   ordersMap: Map<string, OrderBookingDetail>;
 }
@@ -20,6 +21,7 @@ export function TransactionTable({
   loading,
   onViewDetails,
   onViewUser,
+  onViewOrder,
   usersMap,
   ordersMap,
 }: TransactionTableProps) {
@@ -35,13 +37,12 @@ export function TransactionTable({
             <TableHead>Trạng thái</TableHead>
             <TableHead>Số tiền</TableHead>
             <TableHead>Mã tham chiếu</TableHead>
-            <TableHead>Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={8} className="text-center py-8">
+              <TableCell colSpan={7} className="text-center py-8">
                 <div className="flex items-center justify-center gap-2 text-muted-foreground">
                   <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
                   <span>Đang tải...</span>
@@ -50,7 +51,7 @@ export function TransactionTable({
             </TableRow>
           ) : transactions.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="text-center py-12">
+              <TableCell colSpan={7} className="text-center py-12">
                 <div className="flex flex-col items-center gap-3 text-muted-foreground">
                   <CreditCard className="size-8" />
                   <div>
@@ -67,6 +68,7 @@ export function TransactionTable({
                 transaction={transaction}
                 onViewDetails={onViewDetails}
                 onViewUser={onViewUser}
+                onViewOrder={onViewOrder}
                 user={usersMap.get(transaction.userId)}
                 order={ordersMap.get(transaction.orderBookingId)}
               />

@@ -28,7 +28,7 @@ export function VerificationStatusCell({
   }
 
   if (!document) {
-    return <Badge variant="outline">Không có tài liệu</Badge>;
+    return <Badge variant="outline" className="whitespace-nowrap">Không có tài liệu</Badge>;
   }
 
   return (
@@ -42,6 +42,7 @@ export function VerificationStatusCell({
                 ? "destructive"
                 : "outline"
           }
+          className="whitespace-nowrap"
         >
           {getStatusLabel(document.status)}
         </Badge>

@@ -1,7 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Eye } from "lucide-react";
 import type { TransactionResponse } from "@/@types/payment/transaction";
 import type { UserFull } from "@/@types/auth.type";
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
@@ -13,6 +11,7 @@ interface TransactionTableRowProps {
   transaction: TransactionResponse;
   onViewDetails: (transaction: TransactionResponse) => void;
   onViewUser: (userId: string) => void;
+  onViewOrder: (orderId: string) => void;
   user?: UserFull;
   order?: OrderBookingDetail;
 }
@@ -21,16 +20,33 @@ export function TransactionTableRow({
   transaction,
   onViewDetails,
   onViewUser,
+  onViewOrder,
   user,
   order,
 }: TransactionTableRowProps) {
   const amount = parseFloat(transaction.tranferAmount || "0");
   const isIncoming = transaction.transferType === "in";
 
+  const handleOrderClick = () => {
+    if (transaction.orderBookingId) {
+      onViewOrder(transaction.orderBookingId);
+    }
+  };
+
   return (
     <TableRow className="hover:bg-muted/50 transition-colors">
-      <TableCell className="font-medium text-blue-600">
-        {transaction.code || "N/A"}
+      <TableCell className="font-medium">
+        {transaction.code ? (
+          <button
+            type="button"
+            onClick={() => onViewDetails(transaction)}
+            className="text-blue-600 hover:underline cursor-pointer"
+          >
+            {transaction.code}
+          </button>
+        ) : (
+          "N/A"
+        )}
       </TableCell>
       <TableCell>
         {formatDate(transaction.transactionDate)}
@@ -50,8 +66,18 @@ export function TransactionTableRow({
           <span className="text-muted-foreground">Đang tải...</span>
         )}
       </TableCell>
-      <TableCell className="font-medium text-green-600">
-        {order?.code || transaction.orderBookingId || "N/A"}
+      <TableCell className="font-medium">
+        {transaction.orderBookingId ? (
+          <button
+            type="button"
+            onClick={handleOrderClick}
+            className="text-green-600 hover:underline cursor-pointer"
+          >
+            {order?.code || transaction.orderBookingId}
+          </button>
+        ) : (
+          <span className="text-green-600">N/A</span>
+        )}
       </TableCell>
       <TableCell>
         {order ? (
@@ -64,7 +90,7 @@ export function TransactionTableRow({
         ) : (
           <Badge
             variant={isIncoming ? "default" : "secondary"}
-            className={isIncoming ? "bg-green-100 text-green-800 hover:bg-green-100" : "bg-red-100 text-red-800 hover:bg-red-100"}
+            className={`whitespace-nowrap ${isIncoming ? "bg-green-100 text-green-800 hover:bg-green-100" : "bg-red-100 text-red-800 hover:bg-red-100"}`}
           >
             {isIncoming ? "Nhận vào" : "Gửi đi"}
           </Badge>
@@ -75,11 +101,6 @@ export function TransactionTableRow({
       </TableCell>
       <TableCell className="text-sm text-muted-foreground">
         {transaction.referenceCode || "N/A"}
-      </TableCell>
-      <TableCell>
-        <Button variant="outline" size="sm" onClick={() => onViewDetails(transaction)}>
-          <Eye className="h-3 w-3" />
-        </Button>
       </TableCell>
     </TableRow>
   );

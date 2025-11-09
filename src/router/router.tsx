@@ -40,6 +40,11 @@ import {
   TripManagement,
 } from "@/page/staff";
 import StaffTripDetails from "@/page/staff/trip-management/components/trip-details";
+import AdminOrderDetails from "@/page/admin/order-management/components/order-details";
+import AdminContractPage from "@/page/admin/order-management/components/papers/contract";
+import AdminHandoverInspectionPage from "@/page/admin/order-management/components/papers/handover-inspection";
+import AdminReturnInspectionPage from "@/page/admin/order-management/components/papers/return-inspection";
+import AdminReturnSettlementPage from "@/page/admin/order-management/components/papers/return-settlement";
 import { lazy } from "react";
 import {
   CustomerSettlement,
@@ -187,6 +192,26 @@ export const router = createBrowserRouter([
           {
             path: "transactions",
             element: <TransactionsPage />,
+          },
+          {
+            path: "order/:orderId",
+            element: <AdminOrderDetails />,
+          },
+          {
+            path: "order/:orderId/contract",
+            element: <AdminContractPage />,
+          },
+          {
+            path: "order/:orderId/handover/inspection",
+            element: <AdminHandoverInspectionPage />,
+          },
+          {
+            path: "order/:orderId/return/inspection",
+            element: <AdminReturnInspectionPage />,
+          },
+          {
+            path: "order/:orderId/return/settlement",
+            element: <AdminReturnSettlementPage />,
           },
         ],
       },

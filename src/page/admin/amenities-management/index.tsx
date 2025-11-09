@@ -2,7 +2,6 @@ import { useAmenitiesList } from "@/hooks/use-amenities";
 import { useAmenitiesTableState } from "@/hooks/use-amenities-table-state";
 import { useAmenityForm } from "@/hooks/use-amenity-form";
 import PageShell from "./components/page-shell";
-import HeaderActions from "./components/header-actions";
 import FilterBar from "./components/filter-bar";
 import AmenityTable from "./components/amenity-table";
 import AmenityFormDialog from "./components/amenity-form-dialog";
@@ -20,9 +19,8 @@ export default function AmenitiesManagementPage() {
 
   return (
     <PageShell
-      title="Quản lý tiện ích"
-      subtitle="Quản lý tiện ích khả dụng trên xe ô tô."
-      actions={<HeaderActions onAdd={form.startCreate} />}
+      title="Quản lý tiện nghi"
+      subtitle="Quản lý tiện nghi khả dụng trên xe ô tô."
     >
       <div className="space-y-4">
         <FilterBar
@@ -30,6 +28,7 @@ export default function AmenitiesManagementPage() {
           onSearchChange={tableState.setSearch}
           sort={tableState.sort}
           onSortChange={tableState.setSort}
+          onAddClick={form.startCreate}
         />
 
         <AmenityTable

@@ -38,26 +38,26 @@ const AmenityFormDialog: React.FC<AmenityFormDialogProps> = ({ open, onOpenChang
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>{initialData?.id ? "Sửa tiện ích" : "Thêm tiện ích"}</DialogTitle>
+          <DialogTitle>{initialData?.id ? "Sửa tiện nghi" : "Thêm tiện nghi"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-2">
-            <Label htmlFor="amenity-name">Tên tiện ích</Label>
+            <Label htmlFor="amenity-name">Tên tiện nghi:</Label>
             <Input
               id="amenity-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Nhập tên tiện ích"
+              placeholder="Nhập tên tiện nghi"
               required
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="amenity-icon">Biểu tượng (URL/Tên)</Label>
+            <Label htmlFor="amenity-icon">Biểu tượng:</Label>
             <Input
               id="amenity-icon"
               value={icon}
               onChange={(e) => setIcon(e.target.value)}
-              placeholder="Nhập URL hoặc tên icon"
+              placeholder="Nhập biểu tượng"
             />
           </div>
           <DialogFooter>

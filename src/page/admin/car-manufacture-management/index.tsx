@@ -2,7 +2,6 @@ import { useCarManufacturesList } from "@/hooks/use-car-manufactures";
 import { useCarManufactureTableState } from "@/hooks/use-car-manufacture-table-state";
 import { useCarManufactureForm } from "@/hooks/use-car-manufacture-form";
 import PageShell from "./components/page-shell";
-import HeaderActions from "./components/header-actions";
 import FilterBar from "./components/filter-bar";
 import CarManufactureTable from "./components/car-manufacture-table";
 import CarManufactureFormDialog from "./components/car-manufacture-form-dialog";
@@ -22,7 +21,6 @@ export default function CarManufactureManagementPage() {
     <PageShell
       title="Quản lý nhà sản xuất xe"
       subtitle="Quản lý nhà sản xuất xe để quản lý các hãng xe trên hệ thống."
-      actions={<HeaderActions onAdd={form.startCreate} />}
     >
       <div className="space-y-4">
         <FilterBar
@@ -30,6 +28,7 @@ export default function CarManufactureManagementPage() {
           onSearchChange={tableState.setSearch}
           sort={tableState.sort}
           onSortChange={tableState.setSort}
+          onAdd={form.startCreate}
         />
 
         <CarManufactureTable

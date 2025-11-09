@@ -1,4 +1,4 @@
-import { Search, User, RotateCcw, ArrowUpDown, Calendar, Filter } from "lucide-react";
+import { Search, RotateCcw, Calendar, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,28 +37,86 @@ export function TransactionTableToolbar({
   onPageSizeChange,
 }: TransactionTableToolbarProps) {
   return (
-    <Card className="shadow-sm border">
-      <CardContent className="p-6 space-y-6">
-        {/* Search Section */}
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="flex items-center gap-3 flex-1 w-full sm:max-w-2xl">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+    <Card className="shadow-sm border bg-muted/30 rounded-lg">
+      <CardContent className="p-4">
+        {/* Header with Filter Icon and Title */}
+        <div className="flex items-center gap-2 mb-3">
+          <Filter className="h-4 w-4 text-foreground" />
+          <span className="text-sm font-semibold text-foreground">Bộ lọc tìm kiếm</span>
+        </div>
+
+        {/* Horizontal Filters Row - Compact Layout */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Search Code Input */}
+          <div className="flex-1 min-w-[150px] max-w-[220px]">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
               <Input
-                placeholder="Tìm kiếm theo mã giao dịch hoặc mã tham chiếu..."
+                placeholder="Mã giao dịch"
                 value={searchCode}
                 onChange={(e) => onSearchCodeChange(e.target.value)}
-                className="pl-10 pr-4 h-10"
+                className="pl-8 h-9 bg-background text-sm"
               />
             </div>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
-            <Label htmlFor="page-size" className="text-sm font-medium whitespace-nowrap">
-              Số dòng/trang:
+          {/* User Name Search Input */}
+          <div className="flex-1 min-w-[150px] max-w-[220px]">
+            <Input
+              placeholder="Tên người dùng"
+              value={userNameSearch}
+              onChange={(e) => onUserNameSearchChange(e.target.value)}
+              className="h-9 bg-background text-sm"
+            />
+          </div>
+
+          {/* Transfer Type Filter */}
+          <div className="flex-1 min-w-[140px] max-w-[180px]">
+            <Select value={transferTypeFilter} onValueChange={onTransferTypeFilterChange}>
+              <SelectTrigger className="h-9 bg-background text-sm">
+                <SelectValue placeholder="Tất cả loại" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả loại</SelectItem>
+                <SelectItem value="in">Nhận vào</SelectItem>
+                <SelectItem value="out">Gửi đi</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Start Date Picker */}
+          <div className="flex-1 min-w-[130px] max-w-[160px]">
+            <div className="relative">
+              <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+              <Input
+                type="date"
+                value={startDateFilter}
+                onChange={(e) => onStartDateFilterChange(e.target.value)}
+                className="pl-8 h-9 bg-background text-sm"
+              />
+            </div>
+          </div>
+
+          {/* End Date Picker */}
+          <div className="flex-1 min-w-[130px] max-w-[160px]">
+            <div className="relative">
+              <Calendar className="absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+              <Input
+                type="date"
+                value={endDateFilter}
+                onChange={(e) => onEndDateFilterChange(e.target.value)}
+                className="pr-8 h-9 bg-background text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Page Size Select - Compact */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <Label htmlFor="page-size" className="text-xs font-medium whitespace-nowrap text-muted-foreground">
+              Số dòng:
             </Label>
             <Select value={pageSize.toString()} onValueChange={onPageSizeChange}>
-              <SelectTrigger id="page-size" className="w-[100px] h-10">
+              <SelectTrigger id="page-size" className="w-[70px] h-9 bg-background text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -69,95 +127,17 @@ export function TransactionTableToolbar({
               </SelectContent>
             </Select>
           </div>
-        </div>
 
-        {/* Divider */}
-        <div className="border-t" />
-
-        {/* Filters Section */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-            <Filter className="h-4 w-4" />
-            <span>Bộ lọc</span>
-          </div>
-
-          {/* Date Range Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="start-date" className="text-sm font-medium flex items-center gap-2">
-                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                Từ ngày
-              </Label>
-              <Input
-                id="start-date"
-                type="date"
-                value={startDateFilter}
-                onChange={(e) => onStartDateFilterChange(e.target.value)}
-                className="h-10"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="end-date" className="text-sm font-medium flex items-center gap-2">
-                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                Đến ngày
-              </Label>
-              <Input
-                id="end-date"
-                type="date"
-                value={endDateFilter}
-                onChange={(e) => onEndDateFilterChange(e.target.value)}
-                className="h-10"
-              />
-            </div>
-          </div>
-
-          {/* Other Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="user-search" className="text-sm font-medium flex items-center gap-2">
-                <User className="h-3.5 w-3.5 text-muted-foreground" />
-                Tìm theo người dùng
-              </Label>
-              <Input
-                id="user-search"
-                placeholder="Nhập tên người dùng..."
-                value={userNameSearch}
-                onChange={(e) => onUserNameSearchChange(e.target.value)}
-                className="h-10"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="transfer-type-filter" className="text-sm font-medium flex items-center gap-2">
-                <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-                Loại giao dịch
-              </Label>
-              <Select value={transferTypeFilter} onValueChange={onTransferTypeFilterChange}>
-                <SelectTrigger id="transfer-type-filter" className="h-10">
-                  <SelectValue placeholder="Chọn loại giao dịch" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả</SelectItem>
-                  <SelectItem value="in">Nhận vào</SelectItem>
-                  <SelectItem value="out">Gửi đi</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Reset Button */}
-          <div className="flex justify-end pt-2">
-            <Button
-              onClick={onClearFilters}
-              variant="outline"
-              size="sm"
-              className="h-9 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
-            >
-              <RotateCcw className="h-3.5 w-3.5 mr-2" />
-              Đặt lại bộ lọc
-            </Button>
-          </div>
+          {/* Reset Button - Compact */}
+          <Button
+            onClick={onClearFilters}
+            variant="outline"
+            size="sm"
+            className="h-9 px-3 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground shrink-0 text-sm"
+          >
+            <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
+            Đặt lại
+          </Button>
         </div>
       </CardContent>
     </Card>

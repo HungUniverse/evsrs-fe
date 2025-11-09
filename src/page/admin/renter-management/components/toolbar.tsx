@@ -1,7 +1,6 @@
-import { ArrowUpDown, RotateCcw, Trash2, Search, Filter } from "lucide-react";
+import { RotateCcw, Trash2, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import type { SortState } from "../hooks/use-renter-table";
@@ -37,89 +36,81 @@ export function RenterTableToolbar({
   onDeleteSelected,
 }: RenterTableToolbarProps) {
   return (
-    <Card className="shadow-sm border">
-      <CardContent className="p-6 space-y-6">
-        {/* Search Section */}
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="flex items-center gap-3 flex-1 w-full sm:max-w-2xl">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+    <Card className="shadow-sm border bg-muted/30 rounded-lg">
+      <CardContent className="p-4">
+        {/* Header with Filter Icon and Title */}
+        <div className="flex items-center gap-2 mb-3">
+          <Filter className="h-4 w-4 text-foreground" />
+          <span className="text-sm font-semibold text-foreground">Bộ lọc tìm kiếm</span>
+        </div>
+
+        {/* Horizontal Filters Row - Compact Layout */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Search Input */}
+          <div className="flex-1 min-w-[200px] max-w-[400px]">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
               <Input
                 placeholder="Tìm nhanh (tên / tên đăng nhập / số điện thoại / email)"
                 value={query}
                 onChange={(event) => onQueryChange(event.target.value)}
-                className="pl-10 pr-4 h-10"
+                className="pl-8 h-9 bg-background text-sm"
               />
             </div>
           </div>
 
+          {/* Sort Select */}
+          <div className="flex-1 min-w-[160px] max-w-[220px]">
+            <Select
+              value={`${sortState.field}-${sortState.direction}`}
+              onValueChange={(value) => {
+                const [field, direction] = value.split("-") as [SortState["field"], SortState["direction"]];
+                onSortChange({ field, direction });
+              }}
+            >
+              <SelectTrigger className="h-9 bg-background text-sm">
+                <SelectValue placeholder="Tên A→Z" />
+              </SelectTrigger>
+              <SelectContent>
+                {SORT_OPTIONS.map((option) => (
+                  <SelectItem
+                    key={`${option.value.field}-${option.value.direction}`}
+                    value={`${option.value.field}-${option.value.direction}`}
+                  >
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Delete Selected Button */}
           {isAnySelected && (
-            <div className="flex items-center gap-2 shrink-0">
-              <Button variant="destructive" size="sm" onClick={onDeleteSelected} className="h-10">
-                <Trash2 className="h-4 w-4 mr-2" />
-                Xóa đã chọn ({selectedCount})
-              </Button>
-            </div>
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              onClick={onDeleteSelected} 
+              className="h-9 shrink-0 text-sm"
+            >
+              <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+              Xóa ({selectedCount})
+            </Button>
           )}
-        </div>
-
-        {/* Divider */}
-        <div className="border-t" />
-
-        {/* Filters Section */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-            <Filter className="h-4 w-4" />
-            <span>Bộ lọc</span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="renter-sort-filter" className="text-sm font-medium flex items-center gap-2">
-                <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-                Sắp xếp
-              </Label>
-              <Select
-                value={`${sortState.field}-${sortState.direction}`}
-                onValueChange={(value) => {
-                  const [field, direction] = value.split("-") as [SortState["field"], SortState["direction"]];
-                  onSortChange({ field, direction });
-                }}
-              >
-                <SelectTrigger id="renter-sort-filter" className="h-10">
-                  <SelectValue placeholder="Sắp xếp theo" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SORT_OPTIONS.map((option) => (
-                    <SelectItem
-                      key={`${option.value.field}-${option.value.direction}`}
-                      value={`${option.value.field}-${option.value.direction}`}
-                    >
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
 
           {/* Reset Button */}
           {hasActiveFilters && (
-            <div className="flex justify-end pt-2">
-              <Button
-                onClick={onClearFilters}
-                variant="outline"
-                size="sm"
-                className="h-9 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
-              >
-                <RotateCcw className="h-3.5 w-3.5 mr-2" />
-                Đặt lại bộ lọc
-              </Button>
-            </div>
+            <Button
+              onClick={onClearFilters}
+              variant="outline"
+              size="sm"
+              className="h-9 px-3 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground shrink-0 text-sm"
+            >
+              <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
+              Đặt lại
+            </Button>
           )}
         </div>
       </CardContent>
     </Card>
   );
 }
-

@@ -143,7 +143,7 @@ export default function UserMembershipList() {
       <div className="flex items-center gap-2 mb-4">
         <Users className="h-5 w-5 text-muted-foreground" />
         <h2 className="text-xl font-semibold">Danh sách thành viên</h2>
-        <Badge variant="outline" className="ml-2">
+        <Badge variant="outline" className="whitespace-nowrap ml-2">
           {users.length} người dùng
         </Badge>
       </div>
@@ -181,7 +181,7 @@ export default function UserMembershipList() {
                    <TableCell className="whitespace-nowrap">
                      <Badge
                        variant={levelBadge.variant}
-                       className={cn("capitalize", levelBadge.className)}
+                       className={cn("whitespace-nowrap capitalize", levelBadge.className)}
                      >
                        <Award className="h-3 w-3 mr-1" />
                        {getLevelDisplayName(membership?.level)}

@@ -3,7 +3,6 @@ import { useModelTableState } from "@/hooks/use-model-table-state";
 import { useModelForm } from "@/hooks/use-model-form";
 import { useModelDropdowns } from "@/hooks/use-model-dropdowns";
 import PageShell from "./components/page-shell";
-import HeaderActions from "./components/header-actions";
 import FilterBar from "./components/filter-bar";
 import ModelTable from "./components/model-table";
 import ModelFormDialog from "./components/model-form-dialog";
@@ -25,7 +24,6 @@ export default function ModelManagementPage() {
     <PageShell
       title="Quản lý model xe"
       subtitle="Quản lý model xe để quản lý các model xe trên hệ thống."
-      actions={<HeaderActions onAdd={form.startCreate} />}
     >
       <div className="space-y-4">
         <FilterBar
@@ -36,6 +34,7 @@ export default function ModelManagementPage() {
           manufacturerCarId={tableState.manufacturerCarId}
           onManufacturerChange={tableState.setManufacturerCarId}
           manufacturers={manufacturers}
+          onAdd={form.startCreate}
         />
 
         <ModelTable

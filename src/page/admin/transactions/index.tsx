@@ -49,7 +49,7 @@ export default function Transactions() {
   } = controller;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 sm:px-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Quản lý giao dịch</h1>
         <p className="text-muted-foreground">Quản lý và theo dõi các giao dịch thanh toán trong hệ thống.</p>
@@ -80,6 +80,13 @@ export default function Transactions() {
             loading={loading}
             onViewDetails={viewTransactionDetails}
             onViewUser={setUserInfoUserId}
+            onViewOrder={(orderId) => {
+              if (orderId && orderId.trim()) {
+                setOrderDetailOrderId(orderId);
+              } else {
+                console.error("Invalid orderId:", orderId);
+              }
+            }}
             usersMap={usersMap}
             ordersMap={ordersMap}
           />
