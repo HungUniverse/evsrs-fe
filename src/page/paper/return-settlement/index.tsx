@@ -114,6 +114,31 @@ export default function ReturnSettlementPage() {
     },
     [createSettlement]
   );
+
+  // Auto-complete order if subtotal = 0
+  useEffect(() => {
+    const autoCompleteIfNoPayment = async () => {
+      if (!settlement || !order || !orderId) return;
+
+      const subtotal = Number(settlement.subtotal) || 0;
+
+      // Nếu subtotal = 0 và đơn chưa hoàn thành
+      if (subtotal === 0 && order.status !== "COMPLETED") {
+        try {
+          await orderBookingAPI.patchStatus(orderId, "COMPLETED");
+          toast.success("Đơn hàng đã hoàn thành (không phát sinh chi phí)");
+          // Refresh order data
+          await fetchOrder();
+        } catch (err) {
+          console.error("Auto-complete order error:", err);
+          toast.error("Không thể hoàn thành đơn hàng tự động");
+        }
+      }
+    };
+
+    autoCompleteIfNoPayment();
+  }, [settlement, order, orderId, fetchOrder]);
+
   const batteryHealthPercentage =
     Number(order?.carEvs?.batteryHealthPercentage) / 100;
   // ---- UI
@@ -182,9 +207,10 @@ export default function ReturnSettlementPage() {
           <div className="space-y-6">
             <SettlementView data={settlement} />
 
-            {/* Payment QR Section */}
+            {/* Payment QR Section - only show if subtotal > 0 */}
             {settlement.id &&
               order &&
+              Number(settlement.subtotal) > 0 &&
               order.status !== "COMPLETED" &&
               order.paymentStatus !== "COMPLETED" && (
                 <SettlementPaymentQR

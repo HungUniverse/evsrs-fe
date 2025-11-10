@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useBookingCalc } from "@/hooks/use-booking-car-cal";
 import { vnd } from "@/lib/utils/currency";
 import type { Model } from "@/@types/car/model";
 import { Button } from "@/components/ui/button";
 import { Clock } from "lucide-react";
 import { SystemConfigUtils } from "@/hooks/use-system-config";
+import { MembershipAPI } from "@/apis/membership.api";
 
 import DatePicker, {
   type DateRange,
@@ -34,6 +35,7 @@ export default function PaymentSection({
   onTimeChange,
 }: Props) {
   const [isEditingTime, setIsEditingTime] = useState(false);
+  const [membershipDiscount, setMembershipDiscount] = useState(0);
 
   const [dateRange, setDateRange] = useState<DateRange>({
     startDate: searchForm.start.slice(0, 10),
@@ -41,11 +43,27 @@ export default function PaymentSection({
     startTime: searchForm.start.slice(11, 16),
     endTime: searchForm.end.slice(11, 16),
   });
+
+  // Fetch membership discount
+  useEffect(() => {
+    const fetchMembership = async () => {
+      try {
+        const membership = await MembershipAPI.getMyMembership();
+        setMembershipDiscount(membership.discountPercent || 0);
+      } catch (error) {
+        console.error("Failed to fetch membership:", error);
+        setMembershipDiscount(0);
+      }
+    };
+    fetchMembership();
+  }, []);
+
   const { baseTotal, deposit, salePrice, shiftLabel } = useBookingCalc(
     car.price,
     searchForm.start,
     searchForm.end,
-    car.sale
+    car.sale,
+    membershipDiscount
   );
 
   const systemDepositPercent = SystemConfigUtils.getDepositPercent();
@@ -168,14 +186,35 @@ export default function PaymentSection({
                     {vnd(car.price)}đ/ngày
                   </span>
                   <span className="text-red-600 font-medium">
-                    {vnd(salePrice)}đ/ngày (-{car.sale}%)
+                    {vnd(Math.round(car.price * (1 - car.sale / 100)))}đ/ngày (-
+                    {car.sale}%)
                   </span>
                 </div>
               ) : (
-                <span className="text-sm">{vnd(salePrice)}đ/ngày</span>
+                <span className="text-sm">{vnd(car.price)}đ/ngày</span>
               )}
             </span>
           </div>
+
+          {membershipDiscount > 0 && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Giảm giá Membership</span>
+              <span className="text-sm text-emerald-600 font-medium">
+                -{membershipDiscount}%
+              </span>
+            </div>
+          )}
+
+          {(car.sale > 0 || membershipDiscount > 0) && (
+            <div className="flex items-center justify-between border-t pt-2">
+              <span className="text-sm font-medium text-gray-900">
+                Giá sau giảm
+              </span>
+              <span className="text-sm font-semibold text-emerald-600">
+                {vnd(salePrice)}đ/ngày
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

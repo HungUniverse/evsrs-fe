@@ -15,6 +15,7 @@ import { CarSelection } from "./components/CarSelection";
 import { DateRangeSelection } from "./components/DateRangeSelection";
 import { PaymentMethodSelection } from "./components/PaymentMethodSelection";
 import { OrderNote } from "./components/OrderNote";
+import { PricingSummary } from "./components/PricingSummary";
 
 function CreateOrderAtDepot() {
   const location = useLocation();
@@ -206,6 +207,18 @@ function CreateOrderAtDepot() {
             }
           />
         </Card>
+
+        {/* Pricing Summary */}
+        {formData.carEVDetailID && formData.startAt && formData.endAt && (
+          <Card className="p-6">
+            <PricingSummary
+              car={cars.find((c) => c.id === formData.carEVDetailID) || null}
+              startAt={formData.startAt}
+              endAt={formData.endAt}
+              userId={formData.userId}
+            />
+          </Card>
+        )}
 
         {/* Order Note */}
         <Card className="p-6">

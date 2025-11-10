@@ -1,5 +1,9 @@
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { CalendarDays } from "lucide-react";
+import DatePicker, {
+  type DateRange,
+} from "@/page/renter/search-car/components/date-picker";
+import { fmtVN } from "@/hooks/fmt-date-time";
 
 interface DateRangeSelectionProps {
   startAt: string;
@@ -19,59 +23,66 @@ export function DateRangeSelection({
   onEndChange,
   errors,
 }: DateRangeSelectionProps) {
-  const today = new Date().toISOString().split("T")[0];
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  // Parse datetime-local format to DateRange format
+  const startDate = startAt ? startAt.slice(0, 10) : "";
+  const startTime = startAt ? startAt.slice(11, 16) : "06:00";
+  const endDate = endAt ? endAt.slice(0, 10) : "";
+  const endTime = endAt ? endAt.slice(11, 16) : "22:00";
+
+  // Initialize with current values or defaults
+  const today = new Date().toISOString().slice(0, 10);
+
+  const dateRange: DateRange = {
+    startDate: startDate || today,
+    endDate: endDate || today,
+    startTime: startTime,
+    endTime: endTime,
+  };
+
+  const handleDateRangeChange = (newRange: DateRange) => {
+    // Convert back to datetime-local format
+    onStartChange(`${newRange.startDate}T${newRange.startTime}`);
+    onEndChange(`${newRange.endDate}T${newRange.endTime}`);
+  };
+
+  const summary =
+    startAt && endAt
+      ? `${startTime}, ${fmtVN(startDate)} - ${endTime}, ${fmtVN(endDate)}`
+      : "Chọn thời gian thuê xe";
 
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold text-gray-900">Thời gian thuê xe</h2>
-      <div className="grid grid-cols-2 gap-6">
-        <div>
-          <Label htmlFor="start-date">
-            Ngày bắt đầu <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            id="start-date"
-            type="datetime-local"
-            value={startAt}
-            onChange={(e) => onStartChange(e.target.value)}
-            min={today}
-            className={`mt-2 ${errors?.startAt ? "border-red-500" : ""}`}
-          />
-          {errors?.startAt && (
-            <p className="text-red-500 text-sm mt-1">{errors.startAt}</p>
-          )}
-        </div>
 
-        <div>
-          <Label htmlFor="end-date">
-            Ngày kết thúc <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            id="end-date"
-            type="datetime-local"
-            value={endAt}
-            onChange={(e) => onEndChange(e.target.value)}
-            min={startAt || today}
-            className={`mt-2 ${errors?.endAt ? "border-red-500" : ""}`}
-          />
-          {errors?.endAt && (
-            <p className="text-red-500 text-sm mt-1">{errors.endAt}</p>
-          )}
+      <button
+        type="button"
+        onClick={() => setPickerOpen(true)}
+        className={`w-full flex items-center gap-3 px-4 py-3 border rounded-lg text-left hover:bg-gray-50 transition-colors ${
+          errors?.startAt || errors?.endAt ? "border-red-500" : ""
+        }`}
+      >
+        <CalendarDays className="w-5 h-5 text-emerald-600" />
+        <div className="flex-1">
+          <div className="text-sm text-slate-500">Thời gian thuê</div>
+          <div className="font-semibold text-base">{summary}</div>
         </div>
-      </div>
+      </button>
 
-      {startAt && endAt && new Date(endAt) > new Date(startAt) && (
-        <div className="p-4 bg-blue-50 rounded-lg">
-          <p className="text-sm text-blue-900">
-            <span className="font-semibold">Thời gian thuê:</span>{" "}
-            {Math.ceil(
-              (new Date(endAt).getTime() - new Date(startAt).getTime()) /
-                (1000 * 60 * 60 * 24)
-            )}{" "}
-            ngày
-          </p>
-        </div>
+      {(errors?.startAt || errors?.endAt) && (
+        <p className="text-red-500 text-sm">
+          {errors?.startAt || errors?.endAt}
+        </p>
       )}
+
+      <DatePicker
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        value={dateRange}
+        onChange={handleDateRangeChange}
+        title="Chọn thời gian thuê xe"
+      />
     </div>
   );
 }
