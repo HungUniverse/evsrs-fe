@@ -5,6 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import RowActions from "./row-actions";
 import type { CarManufacture } from "@/@types/car/carManufacture";
 import type { Amenity } from "@/@types/car/amentities";
+import { formatDate } from "@/lib/utils/formatDate";
+import { useCarCountByModel } from "@/hooks/use-car-count-by-model";
+import { Car } from "lucide-react";
 
 interface ModelTableProps {
   data: Model[];
@@ -12,9 +15,12 @@ interface ModelTableProps {
   amenities: Amenity[];
   onEdit: (item: Model) => void;
   onDelete: (item: Model) => void;
+  depotId?: string;
 }
 
-const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities, onEdit, onDelete }) => {
+const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities, onEdit, onDelete, depotId }) => {
+  const { getCarCount, loading: loadingCounts } = useCarCountByModel({ depotId });
+  
   const formatCurrency = (value: number | string) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -33,56 +39,76 @@ const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities,
   };
 
   return (
-    <div className="rounded-lg border bg-white shadow-sm">
+    <div className="rounded-lg border bg-white shadow-sm overflow-x-auto">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="w-[180px]">Hình ảnh</TableHead>
-            <TableHead className="w-[15%]">Tên model</TableHead>
-            <TableHead>Nhà sản xuất</TableHead>
-            <TableHead>Tiện nghi</TableHead>
-            <TableHead>Dung lượng pin (kWh)</TableHead>
-            <TableHead>Tầm hoạt động (km)</TableHead>
-            <TableHead>Số ghế</TableHead>
-            <TableHead>Giá thuê</TableHead>
-            <TableHead>Giảm giá (%)</TableHead>
-            <TableHead>Ngày tạo</TableHead>
-            <TableHead>Trạng thái</TableHead>
-            <TableHead className="text-right">Thao tác</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10" style={{ width: '220px', minWidth: '220px' }}>Hình ảnh</TableHead>
+            <TableHead className="w-[15%] whitespace-nowrap text-[#065F46] sticky left-[220px] bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Tên model</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Nhà sản xuất</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Tiện nghi</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Dung lượng pin (kWh)</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Tầm hoạt động (km)</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Số ghế</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Giá thuê</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Giảm giá (%)</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Số lượng xe</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Trạng thái</TableHead>
+            <TableHead className="text-right whitespace-nowrap text-[#065F46] sticky right-0 bg-[#D1FAE5] shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell>
+            <TableRow key={item.id} className="hover:bg-muted/50 transition-colors group">
+              <TableCell className="sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors" style={{ width: '220px', minWidth: '220px', padding: '1rem' }}>
                 {item.image ? (
-                  <img src={item.image} alt="Model" className="w-40 h-48 object-cover rounded-lg" />
+                  <img 
+                    src={item.image} 
+                    alt="Model" 
+                    style={{ width: '200px', height: '80px', objectFit: 'cover', display: 'block' }}
+                    className="rounded-lg" 
+                  />
                 ) : (
-                  <span className="text-muted-foreground text-sm">No image</span>
+                  <div style={{ width: '200px', height: '80px' }} className="bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-xs">
+                    No image
+                  </div>
                 )}
               </TableCell>
-              <TableCell className="font-medium">{item.modelName}</TableCell>
-              <TableCell>{getManufacturerName(item.manufacturerCarId)}</TableCell>
-              <TableCell>{getAmenityName(item.amenitiesId)}</TableCell>
-              <TableCell>{item.batteryCapacityKwh}</TableCell>
-              <TableCell>{item.rangeKm}</TableCell>
-              <TableCell>{item.seats}</TableCell>
-              <TableCell>{formatCurrency(item.price)}</TableCell>
-              <TableCell>{item.sale}%</TableCell>
-              <TableCell>{item.createdAt ? new Date(item.createdAt).toLocaleString() : ""}</TableCell>
-              <TableCell>
+              <TableCell className="font-medium whitespace-nowrap sticky left-[220px] bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">{item.modelName}</TableCell>
+              <TableCell className="whitespace-nowrap">{getManufacturerName(item.manufacturerCarId)}</TableCell>
+              <TableCell className="whitespace-nowrap">{getAmenityName(item.amenitiesId)}</TableCell>
+              <TableCell className="whitespace-nowrap">{item.batteryCapacityKwh}</TableCell>
+              <TableCell className="whitespace-nowrap">{item.rangeKm}</TableCell>
+              <TableCell className="whitespace-nowrap">{item.seats}</TableCell>
+              <TableCell className="whitespace-nowrap">{formatCurrency(item.price)}</TableCell>
+              <TableCell className="whitespace-nowrap">{item.sale}%</TableCell>
+              <TableCell className="whitespace-nowrap">
+                {loadingCounts ? (
+                  <span className="text-muted-foreground">...</span>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Car className="h-4 w-4 text-blue-600" />
+                    <span className="font-semibold text-blue-600">{getCarCount(item.id)}</span>
+                  </div>
+                )}
+              </TableCell>
+              <TableCell className="whitespace-nowrap">
+                {item.createdAt ? formatDate(item.createdAt) : ""}
+              </TableCell>
+              <TableCell className="whitespace-nowrap">
                 <Badge variant={!item.isDeleted ? "soft-green" : "soft-gray"} className="whitespace-nowrap">
                   {!item.isDeleted ? "Hoạt động" : "Đã xóa"}
                 </Badge>
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-muted/50 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
                 <RowActions item={item} onEdit={onEdit} onDelete={onDelete} />
               </TableCell>
             </TableRow>
           ))}
           {data.length === 0 && (
             <TableRow>
-              <TableCell colSpan={12} className="text-center text-sm text-muted-foreground py-8">
+              <TableCell colSpan={13} className="text-center text-sm text-muted-foreground py-8">
                 Không có dữ liệu
               </TableCell>
             </TableRow>

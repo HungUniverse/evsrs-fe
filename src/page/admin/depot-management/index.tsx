@@ -1,14 +1,14 @@
 import { useDepotsList } from "@/hooks/use-depots";
 import { useDepotTableState } from "@/hooks/use-depot-table-state";
 import { useDepotForm } from "@/hooks/use-depot-form";
-import { useDepotPagination } from "@/hooks/use-depot-pagination";
+import { useTablePagination } from "@/hooks/use-table-pagination";
+import { TablePagination } from "@/components/ui/table-pagination";
 import type { Depot } from "@/@types/car/depot";
 import PageShell from "./components/page-shell";
 import FilterBar from "./components/filter-bar";
 import DepotTable from "./components/depot-table";
 import DepotFormDialog from "./components/depot-form-dialog";
 import DeleteConfirmationDialog from "./components/delete-confirmation-dialog";
-import Pagination from "./components/pagination";
 
 export default function DepotManagementPage() {
   const tableState = useDepotTableState();
@@ -22,7 +22,12 @@ export default function DepotManagementPage() {
     ward: tableState.ward || undefined,
   });
   const form = useDepotForm();
-  const pagination = useDepotPagination((data?.items as Depot[]) || [], tableState);
+  const pagination = useTablePagination({
+    items: (data?.items as Depot[]) || [],
+    pageNumber: tableState.pageNumber,
+    pageSize: tableState.pageSize,
+    setPageNumber: tableState.setPageNumber,
+  });
 
   return (
     <PageShell
@@ -39,11 +44,20 @@ export default function DepotManagementPage() {
           sort={tableState.sort}
           onSortChange={tableState.setSort}
           province={tableState.province}
-          onProvinceChange={pagination.handleFilterChange(tableState.setProvince)}
+          onProvinceChange={(v) => {
+            tableState.setProvince(v);
+            tableState.setPageNumber(1);
+          }}
           district={tableState.district}
-          onDistrictChange={pagination.handleFilterChange(tableState.setDistrict)}
+          onDistrictChange={(v) => {
+            tableState.setDistrict(v);
+            tableState.setPageNumber(1);
+          }}
           ward={tableState.ward}
-          onWardChange={pagination.handleFilterChange(tableState.setWard)}
+          onWardChange={(v) => {
+            tableState.setWard(v);
+            tableState.setPageNumber(1);
+          }}
           onClearFilters={tableState.clearFilters}
           onAdd={form.startCreate}
         />
@@ -69,17 +83,16 @@ export default function DepotManagementPage() {
           isDeleting={form.isDeleting}
         />
 
-        {pagination.totalItems > 0 && (
-          <Pagination
-            currentPage={tableState.pageNumber}
-            totalPages={pagination.totalPages}
-            startItem={pagination.startItem}
-            endItem={pagination.endItem}
-            totalItems={pagination.totalItems}
-            onPreviousPage={pagination.handlePreviousPage}
-            onNextPage={pagination.handleNextPage}
-          />
-        )}
+        <TablePagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          startItem={pagination.startItem}
+          endItem={pagination.endItem}
+          totalItems={pagination.totalItems}
+          onPreviousPage={pagination.handlePreviousPage}
+          onNextPage={pagination.handleNextPage}
+          loading={isLoading}
+        />
 
         {isLoading ? (
           <p className="text-sm text-muted-foreground">Đang tải dữ liệu...</p>

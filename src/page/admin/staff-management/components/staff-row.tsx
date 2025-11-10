@@ -54,7 +54,7 @@ export function StaffTableRow({
     <React.Fragment key={user.id}>
       <TableRow
         data-state={isSelected ? "selected" : undefined}
-        className="cursor-pointer hover:bg-muted/50 transition-colors"
+        className="cursor-pointer hover:bg-muted/50 transition-colors group"
         onClick={onToggleExpand}
       >
         <TableCell className="w-[40px]">
@@ -65,7 +65,7 @@ export function StaffTableRow({
             onClick={(event) => event.stopPropagation()}
           />
         </TableCell>
-        <TableCell>
+        <TableCell className="whitespace-nowrap sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
           <div className="flex items-center gap-3">
             <img
               src={
@@ -86,21 +86,21 @@ export function StaffTableRow({
             </div>
           </div>
         </TableCell>
-        <TableCell>
+        <TableCell className="whitespace-nowrap">
           <div className="flex flex-col">
             <span>{user.phoneNumber || "Chưa có số điện thoại"}</span>
             <span className="text-xs text-muted-foreground">{user.userEmail || "Chưa có email"}</span>
           </div>
         </TableCell>
-        <TableCell>{user.createdAt ? formatDate(user.createdAt) : "Chưa xác định"}</TableCell>
-        <TableCell>{user.updatedAt ? formatDate(user.updatedAt) : "Chưa xác định"}</TableCell>
-        <TableCell>
+        <TableCell className="whitespace-nowrap">{user.createdAt ? formatDate(user.createdAt) : "Chưa xác định"}</TableCell>
+        <TableCell className="whitespace-nowrap">{user.updatedAt ? formatDate(user.updatedAt) : "Chưa xác định"}</TableCell>
+        <TableCell className="whitespace-nowrap">
           <div className="flex items-center gap-2 text-sm">
             <MapPin className="size-4 text-muted-foreground" />
             <span>{getDepotName(user.depotId)}</span>
           </div>
         </TableCell>
-        <TableCell className="text-right">
+        <TableCell className="text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-muted/50 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -117,7 +117,14 @@ export function StaffTableRow({
                 Xem chi tiết
               </DropdownMenuItem>
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger>Chỉnh sửa</DropdownMenuSubTrigger>
+                <DropdownMenuSubTrigger
+                  onClick={(event) => {
+                    // Prevent expanding the row when opening the "Chỉnh sửa" submenu
+                    event.stopPropagation();
+                  }}
+                >
+                  Chỉnh sửa
+                </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
                   <DropdownMenuItem
                     onClick={(event) => {

@@ -8,6 +8,7 @@ export function useModelTableState() {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortValue>("created-desc");
   const [manufacturerCarId, setManufacturerCarId] = useState<string>("");
+  const [depotId, setDepotId] = useState<string>("");
 
   const setPage = useCallback((page: number) => setPageNumber(page), []);
 
@@ -17,11 +18,13 @@ export function useModelTableState() {
     search,
     sort,
     manufacturerCarId,
+    depotId,
     setPageNumber: setPage,
     setPageSize,
     setSearch,
     setSort,
     setManufacturerCarId,
+    setDepotId,
   } as const;
 }
 

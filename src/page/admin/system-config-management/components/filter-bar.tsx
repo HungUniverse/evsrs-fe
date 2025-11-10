@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Filter, RotateCcw, Plus } from "lucide-react";
+import { Search, Filter, RotateCcw } from "lucide-react";
 import type { SystemConfigType } from "@/@types/enum";
 
 interface FilterBarProps {
@@ -12,7 +12,6 @@ interface FilterBarProps {
   configType: SystemConfigType | undefined;
   onConfigTypeChange: (v: SystemConfigType | "") => void;
   onClearFilters: () => void;
-  onAdd: () => void;
 }
 
 const FilterBar: React.FC<FilterBarProps> = ({ 
@@ -20,8 +19,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
   onSearchKeyChange, 
   configType, 
   onConfigTypeChange,
-  onClearFilters,
-  onAdd
+  onClearFilters
 }) => {
   const hasFilters = searchKey || configType;
 
@@ -36,8 +34,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
 
         {/* Horizontal Filters Row - Compact Layout */}
         <div className="flex flex-wrap items-center gap-2.5">
-          {/* Filters Section - Left Side */}
-          <div className="flex flex-wrap items-center gap-2.5 flex-1">
+          {/* Filters Section */}
+          <div className="flex flex-wrap items-center gap-2.5">
             {/* Search Input */}
             <div className="flex-1 min-w-[150px] max-w-[220px]">
               <div className="relative">
@@ -89,12 +87,6 @@ const FilterBar: React.FC<FilterBarProps> = ({
               </Button>
             )}
           </div>
-
-          {/* Add Button - Right Side */}
-          <Button onClick={onAdd} className="h-9 shrink-0 text-sm ml-auto">
-            <Plus className="h-3.5 w-3.5 mr-1.5" />
-            Thêm cấu hình
-          </Button>
         </div>
       </CardContent>
     </Card>

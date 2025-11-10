@@ -1,9 +1,9 @@
 import { useTransactionTable } from "./hooks/use-transaction-table";
+import { TablePagination } from "@/components/ui/table-pagination";
 import { TransactionTableToolbar } from "./components/toolbar";
 import { TransactionTable } from "./components/table";
 import { TransactionTableLoadingState } from "./components/loading-state";
 import { TransactionDetailDialog } from "./components/detail-dialog";
-import { TransactionTablePagination } from "./components/pagination";
 import { OrderDetailDialog } from "./components/order-detail-dialog";
 import UserInfoModal from "@/page/staff/trip-management/components/user-info-modal";
 
@@ -19,8 +19,6 @@ export default function Transactions() {
     pageSize,
     totalPages,
     totalCount,
-    hasNextPage,
-    hasPreviousPage,
     setPageSize,
     handleNextPage,
     handlePreviousPage,
@@ -91,15 +89,15 @@ export default function Transactions() {
             ordersMap={ordersMap}
           />
 
-          <TransactionTablePagination
-            pageNumber={pageNumber}
+          <TablePagination
+            currentPage={pageNumber}
             totalPages={totalPages}
-            totalCount={totalCount}
-            hasNextPage={hasNextPage}
-            hasPreviousPage={hasPreviousPage}
-            loading={loading}
-            onNextPage={handleNextPage}
+            startItem={totalCount === 0 ? 0 : (pageNumber - 1) * pageSize + 1}
+            endItem={Math.min(pageNumber * pageSize, totalCount)}
+            totalItems={totalCount}
             onPreviousPage={handlePreviousPage}
+            onNextPage={handleNextPage}
+            loading={loading}
           />
 
           <TransactionDetailDialog

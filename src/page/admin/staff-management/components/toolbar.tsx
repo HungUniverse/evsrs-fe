@@ -63,43 +63,46 @@ export function StaffTableToolbar({
               </div>
             </div>
 
-            {/* Sort Select */}
-            <div className="flex-1 min-w-[160px] max-w-[220px]">
-              <Select
-                value={`${sortState.field}-${sortState.direction}`}
-                onValueChange={(value) => {
-                  const [field, direction] = value.split("-") as [SortState["field"], SortState["direction"]];
-                  onSortChange({ field, direction });
-                }}
-              >
-                <SelectTrigger className="h-9 bg-background text-sm">
-                  <SelectValue placeholder="Tên A→Z" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SORT_OPTIONS.map((option) => (
-                    <SelectItem
-                      key={`${option.value.field}-${option.value.direction}`}
-                      value={`${option.value.field}-${option.value.direction}`}
-                    >
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Sort Select and Delete Button Group */}
+            <div className="flex items-center gap-2">
+              {/* Sort Select */}
+              <div className="min-w-[160px] max-w-[220px]">
+                <Select
+                  value={`${sortState.field}-${sortState.direction}`}
+                  onValueChange={(value) => {
+                    const [field, direction] = value.split("-") as [SortState["field"], SortState["direction"]];
+                    onSortChange({ field, direction });
+                  }}
+                >
+                  <SelectTrigger className="h-9 bg-background text-sm">
+                    <SelectValue placeholder="Tên A→Z" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SORT_OPTIONS.map((option) => (
+                      <SelectItem
+                        key={`${option.value.field}-${option.value.direction}`}
+                        value={`${option.value.field}-${option.value.direction}`}
+                      >
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* Delete Selected Button */}
-            {isAnySelected && (
-              <Button 
-                variant="destructive" 
-                size="sm" 
-                onClick={onDeleteSelected} 
-                className="h-9 shrink-0 text-sm"
-              >
-                <Trash2 className="h-3.5 w-3.5 mr-1.5" />
-                Xóa ({selectedCount})
-              </Button>
-            )}
+              {/* Delete Selected Button */}
+              {isAnySelected && (
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  onClick={onDeleteSelected} 
+                  className="h-9 shrink-0 text-sm"
+                >
+                  <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                  Xóa ({selectedCount})
+                </Button>
+              )}
+            </div>
 
             {/* Reset Button */}
             {hasActiveFilters && (
@@ -116,7 +119,10 @@ export function StaffTableToolbar({
           </div>
 
           {/* Add Staff Button - Right Side */}
-          <Button onClick={onOpenCreate} className="h-9 shrink-0 text-sm ml-auto">
+          <Button
+            onClick={onOpenCreate}
+            className="h-9 shrink-0 text-sm ml-auto bg-emerald-200 text-emerald-900 hover:bg-emerald-300"
+          >
             <Plus className="h-3.5 w-3.5 mr-1.5" />
             Thêm nhân viên
           </Button>

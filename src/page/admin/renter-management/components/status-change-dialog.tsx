@@ -69,10 +69,10 @@ export function StatusChangeDialog({
               <Badge
                 variant={
                   currentStatus === "APPROVED"
-                    ? "default"
+                    ? "soft-green"
                     : currentStatus === "REJECTED"
-                      ? "destructive"
-                      : "outline"
+                      ? "soft-red"
+                      : "soft-gray"
                 }
               >
                 {getStatusLabel(currentStatus)}
@@ -83,7 +83,7 @@ export function StatusChangeDialog({
             </div>
             <div className="flex items-center justify-between p-4 rounded-lg border-2 bg-card">
               <span className="text-sm font-medium">Trạng thái mới:</span>
-              <Badge variant={newStatus === "APPROVED" ? "default" : "destructive"} className="text-sm">
+              <Badge variant={newStatus === "APPROVED" ? "soft-green" : "soft-red"} className="text-sm">
                 {getStatusLabel(newStatus)}
               </Badge>
             </div>
@@ -130,7 +130,14 @@ export function StatusChangeDialog({
           <Button variant="outline" onClick={onClose}>
             Hủy
           </Button>
-          <Button onClick={onConfirm} variant={newStatus === "APPROVED" ? "default" : "destructive"} className="min-w-[140px]">
+          <Button
+            onClick={onConfirm}
+            className={
+              newStatus === "APPROVED"
+                ? "min-w-[140px] bg-emerald-200 text-emerald-900 hover:bg-emerald-300"
+                : "min-w-[140px] bg-red-200 text-red-900 hover:bg-red-300"
+            }
+          >
             {newStatus === "APPROVED" ? "Duyệt tài liệu" : "Từ chối tài liệu"}
           </Button>
         </DialogFooter>

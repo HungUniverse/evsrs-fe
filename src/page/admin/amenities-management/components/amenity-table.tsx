@@ -3,6 +3,7 @@ import type { Amenity } from "@/@types/car/amentities";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import RowActions from "./row-actions";
+import { formatDate } from "@/lib/utils/formatDate";
 
 interface AmenityTableProps {
   data: Amenity[];
@@ -12,31 +13,35 @@ interface AmenityTableProps {
 
 const AmenityTable: React.FC<AmenityTableProps> = ({ data, onEdit, onDelete }) => {
   return (
-    <div className="rounded-lg border bg-white shadow-sm">
+    <div className="rounded-lg border bg-white shadow-sm overflow-x-auto">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="w-[40%]">Tên tiện nghi</TableHead>
-            <TableHead>Biểu tượng (URL/Tên)</TableHead>
-            <TableHead>Ngày tạo</TableHead>
-            <TableHead>Cập nhật</TableHead>
-            <TableHead>Trạng thái</TableHead>
-            <TableHead className="text-right">Thao tác</TableHead>
+            <TableHead className="w-[40%] whitespace-nowrap text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Tên tiện nghi</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Biểu tượng (URL/Tên)</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Cập nhật</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Trạng thái</TableHead>
+            <TableHead className="text-right whitespace-nowrap text-[#065F46] sticky right-0 bg-[#D1FAE5] shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell className="font-medium">{item.name}</TableCell>
-              <TableCell>{item.icon ? String(item.icon) : "-"}</TableCell>
-              <TableCell>{item.createdAt ? new Date(item.createdAt).toLocaleString() : ""}</TableCell>
-              <TableCell>{item.updatedAt ? new Date(item.updatedAt).toLocaleString() : ""}</TableCell>
-              <TableCell>
+            <TableRow key={item.id} className="hover:bg-muted/50 transition-colors group">
+              <TableCell className="font-medium whitespace-nowrap sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">{item.name}</TableCell>
+              <TableCell className="whitespace-nowrap">{item.icon ? String(item.icon) : "-"}</TableCell>
+              <TableCell className="whitespace-nowrap">
+                {item.createdAt ? formatDate(item.createdAt) : ""}
+              </TableCell>
+              <TableCell className="whitespace-nowrap">
+                {item.updatedAt ? formatDate(item.updatedAt) : ""}
+              </TableCell>
+              <TableCell className="whitespace-nowrap">
                 <Badge variant={!item.isDeleted ? "soft-green" : "soft-gray"} className="whitespace-nowrap">
                   {!item.isDeleted ? "Hoạt động" : "Đã xóa"}
                 </Badge>
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-muted/50 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
                 <RowActions item={item} onEdit={onEdit} onDelete={onDelete} />
               </TableCell>
             </TableRow>

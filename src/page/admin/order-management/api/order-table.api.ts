@@ -2,9 +2,11 @@ import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import type { OrderBookingStatus, PaymentStatus } from "@/@types/enum";
 import type { UserFull } from "@/@types/auth.type";
 import type { Depot } from "@/@types/car/depot";
+import type { Model } from "@/@types/car/model";
 import { orderBookingAPI, type OrderBookingQuery } from "@/apis/order-booking.api";
 import { UserFullAPI } from "@/apis/user.api";
 import { depotAPI } from "@/apis/depot.api";
+import { modelAPI } from "@/apis/model-ev.api";
 
 const DEFAULT_PAGINATION = {
   page: 1,
@@ -128,6 +130,16 @@ async function fetchDepots(): Promise<Depot[]> {
   }
 }
 
+async function fetchModels(): Promise<Model[]> {
+  try {
+    const response = await modelAPI.getAll(1, 9999);
+    const items = response?.data?.data?.items;
+    return Array.isArray(items) ? items : [];
+  } catch {
+    return [];
+  }
+}
+
 async function updateOrderStatus(
   orderId: string,
   status: OrderBookingStatus,
@@ -158,6 +170,7 @@ export const OrderTableApi = {
   fetchOrdersByCode,
   fetchUsers,
   fetchDepots,
+  fetchModels,
   updateOrderStatus,
   deleteOrder,
   refundOrder,

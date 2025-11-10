@@ -65,10 +65,10 @@ export function DocumentVerificationModal({
                 <Badge
                   variant={
                     document.status === "APPROVED"
-                      ? "default"
+                      ? "soft-green"
                       : document.status === "REJECTED"
-                        ? "destructive"
-                        : "outline"
+                        ? "soft-red"
+                        : "soft-gray"
                   }
                   className="text-xs"
                 >
@@ -140,8 +140,11 @@ export function DocumentVerificationModal({
           </Button>
           <Button
             onClick={onConfirm}
-            variant={action === "reject" ? "destructive" : "default"}
-            className="min-w-[120px]"
+            className={
+              action === "reject"
+                ? "min-w-[120px] bg-red-200 text-red-900 hover:bg-red-300"
+                : "min-w-[120px] bg-emerald-200 text-emerald-900 hover:bg-emerald-300"
+            }
           >
             {action === "approve" ? "Duyệt tài liệu" : "Từ chối tài liệu"}
           </Button>

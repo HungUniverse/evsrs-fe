@@ -1,4 +1,7 @@
+import { useState } from "react";
 import { useStaffTable } from "./hooks/use-staff-table";
+import { useTablePagination } from "@/hooks/use-table-pagination";
+import { TablePagination } from "@/components/ui/table-pagination";
 import { StaffTableToolbar } from "./components/toolbar";
 import { StaffTableContent } from "./components/table-content";
 import { StaffTableLoadingState } from "./components/loading-state";
@@ -7,6 +10,8 @@ import { CreateStaffDialog } from "./components/create-staff-dialog";
 import { DeleteConfirmationDialog } from "./components/delete-confirmation-dialog";
 
 export default function StaffManagementPage() {
+  const [pageNumber, setPageNumber] = useState(1);
+  const pageSize = 10;
   const controller = useStaffTable();
   const {
     loading,
@@ -45,6 +50,13 @@ export default function StaffManagementPage() {
     getDepotName,
   } = controller;
 
+  const pagination = useTablePagination({
+    items: rows,
+    pageNumber,
+    pageSize,
+    setPageNumber,
+  });
+
   return (
     <div className="space-y-6 px-4 sm:px-6">
       <div>
@@ -60,11 +72,20 @@ export default function StaffManagementPage() {
         <div className="space-y-4">
           <StaffTableToolbar
             query={query}
-            onQueryChange={setQuery}
+            onQueryChange={(v) => {
+              setQuery(v);
+              setPageNumber(1);
+            }}
             sortState={sortState}
-            onSortChange={setSortState}
+            onSortChange={(v) => {
+              setSortState(v);
+              setPageNumber(1);
+            }}
             hasActiveFilters={hasActiveFilters}
-            onClearFilters={clearFilters}
+            onClearFilters={() => {
+              clearFilters();
+              setPageNumber(1);
+            }}
             onOpenCreate={openCreateDialog}
             selectedCount={selectedCount}
             isAnySelected={isAnySelected}
@@ -72,7 +93,7 @@ export default function StaffManagementPage() {
           />
 
           <StaffTableContent
-            rows={rows}
+            rows={pagination.paginatedData}
             selected={selected}
             onToggleSelect={toggleSelect}
             expandedRow={expandedRow}
@@ -81,6 +102,17 @@ export default function StaffManagementPage() {
             depotMap={depotMap}
             onChangeDepot={openChangeDepotForUser}
             onRequestDelete={openDeleteDialogForUser}
+          />
+
+          <TablePagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            startItem={pagination.startItem}
+            endItem={pagination.endItem}
+            totalItems={pagination.totalItems}
+            onPreviousPage={pagination.handlePreviousPage}
+            onNextPage={pagination.handleNextPage}
+            loading={loading}
           />
 
           <DeleteConfirmationDialog

@@ -1,11 +1,11 @@
 import { useOrderTable } from "./hooks/use-order-table";
+import { TablePagination } from "@/components/ui/table-pagination";
 import { OrderTableToolbar } from "./components/toolbar";
 import { OrderTable } from "./components/table";
 import { OrderTableLoadingState } from "./components/loading-state";
 import { UpdateStatusDialog } from "./components/update-status-dialog";
 // import { DeleteDialog } from "./components/delete-dialog"; // Commented out - delete function removed
 import { RefundDialog } from "./components/refund-dialog";
-import { OrderTablePagination } from "./components/pagination";
 import UserInfoModal from "@/page/staff/trip-management/components/user-info-modal";
 
 export default function OrderManagementPage() {
@@ -16,13 +16,12 @@ export default function OrderManagementPage() {
     displayedOrders,
     users,
     depots,
+    models,
     loading,
     pageNumber,
     pageSize,
     totalPages,
     totalCount,
-    hasNextPage,
-    hasPreviousPage,
     setPageSize,
     handleNextPage,
     handlePreviousPage,
@@ -32,6 +31,8 @@ export default function OrderManagementPage() {
     setSelectedUserId,
     selectedDepotId,
     setSelectedDepotId,
+    selectedModelId,
+    setSelectedModelId,
     statusFilter,
     setStatusFilter,
     paymentStatusFilter,
@@ -86,6 +87,8 @@ export default function OrderManagementPage() {
             onSelectedUserIdChange={setSelectedUserId}
             selectedDepotId={selectedDepotId}
             onSelectedDepotIdChange={setSelectedDepotId}
+            selectedModelId={selectedModelId}
+            onSelectedModelIdChange={setSelectedModelId}
             statusFilter={statusFilter}
             onStatusFilterChange={setStatusFilter}
             paymentStatusFilter={paymentStatusFilter}
@@ -97,6 +100,7 @@ export default function OrderManagementPage() {
             onClearFilters={clearFilters}
             users={users}
             depots={depots}
+            models={models}
           />
 
           <OrderTable
@@ -117,15 +121,15 @@ export default function OrderManagementPage() {
             onViewUser={setUserInfoUserId}
           />
 
-          <OrderTablePagination
-            pageNumber={pageNumber}
+          <TablePagination
+            currentPage={pageNumber}
             totalPages={totalPages}
-            totalCount={totalCount}
-            hasNextPage={hasNextPage}
-            hasPreviousPage={hasPreviousPage}
-            loading={loading}
-            onNextPage={handleNextPage}
+            startItem={totalCount === 0 ? 0 : (pageNumber - 1) * pageSize + 1}
+            endItem={Math.min(pageNumber * pageSize, totalCount)}
+            totalItems={totalCount}
             onPreviousPage={handlePreviousPage}
+            onNextPage={handleNextPage}
+            loading={loading}
           />
 
           <UpdateStatusDialog

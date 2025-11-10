@@ -16,9 +16,11 @@ import {
   Shield,
   Settings,
   CreditCard,
+  Award,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
+import * as React from "react";
 
 interface NavigationItem {
   name: string;
@@ -87,6 +89,19 @@ const navigationItems: NavigationItem[] = [
     name: "Cấu hình hạng thành viên",
     href: "/admin/membership-config-management",
     icon: Shield,
+    hasSubmenu: true,
+    submenu: [
+      {
+        name: "Danh sách thành viên",
+        href: "/admin/membership-config-management/users",
+        icon: Users,
+      },
+      {
+        name: "Quản lý hạng thành viên",
+        href: "/admin/membership-config-management/configs",
+        icon: Award,
+      },
+    ],
   },
   {
     name: "Cấu hình hệ thống",
@@ -111,6 +126,25 @@ export default function AdminSidebar({
 }: AdminSidebarProps) {
   const location = useLocation();
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
+
+  // Auto-expand submenu if current path matches any submenu item
+  React.useEffect(() => {
+    const menusToExpand: string[] = [];
+    navigationItems.forEach((item) => {
+      if (item.hasSubmenu && item.submenu) {
+        const isActive = item.submenu.some((subItem) => location.pathname === subItem.href);
+        if (isActive) {
+          menusToExpand.push(item.name);
+        }
+      }
+    });
+    if (menusToExpand.length > 0) {
+      setExpandedMenus((prev) => {
+        const newMenus = [...new Set([...prev, ...menusToExpand])];
+        return newMenus;
+      });
+    }
+  }, [location.pathname]);
 
   const toggleSubmenu = (menuName: string) => {
     setExpandedMenus(prev => 
@@ -153,14 +187,16 @@ export default function AdminSidebar({
                   {/* Parent Menu */}
                   <button
                     onClick={() => !sidebarCollapsed && toggleSubmenu(item.name)}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors group relative ${
                       isParentActive
-                        ? "text-white"
+                        ? "bg-[#F0F2F5] text-gray-900"
                         : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                     }`}
-                    style={isParentActive ? { backgroundColor: "#00D166" } : {}}
                     title={sidebarCollapsed ? item.name : ""}
                   >
+                    {isParentActive && (
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#22C55E] rounded-l-lg" />
+                    )}
                     <div className="flex items-center">
                       <Icon className="h-5 w-5 flex-shrink-0" />
                       {!sidebarCollapsed && (
@@ -189,14 +225,16 @@ export default function AdminSidebar({
                           <Link
                             key={subItem.name}
                             to={subItem.href}
-                            className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${
+                            className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors group relative ${
                               isSubActive
-                                ? "text-white"
+                                ? "bg-[#F0F2F5] text-gray-900"
                                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                             }`}
-                            style={isSubActive ? { backgroundColor: "#00D166" } : {}}
                             onClick={onSidebarClose}
                           >
+                            {isSubActive && (
+                              <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#22C55E] rounded-l-lg" />
+                            )}
                             <SubIcon className="h-4 w-4 flex-shrink-0" />
                             <span className="ml-3">{subItem.name}</span>
                           </Link>
@@ -213,15 +251,17 @@ export default function AdminSidebar({
               <Link
                 key={item.name}
                 to={item.href}
-                className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${
+                className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors group relative ${
                   isActive
-                    ? "text-white"
+                    ? "bg-[#F0F2F5] text-gray-900"
                     : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                 }`}
-                style={isActive ? { backgroundColor: "#00D166" } : {}}
                 onClick={onSidebarClose}
                 title={sidebarCollapsed ? item.name : ""}
               >
+                {isActive && (
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#22C55E] rounded-l-lg" />
+                )}
                 <Icon className="h-5 w-5 flex-shrink-0" />
                 {!sidebarCollapsed && (
                   <span className="ml-3">{item.name}</span>

@@ -3,6 +3,22 @@ import { SystemConfigApi } from "@/apis/system-config.api";
 import type { SystemConfigTypeResponse } from "@/@types/system-config";
 import type { SystemConfigType } from "@/@types/enum";
 
+/**
+ * Hook để quản lý danh sách system configs trong admin page
+ * 
+ * Mục đích: Lấy danh sách configs để hiển thị/quản lý trong table admin
+ * - Có query với filter (key, configType)
+ * - Có mutations (create, update, delete)
+ * - Tự động invalidate cache khi có thay đổi
+ * 
+ * Khác với use-system-config: Hook này dùng cho việc quản lý danh sách configs,
+ * còn use-system-config dùng cho việc lấy 1 config value để sử dụng trong app
+ * 
+ * @example
+ * const { data, isLoading } = useSystemConfigsList({ key: "search", configType: "GENERAL" });
+ * const { create, update, remove } = useSystemConfigMutations();
+ */
+
 export type SystemConfigsListParams = {
   key?: string;
   configType?: SystemConfigType;
@@ -12,6 +28,9 @@ const queryKeys = {
   list: (params: SystemConfigsListParams) => ["system-configs", "list", params] as const,
 };
 
+/**
+ * Hook để lấy danh sách system configs với filter
+ */
 export function useSystemConfigsList(params: SystemConfigsListParams) {
   return useQuery({
     queryKey: queryKeys.list(params),
@@ -40,6 +59,10 @@ export function useSystemConfigsList(params: SystemConfigsListParams) {
   });
 }
 
+/**
+ * Hook để thực hiện các mutations (create, update, delete) cho system configs
+ * Tự động invalidate cache sau khi thực hiện thành công
+ */
 export function useSystemConfigMutations() {
   const qc = useQueryClient();
   const invalidateList = async () => {

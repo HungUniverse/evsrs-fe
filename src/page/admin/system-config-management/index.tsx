@@ -1,11 +1,12 @@
 import { useSystemConfigsList } from "@/hooks/use-system-configs";
 import { useSystemConfigTableState } from "@/hooks/use-system-config-table-state";
 import { useSystemConfigForm } from "@/hooks/use-system-config-form";
+import { useTablePagination } from "@/hooks/use-table-pagination";
+import { TablePagination } from "@/components/ui/table-pagination";
 import PageShell from "./components/page-shell";
 import FilterBar from "./components/filter-bar";
 import SystemConfigTable from "./components/system-config-table";
 import SystemConfigFormDialog from "./components/system-config-form-dialog";
-import DeleteConfirmationDialog from "./components/delete-confirmation-dialog";
 
 export default function SystemConfigManagementPage() {
   const tableState = useSystemConfigTableState();
@@ -14,6 +15,12 @@ export default function SystemConfigManagementPage() {
     configType: tableState.configType,
   });
   const form = useSystemConfigForm();
+  const pagination = useTablePagination({
+    items: data?.items || [],
+    pageNumber: tableState.pageNumber,
+    pageSize: tableState.pageSize,
+    setPageNumber: tableState.setPageNumber,
+  });
 
   return (
     <PageShell
@@ -23,17 +30,32 @@ export default function SystemConfigManagementPage() {
       <div className="space-y-4">
         <FilterBar
           searchKey={tableState.searchKey}
-          onSearchKeyChange={tableState.setSearchKey}
+          onSearchKeyChange={(v) => {
+            tableState.setSearchKey(v);
+            tableState.setPageNumber(1);
+          }}
           configType={tableState.configType}
-          onConfigTypeChange={tableState.setConfigType}
+          onConfigTypeChange={(v) => {
+            tableState.setConfigType(v);
+            tableState.setPageNumber(1);
+          }}
           onClearFilters={tableState.clearFilters}
-          onAdd={form.startCreate}
         />
 
         <SystemConfigTable
-          data={data?.items || []}
+          data={pagination.paginatedData}
           onEdit={form.startEdit}
-          onDelete={form.startDelete}
+        />
+
+        <TablePagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          startItem={pagination.startItem}
+          endItem={pagination.endItem}
+          totalItems={pagination.totalItems}
+          onPreviousPage={pagination.handlePreviousPage}
+          onNextPage={pagination.handleNextPage}
+          loading={isLoading}
         />
 
         <SystemConfigFormDialog
@@ -42,20 +64,6 @@ export default function SystemConfigManagementPage() {
           initialData={form.editing || undefined}
           onSubmit={form.submit}
         />
-
-        <DeleteConfirmationDialog
-          open={form.deleteDialogOpen}
-          onOpenChange={form.setDeleteDialogOpen}
-          item={form.itemToDelete}
-          onConfirm={form.confirmDelete}
-          isDeleting={form.isDeleting}
-        />
-
-        {isLoading && (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            Đang tải dữ liệu...
-          </p>
-        )}
       </div>
     </PageShell>
   );

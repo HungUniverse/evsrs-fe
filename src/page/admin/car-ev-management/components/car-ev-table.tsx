@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import RowActions from "./row-actions";
 import type { CarEvStatus } from "@/@types/enum";
+import { formatDate } from "@/lib/utils/formatDate";
 
 interface CarEVTableProps {
   data: CarEV[];
@@ -30,69 +31,49 @@ const CarEVTable: React.FC<CarEVTableProps> = ({ data, onEdit, onDelete }) => {
   };
 
   return (
-    <div className="rounded-lg border bg-white shadow-sm">
+    <div className="rounded-lg border bg-white shadow-sm overflow-x-auto">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="w-[180px]">Hình ảnh</TableHead>
-            <TableHead>Biển số xe</TableHead>
-            <TableHead>Model</TableHead>
-            <TableHead>Trạm xe điện</TableHead>
-            <TableHead>Tình trạng pin (%)</TableHead>
-            <TableHead>Ngày tạo</TableHead>
-            <TableHead>Ngày cập nhật</TableHead>
-            <TableHead>Trạng thái</TableHead>
-            <TableHead className="w-[100px] text-right">Thao tác</TableHead>
+            <TableHead className="w-[180px] whitespace-nowrap text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Hình ảnh</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Biển số xe</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Model</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Trạm xe điện</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Tình trạng pin (%)</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày cập nhật</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Trạng thái</TableHead>
+            <TableHead className="w-[100px] text-right whitespace-nowrap text-[#065F46] sticky right-0 bg-[#D1FAE5] shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell>
+            <TableRow key={item.id} className="hover:bg-muted/50 transition-colors group">
+              <TableCell className="sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
                 {item.model?.image ? (
                   <img
                     src={item.model.image}
                     alt={item.model.modelName || "Model image"}
-                    className="w-40 h-48 object-cover rounded-lg"
+                    className="w-40 h-20 object-cover rounded-lg"
                   />
                 ) : (
-                  <div className="w-40 h-48 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-xs">
+                  <div className="w-40 h-20 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-xs">
                     Không có ảnh
                   </div>
                 )}
               </TableCell>
-              <TableCell className="font-medium">{item.licensePlate}</TableCell>
-              <TableCell>{item.model?.modelName || "N/A"}</TableCell>
-              <TableCell>{item.depot?.name || "N/A"}</TableCell>
-              <TableCell>{item.batteryHealthPercentage}%</TableCell>
-              <TableCell>
-                {item.createdAt
-                  ? new Date(item.createdAt).toLocaleString("vi-VN", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: false,
-                      timeZone: "Asia/Ho_Chi_Minh",
-                    })
-                  : ""}
+              <TableCell className="font-medium whitespace-nowrap">{item.licensePlate}</TableCell>
+              <TableCell className="whitespace-nowrap">{item.model?.modelName || "N/A"}</TableCell>
+              <TableCell className="whitespace-nowrap">{item.depot?.name || "N/A"}</TableCell>
+              <TableCell className="whitespace-nowrap">{item.batteryHealthPercentage}%</TableCell>
+              <TableCell className="whitespace-nowrap">
+                {item.createdAt ? formatDate(item.createdAt) : ""}
               </TableCell>
-              <TableCell>
-                {item.updatedAt
-                  ? new Date(item.updatedAt).toLocaleString("vi-VN", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: false,
-                      timeZone: "Asia/Ho_Chi_Minh",
-                    })
-                  : ""}
+              <TableCell className="whitespace-nowrap">
+                {item.updatedAt ? formatDate(item.updatedAt) : ""}
               </TableCell>
-              <TableCell>{getStatusBadge(item.status)}</TableCell>
-              <TableCell className="text-right">
+              <TableCell className="whitespace-nowrap">{getStatusBadge(item.status)}</TableCell>
+              <TableCell className="text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-muted/50 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
                 <RowActions item={item} onEdit={onEdit} onDelete={onDelete} />
               </TableCell>
             </TableRow>

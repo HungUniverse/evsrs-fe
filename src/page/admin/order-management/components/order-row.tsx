@@ -36,8 +36,8 @@ export function OrderTableRow({
   };
 
   return (
-    <TableRow className="hover:bg-muted/50 transition-colors">
-      <TableCell className="font-medium">
+    <TableRow className="hover:bg-muted/50 transition-colors group">
+      <TableCell className="font-medium whitespace-nowrap sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
         {order.code ? (
           <button
             type="button"
@@ -50,7 +50,7 @@ export function OrderTableRow({
           "N/A"
         )}
       </TableCell>
-      <TableCell>
+      <TableCell className="whitespace-nowrap">
         {order.carEvs?.model?.image ? (
           <img
             src={order.carEvs.model.image}
@@ -61,8 +61,8 @@ export function OrderTableRow({
           <span className="text-xs text-muted-foreground">N/A</span>
         )}
       </TableCell>
-      <TableCell className="font-medium">{order.carEvs?.model?.modelName || "N/A"}</TableCell>
-      <TableCell>
+      <TableCell className="font-medium whitespace-nowrap">{order.carEvs?.model?.modelName || "N/A"}</TableCell>
+      <TableCell className="whitespace-nowrap">
         <div>
           <button
             type="button"
@@ -76,11 +76,11 @@ export function OrderTableRow({
           <div className="text-sm text-muted-foreground">{order.user?.userEmail}</div>
         </div>
       </TableCell>
-      <TableCell>
+      <TableCell className="whitespace-nowrap">
         <div className="font-medium">{order.depot?.name || "N/A"}</div>
       </TableCell>
-      <TableCell className="font-semibold">{vnd(parseFloat(order.totalAmount))} VNĐ</TableCell>
-      <TableCell>
+      <TableCell className="font-semibold whitespace-nowrap">{vnd(parseFloat(order.totalAmount))} VNĐ</TableCell>
+      <TableCell className="whitespace-nowrap">
         <Badge
           variant={(getStatusVariant(order.status) as "default" | "secondary" | "destructive" | "outline" | "soft-yellow" | "soft-blue" | "soft-purple" | "soft-indigo" | "soft-green" | "soft-orange" | "soft-red" | "soft-gray") || "default"}
           className="whitespace-nowrap"
@@ -88,7 +88,7 @@ export function OrderTableRow({
           {getStatusLabel(order.status)}
         </Badge>
       </TableCell>
-      <TableCell>
+      <TableCell className="whitespace-nowrap">
         <Badge
           variant={(getPaymentStatusVariant(order.paymentStatus) as "default" | "secondary" | "destructive" | "outline" | "soft-yellow" | "soft-blue" | "soft-purple" | "soft-indigo" | "soft-green" | "soft-orange" | "soft-red" | "soft-gray") || "default"}
           className="whitespace-nowrap"
@@ -96,7 +96,7 @@ export function OrderTableRow({
           {getPaymentStatusLabel(order.paymentStatus)}
         </Badge>
       </TableCell>
-      <TableCell>
+      <TableCell className="whitespace-nowrap sticky right-0 bg-white group-hover:bg-muted/50 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

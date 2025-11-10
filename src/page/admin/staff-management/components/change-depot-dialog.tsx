@@ -69,7 +69,11 @@ export function ChangeDepotDialog({
           <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
             Hủy
           </Button>
-          <Button onClick={onConfirm} disabled={isSubmitting}>
+          <Button
+            onClick={onConfirm}
+            disabled={isSubmitting}
+            className="bg-emerald-200 text-emerald-900 hover:bg-emerald-300"
+          >
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

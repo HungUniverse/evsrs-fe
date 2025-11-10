@@ -1,4 +1,7 @@
+import { useState } from "react";
 import { useRenterTable } from "./hooks/use-renter-table";
+import { useTablePagination } from "@/hooks/use-table-pagination";
+import { TablePagination } from "@/components/ui/table-pagination";
 import { RenterTableToolbar } from "./components/toolbar";
 import { RenterTableContent } from "./components/table-content";
 import { RenterTableLoadingState } from "./components/loading-state";
@@ -8,6 +11,8 @@ import { StatusChangeDialog } from "./components/status-change-dialog";
 import { DeleteConfirmationDialog } from "./components/delete-confirmation-dialog";
 
 export default function RenterManagementPage() {
+  const [pageNumber, setPageNumber] = useState(1);
+  const pageSize = 10;
   const controller = useRenterTable();
 
   const {
@@ -47,6 +52,14 @@ export default function RenterManagementPage() {
     confirmDocumentVerification,
   } = controller;
 
+  const pagination = useTablePagination({
+    items: rows,
+    pageNumber,
+    pageSize,
+    setPageNumber,
+  });
+
+
   return (
     <div className="space-y-6 px-4 sm:px-6">
       <div>
@@ -60,18 +73,27 @@ export default function RenterManagementPage() {
         <div className="space-y-4">
           <RenterTableToolbar
             query={query}
-            onQueryChange={setQuery}
+            onQueryChange={(v) => {
+              setQuery(v);
+              setPageNumber(1);
+            }}
             sortState={sortState}
-            onSortChange={setSortState}
+            onSortChange={(v) => {
+              setSortState(v);
+              setPageNumber(1);
+            }}
             hasActiveFilters={hasActiveFilters}
-            onClearFilters={clearFilters}
+            onClearFilters={() => {
+              clearFilters();
+              setPageNumber(1);
+            }}
             selectedCount={selectedCount}
             isAnySelected={isAnySelected}
             onDeleteSelected={openDeleteDialog}
           />
 
           <RenterTableContent
-            rows={rows}
+            rows={pagination.paginatedData}
             selected={selected}
             onToggleSelect={toggleSelect}
             expandedRow={expandedRow}
@@ -86,6 +108,17 @@ export default function RenterManagementPage() {
             onVerification={handleDocumentVerification}
             onRequestDelete={openDeleteDialogForUser}
             onImageClick={setImageModal}
+          />
+
+          <TablePagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            startItem={pagination.startItem}
+            endItem={pagination.endItem}
+            totalItems={pagination.totalItems}
+            onPreviousPage={pagination.handlePreviousPage}
+            onNextPage={pagination.handleNextPage}
+            loading={loading}
           />
 
           <ImageModal

@@ -1,6 +1,8 @@
 import { useAmenitiesList } from "@/hooks/use-amenities";
 import { useAmenitiesTableState } from "@/hooks/use-amenities-table-state";
 import { useAmenityForm } from "@/hooks/use-amenity-form";
+import { useTablePagination } from "@/hooks/use-table-pagination";
+import { TablePagination } from "@/components/ui/table-pagination";
 import PageShell from "./components/page-shell";
 import FilterBar from "./components/filter-bar";
 import AmenityTable from "./components/amenity-table";
@@ -16,6 +18,12 @@ export default function AmenitiesManagementPage() {
     sort: tableState.sort,
   });
   const form = useAmenityForm();
+  const pagination = useTablePagination({
+    items: data?.items || [],
+    pageNumber: tableState.pageNumber,
+    pageSize: tableState.pageSize,
+    setPageNumber: tableState.setPageNumber,
+  });
 
   return (
     <PageShell
@@ -25,16 +33,30 @@ export default function AmenitiesManagementPage() {
       <div className="space-y-4">
         <FilterBar
           search={tableState.search}
-          onSearchChange={tableState.setSearch}
+          onSearchChange={(v) => {
+            tableState.setSearch(v);
+            tableState.setPageNumber(1);
+          }}
           sort={tableState.sort}
           onSortChange={tableState.setSort}
           onAddClick={form.startCreate}
         />
 
         <AmenityTable
-          data={data?.items || []}
+          data={pagination.paginatedData}
           onEdit={form.startEdit}
           onDelete={form.startDelete}
+        />
+
+        <TablePagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          startItem={pagination.startItem}
+          endItem={pagination.endItem}
+          totalItems={pagination.totalItems}
+          onPreviousPage={pagination.handlePreviousPage}
+          onNextPage={pagination.handleNextPage}
+          loading={isLoading}
         />
 
         <AmenityFormDialog
@@ -51,10 +73,6 @@ export default function AmenitiesManagementPage() {
           onConfirm={form.confirmDelete}
           isDeleting={form.isDeleting}
         />
-
-        {isLoading ? (
-          <p className="text-sm text-muted-foreground">Đang tải dữ liệu...</p>
-        ) : null}
       </div>
     </PageShell>
   );

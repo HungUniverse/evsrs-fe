@@ -1,4 +1,4 @@
-import { Search, RotateCcw, Calendar, Filter } from "lucide-react";
+import { Search, RotateCcw, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import type { UserFull } from "@/@types/auth.type";
 import type { Depot } from "@/@types/car/depot";
+import type { Model } from "@/@types/car/model";
 import { STATUS_OPTIONS, PAYMENT_STATUS_OPTIONS } from "../utils/utils";
 
 interface OrderTableToolbarProps {
@@ -18,6 +19,8 @@ interface OrderTableToolbarProps {
   onSelectedUserIdChange: (value: string) => void;
   selectedDepotId: string;
   onSelectedDepotIdChange: (value: string) => void;
+  selectedModelId: string;
+  onSelectedModelIdChange: (value: string) => void;
   statusFilter: string;
   onStatusFilterChange: (value: string) => void;
   paymentStatusFilter: string;
@@ -29,6 +32,7 @@ interface OrderTableToolbarProps {
   onClearFilters: () => void;
   users: UserFull[];
   depots: Depot[];
+  models: Model[];
 }
 
 export function OrderTableToolbar({
@@ -41,6 +45,8 @@ export function OrderTableToolbar({
   onSelectedUserIdChange,
   selectedDepotId,
   onSelectedDepotIdChange,
+  selectedModelId,
+  onSelectedModelIdChange,
   statusFilter,
   onStatusFilterChange,
   paymentStatusFilter,
@@ -52,6 +58,7 @@ export function OrderTableToolbar({
   onClearFilters,
   users,
   depots,
+  models,
 }: OrderTableToolbarProps) {
   return (
     <Card className="shadow-sm border bg-muted/30 rounded-lg">
@@ -116,6 +123,23 @@ export function OrderTableToolbar({
             </Select>
           </div>
 
+          {/* Model Filter */}
+          <div className="flex-1 min-w-[140px] max-w-[180px]">
+            <Select value={selectedModelId || "all"} onValueChange={(value) => onSelectedModelIdChange(value === "all" ? "" : value)}>
+              <SelectTrigger className="h-9 bg-background text-sm">
+                <SelectValue placeholder="Tất cả model" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả model</SelectItem>
+                {models.map((model) => (
+                  <SelectItem key={model.id} value={model.id}>
+                    {model.modelName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Status Filter */}
           <div className="flex-1 min-w-[140px] max-w-[180px]">
             <Select value={statusFilter} onValueChange={onStatusFilterChange}>
@@ -152,28 +176,22 @@ export function OrderTableToolbar({
 
           {/* Start Date Picker */}
           <div className="flex-1 min-w-[130px] max-w-[160px]">
-            <div className="relative">
-              <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-              <Input
-                type="date"
-                value={startDateFilter}
-                onChange={(e) => onStartDateFilterChange(e.target.value)}
-                className="pl-8 h-9 bg-background text-sm"
-              />
-            </div>
+            <Input
+              type="date"
+              value={startDateFilter}
+              onChange={(e) => onStartDateFilterChange(e.target.value)}
+              className="h-9 bg-background text-sm"
+            />
           </div>
 
           {/* End Date Picker */}
           <div className="flex-1 min-w-[130px] max-w-[160px]">
-            <div className="relative">
-              <Calendar className="absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-              <Input
-                type="date"
-                value={endDateFilter}
-                onChange={(e) => onEndDateFilterChange(e.target.value)}
-                className="pr-8 h-9 bg-background text-sm"
-              />
-            </div>
+            <Input
+              type="date"
+              value={endDateFilter}
+              onChange={(e) => onEndDateFilterChange(e.target.value)}
+              className="h-9 bg-background text-sm"
+            />
           </div>
 
           {/* Page Size Select - Compact */}

@@ -163,6 +163,7 @@ const CarEVFormDialog: React.FC<CarEVFormDialogProps> = ({
                 placeholder="Nhập tình trạng pin (0-100)"
                 value={batteryHealthPercentage}
                 onChange={(e) => setBatteryHealthPercentage(e.target.value)}
+                onKeyDown={(e) => ['e', 'E'].includes(e.key) && e.preventDefault()}
                 required
               />
             </div>
@@ -190,7 +191,11 @@ const CarEVFormDialog: React.FC<CarEVFormDialogProps> = ({
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
               Hủy
             </Button>
-            <Button type="submit" disabled={submitting}>
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="bg-emerald-200 text-emerald-900 hover:bg-emerald-300"
+            >
               {isEditMode ? "Cập nhật" : "Thêm mới"}
             </Button>
           </DialogFooter>
