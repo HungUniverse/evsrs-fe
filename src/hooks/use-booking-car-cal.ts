@@ -144,7 +144,8 @@ export function useBookingCalc(
   pricePerDay: number,
   start: string,
   end: string,
-  discount?: number
+  discount?: number,
+  membershipDiscount?: number
 ) {
   // Calculate hours between start and end (for display purposes)
   const hours = useMemo(() => {
@@ -169,11 +170,16 @@ export function useBookingCalc(
     return shiftMultiplier;
   }, [shiftMultiplier]);
 
-  // Apply discount to pricePerDay
-  const salePrice =
-    discount && discount > 0
-      ? Math.round(pricePerDay * (1 - discount / 100))
-      : pricePerDay;
+  // Apply car discount to pricePerDay first
+  let salePrice = pricePerDay;
+  if (discount && discount > 0) {
+    salePrice = Math.round(salePrice * (1 - discount / 100));
+  }
+
+  // Then apply membership discount
+  if (membershipDiscount && membershipDiscount > 0) {
+    salePrice = Math.round(salePrice * (1 - membershipDiscount / 100));
+  }
 
   // Calculate total based on shift multiplier
   const baseTotal = Math.round(salePrice * shiftMultiplier);
@@ -188,6 +194,8 @@ export function useBookingCalc(
     shiftMultiplier,
     shiftLabel,
     pricePerHour: salePrice / 24, // Keep for backward compatibility
+    membershipDiscount: membershipDiscount || 0,
+    totalDiscount: (discount || 0) + (membershipDiscount || 0),
   };
 }
 export function toNum(v: string | number | null | undefined) {

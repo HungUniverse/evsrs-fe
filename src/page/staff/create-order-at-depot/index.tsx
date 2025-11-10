@@ -15,6 +15,26 @@ import { CarSelection } from "./components/CarSelection";
 import { DateRangeSelection } from "./components/DateRangeSelection";
 import { PaymentMethodSelection } from "./components/PaymentMethodSelection";
 import { OrderNote } from "./components/OrderNote";
+import { PricingSummary } from "./components/PricingSummary";
+
+// Convert datetime-local format to ISO with timezone
+function toISO(d: string) {
+  try {
+    // D phải là dạng "YYYY-MM-DDTHH:mm"
+    const [datePart, timePart] = d.split("T");
+    if (!datePart || !timePart) return d;
+
+    const now = new Date();
+    const offset = -now.getTimezoneOffset(); // phút
+    const sign = offset >= 0 ? "+" : "-";
+    const hours = String(Math.floor(Math.abs(offset) / 60)).padStart(2, "0");
+    const minutes = String(Math.abs(offset) % 60).padStart(2, "0");
+
+    return `${datePart}T${timePart}:00${sign}${hours}:${minutes}`;
+  } catch {
+    return d;
+  }
+}
 
 function CreateOrderAtDepot() {
   const location = useLocation();
@@ -122,7 +142,14 @@ function CreateOrderAtDepot() {
 
     setLoading(true);
     try {
-      const response = await orderBookingAPI.orderOffline(formData);
+      // Convert datetime-local format to ISO with timezone
+      const requestData = {
+        ...formData,
+        startAt: toISO(formData.startAt),
+        endAt: toISO(formData.endAt),
+      };
+
+      const response = await orderBookingAPI.orderOffline(requestData);
       const orderId = response.data.data.orderBooking.id;
 
       toast.success("Tạo đơn hàng thành công!");
@@ -206,6 +233,18 @@ function CreateOrderAtDepot() {
             }
           />
         </Card>
+
+        {/* Pricing Summary */}
+        {formData.carEVDetailID && formData.startAt && formData.endAt && (
+          <Card className="p-6">
+            <PricingSummary
+              car={cars.find((c) => c.id === formData.carEVDetailID) || null}
+              startAt={formData.startAt}
+              endAt={formData.endAt}
+              userId={formData.userId}
+            />
+          </Card>
+        )}
 
         {/* Order Note */}
         <Card className="p-6">

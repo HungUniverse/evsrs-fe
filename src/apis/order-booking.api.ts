@@ -61,12 +61,15 @@ export const orderBookingAPI = {
       `/api/OrderBooking/depot/${id}`
     ),
   getRefundPending: (query: OrderBookingQuery = {}) =>
-    api.get<ListBaseResponse<OrderBookingDetail>>("/api/OrderBooking/admin/refunds", {
-      params: {
-        pageNumber: query.pageNumber ?? 1,
-        pageSize: query.pageSize ?? 10,
-      },
-    }),
+    api.get<ListBaseResponse<OrderBookingDetail>>(
+      "/api/OrderBooking/admin/refunds",
+      {
+        params: {
+          pageNumber: query.pageNumber ?? 1,
+          pageSize: query.pageSize ?? 10,
+        },
+      }
+    ),
   checkout: async (id: ID): Promise<OrderBookingDetail> => {
     const res = await api.post<ItemBaseResponse<OrderBookingDetail>>(
       `/api/OrderBooking/${id}/checkout`,
@@ -133,5 +136,15 @@ export const orderBookingAPI = {
       "/api/OrderBooking/offline",
       body
     );
+  },
+  patchStatus: async (
+    id: ID,
+    status: OrderBookingStatus
+  ): Promise<OrderBookingDetail> => {
+    const res = await api.patch<ItemBaseResponse<OrderBookingDetail>>(
+      `/api/OrderBooking/${id}/status`,
+      { status }
+    );
+    return res.data.data;
   },
 };
