@@ -60,35 +60,36 @@ export default function ContractCosts({ orderId }: { orderId: string }) {
   }
 
   return (
-    <section className=" text-lg p-5 md:p-6">
-      <h3 className="text-xl font-bold text-gray-800 mb-4">
-        2. Chi phí thanh toán
-      </h3>
-
-      <div className="space-y-2 text-md  text-slate-700">
-        <div className="flex justify-left gap-2">
-          <span className="font-medium">Xe: </span>
-          <span className="">{carName}</span>
-        </div>
-        <div className="flex justify-left gap-2">
-          <span className="font-medium">Biển số: </span>
-          <span className="">{order?.carEvs?.licensePlate}</span>
-        </div>
-        <div className="flex justify-left gap-2">
-          <span className="font-medium">Thời hạn: </span>
-          <span className="">{timeRange}</span>
-        </div>
-        <div className="flex justify-left gap-2">
-          <span className="font-medium">Tổng tiền: </span>
-          <span className=" ">{subTotal.toLocaleString("vi-VN")}đ</span>
-        </div>
-        <div className="flex justify-left gap-2">
-          <span className="font-medium">Đã cọc: </span>
-          <span className="">{deposit.toLocaleString("vi-VN")}đ</span>
-        </div>
-        <div className="flex justify-left gap-5">
-          <span className="font-medium">Còn lại: </span>
-          <span>{remaining.toLocaleString("vi-VN")}đ</span>
+    <section className=" text-lg p-3 md:p-1">
+      <div className="space-y-2 text-md ml-4  text-slate-700">
+        <h3 className="text-xl font-bold text-gray-800 mb-2">
+          2. Chi phí thanh toán
+        </h3>
+        <div className="space-y-1 pl-4">
+          <div className="flex justify-left gap-2">
+            <span className="font-medium">Xe: </span>
+            <span className="">{carName}</span>
+          </div>
+          <div className="flex justify-left gap-2">
+            <span className="font-medium">Biển số: </span>
+            <span className="">{order?.carEvs?.licensePlate}</span>
+          </div>
+          <div className="flex justify-left gap-2">
+            <span className="font-medium">Thời hạn: </span>
+            <span className="">{timeRange}</span>
+          </div>
+          <div className="flex justify-left gap-2">
+            <span className="font-medium">Tổng tiền: </span>
+            <span className=" ">{subTotal.toLocaleString("vi-VN")}đ</span>
+          </div>
+          <div className="flex justify-left gap-2">
+            <span className="font-medium">Đã cọc: </span>
+            <span className="">{deposit.toLocaleString("vi-VN")}đ</span>
+          </div>
+          <div className="flex justify-left gap-5">
+            <span className="font-medium">Còn lại: </span>
+            <span>{remaining.toLocaleString("vi-VN")}đ</span>
+          </div>
         </div>
 
         {/* Phần dịch vụ/bảo hiểm & one-way giữ nguyên text như file bạn đang dùng */}
