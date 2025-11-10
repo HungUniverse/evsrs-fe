@@ -6,6 +6,9 @@ import type { PaginationResponse } from "@/@types/common/pagination";
 export type CarEVListParams = {
   pageNumber?: number;
   pageSize?: number;
+  status?: string;
+  depotId?: string;
+  modelId?: string;
 };
 
 export const carEVAPI = {
