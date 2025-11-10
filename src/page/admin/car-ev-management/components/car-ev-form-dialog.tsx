@@ -163,6 +163,7 @@ const CarEVFormDialog: React.FC<CarEVFormDialogProps> = ({
                 placeholder="Nhập tình trạng pin (0-100)"
                 value={batteryHealthPercentage}
                 onChange={(e) => setBatteryHealthPercentage(e.target.value)}
+                onKeyDown={(e) => ['e', 'E'].includes(e.key) && e.preventDefault()}
                 required
               />
             </div>

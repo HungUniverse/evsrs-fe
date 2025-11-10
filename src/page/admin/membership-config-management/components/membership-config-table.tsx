@@ -7,75 +7,26 @@ import RowActions from "./row-actions";
 import { Award } from "lucide-react";
 import { vnd } from "@/lib/utils/currency";
 import { formatDate } from "@/lib/utils/formatDate";
+import { getLevelBadgeProps, getLevelDisplayName } from "../utils/level";
 
 interface MembershipConfigTableProps {
   data: MembershipLevel[];
   onEdit: (item: MembershipLevel) => void;
 }
 
-// Translate level to Vietnamese
-const translateLevel = (level: string): string => {
-  const normalized = level.toUpperCase();
-  switch (normalized) {
-    case "BRONZE":
-      return "Đồng";
-    case "SILVER":
-      return "Bạc";
-    case "GOLD":
-      return "Vàng";
-    case "NONE":
-      return "Không có";
-    default:
-      return level;
-  }
-};
-
-const getLevelBadgeProps = (level: string) => {
-  const normalized = level.toUpperCase();
-
-  switch (normalized) {
-    case "BRONZE":
-      return {
-        variant: "outline" as const,
-        className: "border-none bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 text-white shadow-sm",
-      };
-    case "SILVER":
-      return {
-        variant: "outline" as const,
-        className: "border-none bg-gradient-to-r from-slate-400 via-gray-500 to-slate-600 text-white shadow-sm",
-      };
-    case "GOLD":
-      return {
-        variant: "outline" as const,
-        className: "border-none bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 text-white shadow-sm",
-      };
-    case "NONE":
-      return {
-        variant: "outline" as const,
-        className: "border-dashed border-muted-foreground/40 text-muted-foreground bg-muted",
-      };
-    default:
-      return {
-        variant: "outline" as const,
-        className:
-          "border-none bg-gradient-to-r from-primary/80 via-primary to-primary/90 text-primary-foreground shadow-sm",
-      };
-  }
-};
-
 const MembershipConfigTable: React.FC<MembershipConfigTableProps> = ({ data, onEdit }) => {
   return (
-    <div className="rounded-lg border bg-white shadow-sm">
+    <div className="rounded-lg border bg-white shadow-sm overflow-x-auto">
       <Table>
         <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="whitespace-nowrap text-[#065F46]">Hạng</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Hạng</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Tên hạng</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Mức giảm giá</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Số tiền yêu cầu</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ngày cập nhật</TableHead>
-            <TableHead className="text-right whitespace-nowrap text-[#065F46]">Thao tác</TableHead>
+            <TableHead className="text-right whitespace-nowrap text-[#065F46] sticky right-0 bg-[#D1FAE5] shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -83,14 +34,14 @@ const MembershipConfigTable: React.FC<MembershipConfigTableProps> = ({ data, onE
             const badgeProps = getLevelBadgeProps(item.level);
 
             return (
-              <TableRow key={item.id}>
-                <TableCell className="font-medium whitespace-nowrap">
+              <TableRow key={item.id} className="hover:bg-muted/50 transition-colors group">
+                <TableCell className="font-medium whitespace-nowrap sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
                   <Badge variant={badgeProps.variant} className={cn("whitespace-nowrap capitalize", badgeProps.className)}>
                     <Award className="h-3 w-3 mr-1" />
-                    {translateLevel(item.level)}
+                  {getLevelDisplayName(item.level)}
                   </Badge>
                 </TableCell>
-                <TableCell className="whitespace-nowrap">{item.levelName || translateLevel(item.level)}</TableCell>
+              <TableCell className="whitespace-nowrap">{item.levelName || getLevelDisplayName(item.level)}</TableCell>
                 <TableCell className="whitespace-nowrap">
                   <span className="font-semibold text-green-600">{item.discountPercent}%</span>
                 </TableCell>
@@ -103,7 +54,7 @@ const MembershipConfigTable: React.FC<MembershipConfigTableProps> = ({ data, onE
                 <TableCell className="whitespace-nowrap">
                   {item.updatedAt ? formatDate(item.updatedAt) : ""}
                 </TableCell>
-                <TableCell className="text-right whitespace-nowrap">
+                <TableCell className="text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-muted/50 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
                   <RowActions item={item} onEdit={onEdit} />
                 </TableCell>
               </TableRow>

@@ -20,11 +20,11 @@ export function OrderTable({
   onViewUser,
 }: OrderTableProps) {
   return (
-    <div className="rounded-lg border bg-white shadow-sm">
+    <div className="rounded-lg border bg-white shadow-sm overflow-x-auto">
       <Table>
         <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="whitespace-nowrap text-[#065F46]">Mã đơn</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Mã đơn</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ảnh xe</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Model</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Người thuê</TableHead>
@@ -32,7 +32,7 @@ export function OrderTable({
             <TableHead className="whitespace-nowrap text-[#065F46]">Tổng tiền</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Trạng thái</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Tình trạng thanh toán</TableHead>
-            <TableHead className="whitespace-nowrap text-[#065F46]">Thao tác</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46] sticky right-0 bg-[#D1FAE5] shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

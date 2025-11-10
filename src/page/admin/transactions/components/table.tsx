@@ -26,11 +26,11 @@ export function TransactionTable({
   ordersMap,
 }: TransactionTableProps) {
   return (
-    <div className="rounded-lg border bg-white shadow-sm">
+    <div className="rounded-lg border bg-white shadow-sm overflow-x-auto">
       <Table>
         <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="whitespace-nowrap text-[#065F46]">Mã giao dịch</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Mã giao dịch</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ngày giao dịch</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Người dùng</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Mã đơn hàng</TableHead>

@@ -211,6 +211,7 @@ const DepotFormDialog: React.FC<DepotFormDialogProps> = ({
                   placeholder="Nhập vĩ độ"
                   value={lattitude}
                   onChange={(e) => setLattitude(e.target.value)}
+                  onKeyDown={(e) => ['e', 'E'].includes(e.key) && e.preventDefault()}
                   required
                 />
               </div>
@@ -225,6 +226,7 @@ const DepotFormDialog: React.FC<DepotFormDialogProps> = ({
                   placeholder="Nhập kinh độ"
                   value={longitude}
                   onChange={(e) => setLongitude(e.target.value)}
+                  onKeyDown={(e) => ['e', 'E'].includes(e.key) && e.preventDefault()}
                   required
                 />
               </div>

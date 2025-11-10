@@ -51,7 +51,7 @@ export function RenterTableRow({
     <React.Fragment>
       <TableRow
         data-state={isSelected ? "selected" : undefined}
-        className="cursor-pointer hover:bg-muted/50 transition-colors"
+        className="cursor-pointer hover:bg-muted/50 transition-colors group"
         onClick={onToggleExpand}
       >
         <TableCell className="w-[40px]">
@@ -62,7 +62,7 @@ export function RenterTableRow({
             onClick={(event) => event.stopPropagation()}
           />
         </TableCell>
-        <TableCell className="whitespace-nowrap">
+        <TableCell className="sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
           <div className="flex items-center gap-3">
             <img
               src={
@@ -83,16 +83,16 @@ export function RenterTableRow({
             </div>
           </div>
         </TableCell>
-        <TableCell className="whitespace-nowrap">
+        <TableCell>
           <div className="flex flex-col">
             <span>{user.phoneNumber || "Chưa có số điện thoại"}</span>
             <span className="text-xs text-muted-foreground">{user.userEmail || "Chưa có email"}</span>
           </div>
         </TableCell>
-        <TableCell className="whitespace-nowrap">
+        <TableCell>
           <DocumentStatusCell frontDoc={frontDoc} backDoc={backDoc} />
         </TableCell>
-        <TableCell className="whitespace-nowrap">
+        <TableCell>
           <VerificationStatusCell
             hasDocumentLoaded={hasDocumentLoaded}
             document={document}
@@ -101,9 +101,9 @@ export function RenterTableRow({
             onVerification={onVerification}
           />
         </TableCell>
-        <TableCell className="whitespace-nowrap">{user.createdAt ? formatDate(user.createdAt) : "Chưa xác định"}</TableCell>
-        <TableCell className="whitespace-nowrap">{user.updatedAt ? formatDate(user.updatedAt) : "Chưa xác định"}</TableCell>
-        <TableCell className="text-right whitespace-nowrap">
+        <TableCell>{user.createdAt ? formatDate(user.createdAt) : "Chưa xác định"}</TableCell>
+        <TableCell>{user.updatedAt ? formatDate(user.updatedAt) : "Chưa xác định"}</TableCell>
+        <TableCell className="text-right sticky right-0 bg-white group-hover:bg-muted/50 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">

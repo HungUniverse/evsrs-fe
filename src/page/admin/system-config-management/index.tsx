@@ -7,7 +7,6 @@ import PageShell from "./components/page-shell";
 import FilterBar from "./components/filter-bar";
 import SystemConfigTable from "./components/system-config-table";
 import SystemConfigFormDialog from "./components/system-config-form-dialog";
-import DeleteConfirmationDialog from "./components/delete-confirmation-dialog";
 
 export default function SystemConfigManagementPage() {
   const tableState = useSystemConfigTableState();
@@ -41,13 +40,11 @@ export default function SystemConfigManagementPage() {
             tableState.setPageNumber(1);
           }}
           onClearFilters={tableState.clearFilters}
-          onAdd={form.startCreate}
         />
 
         <SystemConfigTable
           data={pagination.paginatedData}
           onEdit={form.startEdit}
-          onDelete={form.startDelete}
         />
 
         <TablePagination
@@ -66,14 +63,6 @@ export default function SystemConfigManagementPage() {
           onOpenChange={form.setOpen}
           initialData={form.editing || undefined}
           onSubmit={form.submit}
-        />
-
-        <DeleteConfirmationDialog
-          open={form.deleteDialogOpen}
-          onOpenChange={form.setDeleteDialogOpen}
-          item={form.itemToDelete}
-          onConfirm={form.confirmDelete}
-          isDeleting={form.isDeleting}
         />
       </div>
     </PageShell>

@@ -16,9 +16,11 @@ import {
   Shield,
   Settings,
   CreditCard,
+  Award,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
+import * as React from "react";
 
 interface NavigationItem {
   name: string;
@@ -87,6 +89,19 @@ const navigationItems: NavigationItem[] = [
     name: "Cấu hình hạng thành viên",
     href: "/admin/membership-config-management",
     icon: Shield,
+    hasSubmenu: true,
+    submenu: [
+      {
+        name: "Danh sách thành viên",
+        href: "/admin/membership-config-management/users",
+        icon: Users,
+      },
+      {
+        name: "Quản lý hạng thành viên",
+        href: "/admin/membership-config-management/configs",
+        icon: Award,
+      },
+    ],
   },
   {
     name: "Cấu hình hệ thống",
@@ -111,6 +126,25 @@ export default function AdminSidebar({
 }: AdminSidebarProps) {
   const location = useLocation();
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
+
+  // Auto-expand submenu if current path matches any submenu item
+  React.useEffect(() => {
+    const menusToExpand: string[] = [];
+    navigationItems.forEach((item) => {
+      if (item.hasSubmenu && item.submenu) {
+        const isActive = item.submenu.some((subItem) => location.pathname === subItem.href);
+        if (isActive) {
+          menusToExpand.push(item.name);
+        }
+      }
+    });
+    if (menusToExpand.length > 0) {
+      setExpandedMenus((prev) => {
+        const newMenus = [...new Set([...prev, ...menusToExpand])];
+        return newMenus;
+      });
+    }
+  }, [location.pathname]);
 
   const toggleSubmenu = (menuName: string) => {
     setExpandedMenus(prev => 

@@ -45,11 +45,11 @@ const DepotTable: React.FC<DepotTableProps> = ({ data, onEdit, onDelete }) => {
   };
 
   return (
-    <div className="rounded-lg border bg-white shadow-sm">
+    <div className="rounded-lg border bg-white shadow-sm overflow-x-auto">
       <Table>
         <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="whitespace-nowrap text-[#065F46]">Tên trạm</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Tên trạm</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Tỉnh/Thành phố</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Quận/Huyện</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Phường/Xã</TableHead>
@@ -58,13 +58,13 @@ const DepotTable: React.FC<DepotTableProps> = ({ data, onEdit, onDelete }) => {
             <TableHead className="whitespace-nowrap text-[#065F46]">Giờ đóng cửa</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Trạng thái</TableHead>
-            <TableHead className="text-right whitespace-nowrap text-[#065F46]">Thao tác</TableHead>
+            <TableHead className="text-right whitespace-nowrap text-[#065F46] sticky right-0 bg-[#D1FAE5] shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell className="font-medium whitespace-nowrap">{item.name}</TableCell>
+            <TableRow key={item.id} className="hover:bg-muted/50 transition-colors group">
+              <TableCell className="font-medium whitespace-nowrap sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">{item.name}</TableCell>
               <TableCell className="whitespace-nowrap">{item.province}</TableCell>
               <TableCell className="whitespace-nowrap">{item.district}</TableCell>
               <TableCell className="whitespace-nowrap">{item.ward}</TableCell>
@@ -79,7 +79,7 @@ const DepotTable: React.FC<DepotTableProps> = ({ data, onEdit, onDelete }) => {
                   {!item.isDeleted ? "Hoạt động" : "Đã xóa"}
                 </Badge>
               </TableCell>
-              <TableCell className="text-right whitespace-nowrap">
+              <TableCell className="text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-muted/50 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
                 <RowActions item={item} onEdit={onEdit} onDelete={onDelete} />
               </TableCell>
             </TableRow>

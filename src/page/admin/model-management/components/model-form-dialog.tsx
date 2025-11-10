@@ -147,8 +147,12 @@ const ModelFormDialog: React.FC<ModelFormDialogProps> = ({
               </Label>
               <Input
                 id="batteryCapacityKwh"
+                type="number"
+                min="0"
+                step="0.1"
                 value={batteryCapacityKwh}
                 onChange={(e) => setBatteryCapacityKwh(e.target.value)}
+                onKeyDown={(e) => ['e', 'E'].includes(e.key) && e.preventDefault()}
                 placeholder="Nhập dung lượng pin"
                 required
               />
@@ -159,8 +163,12 @@ const ModelFormDialog: React.FC<ModelFormDialogProps> = ({
               </Label>
               <Input
                 id="rangeKm"
+                type="number"
+                min="0"
+                step="1"
                 value={rangeKm}
                 onChange={(e) => setRangeKm(e.target.value)}
+                onKeyDown={(e) => ['e', 'E'].includes(e.key) && e.preventDefault()}
                 placeholder="Nhập tầm hoạt động"
                 required
               />
@@ -171,8 +179,12 @@ const ModelFormDialog: React.FC<ModelFormDialogProps> = ({
               </Label>
               <Input
                 id="limiteDailyKm"
+                type="number"
+                min="0"
+                step="1"
                 value={limiteDailyKm}
                 onChange={(e) => setLimiteDailyKm(e.target.value)}
+                onKeyDown={(e) => ['e', 'E'].includes(e.key) && e.preventDefault()}
                 placeholder="Nhập giới hạn km/ngày"
                 required
               />
@@ -186,8 +198,12 @@ const ModelFormDialog: React.FC<ModelFormDialogProps> = ({
               </Label>
               <Input
                 id="seats"
+                type="number"
+                min="1"
+                step="1"
                 value={seats}
                 onChange={(e) => setSeats(e.target.value)}
+                onKeyDown={(e) => ['e', 'E'].includes(e.key) && e.preventDefault()}
                 placeholder="Nhập số ghế"
                 required
               />
@@ -201,6 +217,7 @@ const ModelFormDialog: React.FC<ModelFormDialogProps> = ({
                 type="number"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
+                onKeyDown={(e) => ['e', 'E'].includes(e.key) && e.preventDefault()}
                 placeholder="Nhập giá thuê"
                 required
               />
@@ -215,6 +232,7 @@ const ModelFormDialog: React.FC<ModelFormDialogProps> = ({
                 type="number"
                 value={sale}
                 onChange={(e) => setSale(e.target.value)}
+                onKeyDown={(e) => ['e', 'E'].includes(e.key) && e.preventDefault()}
                 placeholder="Nhập phần trăm giảm giá"
               />
             </div>
@@ -227,6 +245,7 @@ const ModelFormDialog: React.FC<ModelFormDialogProps> = ({
                 type="number"
                 value={electricityFee}
                 onChange={(e) => setElectricityFee(e.target.value)}
+                onKeyDown={(e) => ['e', 'E'].includes(e.key) && e.preventDefault()}
                 placeholder="Nhập phí điện"
                 required
               />
@@ -240,6 +259,7 @@ const ModelFormDialog: React.FC<ModelFormDialogProps> = ({
                 type="number"
                 value={overageFee}
                 onChange={(e) => setOverageFee(e.target.value)}
+                onKeyDown={(e) => ['e', 'E'].includes(e.key) && e.preventDefault()}
                 placeholder="Nhập phí vượt km"
                 required
               />

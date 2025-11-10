@@ -167,6 +167,15 @@ export function CreateStaffDialog({
               input={
                 <Input
                   placeholder="Nhập số điện thoại"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  onInput={(e) => {
+                    const target = e.currentTarget;
+                    const digitsOnly = target.value.replace(/\D/g, "");
+                    if (digitsOnly !== target.value) {
+                      target.value = digitsOnly;
+                    }
+                  }}
                   {...register("phoneNumber", {
                     required: "Số điện thoại là bắt buộc",
                     pattern: {
@@ -216,15 +225,7 @@ export function CreateStaffDialog({
             />
 
             <div className="space-y-2">
-              <Label>
-                Ảnh đại diện
-                {isUploading && (
-                  <span className="ml-2 text-xs text-muted-foreground">
-                    <Loader2 className="inline h-3 w-3 animate-spin mr-1" />
-                    Đang upload...
-                  </span>
-                )}
-              </Label>
+              <Label>Ảnh đại diện</Label>
               <div className="space-y-3">
                 {(previewUrl || profilePictureUrl) && (
                   <div className="relative inline-block">

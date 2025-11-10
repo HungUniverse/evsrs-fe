@@ -4,46 +4,36 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import RowActions from "./row-actions";
 import { formatDate } from "@/lib/utils/formatDate";
+import { getConfigTypeBadgeVariant } from "../utils/config-type";
 
 interface SystemConfigTableProps {
   data: SystemConfigTypeResponse[];
   onEdit: (item: SystemConfigTypeResponse) => void;
-  onDelete: (item: SystemConfigTypeResponse) => void;
 }
 
-const SystemConfigTable: React.FC<SystemConfigTableProps> = ({ data, onEdit, onDelete }) => {
-  const getConfigTypeBadgeVariant = (type: string) => {
-    switch (type) {
-      case "General":
-        return "default";
-      case "PaymentGateway":
-        return "secondary";
-      case "Notification":
-        return "outline";
-      case "Security":
-        return "destructive";
-      default:
-        return "default";
-    }
-  };
+const SystemConfigTable: React.FC<SystemConfigTableProps> = ({ data, onEdit }) => {
 
   return (
-    <div className="rounded-lg border bg-white shadow-sm">
+    <div className="rounded-lg border bg-white shadow-sm overflow-x-auto">
       <Table>
         <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="w-[20%] whitespace-nowrap text-[#065F46]">Key</TableHead>
+            <TableHead className="w-[20%] whitespace-nowrap text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Key</TableHead>
             <TableHead className="w-[30%] whitespace-nowrap text-[#065F46]">Value</TableHead>
             <TableHead className="w-[15%] whitespace-nowrap text-[#065F46]">Loại</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Cập nhật</TableHead>
-            <TableHead className="text-right whitespace-nowrap text-[#065F46]">Thao tác</TableHead>
+            <TableHead className="text-right whitespace-nowrap text-[#065F46] sticky right-0 bg-[#D1FAE5] shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell className="font-medium whitespace-nowrap">{item.key}</TableCell>
+            <TableRow key={item.id} className="hover:bg-muted/50 transition-colors group">
+              <TableCell className="font-medium whitespace-nowrap sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
+                <code className="px-2 py-1 bg-slate-100 text-slate-800 rounded font-mono text-sm border border-slate-200">
+                  {item.key}
+                </code>
+              </TableCell>
               <TableCell className="max-w-md truncate whitespace-nowrap" title={item.value}>
                 {item.value}
               </TableCell>
@@ -58,8 +48,8 @@ const SystemConfigTable: React.FC<SystemConfigTableProps> = ({ data, onEdit, onD
               <TableCell className="whitespace-nowrap">
                 {item.updatedAt ? formatDate(item.updatedAt) : "-"}
               </TableCell>
-              <TableCell className="text-right whitespace-nowrap">
-                <RowActions item={item} onEdit={onEdit} onDelete={onDelete} />
+              <TableCell className="text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-muted/50 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
+                <RowActions item={item} onEdit={onEdit} />
               </TableCell>
             </TableRow>
           ))}

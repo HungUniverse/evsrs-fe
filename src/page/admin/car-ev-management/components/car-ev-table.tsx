@@ -31,11 +31,11 @@ const CarEVTable: React.FC<CarEVTableProps> = ({ data, onEdit, onDelete }) => {
   };
 
   return (
-    <div className="rounded-lg border bg-white shadow-sm">
+    <div className="rounded-lg border bg-white shadow-sm overflow-x-auto">
       <Table>
         <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="w-[180px] whitespace-nowrap text-[#065F46]">Hình ảnh</TableHead>
+            <TableHead className="w-[180px] whitespace-nowrap text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Hình ảnh</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Biển số xe</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Model</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Trạm xe điện</TableHead>
@@ -43,13 +43,13 @@ const CarEVTable: React.FC<CarEVTableProps> = ({ data, onEdit, onDelete }) => {
             <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ngày cập nhật</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Trạng thái</TableHead>
-            <TableHead className="w-[100px] text-right whitespace-nowrap text-[#065F46]">Thao tác</TableHead>
+            <TableHead className="w-[100px] text-right whitespace-nowrap text-[#065F46] sticky right-0 bg-[#D1FAE5] shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell>
+            <TableRow key={item.id} className="hover:bg-muted/50 transition-colors group">
+              <TableCell className="sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
                 {item.model?.image ? (
                   <img
                     src={item.model.image}
@@ -73,7 +73,7 @@ const CarEVTable: React.FC<CarEVTableProps> = ({ data, onEdit, onDelete }) => {
                 {item.updatedAt ? formatDate(item.updatedAt) : ""}
               </TableCell>
               <TableCell className="whitespace-nowrap">{getStatusBadge(item.status)}</TableCell>
-              <TableCell className="text-right whitespace-nowrap">
+              <TableCell className="text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-muted/50 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
                 <RowActions item={item} onEdit={onEdit} onDelete={onDelete} />
               </TableCell>
             </TableRow>

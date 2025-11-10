@@ -44,6 +44,7 @@ export function RefundDialog({
               placeholder="Nhập số tiền hoàn"
               value={refundedAmount}
               onChange={(e) => onRefundedAmountChange(e.target.value)}
+              onKeyDown={(e) => ['e', 'E'].includes(e.key) && e.preventDefault()}
               min={0}
               disabled={submitting}
               className="mt-1"

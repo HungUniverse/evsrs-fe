@@ -136,6 +136,7 @@ const MembershipConfigFormDialog: React.FC<MembershipConfigFormDialogProps> = ({
                 placeholder="Nhập mức giảm giá (0-100)"
                 value={discountPercent}
                 onChange={(e) => setDiscountPercent(e.target.value)}
+                onKeyDown={(e) => ['e', 'E'].includes(e.key) && e.preventDefault()}
                 required
               />
             </div>
@@ -153,6 +154,7 @@ const MembershipConfigFormDialog: React.FC<MembershipConfigFormDialogProps> = ({
                 placeholder="Nhập số tiền yêu cầu"
                 value={requiredAmount}
                 onChange={(e) => setRequiredAmount(e.target.value)}
+                onKeyDown={(e) => ['e', 'E'].includes(e.key) && e.preventDefault()}
                 required
               />
             </div>

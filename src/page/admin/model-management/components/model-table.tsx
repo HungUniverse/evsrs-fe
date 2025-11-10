@@ -34,12 +34,12 @@ const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities,
   };
 
   return (
-    <div className="rounded-lg border bg-white shadow-sm">
+    <div className="rounded-lg border bg-white shadow-sm overflow-x-auto">
       <Table>
         <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="whitespace-nowrap text-[#065F46]" style={{ width: '220px', minWidth: '220px' }}>Hình ảnh</TableHead>
-            <TableHead className="w-[15%] whitespace-nowrap text-[#065F46]">Tên model</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10" style={{ width: '220px', minWidth: '220px' }}>Hình ảnh</TableHead>
+            <TableHead className="w-[15%] whitespace-nowrap text-[#065F46] sticky left-[220px] bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Tên model</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Nhà sản xuất</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Tiện nghi</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Dung lượng pin (kWh)</TableHead>
@@ -49,13 +49,13 @@ const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities,
             <TableHead className="whitespace-nowrap text-[#065F46]">Giảm giá (%)</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Trạng thái</TableHead>
-            <TableHead className="text-right whitespace-nowrap text-[#065F46]">Thao tác</TableHead>
+            <TableHead className="text-right whitespace-nowrap text-[#065F46] sticky right-0 bg-[#D1FAE5] shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell style={{ width: '220px', minWidth: '220px', padding: '1rem' }}>
+            <TableRow key={item.id} className="hover:bg-muted/50 transition-colors group">
+              <TableCell className="sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors" style={{ width: '220px', minWidth: '220px', padding: '1rem' }}>
                 {item.image ? (
                   <img 
                     src={item.image} 
@@ -69,7 +69,7 @@ const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities,
                   </div>
                 )}
               </TableCell>
-              <TableCell className="font-medium whitespace-nowrap">{item.modelName}</TableCell>
+              <TableCell className="font-medium whitespace-nowrap sticky left-[220px] bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">{item.modelName}</TableCell>
               <TableCell className="whitespace-nowrap">{getManufacturerName(item.manufacturerCarId)}</TableCell>
               <TableCell className="whitespace-nowrap">{getAmenityName(item.amenitiesId)}</TableCell>
               <TableCell className="whitespace-nowrap">{item.batteryCapacityKwh}</TableCell>
@@ -85,7 +85,7 @@ const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities,
                   {!item.isDeleted ? "Hoạt động" : "Đã xóa"}
                 </Badge>
               </TableCell>
-              <TableCell className="text-right whitespace-nowrap">
+              <TableCell className="text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-muted/50 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
                 <RowActions item={item} onEdit={onEdit} onDelete={onDelete} />
               </TableCell>
             </TableRow>

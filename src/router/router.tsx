@@ -183,6 +183,14 @@ export const router = createBrowserRouter([
           },
           {
             path: "membership-config-management",
+            element: <Navigate to="/admin/membership-config-management/users" replace />,
+          },
+          {
+            path: "membership-config-management/users",
+            element: <MembershipConfigManagementPage />,
+          },
+          {
+            path: "membership-config-management/configs",
             element: <MembershipConfigManagementPage />,
           },
           {

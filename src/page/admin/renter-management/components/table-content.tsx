@@ -35,18 +35,18 @@ export function RenterTableContent({
   const hasData = rows.length > 0;
 
   return (
-    <div className="rounded-lg border bg-white shadow-sm">
+    <div className="rounded-lg border bg-white shadow-sm overflow-x-auto">
       <Table>
         <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
             <TableHead className="w-[40px] text-[#065F46]" />
-            <TableHead className="whitespace-nowrap text-[#065F46]">Người dùng</TableHead>
-            <TableHead className="whitespace-nowrap text-[#065F46]">Số điện thoại / Email</TableHead>
-            <TableHead className="whitespace-nowrap text-[#065F46]">Tài liệu</TableHead>
-            <TableHead className="whitespace-nowrap text-[#065F46]">Xác thực</TableHead>
-            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
-            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày cập nhật</TableHead>
-            <TableHead className="w-[70px] text-right whitespace-nowrap text-[#065F46]">Hành động</TableHead>
+            <TableHead className="text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Người dùng</TableHead>
+            <TableHead className="text-[#065F46]">Số điện thoại / Email</TableHead>
+            <TableHead className="text-[#065F46]">Tài liệu</TableHead>
+            <TableHead className="text-[#065F46]">Xác thực</TableHead>
+            <TableHead className="text-[#065F46]">Ngày tạo</TableHead>
+            <TableHead className="text-[#065F46]">Ngày cập nhật</TableHead>
+            <TableHead className="w-[70px] text-right text-[#065F46] sticky right-0 bg-[#D1FAE5] shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

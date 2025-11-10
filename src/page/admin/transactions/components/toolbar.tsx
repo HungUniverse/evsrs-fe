@@ -1,4 +1,4 @@
-import { Search, RotateCcw, Calendar, Filter } from "lucide-react";
+import { Search, RotateCcw, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -86,28 +86,22 @@ export function TransactionTableToolbar({
 
           {/* Start Date Picker */}
           <div className="flex-1 min-w-[130px] max-w-[160px]">
-            <div className="relative">
-              <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-              <Input
-                type="date"
-                value={startDateFilter}
-                onChange={(e) => onStartDateFilterChange(e.target.value)}
-                className="pl-8 h-9 bg-background text-sm"
-              />
-            </div>
+            <Input
+              type="date"
+              value={startDateFilter}
+              onChange={(e) => onStartDateFilterChange(e.target.value)}
+              className="h-9 bg-background text-sm"
+            />
           </div>
 
           {/* End Date Picker */}
           <div className="flex-1 min-w-[130px] max-w-[160px]">
-            <div className="relative">
-              <Calendar className="absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-              <Input
-                type="date"
-                value={endDateFilter}
-                onChange={(e) => onEndDateFilterChange(e.target.value)}
-                className="pr-8 h-9 bg-background text-sm"
-              />
-            </div>
+            <Input
+              type="date"
+              value={endDateFilter}
+              onChange={(e) => onEndDateFilterChange(e.target.value)}
+              className="h-9 bg-background text-sm"
+            />
           </div>
 
           {/* Page Size Select - Compact */}

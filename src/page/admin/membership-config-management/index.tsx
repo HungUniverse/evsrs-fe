@@ -1,27 +1,22 @@
-import { useSearchParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import PageShell from "../model-management/components/page-shell";
-import NavigationCards from "./components/navigation-cards";
 import UserMembershipList from "./components/user-membership-list";
 import MembershipConfigList from "./components/membership-config-list";
 
 export default function MembershipConfigManagementPage() {
-  const [searchParams] = useSearchParams();
-  const tab = searchParams.get("tab") || "users";
-
-  // Validate tab
-  const activeTab = tab === "configs" ? "configs" : "users";
+  const location = useLocation();
+  const isConfigsPage = location.pathname.includes("/configs");
 
   return (
     <PageShell
-      title="Quản lý cấu hình hạng thành viên"
-      subtitle="Quản lý danh sách thành viên và cấu hình hạng thành viên trong hệ thống"
+      title={isConfigsPage ? "Quản lý hạng thành viên" : "Danh sách thành viên"}
+      subtitle={
+        isConfigsPage
+          ? "Tạo, chỉnh sửa và xóa các hạng thành viên trong hệ thống"
+          : "Xem và quản lý hạng thành viên của người dùng trong hệ thống"
+      }
     >
-      <div className="space-y-8">
-        <NavigationCards activeTab={activeTab} />
-
-        {activeTab === "users" && <UserMembershipList />}
-        {activeTab === "configs" && <MembershipConfigList />}
-      </div>
+      {isConfigsPage ? <MembershipConfigList /> : <UserMembershipList />}
     </PageShell>
   );
 }

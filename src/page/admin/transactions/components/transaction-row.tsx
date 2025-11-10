@@ -34,8 +34,8 @@ export function TransactionTableRow({
   };
 
   return (
-    <TableRow className="hover:bg-muted/50 transition-colors">
-      <TableCell className="font-medium whitespace-nowrap">
+    <TableRow className="hover:bg-muted/50 transition-colors group">
+      <TableCell className="font-medium whitespace-nowrap sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
         {transaction.code ? (
           <button
             type="button"
