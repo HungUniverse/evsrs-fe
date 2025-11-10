@@ -153,14 +153,16 @@ export default function AdminSidebar({
                   {/* Parent Menu */}
                   <button
                     onClick={() => !sidebarCollapsed && toggleSubmenu(item.name)}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors group relative ${
                       isParentActive
-                        ? "text-white"
+                        ? "bg-[#F0F2F5] text-gray-900"
                         : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                     }`}
-                    style={isParentActive ? { backgroundColor: "#00D166" } : {}}
                     title={sidebarCollapsed ? item.name : ""}
                   >
+                    {isParentActive && (
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#22C55E] rounded-l-lg" />
+                    )}
                     <div className="flex items-center">
                       <Icon className="h-5 w-5 flex-shrink-0" />
                       {!sidebarCollapsed && (
@@ -189,14 +191,16 @@ export default function AdminSidebar({
                           <Link
                             key={subItem.name}
                             to={subItem.href}
-                            className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${
+                            className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors group relative ${
                               isSubActive
-                                ? "text-white"
+                                ? "bg-[#F0F2F5] text-gray-900"
                                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                             }`}
-                            style={isSubActive ? { backgroundColor: "#00D166" } : {}}
                             onClick={onSidebarClose}
                           >
+                            {isSubActive && (
+                              <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#22C55E] rounded-l-lg" />
+                            )}
                             <SubIcon className="h-4 w-4 flex-shrink-0" />
                             <span className="ml-3">{subItem.name}</span>
                           </Link>
@@ -213,15 +217,17 @@ export default function AdminSidebar({
               <Link
                 key={item.name}
                 to={item.href}
-                className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${
+                className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors group relative ${
                   isActive
-                    ? "text-white"
+                    ? "bg-[#F0F2F5] text-gray-900"
                     : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                 }`}
-                style={isActive ? { backgroundColor: "#00D166" } : {}}
                 onClick={onSidebarClose}
                 title={sidebarCollapsed ? item.name : ""}
               >
+                {isActive && (
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#22C55E] rounded-l-lg" />
+                )}
                 <Icon className="h-5 w-5 flex-shrink-0" />
                 {!sidebarCollapsed && (
                   <span className="ml-3">{item.name}</span>

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import RowActions from "./row-actions";
 import { Award } from "lucide-react";
 import { vnd } from "@/lib/utils/currency";
+import { formatDate } from "@/lib/utils/formatDate";
 
 interface MembershipConfigTableProps {
   data: MembershipLevel[];
@@ -67,15 +68,15 @@ const MembershipConfigTable: React.FC<MembershipConfigTableProps> = ({ data, onE
   return (
     <div className="rounded-lg border bg-white shadow-sm">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead>Hạng</TableHead>
-            <TableHead>Tên hạng</TableHead>
-            <TableHead>Mức giảm giá</TableHead>
-            <TableHead>Số tiền yêu cầu</TableHead>
-            <TableHead>Ngày tạo</TableHead>
-            <TableHead>Ngày cập nhật</TableHead>
-            <TableHead className="text-right">Thao tác</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Hạng</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Tên hạng</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Mức giảm giá</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Số tiền yêu cầu</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày cập nhật</TableHead>
+            <TableHead className="text-right whitespace-nowrap text-[#065F46]">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -98,30 +99,10 @@ const MembershipConfigTable: React.FC<MembershipConfigTableProps> = ({ data, onE
                   <span className="font-medium">{vnd(item.requiredAmount)} VNĐ</span>
                 </TableCell>
                 <TableCell className="whitespace-nowrap">
-                  {item.createdAt
-                    ? new Date(item.createdAt).toLocaleString("vi-VN", {
-                        year: "numeric",
-                        month: "2-digit",
-                        day: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: true,
-                        timeZone: "Asia/Ho_Chi_Minh",
-                      })
-                    : ""}
+                  {item.createdAt ? formatDate(item.createdAt) : ""}
                 </TableCell>
                 <TableCell className="whitespace-nowrap">
-                  {item.updatedAt
-                    ? new Date(item.updatedAt).toLocaleString("vi-VN", {
-                        year: "numeric",
-                        month: "2-digit",
-                        day: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: true,
-                        timeZone: "Asia/Ho_Chi_Minh",
-                      })
-                    : ""}
+                  {item.updatedAt ? formatDate(item.updatedAt) : ""}
                 </TableCell>
                 <TableCell className="text-right whitespace-nowrap">
                   <RowActions item={item} onEdit={onEdit} onDelete={onDelete} />

@@ -65,7 +65,7 @@ export function StaffTableRow({
             onClick={(event) => event.stopPropagation()}
           />
         </TableCell>
-        <TableCell>
+        <TableCell className="whitespace-nowrap">
           <div className="flex items-center gap-3">
             <img
               src={
@@ -86,21 +86,21 @@ export function StaffTableRow({
             </div>
           </div>
         </TableCell>
-        <TableCell>
+        <TableCell className="whitespace-nowrap">
           <div className="flex flex-col">
             <span>{user.phoneNumber || "Chưa có số điện thoại"}</span>
             <span className="text-xs text-muted-foreground">{user.userEmail || "Chưa có email"}</span>
           </div>
         </TableCell>
-        <TableCell>{user.createdAt ? formatDate(user.createdAt) : "Chưa xác định"}</TableCell>
-        <TableCell>{user.updatedAt ? formatDate(user.updatedAt) : "Chưa xác định"}</TableCell>
-        <TableCell>
+        <TableCell className="whitespace-nowrap">{user.createdAt ? formatDate(user.createdAt) : "Chưa xác định"}</TableCell>
+        <TableCell className="whitespace-nowrap">{user.updatedAt ? formatDate(user.updatedAt) : "Chưa xác định"}</TableCell>
+        <TableCell className="whitespace-nowrap">
           <div className="flex items-center gap-2 text-sm">
             <MapPin className="size-4 text-muted-foreground" />
             <span>{getDepotName(user.depotId)}</span>
           </div>
         </TableCell>
-        <TableCell className="text-right">
+        <TableCell className="text-right whitespace-nowrap">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">

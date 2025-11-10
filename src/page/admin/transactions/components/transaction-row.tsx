@@ -35,7 +35,7 @@ export function TransactionTableRow({
 
   return (
     <TableRow className="hover:bg-muted/50 transition-colors">
-      <TableCell className="font-medium">
+      <TableCell className="font-medium whitespace-nowrap">
         {transaction.code ? (
           <button
             type="button"
@@ -48,10 +48,10 @@ export function TransactionTableRow({
           "N/A"
         )}
       </TableCell>
-      <TableCell>
+      <TableCell className="whitespace-nowrap">
         {formatDate(transaction.transactionDate)}
       </TableCell>
-      <TableCell>
+      <TableCell className="whitespace-nowrap">
         {user ? (
           <button
             type="button"
@@ -66,7 +66,7 @@ export function TransactionTableRow({
           <span className="text-muted-foreground">Đang tải...</span>
         )}
       </TableCell>
-      <TableCell className="font-medium">
+      <TableCell className="font-medium whitespace-nowrap">
         {transaction.orderBookingId ? (
           <button
             type="button"
@@ -79,7 +79,7 @@ export function TransactionTableRow({
           <span className="text-green-600">N/A</span>
         )}
       </TableCell>
-      <TableCell>
+      <TableCell className="whitespace-nowrap">
         {order ? (
           <Badge
             variant={(getStatusVariant(order.status) as "default" | "secondary" | "destructive" | "outline" | "soft-yellow" | "soft-blue" | "soft-purple" | "soft-indigo" | "soft-green" | "soft-orange" | "soft-red" | "soft-gray") || "default"}
@@ -96,10 +96,10 @@ export function TransactionTableRow({
           </Badge>
         )}
       </TableCell>
-      <TableCell className={`font-semibold ${isIncoming ? "text-green-600" : "text-red-600"}`}>
+      <TableCell className={`font-semibold whitespace-nowrap ${isIncoming ? "text-green-600" : "text-red-600"}`}>
         {isIncoming ? "+" : "-"} {vnd(amount)} VNĐ
       </TableCell>
-      <TableCell className="text-sm text-muted-foreground">
+      <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
         {transaction.referenceCode || "N/A"}
       </TableCell>
     </TableRow>

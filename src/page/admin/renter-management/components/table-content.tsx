@@ -37,16 +37,16 @@ export function RenterTableContent({
   return (
     <div className="rounded-lg border bg-white shadow-sm">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="w-[40px]" />
-            <TableHead>Người dùng</TableHead>
-            <TableHead>Số điện thoại / Email</TableHead>
-            <TableHead>Tài liệu</TableHead>
-            <TableHead>Xác thực</TableHead>
-            <TableHead>Ngày tạo</TableHead>
-            <TableHead>Ngày cập nhật</TableHead>
-            <TableHead className="w-[70px] text-right">Hành động</TableHead>
+            <TableHead className="w-[40px] text-[#065F46]" />
+            <TableHead className="whitespace-nowrap text-[#065F46]">Người dùng</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Số điện thoại / Email</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Tài liệu</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Xác thực</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày cập nhật</TableHead>
+            <TableHead className="w-[70px] text-right whitespace-nowrap text-[#065F46]">Hành động</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

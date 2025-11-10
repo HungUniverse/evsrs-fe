@@ -3,6 +3,7 @@ import type { SystemConfigTypeResponse } from "@/@types/system-config";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import RowActions from "./row-actions";
+import { formatDate } from "@/lib/utils/formatDate";
 
 interface SystemConfigTableProps {
   data: SystemConfigTypeResponse[];
@@ -29,35 +30,35 @@ const SystemConfigTable: React.FC<SystemConfigTableProps> = ({ data, onEdit, onD
   return (
     <div className="rounded-lg border bg-white shadow-sm">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="w-[20%]">Key</TableHead>
-            <TableHead className="w-[30%]">Value</TableHead>
-            <TableHead className="w-[15%]">Loại</TableHead>
-            <TableHead>Ngày tạo</TableHead>
-            <TableHead>Cập nhật</TableHead>
-            <TableHead className="text-right">Thao tác</TableHead>
+            <TableHead className="w-[20%] whitespace-nowrap text-[#065F46]">Key</TableHead>
+            <TableHead className="w-[30%] whitespace-nowrap text-[#065F46]">Value</TableHead>
+            <TableHead className="w-[15%] whitespace-nowrap text-[#065F46]">Loại</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Cập nhật</TableHead>
+            <TableHead className="text-right whitespace-nowrap text-[#065F46]">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.map((item) => (
             <TableRow key={item.id}>
-              <TableCell className="font-medium">{item.key}</TableCell>
-              <TableCell className="max-w-md truncate" title={item.value}>
+              <TableCell className="font-medium whitespace-nowrap">{item.key}</TableCell>
+              <TableCell className="max-w-md truncate whitespace-nowrap" title={item.value}>
                 {item.value}
               </TableCell>
-              <TableCell>
+              <TableCell className="whitespace-nowrap">
                 <Badge variant={getConfigTypeBadgeVariant(item.configType)} className="whitespace-nowrap">
                   {item.configType}
                 </Badge>
               </TableCell>
-              <TableCell>
-                {item.createAt ? new Date(item.createAt).toLocaleString("vi-VN") : "-"}
+              <TableCell className="whitespace-nowrap">
+                {item.createAt ? formatDate(item.createAt) : "-"}
               </TableCell>
-              <TableCell>
-                {item.updatedAt ? new Date(item.updatedAt).toLocaleString("vi-VN") : "-"}
+              <TableCell className="whitespace-nowrap">
+                {item.updatedAt ? formatDate(item.updatedAt) : "-"}
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-right whitespace-nowrap">
                 <RowActions item={item} onEdit={onEdit} onDelete={onDelete} />
               </TableCell>
             </TableRow>

@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import RowActions from "./row-actions";
 import type { CarEvStatus } from "@/@types/enum";
+import { formatDate } from "@/lib/utils/formatDate";
 
 interface CarEVTableProps {
   data: CarEV[];
@@ -32,17 +33,17 @@ const CarEVTable: React.FC<CarEVTableProps> = ({ data, onEdit, onDelete }) => {
   return (
     <div className="rounded-lg border bg-white shadow-sm">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="w-[180px] whitespace-nowrap">Hình ảnh</TableHead>
-            <TableHead className="whitespace-nowrap">Biển số xe</TableHead>
-            <TableHead className="whitespace-nowrap">Model</TableHead>
-            <TableHead className="whitespace-nowrap">Trạm xe điện</TableHead>
-            <TableHead className="whitespace-nowrap">Tình trạng pin (%)</TableHead>
-            <TableHead className="whitespace-nowrap">Ngày tạo</TableHead>
-            <TableHead className="whitespace-nowrap">Ngày cập nhật</TableHead>
-            <TableHead className="whitespace-nowrap">Trạng thái</TableHead>
-            <TableHead className="w-[100px] text-right whitespace-nowrap">Thao tác</TableHead>
+            <TableHead className="w-[180px] whitespace-nowrap text-[#065F46]">Hình ảnh</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Biển số xe</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Model</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Trạm xe điện</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Tình trạng pin (%)</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày cập nhật</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Trạng thái</TableHead>
+            <TableHead className="w-[100px] text-right whitespace-nowrap text-[#065F46]">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -61,38 +62,18 @@ const CarEVTable: React.FC<CarEVTableProps> = ({ data, onEdit, onDelete }) => {
                   </div>
                 )}
               </TableCell>
-              <TableCell className="font-medium">{item.licensePlate}</TableCell>
-              <TableCell>{item.model?.modelName || "N/A"}</TableCell>
-              <TableCell>{item.depot?.name || "N/A"}</TableCell>
-              <TableCell>{item.batteryHealthPercentage}%</TableCell>
-              <TableCell>
-                {item.createdAt
-                  ? new Date(item.createdAt).toLocaleString("vi-VN", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: false,
-                      timeZone: "Asia/Ho_Chi_Minh",
-                    })
-                  : ""}
+              <TableCell className="font-medium whitespace-nowrap">{item.licensePlate}</TableCell>
+              <TableCell className="whitespace-nowrap">{item.model?.modelName || "N/A"}</TableCell>
+              <TableCell className="whitespace-nowrap">{item.depot?.name || "N/A"}</TableCell>
+              <TableCell className="whitespace-nowrap">{item.batteryHealthPercentage}%</TableCell>
+              <TableCell className="whitespace-nowrap">
+                {item.createdAt ? formatDate(item.createdAt) : ""}
               </TableCell>
-              <TableCell>
-                {item.updatedAt
-                  ? new Date(item.updatedAt).toLocaleString("vi-VN", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: false,
-                      timeZone: "Asia/Ho_Chi_Minh",
-                    })
-                  : ""}
+              <TableCell className="whitespace-nowrap">
+                {item.updatedAt ? formatDate(item.updatedAt) : ""}
               </TableCell>
-              <TableCell>{getStatusBadge(item.status)}</TableCell>
-              <TableCell className="text-right">
+              <TableCell className="whitespace-nowrap">{getStatusBadge(item.status)}</TableCell>
+              <TableCell className="text-right whitespace-nowrap">
                 <RowActions item={item} onEdit={onEdit} onDelete={onDelete} />
               </TableCell>
             </TableRow>

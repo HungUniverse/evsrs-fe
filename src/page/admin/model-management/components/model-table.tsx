@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import RowActions from "./row-actions";
 import type { CarManufacture } from "@/@types/car/carManufacture";
 import type { Amenity } from "@/@types/car/amentities";
+import { formatDate } from "@/lib/utils/formatDate";
 
 interface ModelTableProps {
   data: Model[];
@@ -35,20 +36,20 @@ const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities,
   return (
     <div className="rounded-lg border bg-white shadow-sm">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="whitespace-nowrap" style={{ width: '220px', minWidth: '220px' }}>Hình ảnh</TableHead>
-            <TableHead className="w-[15%] whitespace-nowrap">Tên model</TableHead>
-            <TableHead className="whitespace-nowrap">Nhà sản xuất</TableHead>
-            <TableHead className="whitespace-nowrap">Tiện nghi</TableHead>
-            <TableHead className="whitespace-nowrap">Dung lượng pin (kWh)</TableHead>
-            <TableHead className="whitespace-nowrap">Tầm hoạt động (km)</TableHead>
-            <TableHead className="whitespace-nowrap">Số ghế</TableHead>
-            <TableHead className="whitespace-nowrap">Giá thuê</TableHead>
-            <TableHead className="whitespace-nowrap">Giảm giá (%)</TableHead>
-            <TableHead className="whitespace-nowrap">Ngày tạo</TableHead>
-            <TableHead className="whitespace-nowrap">Trạng thái</TableHead>
-            <TableHead className="text-right whitespace-nowrap">Thao tác</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]" style={{ width: '220px', minWidth: '220px' }}>Hình ảnh</TableHead>
+            <TableHead className="w-[15%] whitespace-nowrap text-[#065F46]">Tên model</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Nhà sản xuất</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Tiện nghi</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Dung lượng pin (kWh)</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Tầm hoạt động (km)</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Số ghế</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Giá thuê</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Giảm giá (%)</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Trạng thái</TableHead>
+            <TableHead className="text-right whitespace-nowrap text-[#065F46]">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -68,21 +69,23 @@ const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities,
                   </div>
                 )}
               </TableCell>
-              <TableCell className="font-medium">{item.modelName}</TableCell>
-              <TableCell>{getManufacturerName(item.manufacturerCarId)}</TableCell>
-              <TableCell>{getAmenityName(item.amenitiesId)}</TableCell>
-              <TableCell>{item.batteryCapacityKwh}</TableCell>
-              <TableCell>{item.rangeKm}</TableCell>
-              <TableCell>{item.seats}</TableCell>
-              <TableCell>{formatCurrency(item.price)}</TableCell>
-              <TableCell>{item.sale}%</TableCell>
-              <TableCell>{item.createdAt ? new Date(item.createdAt).toLocaleString() : ""}</TableCell>
-              <TableCell>
+              <TableCell className="font-medium whitespace-nowrap">{item.modelName}</TableCell>
+              <TableCell className="whitespace-nowrap">{getManufacturerName(item.manufacturerCarId)}</TableCell>
+              <TableCell className="whitespace-nowrap">{getAmenityName(item.amenitiesId)}</TableCell>
+              <TableCell className="whitespace-nowrap">{item.batteryCapacityKwh}</TableCell>
+              <TableCell className="whitespace-nowrap">{item.rangeKm}</TableCell>
+              <TableCell className="whitespace-nowrap">{item.seats}</TableCell>
+              <TableCell className="whitespace-nowrap">{formatCurrency(item.price)}</TableCell>
+              <TableCell className="whitespace-nowrap">{item.sale}%</TableCell>
+              <TableCell className="whitespace-nowrap">
+                {item.createdAt ? formatDate(item.createdAt) : ""}
+              </TableCell>
+              <TableCell className="whitespace-nowrap">
                 <Badge variant={!item.isDeleted ? "soft-green" : "soft-gray"} className="whitespace-nowrap">
                   {!item.isDeleted ? "Hoạt động" : "Đã xóa"}
                 </Badge>
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-right whitespace-nowrap">
                 <RowActions item={item} onEdit={onEdit} onDelete={onDelete} />
               </TableCell>
             </TableRow>

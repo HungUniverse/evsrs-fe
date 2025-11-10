@@ -3,6 +3,7 @@ import type { Depot } from "@/@types/car/depot";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import RowActions from "./row-actions";
+import { formatDate } from "@/lib/utils/formatDate";
 
 interface DepotTableProps {
   data: Depot[];
@@ -46,18 +47,18 @@ const DepotTable: React.FC<DepotTableProps> = ({ data, onEdit, onDelete }) => {
   return (
     <div className="rounded-lg border bg-white shadow-sm">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead>Tên trạm</TableHead>
-            <TableHead>Tỉnh/Thành phố</TableHead>
-            <TableHead>Quận/Huyện</TableHead>
-            <TableHead>Phường/Xã</TableHead>
-            <TableHead>Đường</TableHead>
-            <TableHead>Giờ mở cửa</TableHead>
-            <TableHead>Giờ đóng cửa</TableHead>
-            <TableHead>Ngày tạo</TableHead>
-            <TableHead>Trạng thái</TableHead>
-            <TableHead className="text-right">Thao tác</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Tên trạm</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Tỉnh/Thành phố</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Quận/Huyện</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Phường/Xã</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Đường</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Giờ mở cửa</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Giờ đóng cửa</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Trạng thái</TableHead>
+            <TableHead className="text-right whitespace-nowrap text-[#065F46]">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -71,17 +72,7 @@ const DepotTable: React.FC<DepotTableProps> = ({ data, onEdit, onDelete }) => {
               <TableCell className="whitespace-nowrap">{formatTime(item.openTime)}</TableCell>
               <TableCell className="whitespace-nowrap">{formatTime(item.closeTime)}</TableCell>
               <TableCell className="whitespace-nowrap">
-                {item.createdAt
-                  ? new Date(item.createdAt).toLocaleString("vi-VN", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: true,
-                      timeZone: "Asia/Ho_Chi_Minh",
-                    })
-                  : ""}
+                {item.createdAt ? formatDate(item.createdAt) : ""}
               </TableCell>
               <TableCell className="whitespace-nowrap">
                 <Badge variant={!item.isDeleted ? "soft-green" : "soft-gray"} className="whitespace-nowrap">

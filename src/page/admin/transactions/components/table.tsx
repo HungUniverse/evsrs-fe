@@ -28,15 +28,15 @@ export function TransactionTable({
   return (
     <div className="rounded-lg border bg-white shadow-sm">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead>Mã giao dịch</TableHead>
-            <TableHead>Ngày giao dịch</TableHead>
-            <TableHead>Người dùng</TableHead>
-            <TableHead>Mã đơn hàng</TableHead>
-            <TableHead>Trạng thái</TableHead>
-            <TableHead>Số tiền</TableHead>
-            <TableHead>Mã tham chiếu</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Mã giao dịch</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày giao dịch</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Người dùng</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Mã đơn hàng</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Trạng thái</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Số tiền</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Mã tham chiếu</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

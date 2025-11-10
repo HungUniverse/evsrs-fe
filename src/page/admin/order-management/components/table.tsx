@@ -22,17 +22,17 @@ export function OrderTable({
   return (
     <div className="rounded-lg border bg-white shadow-sm">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead>Mã đơn</TableHead>
-            <TableHead>Ảnh xe</TableHead>
-            <TableHead>Model</TableHead>
-            <TableHead>Người thuê</TableHead>
-            <TableHead>Trạm</TableHead>
-            <TableHead>Tổng tiền</TableHead>
-            <TableHead>Trạng thái</TableHead>
-            <TableHead>Tình trạng thanh toán</TableHead>
-            <TableHead>Thao tác</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Mã đơn</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Ảnh xe</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Model</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Người thuê</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Trạm</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Tổng tiền</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Trạng thái</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Tình trạng thanh toán</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

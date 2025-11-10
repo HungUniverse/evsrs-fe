@@ -62,7 +62,7 @@ export function RenterTableRow({
             onClick={(event) => event.stopPropagation()}
           />
         </TableCell>
-        <TableCell>
+        <TableCell className="whitespace-nowrap">
           <div className="flex items-center gap-3">
             <img
               src={
@@ -83,16 +83,16 @@ export function RenterTableRow({
             </div>
           </div>
         </TableCell>
-        <TableCell>
+        <TableCell className="whitespace-nowrap">
           <div className="flex flex-col">
             <span>{user.phoneNumber || "Chưa có số điện thoại"}</span>
             <span className="text-xs text-muted-foreground">{user.userEmail || "Chưa có email"}</span>
           </div>
         </TableCell>
-        <TableCell>
+        <TableCell className="whitespace-nowrap">
           <DocumentStatusCell frontDoc={frontDoc} backDoc={backDoc} />
         </TableCell>
-        <TableCell>
+        <TableCell className="whitespace-nowrap">
           <VerificationStatusCell
             hasDocumentLoaded={hasDocumentLoaded}
             document={document}
@@ -101,9 +101,9 @@ export function RenterTableRow({
             onVerification={onVerification}
           />
         </TableCell>
-        <TableCell>{user.createdAt ? formatDate(user.createdAt) : "Chưa xác định"}</TableCell>
-        <TableCell>{user.updatedAt ? formatDate(user.updatedAt) : "Chưa xác định"}</TableCell>
-        <TableCell className="text-right">
+        <TableCell className="whitespace-nowrap">{user.createdAt ? formatDate(user.createdAt) : "Chưa xác định"}</TableCell>
+        <TableCell className="whitespace-nowrap">{user.updatedAt ? formatDate(user.updatedAt) : "Chưa xác định"}</TableCell>
+        <TableCell className="text-right whitespace-nowrap">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">

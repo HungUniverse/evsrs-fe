@@ -1,7 +1,9 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useUsersList } from "@/hooks/use-users-list";
 import { useUserMemberships } from "@/hooks/use-user-memberships";
 import { useUserOrderTotals } from "@/hooks/use-user-order-totals";
+import { useTablePagination } from "@/hooks/use-table-pagination";
+import { TablePagination } from "@/components/ui/table-pagination";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -63,12 +65,20 @@ const getLevelDisplayName = (level: string | null | undefined): string => {
 };
 
 export default function UserMembershipList() {
+  const [pageNumber, setPageNumber] = useState(1);
+  const pageSize = 10;
   const { data: users, isLoading: isLoadingUsers } = useUsersList();
   const userIds = useMemo(() => (users || []).map((u) => u.id), [users]);
   const { data: memberships, isLoading: isLoadingMemberships } = useUserMemberships(userIds);
   const { data: orderTotals, isLoading: isLoadingOrderTotals } = useUserOrderTotals(userIds);
 
   const isLoading = isLoadingUsers || isLoadingMemberships || isLoadingOrderTotals;
+  const pagination = useTablePagination({
+    items: users || [],
+    pageNumber,
+    pageSize,
+    setPageNumber,
+  });
 
   if (isLoading) {
     return (
@@ -79,15 +89,15 @@ export default function UserMembershipList() {
         </div>
         <div className="rounded-lg border bg-white shadow-sm">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-[#D1FAE5]">
               <TableRow>
-                <TableHead>Họ tên</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Số điện thoại</TableHead>
-                <TableHead>Hạng thành viên</TableHead>
-                <TableHead>Giảm giá</TableHead>
-                <TableHead>Tổng giá trị đơn hàng</TableHead>
-                <TableHead>Tiến độ</TableHead>
+                <TableHead className="text-[#065F46]">Họ tên</TableHead>
+                <TableHead className="text-[#065F46]">Email</TableHead>
+                <TableHead className="text-[#065F46]">Số điện thoại</TableHead>
+                <TableHead className="text-[#065F46]">Hạng thành viên</TableHead>
+                <TableHead className="text-[#065F46]">Giảm giá</TableHead>
+                <TableHead className="text-[#065F46]">Tổng giá trị đơn hàng</TableHead>
+                <TableHead className="text-[#065F46]">Tiến độ</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -150,19 +160,19 @@ export default function UserMembershipList() {
 
       <div className="rounded-lg border bg-white shadow-sm">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-[#D1FAE5]">
             <TableRow>
-              <TableHead>Họ tên</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Số điện thoại</TableHead>
-              <TableHead>Hạng thành viên</TableHead>
-              <TableHead>Giảm giá</TableHead>
-              <TableHead>Tổng giá trị đơn hàng</TableHead>
-              <TableHead>Tiến độ nâng cấp</TableHead>
+              <TableHead className="text-[#065F46]">Họ tên</TableHead>
+              <TableHead className="text-[#065F46]">Email</TableHead>
+              <TableHead className="text-[#065F46]">Số điện thoại</TableHead>
+              <TableHead className="text-[#065F46]">Hạng thành viên</TableHead>
+              <TableHead className="text-[#065F46]">Giảm giá</TableHead>
+              <TableHead className="text-[#065F46]">Tổng giá trị đơn hàng</TableHead>
+              <TableHead className="text-[#065F46]">Tiến độ nâng cấp</TableHead>
             </TableRow>
           </TableHeader>
            <TableBody>
-             {users.map((user) => {
+             {pagination.paginatedData.map((user) => {
                const membership = memberships?.[user.id];
                // User không có hạng thì level = "None", null, hoặc membership = null
                const hasValidMembership = 
@@ -217,7 +227,7 @@ export default function UserMembershipList() {
                  </TableRow>
                );
              })}
-            {users.length === 0 && (
+            {pagination.paginatedData.length === 0 && (
               <TableRow>
                 <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-8">
                   Không có dữ liệu
@@ -227,6 +237,17 @@ export default function UserMembershipList() {
           </TableBody>
         </Table>
       </div>
+
+      <TablePagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        startItem={pagination.startItem}
+        endItem={pagination.endItem}
+        totalItems={pagination.totalItems}
+        onPreviousPage={pagination.handlePreviousPage}
+        onNextPage={pagination.handleNextPage}
+        loading={isLoading}
+      />
     </div>
   );
 }

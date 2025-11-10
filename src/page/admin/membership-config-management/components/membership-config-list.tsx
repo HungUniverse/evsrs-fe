@@ -1,5 +1,8 @@
+import { useState } from "react";
 import { useMembershipConfigs } from "@/hooks/use-membership-configs";
 import { useMembershipConfigForm } from "@/hooks/use-membership-config-form";
+import { useTablePagination } from "@/hooks/use-table-pagination";
+import { TablePagination } from "@/components/ui/table-pagination";
 import MembershipConfigTable from "./membership-config-table";
 import MembershipConfigFormDialog from "./membership-config-form-dialog";
 import DeleteConfirmationDialog from "./delete-confirmation-dialog";
@@ -7,8 +10,16 @@ import { Award } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function MembershipConfigList() {
+  const [pageNumber, setPageNumber] = useState(1);
+  const pageSize = 10;
   const { data: configs, isLoading } = useMembershipConfigs();
   const form = useMembershipConfigForm();
+  const pagination = useTablePagination({
+    items: configs || [],
+    pageNumber,
+    pageSize,
+    setPageNumber,
+  });
 
   if (isLoading) {
     return (
@@ -37,9 +48,20 @@ export default function MembershipConfigList() {
       </div>
 
       <MembershipConfigTable
-        data={configs || []}
+        data={pagination.paginatedData}
         onEdit={form.startEdit}
         onDelete={form.startDelete}
+      />
+
+      <TablePagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        startItem={pagination.startItem}
+        endItem={pagination.endItem}
+        totalItems={pagination.totalItems}
+        onPreviousPage={pagination.handlePreviousPage}
+        onNextPage={pagination.handleNextPage}
+        loading={isLoading}
       />
 
       <MembershipConfigFormDialog

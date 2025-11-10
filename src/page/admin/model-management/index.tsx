@@ -2,6 +2,8 @@ import { useModelsList } from "@/hooks/use-models";
 import { useModelTableState } from "@/hooks/use-model-table-state";
 import { useModelForm } from "@/hooks/use-model-form";
 import { useModelDropdowns } from "@/hooks/use-model-dropdowns";
+import { useTablePagination } from "@/hooks/use-table-pagination";
+import { TablePagination } from "@/components/ui/table-pagination";
 import PageShell from "./components/page-shell";
 import FilterBar from "./components/filter-bar";
 import ModelTable from "./components/model-table";
@@ -19,6 +21,12 @@ export default function ModelManagementPage() {
   });
   const form = useModelForm();
   const { manufacturers, amenities, isLoading: isLoadingDropdowns } = useModelDropdowns();
+  const pagination = useTablePagination({
+    items: data?.items || [],
+    pageNumber: tableState.pageNumber,
+    pageSize: tableState.pageSize,
+    setPageNumber: tableState.setPageNumber,
+  });
 
   return (
     <PageShell
@@ -28,21 +36,38 @@ export default function ModelManagementPage() {
       <div className="space-y-4">
         <FilterBar
           search={tableState.search}
-          onSearchChange={tableState.setSearch}
+          onSearchChange={(v) => {
+            tableState.setSearch(v);
+            tableState.setPageNumber(1);
+          }}
           sort={tableState.sort}
           onSortChange={tableState.setSort}
           manufacturerCarId={tableState.manufacturerCarId}
-          onManufacturerChange={tableState.setManufacturerCarId}
+          onManufacturerChange={(v) => {
+            tableState.setManufacturerCarId(v);
+            tableState.setPageNumber(1);
+          }}
           manufacturers={manufacturers}
           onAdd={form.startCreate}
         />
 
         <ModelTable
-          data={data?.items || []}
+          data={pagination.paginatedData}
           manufacturers={manufacturers}
           amenities={amenities}
           onEdit={form.startEdit}
           onDelete={form.startDelete}
+        />
+
+        <TablePagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          startItem={pagination.startItem}
+          endItem={pagination.endItem}
+          totalItems={pagination.totalItems}
+          onPreviousPage={pagination.handlePreviousPage}
+          onNextPage={pagination.handleNextPage}
+          loading={isLoading || isLoadingDropdowns}
         />
 
         <ModelFormDialog
@@ -61,10 +86,6 @@ export default function ModelManagementPage() {
           onConfirm={form.confirmDelete}
           isDeleting={form.isDeleting}
         />
-
-        {(isLoading || isLoadingDropdowns) ? (
-          <p className="text-sm text-muted-foreground">Đang tải dữ liệu...</p>
-        ) : null}
       </div>
     </PageShell>
   );

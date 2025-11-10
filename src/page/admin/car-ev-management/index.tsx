@@ -2,14 +2,14 @@ import { useCarEVsList } from "@/hooks/use-car-evs";
 import { useCarEVTableState } from "@/hooks/use-car-ev-table-state";
 import { useCarEVForm } from "@/hooks/use-car-ev-form";
 import { useCarEVDropdowns } from "@/hooks/use-car-ev-dropdowns";
-import { useCarEVPagination } from "@/hooks/use-car-ev-pagination";
+import { useTablePagination } from "@/hooks/use-table-pagination";
+import { TablePagination } from "@/components/ui/table-pagination";
 import type { CarEV } from "@/@types/car/carEv";
 import PageShell from "./components/page-shell";
 import FilterBar from "./components/filter-bar";
 import CarEVTable from "./components/car-ev-table";
 import CarEVFormDialog from "./components/car-ev-form-dialog";
 import DeleteConfirmationDialog from "./components/delete-confirmation-dialog";
-import Pagination from "./components/pagination";
 
 export default function CarEVManagementPage() {
   const tableState = useCarEVTableState();
@@ -24,7 +24,12 @@ export default function CarEVManagementPage() {
   });
   const form = useCarEVForm();
   const { depots, models, isLoading: isLoadingDropdowns } = useCarEVDropdowns();
-  const pagination = useCarEVPagination((data?.items as CarEV[]) || [], tableState);
+  const pagination = useTablePagination({
+    items: (data?.items as CarEV[]) || [],
+    pageNumber: tableState.pageNumber,
+    pageSize: tableState.pageSize,
+    setPageNumber: tableState.setPageNumber,
+  });
 
   return (
     <PageShell
@@ -41,11 +46,20 @@ export default function CarEVManagementPage() {
           sort={tableState.sort}
           onSortChange={tableState.setSort}
           depotId={tableState.depotId}
-          onDepotChange={pagination.handleFilterChange(tableState.setDepotId)}
+          onDepotChange={(v) => {
+            tableState.setDepotId(v);
+            tableState.setPageNumber(1);
+          }}
           modelId={tableState.modelId}
-          onModelChange={pagination.handleFilterChange(tableState.setModelId)}
+          onModelChange={(v) => {
+            tableState.setModelId(v);
+            tableState.setPageNumber(1);
+          }}
           status={tableState.status}
-          onStatusChange={pagination.handleFilterChange(tableState.setStatus)}
+          onStatusChange={(v) => {
+            tableState.setStatus(v);
+            tableState.setPageNumber(1);
+          }}
           onClearFilters={tableState.clearFilters}
           depots={depots}
           models={models}
@@ -75,17 +89,16 @@ export default function CarEVManagementPage() {
           isDeleting={form.isDeleting}
         />
 
-        {pagination.totalItems > 0 && (
-          <Pagination
-            currentPage={tableState.pageNumber}
-            totalPages={pagination.totalPages}
-            startItem={pagination.startItem}
-            endItem={pagination.endItem}
-            totalItems={pagination.totalItems}
-            onPreviousPage={pagination.handlePreviousPage}
-            onNextPage={pagination.handleNextPage}
-          />
-        )}
+        <TablePagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          startItem={pagination.startItem}
+          endItem={pagination.endItem}
+          totalItems={pagination.totalItems}
+          onPreviousPage={pagination.handlePreviousPage}
+          onNextPage={pagination.handleNextPage}
+          loading={isLoading || isLoadingDropdowns}
+        />
 
         {(isLoading || isLoadingDropdowns) ? (
           <p className="text-sm text-muted-foreground">Đang tải dữ liệu...</p>

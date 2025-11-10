@@ -1,6 +1,8 @@
 import { useCarManufacturesList } from "@/hooks/use-car-manufactures";
 import { useCarManufactureTableState } from "@/hooks/use-car-manufacture-table-state";
 import { useCarManufactureForm } from "@/hooks/use-car-manufacture-form";
+import { useTablePagination } from "@/hooks/use-table-pagination";
+import { TablePagination } from "@/components/ui/table-pagination";
 import PageShell from "./components/page-shell";
 import FilterBar from "./components/filter-bar";
 import CarManufactureTable from "./components/car-manufacture-table";
@@ -16,6 +18,12 @@ export default function CarManufactureManagementPage() {
     sort: tableState.sort,
   });
   const form = useCarManufactureForm();
+  const pagination = useTablePagination({
+    items: data?.items || [],
+    pageNumber: tableState.pageNumber,
+    pageSize: tableState.pageSize,
+    setPageNumber: tableState.setPageNumber,
+  });
 
   return (
     <PageShell
@@ -25,16 +33,30 @@ export default function CarManufactureManagementPage() {
       <div className="space-y-4">
         <FilterBar
           search={tableState.search}
-          onSearchChange={tableState.setSearch}
+          onSearchChange={(v) => {
+            tableState.setSearch(v);
+            tableState.setPageNumber(1);
+          }}
           sort={tableState.sort}
           onSortChange={tableState.setSort}
           onAdd={form.startCreate}
         />
 
         <CarManufactureTable
-          data={data?.items || []}
+          data={pagination.paginatedData}
           onEdit={form.startEdit}
           onDelete={form.startDelete}
+        />
+
+        <TablePagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          startItem={pagination.startItem}
+          endItem={pagination.endItem}
+          totalItems={pagination.totalItems}
+          onPreviousPage={pagination.handlePreviousPage}
+          onNextPage={pagination.handleNextPage}
+          loading={isLoading}
         />
 
         <CarManufactureFormDialog
@@ -51,10 +73,6 @@ export default function CarManufactureManagementPage() {
           onConfirm={form.confirmDelete}
           isDeleting={form.isDeleting}
         />
-
-        {isLoading ? (
-          <p className="text-sm text-muted-foreground">Đang tải dữ liệu...</p>
-        ) : null}
       </div>
     </PageShell>
   );

@@ -32,15 +32,15 @@ export function StaffTableContent({
   return (
     <div className="rounded-lg border bg-white shadow-sm">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="w-[40px]" />
-            <TableHead>Nhân viên</TableHead>
-            <TableHead>Số điện thoại / Email</TableHead>
-            <TableHead>Ngày tạo</TableHead>
-            <TableHead>Ngày cập nhật</TableHead>
-            <TableHead>Trạm</TableHead>
-            <TableHead className="w-[70px] text-right">Hành động</TableHead>
+            <TableHead className="w-[40px] text-[#065F46]" />
+            <TableHead className="whitespace-nowrap text-[#065F46]">Nhân viên</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Số điện thoại / Email</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày cập nhật</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Trạm</TableHead>
+            <TableHead className="w-[70px] text-right whitespace-nowrap text-[#065F46]">Hành động</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
