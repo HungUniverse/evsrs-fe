@@ -60,6 +60,9 @@ export default function DepotModel() {
     }> = {}
     
     allOrdersData.forEach((order) => {
+      // Only count completed orders
+      if (order.status !== 'COMPLETED') return
+      
       if (order.depot && order.carEvs?.model) {
         const depotId = order.depotId
         const depotName = order.depot.name
@@ -87,13 +90,13 @@ export default function DepotModel() {
       }
     })
 
-    // Find top model for each depot
+    // Find top model for each depot, filter out depots with 0 rentals
     return Object.entries(depotModelCounts)
       .map(([depotId, data]) => {
         const topModel = Object.entries(data.models)
           .sort(([, a], [, b]) => b.count - a.count)[0]
         
-        if (!topModel) return null
+        if (!topModel || topModel[1].count === 0) return null
         
         return {
           depotId,
@@ -104,7 +107,7 @@ export default function DepotModel() {
           count: topModel[1].count
         }
       })
-      .filter(item => item !== null)
+      .filter(item => item !== null && item.count > 0)
       .sort((a, b) => (b?.count || 0) - (a?.count || 0))
   }, [allOrdersData])
 

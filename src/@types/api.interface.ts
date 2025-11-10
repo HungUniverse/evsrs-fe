@@ -1,4 +1,4 @@
-import type { UseFormRegister, FieldValues, UseFormGetValues, UseFormSetValue } from "react-hook-form";
+import type { UseFormRegister, FieldValues, UseFormGetValues, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import type { ListBaseResponse } from "./response";
 import type { AxiosResponse } from "axios";
 
@@ -15,13 +15,14 @@ export interface CrudAPI<T, TRequest = Partial<T>> {
 export interface FormItem<T extends FieldValues = Record<string, unknown>> {
   name: string;
   label: string;
-  type?: "text" | "number" | "email" | "password" | "date";
+  type?: "text" | "number" | "email" | "password" | "date" | "time";
   required?: boolean;
   placeholder?: string;
   render?: (methods: {
     register: UseFormRegister<T>;
     setValue: UseFormSetValue<T>;
     getValues: UseFormGetValues<T>;
+    watch: UseFormWatch<T>;
   }) => React.ReactNode;
 }
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getTransactionsByUserId } from "@/apis/transaction.api";
+import { TransactionApi } from "@/apis/transaction.api";
 import type { TransactionResponse } from "@/@types/payment/transaction";
 import TransactionFilter from "./components/transaction-filter";
 import TransactionList from "./components/transaction-list";
@@ -27,7 +27,7 @@ export default function AccountTransactions() {
     const fetchTransactions = async () => {
       setLoading(true);
       try {
-        const response = await getTransactionsByUserId(user.userId!);
+        const response = await TransactionApi.getTransactionsByUserId(user.userId!);
 
         let data: TransactionResponse[] = [];
         if (Array.isArray(response)) {
