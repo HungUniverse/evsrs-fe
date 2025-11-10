@@ -89,7 +89,6 @@ export default function DatePicker({
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
   const todayISO = formatDateISO(now);
 
-  // Filter start time: disable times before current time if today
   const startTimeOptions = useMemo(() => {
     if (disableTimeValidation || startDate !== todayISO) return SLOTS;
     return SLOTS.filter((t) => toMinutes(t) >= currentMinutes);
