@@ -1,12 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import {
-  UserRound,
-  ScrollText,
-  KeyRound,
-  type LucideIcon,
-  Receipt,
-} from "lucide-react";
+import { UserRound, ScrollText, type LucideIcon, Receipt } from "lucide-react";
 
 type Item = {
   to: string;
@@ -24,12 +18,6 @@ const items: Item[] = [
   },
   { to: "/account/my-trip", label: "Chuyến của tôi", icon: ScrollText },
   { to: "/account/transactions", label: "Giao dịch của tôi", icon: Receipt },
-  {
-    to: "/account/change-password",
-    label: "Đổi mật khẩu",
-    icon: KeyRound,
-    end: true,
-  },
 ];
 
 export default function AccountSidebar() {

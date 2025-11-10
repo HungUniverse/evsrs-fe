@@ -5,7 +5,7 @@ function SecurityPolicies() {
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <div
-        className="relative h-64 max-w-4xl mx-auto bg-cover bg-center mt-8 rounded-2xl overflow-hidden"
+        className="relative h-100 max-w-7xl mx-auto bg-cover bg-center mt-8 rounded-2xl overflow-hidden"
         style={{
           backgroundImage:
             "url('https://cdn.prod.website-files.com/6164b6e456de5b11ad2eb200/6196cdb9836b78264a3bb55a_BaxTowner_Automotive_Subaru-BA107468.jpg')",

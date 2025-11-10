@@ -3,15 +3,13 @@ import Hero from "./components/hero";
 import WhyEcoRent from "./components/whyEco";
 import Footer from "../components/layout/footer";
 import HowToRentSteps from "./components/howToRent";
-import AboutMioto from "./components/aboutMioto";
 import { useSystemConfig } from "@/hooks/use-system-config";
+import AboutEcorent from "./components/aboutMioto";
 
 export default function HomePage() {
-  const { fetchAndSave } = useSystemConfig("Tiền cọc");
+  const { fetchAndSave } = useSystemConfig("Deposit");
 
-  // Fetch system configs on homepage load
   useEffect(() => {
-    // Fetch deposit amount config and save to localStorage
     fetchAndSave();
   }, [fetchAndSave]);
 
@@ -20,7 +18,7 @@ export default function HomePage() {
       <Hero />
       <WhyEcoRent />
       <HowToRentSteps />
-      <AboutMioto />
+      <AboutEcorent />
       <Footer />
     </>
   );
