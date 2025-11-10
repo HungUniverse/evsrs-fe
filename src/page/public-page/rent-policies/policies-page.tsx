@@ -1,7 +1,10 @@
 import { Check, X } from "lucide-react";
 import Footer from "../../renter/components/layout/footer";
+import { SystemConfigUtils } from "@/hooks/use-system-config";
 
 function PoliciesPage() {
+  const systemDepositPercent = SystemConfigUtils.getDepositPercent();
+
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -77,7 +80,7 @@ function PoliciesPage() {
                   </td>
                   <td className="px-6 py-4 text-md text-gray-800 flex items-center gap-2">
                     <X className="w-4 h-4 text-red-500" />
-                    Giữ toàn bộ tiền cọc (30%)
+                    Giữ toàn bộ tiền cọc ({systemDepositPercent}% đơn hàng)
                   </td>
                 </tr>
               </tbody>
@@ -215,9 +218,9 @@ function PoliciesPage() {
             </p>
 
             <p>
-              • <strong>Đặt cọc:</strong> 30% giá trị đơn hàng, thanh toán trong
-              vòng 1 giờ sau khi đặt. Phần còn lại được thanh toán khi ký hợp
-              đồng.
+              • <strong>Đặt cọc:</strong> {systemDepositPercent}% giá trị đơn
+              hàng, thanh toán trong vòng 1 giờ sau khi đặt. Phần còn lại được
+              thanh toán khi ký hợp đồng.
             </p>
 
             <p>

@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import aboutImage from "@/images/about.jpg";
 import logo from "@/images/logo.png";
 
-export default function AboutMioto() {
+export default function AboutEcorent() {
   const navigate = useNavigate();
 
   const handleLearnMore = () => {
@@ -39,14 +39,14 @@ export default function AboutMioto() {
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
               Bạn muốn biết thêm
               <br />
-              về Mioto?
+              về Ecorent?
             </h2>
 
             {/* Description */}
             <p className="text-lg text-gray-600 leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
-              Mioto kết nối khách hàng có nhu cầu thuê xe với hàng ngàn chủ xe ô
-              tô ở TPHCM, Hà Nội & các tỉnh thành khác. Mioto hướng đến việc xây
-              dựng cộng đồng người dùng ô tô văn minh & uy tín tại Việt Nam.
+              Ecorent kết nối khách hàng có nhu cầu thuê xe với hàng ngàn chủ xe
+              ô tô ở TPHCM, Hà Nội & các tỉnh thành khác. Ecorent hướng đến việc
+              xây dựng cộng đồng người dùng ô tô văn minh & uy tín tại Việt Nam.
             </p>
 
             {/* CTA Button */}

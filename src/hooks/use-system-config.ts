@@ -66,7 +66,7 @@ export const SystemConfigUtils = {
 
   // Get deposit amount (Tiền cọc) - this is actually percentage
   getDepositAmount: (): number => {
-    const value = SystemConfigUtils.get("Tiền cọc");
+    const value = SystemConfigUtils.get("Deposit");
     return value ? parseFloat(value) || 0 : 0;
   },
 
@@ -78,9 +78,9 @@ export const SystemConfigUtils = {
   // Fetch deposit amount from API and save to localStorage
   fetchDepositAmount: async (): Promise<number> => {
     try {
-      const response = await SystemConfigApi.getByKey("Tiền cọc");
+      const response = await SystemConfig.getByKey("Deposit");
       const value = response.value || "0";
-      SystemConfigUtils.set("Tiền cọc", value);
+      SystemConfigUtils.set("Deposit", value);
       return parseFloat(value) || 0;
     } catch (error) {
       console.error("Failed to fetch deposit amount:", error);

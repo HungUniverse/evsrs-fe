@@ -55,7 +55,7 @@ export default function ContractParties({ orderId }: { orderId: string }) {
 
   if (loading) {
     return (
-      <section className="rounded-xl border bg-white p-5 md:p-6">
+      <section className="rounded-xl border bg-white p-2 md:p-6">
         <div className="h-4 w-48 bg-slate-100 rounded mb-3" />
         <div className="space-y-2">
           <div className="h-3 w-80 bg-slate-100 rounded" />
@@ -75,8 +75,8 @@ export default function ContractParties({ orderId }: { orderId: string }) {
   const gplxExpire = fmtDate(doc?.expireAt);
 
   return (
-    <section className="text-lg p-5 md:p-6">
-      <h3 className="text-xl font-bold text-gray-800 mb-4">
+    <section className="text-lg p-2 md:p-6">
+      <h3 className="text-xl font-bold text-gray-800 mb-2">
         1. Thông tin các bên
       </h3>
 
