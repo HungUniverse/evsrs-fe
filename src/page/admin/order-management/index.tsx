@@ -16,6 +16,7 @@ export default function OrderManagementPage() {
     displayedOrders,
     users,
     depots,
+    models,
     loading,
     pageNumber,
     pageSize,
@@ -30,6 +31,8 @@ export default function OrderManagementPage() {
     setSelectedUserId,
     selectedDepotId,
     setSelectedDepotId,
+    selectedModelId,
+    setSelectedModelId,
     statusFilter,
     setStatusFilter,
     paymentStatusFilter,
@@ -84,6 +87,8 @@ export default function OrderManagementPage() {
             onSelectedUserIdChange={setSelectedUserId}
             selectedDepotId={selectedDepotId}
             onSelectedDepotIdChange={setSelectedDepotId}
+            selectedModelId={selectedModelId}
+            onSelectedModelIdChange={setSelectedModelId}
             statusFilter={statusFilter}
             onStatusFilterChange={setStatusFilter}
             paymentStatusFilter={paymentStatusFilter}
@@ -95,6 +100,7 @@ export default function OrderManagementPage() {
             onClearFilters={clearFilters}
             users={users}
             depots={depots}
+            models={models}
           />
 
           <OrderTable

@@ -14,8 +14,18 @@ interface EnrichedCapacityAction extends CapacityAction {
   modelName?: string;
 }
 
+interface GroupedDepot {
+  stationId: string;
+  depotName: string;
+  vehicles: Array<{
+    modelName: string;
+    units: number;
+  }>;
+  totalUnits: number;
+}
+
 export default function CapacityAdvice() {
-  const [actions, setActions] = useState<EnrichedCapacityAction[]>([]);
+  const [groupedDepots, setGroupedDepots] = useState<GroupedDepot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,7 +64,35 @@ export default function CapacityAdvice() {
         })
       );
 
-      setActions(enrichedActions);
+      // Group by stationId
+      const grouped = enrichedActions.reduce<GroupedDepot[]>((acc, action) => {
+        const existing = acc.find((g) => g.stationId === action.stationId);
+        const enrichedAction = action as EnrichedCapacityAction;
+        
+        if (existing) {
+          existing.vehicles.push({
+            modelName: enrichedAction.modelName || "Unknown",
+            units: enrichedAction.units,
+          });
+          existing.totalUnits += enrichedAction.units;
+        } else {
+          acc.push({
+            stationId: enrichedAction.stationId,
+            depotName: enrichedAction.depotName || "Unknown",
+            vehicles: [
+              {
+                modelName: enrichedAction.modelName || "Unknown",
+                units: enrichedAction.units,
+              },
+            ],
+            totalUnits: enrichedAction.units,
+          });
+        }
+        
+        return acc;
+      }, []);
+      
+      setGroupedDepots(grouped);
     } catch (err) {
       console.error("Error fetching capacity advice:", err);
       setError("Không thể tải gợi ý AI. Vui lòng thử lại sau.");
@@ -101,7 +139,7 @@ export default function CapacityAdvice() {
     );
   }
 
-  if (actions.length === 0) {
+  if (groupedDepots.length === 0) {
     return (
       <Card>
         <CardHeader>
@@ -130,31 +168,48 @@ export default function CapacityAdvice() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {actions.map((action, index) => (
+          {groupedDepots.map((depot) => (
             <div
-              key={`${action.stationId}-${action.vehicleType}-${index}`}
-              className="flex items-center justify-between p-4 rounded-lg border bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 hover:shadow-md transition-shadow"
+              key={depot.stationId}
+              className="p-4 rounded-lg border bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 hover:shadow-md transition-shadow"
             >
-              <div className="flex-1 space-y-1">
+              <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Badge variant="default" className="bg-purple-600">
                     Mua
                   </Badge>
                   <span className="font-semibold text-lg">
-                    {action.depotName || "Đang tải..."}
+                    {depot.depotName}
                   </span>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Loại xe: <span className="font-medium text-foreground">{action.modelName || "Đang tải..."}</span>
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
                 <div className="text-right">
                   <div className="text-3xl font-bold text-purple-600">
-                    {action.units}
+                    {depot.totalUnits}
                   </div>
-                  <div className="text-xs text-muted-foreground">xe</div>
+                  <div className="text-xs text-muted-foreground">xe tổng</div>
                 </div>
+              </div>
+              
+              <div className="space-y-2 mt-3 pt-3 border-t">
+                {depot.vehicles.map((vehicle, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between py-2 px-3 rounded bg-white/50 dark:bg-gray-800/50"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-purple-600"></div>
+                      <span className="font-medium text-foreground">
+                        {vehicle.modelName}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-xl font-bold text-purple-600">
+                        {vehicle.units}
+                      </span>
+                      <span className="text-xs text-muted-foreground">xe</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           ))}

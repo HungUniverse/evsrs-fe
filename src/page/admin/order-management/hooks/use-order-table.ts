@@ -4,6 +4,7 @@ import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import type { OrderBookingStatus, PaymentStatus } from "@/@types/enum";
 import type { UserFull } from "@/@types/auth.type";
 import type { Depot } from "@/@types/car/depot";
+import type { Model } from "@/@types/car/model";
 import { OrderTableApi } from "../api/order-table.api";
 
 export interface UseOrderTableResult {
@@ -12,6 +13,7 @@ export interface UseOrderTableResult {
   displayedOrders: OrderBookingDetail[];
   users: UserFull[];
   depots: Depot[];
+  models: Model[];
   loading: boolean;
 
   // Pagination
@@ -33,6 +35,8 @@ export interface UseOrderTableResult {
   setSelectedUserId: (value: string) => void;
   selectedDepotId: string;
   setSelectedDepotId: (value: string) => void;
+  selectedModelId: string;
+  setSelectedModelId: (value: string) => void;
   statusFilter: string;
   setStatusFilter: (value: string) => void;
   paymentStatusFilter: string;
@@ -101,6 +105,7 @@ export function useOrderTable(): UseOrderTableResult {
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [searchOrderCode, setSearchOrderCode] = useState<string>("");
   const [selectedDepotId, setSelectedDepotId] = useState<string>("");
+  const [selectedModelId, setSelectedModelId] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState<string>("all");
   const [startDateFilter, setStartDateFilter] = useState<string>("");
@@ -112,6 +117,7 @@ export function useOrderTable(): UseOrderTableResult {
 
   const [users, setUsers] = useState<UserFull[]>([]);
   const [depots, setDepots] = useState<Depot[]>([]);
+  const [models, setModels] = useState<Model[]>([]);
 
   const fetchOrders = async () => {
     try {
@@ -152,6 +158,16 @@ export function useOrderTable(): UseOrderTableResult {
     } catch (error) {
       console.error("Error fetching depots:", error);
       toast.error("Không thể tải danh sách trạm xe điện");
+    }
+  };
+
+  const fetchModels = async () => {
+    try {
+      const modelList = await OrderTableApi.fetchModels();
+      setModels(modelList);
+    } catch (error) {
+      console.error("Error fetching models:", error);
+      toast.error("Không thể tải danh sách model");
     }
   };
 
@@ -272,6 +288,7 @@ export function useOrderTable(): UseOrderTableResult {
   const clearFilters = () => {
     setSelectedUserId("");
     setSelectedDepotId("");
+    setSelectedModelId("");
     setSearchOrderCode("");
     setStartDateFilter("");
     setEndDateFilter("");
@@ -288,6 +305,7 @@ export function useOrderTable(): UseOrderTableResult {
         paymentStatusFilter === "all" || order.paymentStatus === (paymentStatusFilter as PaymentStatus);
       const matchUser = !selectedUserId || order.user?.id === selectedUserId;
       const matchDepot = !selectedDepotId || order.depot?.id === selectedDepotId;
+      const matchModel = !selectedModelId || order.carEvs?.model?.id === selectedModelId;
 
       let matchStartDate = true;
       let matchEndDate = true;
@@ -321,13 +339,14 @@ export function useOrderTable(): UseOrderTableResult {
         }
       }
 
-      return matchStatus && matchPaymentStatus && matchUser && matchDepot && matchStartDate && matchEndDate;
+      return matchStatus && matchPaymentStatus && matchUser && matchDepot && matchModel && matchStartDate && matchEndDate;
     });
-  }, [orders, statusFilter, paymentStatusFilter, selectedUserId, selectedDepotId, startDateFilter, endDateFilter]);
+  }, [orders, statusFilter, paymentStatusFilter, selectedUserId, selectedDepotId, selectedModelId, startDateFilter, endDateFilter]);
 
   useEffect(() => {
     fetchUsers();
     fetchDepots();
+    fetchModels();
   }, []);
 
   useEffect(() => {
@@ -369,6 +388,7 @@ export function useOrderTable(): UseOrderTableResult {
     displayedOrders,
     users,
     depots,
+    models,
     loading,
     pageNumber,
     pageSize,
@@ -386,6 +406,8 @@ export function useOrderTable(): UseOrderTableResult {
     setSelectedUserId,
     selectedDepotId,
     setSelectedDepotId,
+    selectedModelId,
+    setSelectedModelId,
     statusFilter,
     setStatusFilter,
     paymentStatusFilter,

@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import type { UserFull } from "@/@types/auth.type";
 import type { Depot } from "@/@types/car/depot";
+import type { Model } from "@/@types/car/model";
 import { STATUS_OPTIONS, PAYMENT_STATUS_OPTIONS } from "../utils/utils";
 
 interface OrderTableToolbarProps {
@@ -18,6 +19,8 @@ interface OrderTableToolbarProps {
   onSelectedUserIdChange: (value: string) => void;
   selectedDepotId: string;
   onSelectedDepotIdChange: (value: string) => void;
+  selectedModelId: string;
+  onSelectedModelIdChange: (value: string) => void;
   statusFilter: string;
   onStatusFilterChange: (value: string) => void;
   paymentStatusFilter: string;
@@ -29,6 +32,7 @@ interface OrderTableToolbarProps {
   onClearFilters: () => void;
   users: UserFull[];
   depots: Depot[];
+  models: Model[];
 }
 
 export function OrderTableToolbar({
@@ -41,6 +45,8 @@ export function OrderTableToolbar({
   onSelectedUserIdChange,
   selectedDepotId,
   onSelectedDepotIdChange,
+  selectedModelId,
+  onSelectedModelIdChange,
   statusFilter,
   onStatusFilterChange,
   paymentStatusFilter,
@@ -52,6 +58,7 @@ export function OrderTableToolbar({
   onClearFilters,
   users,
   depots,
+  models,
 }: OrderTableToolbarProps) {
   return (
     <Card className="shadow-sm border bg-muted/30 rounded-lg">
@@ -110,6 +117,23 @@ export function OrderTableToolbar({
                 {depots.map((depot) => (
                   <SelectItem key={depot.id} value={depot.id}>
                     {depot.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Model Filter */}
+          <div className="flex-1 min-w-[140px] max-w-[180px]">
+            <Select value={selectedModelId || "all"} onValueChange={(value) => onSelectedModelIdChange(value === "all" ? "" : value)}>
+              <SelectTrigger className="h-9 bg-background text-sm">
+                <SelectValue placeholder="Tất cả model" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả model</SelectItem>
+                {models.map((model) => (
+                  <SelectItem key={model.id} value={model.id}>
+                    {model.modelName}
                   </SelectItem>
                 ))}
               </SelectContent>
