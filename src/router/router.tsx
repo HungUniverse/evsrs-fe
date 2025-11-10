@@ -74,7 +74,7 @@ export const router = createBrowserRouter([
       {
         path: "/search-car",
         element: (
-          <AuthGuard>
+          <AuthGuard requiredRole="USER">
             <SearchCar />
           </AuthGuard>
         ),
