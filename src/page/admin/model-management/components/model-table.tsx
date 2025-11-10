@@ -15,10 +15,11 @@ interface ModelTableProps {
   amenities: Amenity[];
   onEdit: (item: Model) => void;
   onDelete: (item: Model) => void;
+  depotId?: string;
 }
 
-const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities, onEdit, onDelete }) => {
-  const { getCarCount, loading: loadingCounts } = useCarCountByModel();
+const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities, onEdit, onDelete, depotId }) => {
+  const { getCarCount, loading: loadingCounts } = useCarCountByModel({ depotId });
   
   const formatCurrency = (value: number | string) => {
     return new Intl.NumberFormat('vi-VN', {

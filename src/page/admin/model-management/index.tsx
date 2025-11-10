@@ -69,6 +69,7 @@ export default function ModelManagementPage() {
           amenities={amenities}
           onEdit={form.startEdit}
           onDelete={form.startDelete}
+          depotId={tableState.depotId}
         />
 
         <TablePagination

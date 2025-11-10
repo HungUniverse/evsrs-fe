@@ -2,7 +2,12 @@ import { useState, useEffect } from "react";
 import { carEVAPI } from "@/apis/car-ev.api";
 import type { CarEV } from "@/@types/car/carEv";
 
-export function useCarCountByModel() {
+interface UseCarCountByModelOptions {
+  depotId?: string;
+}
+
+export function useCarCountByModel(options: UseCarCountByModelOptions = {}) {
+  const { depotId } = options;
   const [carCountMap, setCarCountMap] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,9 +24,17 @@ export function useCarCountByModel() {
         // Đếm số lượng xe theo modelId
         const countMap: Record<string, number> = {};
         
-        const items = response.data?.items || [];
+        let items = response.data?.items || [];
         
-        if (items && items.length > 0) {
+        // Filter by depot if depotId is provided
+        if (depotId && items.length > 0) {
+          items = items.filter((car: CarEV) => {
+            const carDepotId = car.depot?.id || car.depotId;
+            return String(carDepotId) === depotId;
+          });
+        }
+        
+        if (items.length > 0) {
           items.forEach((car: CarEV) => {
             // API trả về model object, không phải modelId trực tiếp
             const modelId = car.model?.id || car.modelId;
@@ -41,7 +54,7 @@ export function useCarCountByModel() {
     };
 
     fetchCarCounts();
-  }, []);
+  }, [depotId]);
 
   const getCarCount = (modelId: string): number => {
     return carCountMap[modelId] || 0;
