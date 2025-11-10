@@ -62,4 +62,5 @@ export type SystemConfigType =
   | "PaymentGateway"
   | "Notification"
   | "Security";
+export type MembershipLevelCode = "NONE" | "BRONZE" | "SILVER" | "GOLD";
 export type RecommendedAction = "BUY" | "OK" | "SURPLUS";

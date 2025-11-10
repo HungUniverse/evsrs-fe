@@ -33,6 +33,9 @@ export function useSystemConfig(key: string) {
     setLoading(true);
     setError(null);
     try {
+      // Clear old value first to avoid conflicts
+      localStorage.removeItem(storageKey);
+
       const response = await SystemConfigApi.getByKey(key);
       const configValue = response.value || "";
 
@@ -86,8 +89,11 @@ export const SystemConfigUtils = {
 
   // Get deposit amount (Tiền cọc) - this is actually percentage
   getDepositAmount: (): number => {
-    const value = SystemConfigUtils.get("Deposit");
-    return value ? parseFloat(value) || 0 : 0;
+    const value = SystemConfigUtils.get("DEPOSIT_FEE_PERCENTAGE");
+    if (!value) return 0;
+    // Remove non-numeric characters except decimal point
+    const cleaned = value.replace(/[^\d.]/g, "");
+    return parseFloat(cleaned) || 0;
   },
 
   // Get deposit percentage (Tiền cọc) - clearer name
@@ -98,13 +104,29 @@ export const SystemConfigUtils = {
   // Fetch deposit amount from API and save to localStorage
   fetchDepositAmount: async (): Promise<number> => {
     try {
-      const response = await SystemConfig.getByKey("Deposit");
+      // Clear old value first to avoid conflicts
+      SystemConfigUtils.remove("DEPOSIT_FEE_PERCENTAGE");
+
+      const response = await SystemConfigApi.getByKey("DEPOSIT_FEE_PERCENTAGE");
       const value = response.value || "0";
-      SystemConfigUtils.set("Deposit", value);
-      return parseFloat(value) || 0;
+      // Save original value to localStorage
+      SystemConfigUtils.set("DEPOSIT_FEE_PERCENTAGE", value);
+      // Return cleaned numeric value
+      const cleaned = value.replace(/[^\d.]/g, "");
+      return parseFloat(cleaned) || 0;
     } catch (error) {
       console.error("Failed to fetch deposit amount:", error);
       return 0;
     }
+  },
+
+  // Clear all system config from localStorage
+  clearAll: (): void => {
+    const keys = Object.keys(localStorage);
+    keys.forEach((key) => {
+      if (key.startsWith(STORAGE_PREFIX)) {
+        localStorage.removeItem(key);
+      }
+    });
   },
 };

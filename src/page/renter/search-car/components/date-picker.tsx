@@ -66,6 +66,8 @@ type DatePickerProps = {
   onChange: (value: DateRange) => void;
   title?: string;
   showTimeSelection?: boolean;
+  allowPastDates?: boolean; // For staff offline booking
+  disableTimeValidation?: boolean; // Disable current time validation
 };
 
 export default function DatePicker({
@@ -75,6 +77,8 @@ export default function DatePicker({
   onChange,
   title = "Chọn thời gian",
   showTimeSelection = true,
+  allowPastDates = false,
+  disableTimeValidation = false,
 }: DatePickerProps) {
   const { startDate, endDate, startTime, endTime } = value;
 
@@ -85,11 +89,10 @@ export default function DatePicker({
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
   const todayISO = formatDateISO(now);
 
-  // Filter start time: disable times before current time if today
   const startTimeOptions = useMemo(() => {
-    if (startDate !== todayISO) return SLOTS;
+    if (disableTimeValidation || startDate !== todayISO) return SLOTS;
     return SLOTS.filter((t) => toMinutes(t) >= currentMinutes);
-  }, [startDate, todayISO, currentMinutes]);
+  }, [startDate, todayISO, currentMinutes, disableTimeValidation]);
 
   // Disable end times earlier than start when same day
   const endTimeOptions = useMemo(() => {
@@ -99,12 +102,12 @@ export default function DatePicker({
   }, [startTime, startDate, endDate]);
 
   const handleStartDateSelect = (clickedDate: Date) => {
-    if (clickedDate < today) return;
+    if (!allowPastDates && clickedDate < today) return;
 
     const clickedISO = formatDateISO(clickedDate);
 
     // If selecting today, validate and adjust startTime if needed
-    if (clickedISO === todayISO) {
+    if (!disableTimeValidation && clickedISO === todayISO) {
       const currentTime = toMinutes(startTime);
       if (currentTime < currentMinutes) {
         // Find next available slot
@@ -135,7 +138,7 @@ export default function DatePicker({
     if (!range || !range.from) return;
 
     const clickedDate = range.from;
-    if (clickedDate < today) return;
+    if (!allowPastDates && clickedDate < today) return;
 
     // Single click - set as start date
     if (!range.to) {
@@ -147,7 +150,7 @@ export default function DatePicker({
     const from = range.from;
     const to = range.to;
 
-    if (from < today || to < today) return;
+    if (!allowPastDates && (from < today || to < today)) return;
 
     const safeStartISO = formatDateISO(from);
     const safeEndISO = formatDateISO(to);
@@ -159,7 +162,7 @@ export default function DatePicker({
     };
 
     // If selecting today as start, validate and adjust startTime
-    if (safeStartISO === todayISO) {
+    if (!disableTimeValidation && safeStartISO === todayISO) {
       const currentTime = toMinutes(startTime);
       if (currentTime < currentMinutes) {
         const nextSlot = SLOTS.find((t) => toMinutes(t) >= currentMinutes);
@@ -238,7 +241,7 @@ export default function DatePicker({
           <Calendar
             mode="range"
             numberOfMonths={2}
-            disabled={(date) => date < today}
+            disabled={allowPastDates ? undefined : (date) => date < today}
             selected={{ from: toDate(startDate), to: toDate(endDate) }}
             onSelect={handleDateChange}
             className="mx-auto px-4 py-1 w-10vh h-10vh pt-5 w-[550px] font-md text-[15px]"

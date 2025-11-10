@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { authAPI } from "@/apis/auth.api";
+import { Eye, EyeOff } from "lucide-react";
 
 type Props = {
   email: string;
@@ -17,6 +19,9 @@ type PasswordForm = {
 };
 
 export function CompleteRegisterForm({ email, phoneNumber, onDone }: Props) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -42,13 +47,21 @@ export function CompleteRegisterForm({ email, phoneNumber, onDone }: Props) {
         password: data.password,
       });
 
-      if (res.data.success) {
-        toast.success("Đăng ký thành công!");
+      // Check multiple possible success indicators
+      const payload = res?.data ?? res;
+      const ok =
+        payload?.success === true ||
+        payload?.code === "SUCCESS" ||
+        payload?.statusCode === 200 ||
+        res.status === 200;
+
+      if (ok) {
         onDone?.();
       } else {
-        toast.error(res.data.message ?? "Không thể đăng ký");
+        toast.error(payload?.message ?? "Không thể đăng ký");
       }
-    } catch {
+    } catch (error) {
+      console.error("Complete register error:", error);
       toast.error("Lỗi server khi hoàn tất đăng ký");
     }
   };
@@ -67,13 +80,27 @@ export function CompleteRegisterForm({ email, phoneNumber, onDone }: Props) {
 
       <div>
         <label className="block text-sm font-medium mb-1">Mật khẩu</label>
-        <Input
-          type="password"
-          {...register("password", {
-            required: "Vui lòng nhập mật khẩu",
-            minLength: { value: 6, message: "Tối thiểu 6 ký tự" },
-          })}
-        />
+        <div className="relative">
+          <Input
+            type={showPassword ? "text" : "password"}
+            {...register("password", {
+              required: "Vui lòng nhập mật khẩu",
+              minLength: { value: 6, message: "Tối thiểu 6 ký tự" },
+            })}
+            className="pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+          >
+            {showPassword ? (
+              <EyeOff className="w-4 h-4" />
+            ) : (
+              <Eye className="w-4 h-4" />
+            )}
+          </button>
+        </div>
         {errors.password && (
           <p className="text-sm text-red-500 mt-1">
             {errors.password.message as string}
@@ -85,12 +112,26 @@ export function CompleteRegisterForm({ email, phoneNumber, onDone }: Props) {
         <label className="block text-sm font-medium mb-1">
           Xác nhận mật khẩu
         </label>
-        <Input
-          type="password"
-          {...register("confirmPassword", {
-            required: "Vui lòng xác nhận mật khẩu",
-          })}
-        />
+        <div className="relative">
+          <Input
+            type={showConfirmPassword ? "text" : "password"}
+            {...register("confirmPassword", {
+              required: "Vui lòng xác nhận mật khẩu",
+            })}
+            className="pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+          >
+            {showConfirmPassword ? (
+              <EyeOff className="w-4 h-4" />
+            ) : (
+              <Eye className="w-4 h-4" />
+            )}
+          </button>
+        </div>
         {password !== confirm && (
           <p className="text-sm text-red-500 mt-1">Mật khẩu không khớp</p>
         )}

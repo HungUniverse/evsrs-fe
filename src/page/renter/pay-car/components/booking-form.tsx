@@ -12,7 +12,6 @@ import AddressSelect from "./address-section";
 import UserInfo from "./user-info";
 import PaymentSection from "./payment-section";
 import { useBookingCalc } from "@/hooks/use-booking-car-cal";
-import { useAvailableCarEVs } from "@/hooks/use-available-car";
 import { useDepotsByModel } from "@/hooks/use-depot-by-model";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -20,6 +19,7 @@ import { vnd } from "@/lib/utils/currency";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import type { Model } from "@/@types/car/model";
+import { MembershipAPI } from "@/apis/membership.api";
 
 type Props = {
   car: Model;
@@ -32,12 +32,28 @@ export default function BookingForm({ car, searchForm, onTimeChange }: Props) {
   const [paymentMethod, setPaymentMethod] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [membershipDiscount, setMembershipDiscount] = useState(0);
+
+  // Fetch membership discount
+  useEffect(() => {
+    const fetchMembership = async () => {
+      try {
+        const membership = await MembershipAPI.getMyMembership();
+        setMembershipDiscount(membership.discountPercent || 0);
+      } catch (error) {
+        console.error("Failed to fetch membership:", error);
+        setMembershipDiscount(0);
+      }
+    };
+    fetchMembership();
+  }, []);
 
   const { deposit } = useBookingCalc(
     car.price,
     searchForm.start,
     searchForm.end,
-    car.sale
+    car.sale,
+    membershipDiscount
   );
   const navigate = useNavigate();
 
@@ -60,14 +76,6 @@ export default function BookingForm({ car, searchForm, onTimeChange }: Props) {
     }));
   }, [depotData]);
 
-  // Prefetch available cars when depot is selected
-  const { data: availableCars, isLoading: isLoadingCars } = useAvailableCarEVs({
-    modelId: car.id,
-    depotId: selectedDepotId,
-  });
-
-  // Debug log when depot changes
-
   useEffect(() => {
     setSelectedDepotId("");
   }, [car.id, searchForm.location]);
@@ -80,31 +88,6 @@ export default function BookingForm({ car, searchForm, onTimeChange }: Props) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmit) return;
-
-    // Check if cars are still loading
-    if (isLoadingCars) {
-      toast.message("Đang tải xe khả dụng, vui lòng đợi...");
-      return;
-    }
-
-    // Check if there are available cars
-    const rawCandidates = availableCars?.available ?? [];
-    const candidates = rawCandidates.filter(
-      (c) => (c?.modelId ?? c?.model?.id) === car.id
-    );
-
-    console.log("[BookingForm] Submit check:", {
-      rawCandidates,
-      candidates,
-      modelId: car.id,
-    });
-
-    if (!candidates.length) {
-      toast.error(
-        "Không còn xe khả dụng tại trạm này. Vui lòng chọn trạm khác."
-      );
-      return;
-    }
 
     setIsSubmitting(true);
 

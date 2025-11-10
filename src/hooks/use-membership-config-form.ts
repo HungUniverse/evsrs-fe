@@ -1,5 +1,8 @@
 import { useState } from "react";
-import type { MembershipLevel, MembershipConfigRequest } from "@/@types/membership";
+import type {
+  MembershipLevel,
+  MembershipConfigRequest,
+} from "@/@types/membership";
 import { useMembershipConfigMutations } from "./use-membership-configs";
 
 export function useMembershipConfigForm() {
@@ -7,7 +10,9 @@ export function useMembershipConfigForm() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<MembershipLevel | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<MembershipLevel | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<MembershipLevel | null>(
+    null
+  );
 
   const startCreate = () => {
     setEditing(null);
@@ -19,7 +24,12 @@ export function useMembershipConfigForm() {
     setOpen(true);
   };
 
-  const submit = async (payload: MembershipConfigRequest | { discountPercent: number; requiredAmount: number }) => {
+  const submit = async (
+    payload:
+      | MembershipConfigRequest
+      | { discountPercent: number; requiredAmount: number }
+  ) => {
+    // eslint-disable-next-line no-useless-catch
     try {
       if (editing?.id) {
         // Update: chỉ cần discountPercent và requiredAmount
@@ -47,6 +57,7 @@ export function useMembershipConfigForm() {
 
   const confirmDelete = async () => {
     if (!itemToDelete?.id) return;
+    // eslint-disable-next-line no-useless-catch
     try {
       await remove.mutateAsync(itemToDelete.id);
       setDeleteDialogOpen(false);
@@ -73,4 +84,3 @@ export function useMembershipConfigForm() {
     isSubmitting: create.isPending || update.isPending,
   } as const;
 }
-

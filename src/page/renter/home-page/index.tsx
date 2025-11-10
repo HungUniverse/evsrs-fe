@@ -7,7 +7,7 @@ import { useSystemConfig } from "@/hooks/use-system-config";
 import AboutEcorent from "./components/aboutMioto";
 
 export default function HomePage() {
-  const { fetchAndSave } = useSystemConfig("Deposit");
+  const { fetchAndSave } = useSystemConfig("DEPOSIT_FEE_PERCENTAGE");
 
   useEffect(() => {
     fetchAndSave();

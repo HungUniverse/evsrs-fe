@@ -11,7 +11,8 @@ import type {
 export type ID = string;
 export type DateString = string;
 export interface OrderBookingRequest {
-  carEVDetailId: ID;
+  carEVDetailId: ID | null;
+  modelId: ID;
   depotId: ID;
   startAt: DateString;
   endAt: DateString;

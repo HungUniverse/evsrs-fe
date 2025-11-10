@@ -227,7 +227,7 @@ export function RegisterDialog({
             email={email}
             phoneNumber={phoneNumber}
             onDone={() => {
-              toast.success("Đăng ký thành công!");
+              toast.success("Đăng ký thành công! Vui lòng đăng nhập");
               setStep(1);
               setOtpSent(false);
               onOpenChange?.(false);

@@ -8,7 +8,6 @@ import { SepayOrderStatus } from "@/@types/payment/sepay";
 import type { OrderBookingRequest } from "@/@types/order/order-booking";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import type { Model } from "@/@types/car/model";
-import { useAvailableCarEVs } from "@/hooks/use-available-car";
 import bank from "@/images/bank.png";
 type PaymentState = {
   amount: number;
@@ -61,26 +60,10 @@ export default function DoPayment() {
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const hasAttemptedCreateRef = useRef(false); // Prevent double creation
 
-  const { data, isLoading } = useAvailableCarEVs({
-    modelId: state?.model?.id,
-    depotId: state?.depotId,
-  });
-
   const amount = state?.amount ?? 0;
-
-  // Debug logs
-  useEffect(() => {
-    console.log("[DoPayment] Available cars data:", data);
-    console.log("[DoPayment] Is loading:", isLoading);
-    console.log("[DoPayment] State:", state);
-  }, [data, isLoading, state]);
 
   // Clear old QR and orderId from localStorage on mount to generate new one
   useEffect(() => {
-    console.log("[DoPayment] Clearing old payment data from localStorage");
-    localStorage.removeItem("payment_qr_url");
-    localStorage.removeItem("payment_order_id");
-
     // Reset states to ensure fresh start
     setQrUrl(null);
     setOrderId(null);
@@ -110,20 +93,10 @@ export default function DoPayment() {
       return;
     }
 
-    if (isLoading) {
-      console.log("[DoPayment] Still loading car data");
-      return;
-    }
-
-    if (!data) {
-      console.log("[DoPayment] No car data available");
-      return;
-    }
-
     hasAttemptedCreateRef.current = true; // Mark as attempted BEFORE calling
     createOrder();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, data]); // Only re-run when loading state or data changes
+  }, []); // Only run once on mount
 
   // Poll Sepay status every 5 seconds when orderId exists
   useEffect(() => {
@@ -182,39 +155,13 @@ export default function DoPayment() {
     if (!isAuthenticated) {
       return;
     }
-    if (isLoading) {
-      console.log("[DoPayment][createOrder] Still loading cars");
-      toast.message("Đang tải xe khả dụng...");
-      return;
-    }
-
-    const rawCandidates = data?.available ?? [];
-    console.log("[DoPayment][createOrder] Raw candidates:", rawCandidates);
-
-    const candidates = rawCandidates.filter(
-      (c) => (c?.modelId ?? c?.model?.id) === state?.model?.id
-    );
-
-    console.log("[DoPayment][createOrder] Filtered candidates:", candidates);
-    console.log(
-      "[DoPayment][createOrder] Looking for modelId:",
-      state?.model?.id
-    );
-
-    if (!candidates.length) {
-      console.log("[DoPayment][createOrder] No candidates found!");
-      toast.error("Không còn xe khả dụng tại trạm này.");
-      return;
-    }
-
-    const chosen = candidates[0];
-    console.log("[DoPayment][createOrder] Chosen car:", chosen);
 
     setIsCreatingOrder(true);
 
     try {
       const body: OrderBookingRequest = {
-        carEVDetailId: chosen.id as string,
+        carEVDetailId: null, // BE will auto-assign based on modelId and depotId
+        modelId: state.model.id,
         depotId: state.depotId,
         startAt: toISO(state.searchForm.start),
         endAt: toISO(state.searchForm.end),
@@ -300,9 +247,7 @@ export default function DoPayment() {
               <div className="w-72 h-72 flex items-center justify-center text-sm text-gray-500">
                 {isCreatingOrder
                   ? "Đang tạo mã QR..."
-                  : isLoading
-                    ? "Đang tải xe khả dụng..."
-                    : "Đang khởi tạo mã QR..."}
+                  : "Đang khởi tạo mã QR..."}
               </div>
             )}
           </div>
