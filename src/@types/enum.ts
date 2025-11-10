@@ -62,3 +62,4 @@ export type SystemConfigType =
   | "PaymentGateway"
   | "Notification"
   | "Security";
+export type RecommendedAction = "BUY" | "OK" | "SURPLUS";

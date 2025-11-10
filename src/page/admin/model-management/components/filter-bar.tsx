@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Search, Filter, Plus } from "lucide-react";
 import type { SortValue } from "@/hooks/use-model-table-state";
 import type { CarManufacture } from "@/@types/car/carManufacture";
+import type { Depot } from "@/@types/car/depot";
 
 interface FilterBarProps {
   search: string;
@@ -14,7 +15,10 @@ interface FilterBarProps {
   onSortChange: (v: SortValue) => void;
   manufacturerCarId: string;
   onManufacturerChange: (v: string) => void;
+  depotId: string;
+  onDepotChange: (v: string) => void;
   manufacturers: CarManufacture[];
+  depots: Depot[];
   onAdd: () => void;
 }
 
@@ -25,7 +29,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
   onSortChange,
   manufacturerCarId,
   onManufacturerChange,
+  depotId,
+  onDepotChange,
   manufacturers,
+  depots,
   onAdd,
 }) => {
   return (
@@ -65,6 +72,23 @@ const FilterBar: React.FC<FilterBarProps> = ({
                   {manufacturers.map((m) => (
                     <SelectItem key={m.id} value={String(m.id)}>
                       {m.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Depot Filter */}
+            <div className="flex-1 min-w-[160px] max-w-[220px]">
+              <Select value={depotId || "all"} onValueChange={(v) => onDepotChange(v === "all" ? "" : v)}>
+                <SelectTrigger className="h-9 bg-background text-sm">
+                  <SelectValue placeholder="Tất cả trạm" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả trạm</SelectItem>
+                  {depots.map((d) => (
+                    <SelectItem key={d.id} value={String(d.id)}>
+                      {d.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

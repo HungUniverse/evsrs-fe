@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import type { Depot } from "@/@types/car/depot";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import RowActions from "./row-actions";
 import { formatDate } from "@/lib/utils/formatDate";
+import { AIIcon } from "@/components/ui/ai-icon";
+import ForecastDialog from "./forecast-dialog";
 
 interface DepotTableProps {
   data: Depot[];
@@ -12,6 +15,24 @@ interface DepotTableProps {
 }
 
 const DepotTable: React.FC<DepotTableProps> = ({ data, onEdit, onDelete }) => {
+  const [forecastDialog, setForecastDialog] = useState<{
+    open: boolean;
+    depotId: string;
+    depotName: string;
+  }>({
+    open: false,
+    depotId: "",
+    depotName: "",
+  });
+
+  const openForecast = (depot: Depot) => {
+    setForecastDialog({
+      open: true,
+      depotId: depot.id,
+      depotName: depot.name,
+    });
+  };
+
   const formatTime = (timeString: string): string => {
     if (!timeString) return "";
     try {
@@ -58,6 +79,7 @@ const DepotTable: React.FC<DepotTableProps> = ({ data, onEdit, onDelete }) => {
             <TableHead className="whitespace-nowrap text-[#065F46]">Giờ đóng cửa</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Trạng thái</TableHead>
+            <TableHead className="text-center whitespace-nowrap text-[#065F46]">Gợi ý AI</TableHead>
             <TableHead className="text-right whitespace-nowrap text-[#065F46] sticky right-0 bg-[#D1FAE5] shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
@@ -79,6 +101,16 @@ const DepotTable: React.FC<DepotTableProps> = ({ data, onEdit, onDelete }) => {
                   {!item.isDeleted ? "Hoạt động" : "Đã xóa"}
                 </Badge>
               </TableCell>
+              <TableCell className="text-center whitespace-nowrap">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => openForecast(item)}
+                  className="hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                >
+                  <AIIcon size={20} />
+                </Button>
+              </TableCell>
               <TableCell className="text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-muted/50 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
                 <RowActions item={item} onEdit={onEdit} onDelete={onDelete} />
               </TableCell>
@@ -86,13 +118,22 @@ const DepotTable: React.FC<DepotTableProps> = ({ data, onEdit, onDelete }) => {
           ))}
           {data.length === 0 && (
             <TableRow>
-              <TableCell colSpan={10} className="text-center text-sm text-muted-foreground py-8">
+              <TableCell colSpan={11} className="text-center text-sm text-muted-foreground py-8">
                 Không có dữ liệu
               </TableCell>
             </TableRow>
           )}
         </TableBody>
       </Table>
+
+      <ForecastDialog
+        open={forecastDialog.open}
+        onOpenChange={(open) =>
+          setForecastDialog((prev) => ({ ...prev, open }))
+        }
+        depotId={forecastDialog.depotId}
+        depotName={forecastDialog.depotName}
+      />
     </div>
   );
 };

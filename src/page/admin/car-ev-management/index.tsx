@@ -10,6 +10,7 @@ import FilterBar from "./components/filter-bar";
 import CarEVTable from "./components/car-ev-table";
 import CarEVFormDialog from "./components/car-ev-form-dialog";
 import DeleteConfirmationDialog from "./components/delete-confirmation-dialog";
+import CarStats from "./components/car-stats";
 
 export default function CarEVManagementPage() {
   const tableState = useCarEVTableState();
@@ -37,6 +38,8 @@ export default function CarEVManagementPage() {
       subtitle="Quản lý xe điện để quản lý các xe điện trên hệ thống."
     >
       <div className="space-y-4">
+        <CarStats />
+        
         <FilterBar
           search={tableState.search}
           onSearchChange={(v) => {

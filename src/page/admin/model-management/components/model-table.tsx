@@ -6,6 +6,8 @@ import RowActions from "./row-actions";
 import type { CarManufacture } from "@/@types/car/carManufacture";
 import type { Amenity } from "@/@types/car/amentities";
 import { formatDate } from "@/lib/utils/formatDate";
+import { useCarCountByModel } from "@/hooks/use-car-count-by-model";
+import { Car } from "lucide-react";
 
 interface ModelTableProps {
   data: Model[];
@@ -16,6 +18,8 @@ interface ModelTableProps {
 }
 
 const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities, onEdit, onDelete }) => {
+  const { getCarCount, loading: loadingCounts } = useCarCountByModel();
+  
   const formatCurrency = (value: number | string) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -47,6 +51,7 @@ const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities,
             <TableHead className="whitespace-nowrap text-[#065F46]">Số ghế</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Giá thuê</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Giảm giá (%)</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Số lượng xe</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Trạng thái</TableHead>
             <TableHead className="text-right whitespace-nowrap text-[#065F46] sticky right-0 bg-[#D1FAE5] shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Thao tác</TableHead>
@@ -78,6 +83,16 @@ const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities,
               <TableCell className="whitespace-nowrap">{formatCurrency(item.price)}</TableCell>
               <TableCell className="whitespace-nowrap">{item.sale}%</TableCell>
               <TableCell className="whitespace-nowrap">
+                {loadingCounts ? (
+                  <span className="text-muted-foreground">...</span>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Car className="h-4 w-4 text-blue-600" />
+                    <span className="font-semibold text-blue-600">{getCarCount(item.id)}</span>
+                  </div>
+                )}
+              </TableCell>
+              <TableCell className="whitespace-nowrap">
                 {item.createdAt ? formatDate(item.createdAt) : ""}
               </TableCell>
               <TableCell className="whitespace-nowrap">
@@ -92,7 +107,7 @@ const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities,
           ))}
           {data.length === 0 && (
             <TableRow>
-              <TableCell colSpan={12} className="text-center text-sm text-muted-foreground py-8">
+              <TableCell colSpan={13} className="text-center text-sm text-muted-foreground py-8">
                 Không có dữ liệu
               </TableCell>
             </TableRow>

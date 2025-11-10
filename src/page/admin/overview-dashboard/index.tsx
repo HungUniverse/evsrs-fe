@@ -15,6 +15,7 @@ import DepotStats from './components/depot-stats'
 import DepotRevenue from './components/depot-revenue'
 import ModelStats from './components/model-stats'
 import DepotModel from './components/depot-model'
+import CapacityAdvice from './components/capacity-advice'
 
 export default function OverviewDashboard() {
   return (
@@ -26,6 +27,8 @@ export default function OverviewDashboard() {
       
       <Stats />
       <Graph />
+      
+      <CapacityAdvice />
       
       <div className="grid gap-6 lg:grid-cols-2">
         <DepotStats />

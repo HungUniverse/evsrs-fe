@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { modelAPI } from "@/apis/model-ev.api";
+import { carEVAPI } from "@/apis/car-ev.api";
 import type { Model, ModelRequest } from "@/@types/car/model";
 import type { ListBaseResponse } from "@/@types/response";
+import type { CarEV } from "@/@types/car/carEv";
 
 export type ModelsListParams = {
   pageNumber?: number;
@@ -9,6 +11,7 @@ export type ModelsListParams = {
   search?: string;
   sort?: "name-asc" | "name-desc" | "price-asc" | "price-desc" | "range-asc" | "range-desc" | "created-desc" | "created-asc";
   manufacturerCarId?: string;
+  depotId?: string;
 };
 
 const queryKeys = {
@@ -22,6 +25,30 @@ export function useModelsList(params: ModelsListParams) {
       const res = await modelAPI.getAll(params.pageNumber, params.pageSize);
       const payload = res.data as ListBaseResponse<Model>;
       let items = payload.data.items || [];
+      
+      // Filter by depot if specified
+      if (params.depotId) {
+        // Get all cars with large pageSize (API không support filter depotId)
+        const carsRes = await carEVAPI.getAll({ pageNumber: 1, pageSize: 9999 });
+        const allCars = (carsRes.data?.items || []) as CarEV[];
+        
+        // Client-side filter: chỉ lấy xe thuộc depot này
+        const carsInDepot = allCars.filter((car) => {
+          const carDepotId = car.depot?.id || car.depotId;
+          return String(carDepotId) === params.depotId;
+        });
+        
+        // Get unique model IDs from these cars
+        const modelIdsInDepot = new Set(
+          carsInDepot
+            .map((car) => car.model?.id || car.modelId)
+            .filter((id) => id)
+        );
+        
+        // Filter models to only include those with cars in this depot
+        items = items.filter((model) => modelIdsInDepot.has(model.id));
+      }
+      
       // client-side search/sort/filter for now
       if (params.search) {
         const q = params.search.toLowerCase();
