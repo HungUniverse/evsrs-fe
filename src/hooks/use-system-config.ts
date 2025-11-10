@@ -3,24 +3,7 @@ import { SystemConfigApi } from "@/apis/system-config.api";
 
 const STORAGE_PREFIX = "system_config_";
 
-/**
- * Hook để lấy giá trị của 1 config cụ thể theo key
- * 
- * Mục đích: Lấy giá trị config đơn lẻ để sử dụng trong app (ví dụ: "Tiền cọc", "Phí vận chuyển")
- * - Tự động lấy từ localStorage trước (nếu có)
- * - Có thể fetch từ API và cache vào localStorage
- * - Phù hợp khi chỉ cần 1 giá trị config để tính toán/hiển thị
- * 
- * Khác với use-system-configs: Hook này dùng cho việc lấy 1 config value, 
- * còn use-system-configs dùng cho việc quản lý danh sách configs trong admin page
- * 
- * @param key - Key của config cần lấy (ví dụ: "Tiền cọc")
- * @returns { value, loading, error, fetchAndSave, refresh }
- * 
- * @example
- * const { value, fetchAndSave } = useSystemConfig("Tiền cọc");
- * useEffect(() => { fetchAndSave(); }, [fetchAndSave]);
- */
+// Hook để lấy config từ localStorage hoặc API
 export function useSystemConfig(key: string) {
   const [value, setValue] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -67,10 +50,7 @@ export function useSystemConfig(key: string) {
   };
 }
 
-/**
- * Utility functions để làm việc với system config trong localStorage
- * Không cần hook, có thể gọi trực tiếp
- */
+// Utility functions
 export const SystemConfigUtils = {
   // Get config value from localStorage
   get: (key: string): string | null => {
