@@ -82,6 +82,8 @@ export function DateRangeSelection({
         value={dateRange}
         onChange={handleDateRangeChange}
         title="Chọn thời gian thuê xe"
+        allowPastDates={true}
+        disableTimeValidation={true}
       />
     </div>
   );
