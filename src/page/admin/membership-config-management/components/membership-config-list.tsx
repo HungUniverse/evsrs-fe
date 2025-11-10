@@ -50,7 +50,6 @@ export default function MembershipConfigList() {
       <MembershipConfigTable
         data={pagination.paginatedData}
         onEdit={form.startEdit}
-        onDelete={form.startDelete}
       />
 
       <TablePagination

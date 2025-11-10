@@ -64,7 +64,11 @@ const AmenityFormDialog: React.FC<AmenityFormDialogProps> = ({ open, onOpenChang
             <Button type="button" variant="secondary" onClick={() => onOpenChange(false)} disabled={submitting}>
               Hủy
             </Button>
-            <Button type="submit" disabled={submitting}>
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="bg-emerald-200 text-emerald-900 hover:bg-emerald-300"
+            >
               {initialData?.id ? "Lưu thay đổi" : "Tạo mới"}
             </Button>
           </DialogFooter>

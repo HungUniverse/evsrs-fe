@@ -11,7 +11,6 @@ import { formatDate } from "@/lib/utils/formatDate";
 interface MembershipConfigTableProps {
   data: MembershipLevel[];
   onEdit: (item: MembershipLevel) => void;
-  onDelete: (item: MembershipLevel) => void;
 }
 
 // Translate level to Vietnamese
@@ -64,7 +63,7 @@ const getLevelBadgeProps = (level: string) => {
   }
 };
 
-const MembershipConfigTable: React.FC<MembershipConfigTableProps> = ({ data, onEdit, onDelete }) => {
+const MembershipConfigTable: React.FC<MembershipConfigTableProps> = ({ data, onEdit }) => {
   return (
     <div className="rounded-lg border bg-white shadow-sm">
       <Table>
@@ -105,7 +104,7 @@ const MembershipConfigTable: React.FC<MembershipConfigTableProps> = ({ data, onE
                   {item.updatedAt ? formatDate(item.updatedAt) : ""}
                 </TableCell>
                 <TableCell className="text-right whitespace-nowrap">
-                  <RowActions item={item} onEdit={onEdit} onDelete={onDelete} />
+                  <RowActions item={item} onEdit={onEdit} />
                 </TableCell>
               </TableRow>
             );

@@ -62,7 +62,7 @@ const AmenitiesToolbar: React.FC<AmenitiesToolbarProps> = ({
           </div>
 
           {/* Add Button */}
-          <Button onClick={onAddClick} className="h-9 shrink-0 text-sm">
+          <Button onClick={onAddClick} className="h-9 shrink-0 text-sm bg-emerald-200 text-emerald-900 hover:bg-emerald-300">
             <Plus className="h-3.5 w-3.5 mr-1.5" />
             Thêm tiện nghi
           </Button>

@@ -6,16 +6,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil } from "lucide-react";
 import type { MembershipLevel } from "@/@types/membership";
 
 interface RowActionsProps {
   item: MembershipLevel;
   onEdit: (item: MembershipLevel) => void;
-  onDelete: (item: MembershipLevel) => void;
 }
 
-const RowActions: React.FC<RowActionsProps> = ({ item, onEdit, onDelete }) => {
+const RowActions: React.FC<RowActionsProps> = ({ item, onEdit }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -28,10 +27,6 @@ const RowActions: React.FC<RowActionsProps> = ({ item, onEdit, onDelete }) => {
         <DropdownMenuItem onClick={() => onEdit(item)}>
           <Pencil className="mr-2 h-4 w-4" />
           Chỉnh sửa
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onDelete(item)} className="text-destructive">
-          <Trash2 className="mr-2 h-4 w-4" />
-          Xóa
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -58,7 +58,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ search, onSearchChange, sort, onS
           </div>
 
           {/* Add Button - Right Side */}
-          <Button onClick={onAddClick} className="h-9 shrink-0 text-sm ml-auto">
+          <Button onClick={onAddClick} className="h-9 shrink-0 text-sm ml-auto bg-emerald-200 text-emerald-900 hover:bg-emerald-300">
             <Plus className="h-3.5 w-3.5 mr-1.5" />
             Thêm tiện nghi
           </Button>

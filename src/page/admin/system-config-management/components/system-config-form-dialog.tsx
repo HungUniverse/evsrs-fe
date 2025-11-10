@@ -255,7 +255,11 @@ const SystemConfigFormDialog: React.FC<SystemConfigFormDialogProps> = ({
             >
               Hủy
             </Button>
-            <Button type="submit" disabled={submitting}>
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="bg-emerald-200 text-emerald-900 hover:bg-emerald-300"
+            >
               {submitting ? "Đang xử lý..." : initialData?.id ? "Lưu thay đổi" : "Tạo mới"}
             </Button>
           </DialogFooter>

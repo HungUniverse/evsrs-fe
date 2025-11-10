@@ -28,7 +28,7 @@ export function VerificationStatusCell({
   }
 
   if (!document) {
-    return <Badge variant="outline" className="whitespace-nowrap">Không có tài liệu</Badge>;
+    return <Badge variant="soft-gray" className="whitespace-nowrap">Không có tài liệu</Badge>;
   }
 
   return (
@@ -37,10 +37,10 @@ export function VerificationStatusCell({
         <Badge
           variant={
             document.status === "APPROVED"
-              ? "default"
+              ? "soft-green"
               : document.status === "REJECTED"
-                ? "destructive"
-                : "outline"
+                ? "soft-red"
+                : "soft-gray"
           }
           className="whitespace-nowrap"
         >
@@ -74,7 +74,7 @@ export function VerificationStatusCell({
         {document.status === "PENDING" && (
           <Button
             size="sm"
-            variant="outline"
+            className="bg-emerald-200 text-emerald-900 hover:bg-emerald-300"
             onClick={(e) => {
               e.stopPropagation();
               onVerification(user);

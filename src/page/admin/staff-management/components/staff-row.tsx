@@ -117,7 +117,14 @@ export function StaffTableRow({
                 Xem chi tiết
               </DropdownMenuItem>
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger>Chỉnh sửa</DropdownMenuSubTrigger>
+                <DropdownMenuSubTrigger
+                  onClick={(event) => {
+                    // Prevent expanding the row when opening the "Chỉnh sửa" submenu
+                    event.stopPropagation();
+                  }}
+                >
+                  Chỉnh sửa
+                </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
                   <DropdownMenuItem
                     onClick={(event) => {
