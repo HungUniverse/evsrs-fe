@@ -152,7 +152,7 @@ function MembershipBadge({
       <Crown className="w-4 h-4" />
       <div className="text-sm font-semibold">
         {label}
-        {discount > 0 && <span className="ml-1">({discount}% sale)</span>}
+        {discount > 0 && <span className="ml-1">(Giảm {discount}%)</span>}
       </div>
     </div>
   );
