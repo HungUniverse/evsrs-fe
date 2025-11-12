@@ -70,6 +70,7 @@ export default function ModelManagementPage() {
           onEdit={form.startEdit}
           onDelete={form.startDelete}
           depotId={tableState.depotId}
+          startIndex={pagination.startItem}
         />
 
         <TablePagination

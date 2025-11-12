@@ -88,6 +88,7 @@ export default function Transactions() {
             }}
             usersMap={usersMap}
             ordersMap={ordersMap}
+            startIndex={totalCount === 0 ? 0 : (pageNumber - 1) * pageSize + 1}
           />
 
           <TablePagination

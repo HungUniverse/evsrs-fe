@@ -45,6 +45,7 @@ export default function SystemConfigManagementPage() {
         <SystemConfigTable
           data={pagination.paginatedData}
           onEdit={form.startEdit}
+          startIndex={pagination.startItem}
         />
 
         <TablePagination

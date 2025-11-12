@@ -16,9 +16,10 @@ interface ModelTableProps {
   onEdit: (item: Model) => void;
   onDelete: (item: Model) => void;
   depotId?: string;
+  startIndex?: number;
 }
 
-const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities, onEdit, onDelete, depotId }) => {
+const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities, onEdit, onDelete, depotId, startIndex = 1 }) => {
   const { getCarCount, loading: loadingCounts } = useCarCountByModel({ depotId });
   
   const formatCurrency = (value: number | string) => {
@@ -43,8 +44,24 @@ const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities,
       <Table>
         <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="whitespace-nowrap text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10" style={{ width: '220px', minWidth: '220px' }}>Hình ảnh</TableHead>
-            <TableHead className="w-[15%] whitespace-nowrap text-[#065F46] sticky left-[220px] bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Tên model</TableHead>
+            <TableHead
+              className="whitespace-nowrap text-[#065F46] text-center sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10"
+              style={{ width: "64px", minWidth: "64px" }}
+            >
+              STT
+            </TableHead>
+            <TableHead
+              className="whitespace-nowrap text-[#065F46] sticky bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10"
+              style={{ width: "220px", minWidth: "220px", left: "64px" }}
+            >
+              Hình ảnh
+            </TableHead>
+            <TableHead
+              className="w-[15%] whitespace-nowrap text-[#065F46] sticky bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10"
+              style={{ left: "284px" }}
+            >
+              Tên model
+            </TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Nhà sản xuất</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Tiện nghi</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Dung lượng pin (kWh)</TableHead>
@@ -59,9 +76,18 @@ const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities,
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((item) => (
+          {data.map((item, index) => (
             <TableRow key={item.id} className="hover:bg-muted/50 transition-colors group">
-              <TableCell className="sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors" style={{ width: '220px', minWidth: '220px', padding: '1rem' }}>
+              <TableCell
+                className="text-center sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors text-muted-foreground"
+                style={{ width: "64px", minWidth: "64px" }}
+              >
+                {startIndex + index}
+              </TableCell>
+              <TableCell
+                className="sticky bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors"
+                style={{ width: "220px", minWidth: "220px", left: "64px", padding: "1rem" }}
+              >
                 {item.image ? (
                   <img 
                     src={item.image} 
@@ -75,7 +101,12 @@ const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities,
                   </div>
                 )}
               </TableCell>
-              <TableCell className="font-medium whitespace-nowrap sticky left-[220px] bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">{item.modelName}</TableCell>
+              <TableCell
+                className="font-medium whitespace-nowrap sticky bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors"
+                style={{ left: "284px" }}
+              >
+                {item.modelName}
+              </TableCell>
               <TableCell className="whitespace-nowrap">{getManufacturerName(item.manufacturerCarId)}</TableCell>
               <TableCell className="whitespace-nowrap">{getAmenityName(item.amenitiesId)}</TableCell>
               <TableCell className="whitespace-nowrap">{item.batteryCapacityKwh}</TableCell>
@@ -108,7 +139,7 @@ const ModelTable: React.FC<ModelTableProps> = ({ data, manufacturers, amenities,
           ))}
           {data.length === 0 && (
             <TableRow>
-              <TableCell colSpan={13} className="text-center text-sm text-muted-foreground py-8">
+              <TableCell colSpan={14} className="text-center text-sm text-muted-foreground py-8">
                 Không có dữ liệu
               </TableCell>
             </TableRow>

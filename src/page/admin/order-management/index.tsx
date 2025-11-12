@@ -4,7 +4,6 @@ import { OrderTableToolbar } from "./components/toolbar";
 import { OrderTable } from "./components/table";
 import { OrderTableLoadingState } from "./components/loading-state";
 import { UpdateStatusDialog } from "./components/update-status-dialog";
-// import { DeleteDialog } from "./components/delete-dialog"; // Commented out - delete function removed
 import { RefundDialog } from "./components/refund-dialog";
 import UserInfoModal from "@/page/staff/trip-management/components/user-info-modal";
 import { OrderStats } from "./components/order-stats";
@@ -49,8 +48,6 @@ export default function OrderManagementPage() {
     clearFilters,
     updateStatusDialogOpen,
     setUpdateStatusDialogOpen,
-    // deleteDialogOpen,
-    // setDeleteDialogOpen,
     refundDialogOpen,
     setRefundDialogOpen,
     userInfoUserId,
@@ -67,7 +64,6 @@ export default function OrderManagementPage() {
     submittingRefund,
     handleSearchOrderByCode,
     handleUpdateStatus,
-    // handleDelete,
     handleConfirmRefund,
   } = controller;
 
@@ -82,13 +78,13 @@ export default function OrderManagementPage() {
         <OrderTableLoadingState />
       ) : (
         <div className="space-y-4">
-          <OrderStats orders={orders} loading={loading} />
+          {/* <OrderStats orders={orders} loading={loading} />
           <OrderStatsDetail orders={orders} loading={loading} />
           
           <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
             <OrderStatusDistribution orders={orders} loading={loading} />
             <OrderInsights orders={orders} loading={loading} />
-          </div>
+          </div> */}
           
           <OrderTableToolbar
             searchOrderCode={searchOrderCode}
@@ -119,6 +115,7 @@ export default function OrderManagementPage() {
           <OrderTable
             orders={displayedOrders}
             loading={loading}
+            startIndex={totalCount === 0 ? 0 : (pageNumber - 1) * pageSize + 1}
             onUpdateStatus={(order) => {
               setSelectedOrder(order);
               setStatus(order.status);

@@ -14,6 +14,7 @@ interface TransactionTableProps {
   onViewOrder: (orderId: string) => void;
   usersMap: Map<string, UserFull>;
   ordersMap: Map<string, OrderBookingDetail>;
+  startIndex?: number;
 }
 
 export function TransactionTable({
@@ -24,13 +25,19 @@ export function TransactionTable({
   onViewOrder,
   usersMap,
   ordersMap,
+  startIndex = 1,
 }: TransactionTableProps) {
   return (
     <div className="rounded-lg border bg-white shadow-sm overflow-x-auto">
       <Table>
         <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="whitespace-nowrap text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Mã giao dịch</TableHead>
+            <TableHead className="w-16 whitespace-nowrap text-[#065F46] text-center sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">
+              STT
+            </TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46] sticky left-16 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">
+              Mã giao dịch
+            </TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ngày giao dịch</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Người dùng</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Mã đơn hàng</TableHead>
@@ -42,7 +49,7 @@ export function TransactionTable({
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-8">
+              <TableCell colSpan={8} className="text-center py-8">
                 <div className="flex items-center justify-center gap-2 text-muted-foreground">
                   <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
                   <span>Đang tải...</span>
@@ -51,7 +58,7 @@ export function TransactionTable({
             </TableRow>
           ) : transactions.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-12">
+              <TableCell colSpan={8} className="text-center py-12">
                 <div className="flex flex-col items-center gap-3 text-muted-foreground">
                   <CreditCard className="size-8" />
                   <div>
@@ -62,7 +69,7 @@ export function TransactionTable({
               </TableCell>
             </TableRow>
           ) : (
-            transactions.map((transaction) => (
+            transactions.map((transaction, index) => (
               <TransactionTableRow
                 key={transaction.id}
                 transaction={transaction}
@@ -71,6 +78,7 @@ export function TransactionTable({
                 onViewOrder={onViewOrder}
                 user={usersMap.get(transaction.userId)}
                 order={ordersMap.get(transaction.orderBookingId)}
+                index={startIndex + index}
               />
             ))
           )}

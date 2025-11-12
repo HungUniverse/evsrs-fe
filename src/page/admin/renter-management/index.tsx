@@ -108,6 +108,7 @@ export default function RenterManagementPage() {
             onVerification={handleDocumentVerification}
             onRequestDelete={openDeleteDialogForUser}
             onImageClick={setImageModal}
+            startIndex={pagination.startItem}
           />
 
           <TablePagination

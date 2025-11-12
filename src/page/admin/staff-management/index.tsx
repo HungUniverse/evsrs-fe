@@ -102,6 +102,7 @@ export default function StaffManagementPage() {
             depotMap={depotMap}
             onChangeDepot={openChangeDepotForUser}
             onRequestDelete={openDeleteDialogForUser}
+          startIndex={pagination.startItem}
           />
 
           <TablePagination

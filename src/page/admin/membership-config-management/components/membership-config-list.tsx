@@ -50,6 +50,7 @@ export default function MembershipConfigList() {
       <MembershipConfigTable
         data={pagination.paginatedData}
         onEdit={form.startEdit}
+        startIndex={pagination.startItem}
       />
 
       <TablePagination

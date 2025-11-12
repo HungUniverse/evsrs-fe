@@ -9,15 +9,19 @@ interface AmenityTableProps {
   data: Amenity[];
   onEdit: (item: Amenity) => void;
   onDelete: (item: Amenity) => void;
+  startIndex?: number;
 }
 
-const AmenityTable: React.FC<AmenityTableProps> = ({ data, onEdit, onDelete }) => {
+const AmenityTable: React.FC<AmenityTableProps> = ({ data, onEdit, onDelete, startIndex = 1 }) => {
   return (
     <div className="rounded-lg border bg-white shadow-sm overflow-x-auto">
       <Table>
         <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="w-[40%] whitespace-nowrap text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Tên tiện nghi</TableHead>
+            <TableHead className="w-16 whitespace-nowrap text-[#065F46] text-center sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">
+              STT
+            </TableHead>
+            <TableHead className="w-[40%] whitespace-nowrap text-[#065F46] sticky left-16 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Tên tiện nghi</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Biểu tượng (URL/Tên)</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Cập nhật</TableHead>
@@ -26,9 +30,12 @@ const AmenityTable: React.FC<AmenityTableProps> = ({ data, onEdit, onDelete }) =
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((item) => (
+          {data.map((item, index) => (
             <TableRow key={item.id} className="hover:bg-muted/50 transition-colors group">
-              <TableCell className="font-medium whitespace-nowrap sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">{item.name}</TableCell>
+              <TableCell className="whitespace-nowrap text-center sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors w-16 text-muted-foreground">
+                {startIndex + index}
+              </TableCell>
+              <TableCell className="font-medium whitespace-nowrap sticky left-16 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">{item.name}</TableCell>
               <TableCell className="whitespace-nowrap">{item.icon ? String(item.icon) : "-"}</TableCell>
               <TableCell className="whitespace-nowrap">
                 {item.createdAt ? formatDate(item.createdAt) : ""}
@@ -48,7 +55,7 @@ const AmenityTable: React.FC<AmenityTableProps> = ({ data, onEdit, onDelete }) =
           ))}
           {data.length === 0 && (
             <TableRow>
-              <TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-8">
+              <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-8">
                 Không có dữ liệu
               </TableCell>
             </TableRow>

@@ -14,6 +14,7 @@ interface StaffTableContentProps {
   depotMap: Record<string, Depot>;
   onChangeDepot: (user: UserFull) => void;
   onRequestDelete: (user: UserFull) => void;
+  startIndex?: number;
 }
 
 export function StaffTableContent({
@@ -26,6 +27,7 @@ export function StaffTableContent({
   depotMap,
   onChangeDepot,
   onRequestDelete,
+  startIndex = 1,
 }: StaffTableContentProps) {
   const hasData = rows.length > 0;
 
@@ -35,7 +37,12 @@ export function StaffTableContent({
         <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
             <TableHead className="w-[40px] text-[#065F46]" />
-            <TableHead className="whitespace-nowrap text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Nhân viên</TableHead>
+            <TableHead className="w-16 whitespace-nowrap text-[#065F46] text-center sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">
+              STT
+            </TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46] sticky left-16 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">
+              Nhân viên
+            </TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Số điện thoại / Email</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ngày cập nhật</TableHead>
@@ -45,10 +52,11 @@ export function StaffTableContent({
         </TableHeader>
         <TableBody>
           {hasData ? (
-            rows.map((user) => (
+            rows.map((user, index) => (
               <StaffTableRow
                 key={user.id}
                 user={user}
+                index={startIndex + index}
                 isSelected={Boolean(selected[user.id])}
                 onSelectChange={(value) => onToggleSelect(user.id, value)}
                 isExpanded={expandedRow === user.id}
@@ -61,7 +69,7 @@ export function StaffTableContent({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={7} className="py-12">
+              <TableCell colSpan={8} className="py-12">
                 <div className="flex flex-col items-center gap-3 text-center text-muted-foreground">
                   <Users className="size-8" />
                   <div>

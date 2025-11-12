@@ -15,6 +15,7 @@ import { getStatusVariant, getPaymentStatusVariant, getStatusLabel, getPaymentSt
 
 interface OrderTableRowProps {
   order: OrderBookingDetail;
+  index: number;
   onUpdateStatus: (order: OrderBookingDetail) => void;
   onRefund: (order: OrderBookingDetail) => void;
   onViewUser: (userId: string) => void;
@@ -22,6 +23,7 @@ interface OrderTableRowProps {
 
 export function OrderTableRow({
   order,
+  index,
   onUpdateStatus,
   onRefund,
   onViewUser,
@@ -37,7 +39,10 @@ export function OrderTableRow({
 
   return (
     <TableRow className="hover:bg-muted/50 transition-colors group">
-      <TableCell className="font-medium whitespace-nowrap sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
+      <TableCell className="whitespace-nowrap sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors w-16 text-center text-muted-foreground">
+        {index}
+      </TableCell>
+      <TableCell className="font-medium whitespace-nowrap sticky left-16 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
         {order.code ? (
           <button
             type="button"

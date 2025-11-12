@@ -46,6 +46,7 @@ export default function AmenitiesManagementPage() {
           data={pagination.paginatedData}
           onEdit={form.startEdit}
           onDelete={form.startDelete}
+          startIndex={pagination.startItem}
         />
 
         <TablePagination

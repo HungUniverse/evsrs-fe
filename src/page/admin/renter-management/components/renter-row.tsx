@@ -18,6 +18,7 @@ import { getDocStatus } from "../utils/utils";
 
 interface RenterTableRowProps {
   user: UserFull;
+  index: number;
   isSelected: boolean;
   onSelectChange: (value: boolean) => void;
   isExpanded: boolean;
@@ -31,6 +32,7 @@ interface RenterTableRowProps {
 
 export function RenterTableRow({
   user,
+  index,
   isSelected,
   onSelectChange,
   onToggleExpand,
@@ -62,7 +64,10 @@ export function RenterTableRow({
             onClick={(event) => event.stopPropagation()}
           />
         </TableCell>
-        <TableCell className="sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
+        <TableCell className="text-center sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors w-16 text-muted-foreground">
+          {index}
+        </TableCell>
+        <TableCell className="sticky left-16 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
           <div className="flex items-center gap-3">
             <img
               src={
