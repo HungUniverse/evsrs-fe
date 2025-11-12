@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Filter, Plus } from "lucide-react";
-import type { SortValue } from "@/hooks/use-model-table-state";
+import type { SortValue } from "../hooks/use-model-table-state";
 import type { CarManufacture } from "@/@types/car/carManufacture";
 import type { Depot } from "@/@types/car/depot";
 

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useUsersList } from "@/hooks/use-users-list";
+import { useUsersList } from "../hooks/use-users-list";
 import { useUserMemberships } from "../hooks/use-user-memberships";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { TablePagination } from "@/components/ui/table-pagination";

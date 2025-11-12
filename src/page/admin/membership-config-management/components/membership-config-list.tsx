@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useMembershipConfigs } from "@/hooks/use-membership-configs";
-import { useMembershipConfigForm } from "@/hooks/use-membership-config-form";
+import { useMembershipConfigs } from "../hooks/use-membership-configs";
+import { useMembershipConfigForm } from "../hooks/use-membership-config-form";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { TablePagination } from "@/components/ui/table-pagination";
 import MembershipConfigTable from "./membership-config-table";

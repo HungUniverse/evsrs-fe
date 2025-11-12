@@ -1,6 +1,6 @@
-import { useAmenitiesList } from "@/hooks/use-amenities";
-import { useAmenitiesTableState } from "@/hooks/use-amenities-table-state";
-import { useAmenityForm } from "@/hooks/use-amenity-form";
+import { useAmenitiesList } from "./hooks/use-amenities";
+import { useAmenitiesTableState } from "./hooks/use-amenities-table-state";
+import { useAmenityForm } from "./hooks/use-amenity-form";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { TablePagination } from "@/components/ui/table-pagination";
 import PageShell from "./components/page-shell";

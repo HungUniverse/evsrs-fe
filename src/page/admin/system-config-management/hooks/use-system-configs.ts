@@ -25,7 +25,7 @@ export function useSystemConfigsList(params: SystemConfigsListParams) {
         items = await SystemConfigApi.getByConfigType(params.configType);
       } else {
         const res = await SystemConfigApi.getAll();
-        items = res.data?.items || [];
+        items = res.items || [];
       }
       
       if (params.key) {

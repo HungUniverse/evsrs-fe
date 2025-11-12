@@ -70,4 +70,3 @@ export function useAmenityMutations() {
   return { create, update, remove };
 }
 
-

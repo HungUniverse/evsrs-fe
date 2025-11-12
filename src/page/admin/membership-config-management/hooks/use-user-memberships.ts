@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { ID } from "@/@types/common/pagination";
 import type { MyMembershipResponse } from "@/@types/membership";
-import { UserMembershipApi } from "../apis/user-membership.api";
+import { MembershipAPI } from "@/apis/membership.api";
 
 export function useUserMemberships(userIds: ID[]) {
   return useQuery({
@@ -12,7 +12,7 @@ export function useUserMemberships(userIds: ID[]) {
 
       const promises = userIds.map(async (userId) => {
         try {
-          const membership = await UserMembershipApi.getByUserId(userId);
+          const membership = await MembershipAPI.getByUserId(userId);
           return { userId, membership };
         } catch (error) {
           console.warn(`Failed to fetch membership for user ${userId}:`, error);

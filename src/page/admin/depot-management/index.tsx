@@ -1,6 +1,6 @@
-import { useDepotsList } from "@/hooks/use-depots";
-import { useDepotTableState } from "@/hooks/use-depot-table-state";
-import { useDepotForm } from "@/hooks/use-depot-form";
+import { useDepotsList } from "./hooks/use-depots";
+import { useDepotTableState } from "./hooks/use-depot-table-state";
+import { useDepotForm } from "./hooks/use-depot-form";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { TablePagination } from "@/components/ui/table-pagination";
 import type { Depot } from "@/@types/car/depot";

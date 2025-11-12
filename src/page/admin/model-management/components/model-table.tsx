@@ -6,7 +6,7 @@ import RowActions from "./row-actions";
 import type { CarManufacture } from "@/@types/car/carManufacture";
 import type { Amenity } from "@/@types/car/amentities";
 import { formatDate } from "@/lib/utils/formatDate";
-import { useCarCountByModel } from "@/hooks/use-car-count-by-model";
+import { useCarCountByModel } from "../hooks/use-car-count-by-model";
 import { Car } from "lucide-react";
 
 interface ModelTableProps {
