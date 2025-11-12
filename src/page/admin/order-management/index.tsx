@@ -7,6 +7,10 @@ import { UpdateStatusDialog } from "./components/update-status-dialog";
 // import { DeleteDialog } from "./components/delete-dialog"; // Commented out - delete function removed
 import { RefundDialog } from "./components/refund-dialog";
 import UserInfoModal from "@/page/staff/trip-management/components/user-info-modal";
+import { OrderStats } from "./components/order-stats";
+import { OrderStatsDetail } from "./components/order-stats-detail";
+import { OrderStatusDistribution } from "./components/order-status-distribution";
+import { OrderInsights } from "./components/order-insights";
 
 export default function OrderManagementPage() {
   const controller = useOrderTable();
@@ -23,6 +27,7 @@ export default function OrderManagementPage() {
     totalPages,
     totalCount,
     setPageSize,
+    setPageNumber,
     handleNextPage,
     handlePreviousPage,
     searchOrderCode,
@@ -77,6 +82,14 @@ export default function OrderManagementPage() {
         <OrderTableLoadingState />
       ) : (
         <div className="space-y-4">
+          <OrderStats orders={orders} loading={loading} />
+          <OrderStatsDetail orders={orders} loading={loading} />
+          
+          <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+            <OrderStatusDistribution orders={orders} loading={loading} />
+            <OrderInsights orders={orders} loading={loading} />
+          </div>
+          
           <OrderTableToolbar
             searchOrderCode={searchOrderCode}
             onSearchOrderCodeChange={setSearchOrderCode}
@@ -129,6 +142,7 @@ export default function OrderManagementPage() {
             totalItems={totalCount}
             onPreviousPage={handlePreviousPage}
             onNextPage={handleNextPage}
+            onPageChange={setPageNumber}
             loading={loading}
           />
 
