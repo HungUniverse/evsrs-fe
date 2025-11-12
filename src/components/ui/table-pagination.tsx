@@ -1,6 +1,12 @@
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
 
 export interface TablePaginationProps {
   currentPage: number;
@@ -10,13 +16,11 @@ export interface TablePaginationProps {
   totalItems: number;
   onPreviousPage: () => void;
   onNextPage: () => void;
+  onPageChange?: (page: number) => void;
   loading?: boolean;
 }
 
-/**
- * Component pagination chung cho table
- * Chỉ hiển thị khi có hơn 10 items
- */
+// Component pagination sử dụng shadcn pagination
 export function TablePagination({
   currentPage,
   totalPages,
@@ -25,20 +29,45 @@ export function TablePagination({
   totalItems,
   onPreviousPage,
   onNextPage,
+  onPageChange,
   loading = false,
 }: TablePaginationProps) {
-  // Chỉ hiển thị pagination khi có hơn 10 items
-  if (totalItems <= 10) {
-    return (
-      <div className="flex items-center justify-between px-2 py-4">
-        <div className="text-sm text-muted-foreground">
-          Hiển thị <span className="font-medium">{startItem}</span> -{" "}
-          <span className="font-medium">{endItem}</span> của{" "}
-          <span className="font-medium">{totalItems}</span> kết quả
-        </div>
-      </div>
-    );
-  }
+  if (totalItems === 0) return null;
+
+  const renderPageNumbers = () => {
+    const pages: (number | "ellipsis")[] = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push("ellipsis");
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push("ellipsis");
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push("ellipsis");
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push("ellipsis");
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  };
 
   return (
     <div className="flex items-center justify-between px-2 py-4">
@@ -53,37 +82,63 @@ export function TablePagination({
           </span>
         )}
       </div>
-      <div className="flex items-center gap-2">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onPreviousPage}
-              disabled={currentPage === 1 || loading}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Trang trước</TooltipContent>
-        </Tooltip>
-        <span className="text-sm text-muted-foreground">
-          Trang {currentPage} / {totalPages}
-        </span>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onNextPage}
-              disabled={currentPage === totalPages || loading}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Trang sau</TooltipContent>
-        </Tooltip>
-      </div>
+      {totalPages > 1 && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage > 1 && !loading) onPreviousPage();
+                }}
+                className={
+                  currentPage === 1 || loading
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
+              />
+            </PaginationItem>
+            {renderPageNumbers().map((page, index) => (
+              <PaginationItem key={index}>
+                {page === "ellipsis" ? (
+                  <PaginationEllipsis />
+                ) : (
+                  <PaginationLink
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (!loading && page !== currentPage && onPageChange) {
+                        onPageChange(page);
+                      }
+                    }}
+                    isActive={page === currentPage}
+                    className={
+                      loading ? "pointer-events-none opacity-50" : "cursor-pointer"
+                    }
+                  >
+                    {page}
+                  </PaginationLink>
+                )}
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage < totalPages && !loading) onNextPage();
+                }}
+                className={
+                  currentPage === totalPages || loading
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 }

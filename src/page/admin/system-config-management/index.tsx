@@ -55,6 +55,7 @@ export default function SystemConfigManagementPage() {
           totalItems={pagination.totalItems}
           onPreviousPage={pagination.handlePreviousPage}
           onNextPage={pagination.handleNextPage}
+          onPageChange={pagination.setPageNumber}
           loading={isLoading}
         />
 

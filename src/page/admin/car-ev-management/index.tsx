@@ -100,6 +100,7 @@ export default function CarEVManagementPage() {
           totalItems={pagination.totalItems}
           onPreviousPage={pagination.handlePreviousPage}
           onNextPage={pagination.handleNextPage}
+          onPageChange={pagination.setPageNumber}
           loading={isLoading || isLoadingDropdowns}
         />
 

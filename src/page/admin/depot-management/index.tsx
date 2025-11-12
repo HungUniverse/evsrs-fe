@@ -91,6 +91,7 @@ export default function DepotManagementPage() {
           totalItems={pagination.totalItems}
           onPreviousPage={pagination.handlePreviousPage}
           onNextPage={pagination.handleNextPage}
+          onPageChange={pagination.setPageNumber}
           loading={isLoading}
         />
 

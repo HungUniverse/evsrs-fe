@@ -194,6 +194,7 @@ export default function UserMembershipList() {
         totalItems={pagination.totalItems}
         onPreviousPage={pagination.handlePreviousPage}
         onNextPage={pagination.handleNextPage}
+        onPageChange={pagination.setPageNumber}
         loading={isLoading}
       />
     </div>

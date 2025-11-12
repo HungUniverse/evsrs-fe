@@ -80,6 +80,7 @@ export default function ModelManagementPage() {
           totalItems={pagination.totalItems}
           onPreviousPage={pagination.handlePreviousPage}
           onNextPage={pagination.handleNextPage}
+          onPageChange={pagination.setPageNumber}
           loading={isLoading || isLoadingDropdowns || isLoadingDepots}
         />
 

@@ -20,6 +20,7 @@ export default function Transactions() {
     totalPages,
     totalCount,
     setPageSize,
+    setPageNumber,
     handleNextPage,
     handlePreviousPage,
     searchCode,
@@ -97,6 +98,7 @@ export default function Transactions() {
             totalItems={totalCount}
             onPreviousPage={handlePreviousPage}
             onNextPage={handleNextPage}
+            onPageChange={setPageNumber}
             loading={loading}
           />
 
