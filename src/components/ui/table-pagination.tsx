@@ -7,6 +7,9 @@ import {
   PaginationPrevious,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
+import { ChevronsLeft, ChevronsRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 
 export interface TablePaginationProps {
   currentPage: number;
@@ -86,6 +89,28 @@ export function TablePagination({
         <Pagination className="mx-0 w-auto justify-end">
           <PaginationContent>
             <PaginationItem>
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage > 1 && !loading && onPageChange) {
+                    onPageChange(1);
+                  }
+                }}
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "default" }),
+                  "gap-1 px-2.5",
+                  (currentPage === 1 || loading)
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                )}
+                aria-label="Đầu trang"
+              >
+                <ChevronsLeft className="h-4 w-4" />
+                <span className="hidden sm:block">Đầu</span>
+              </a>
+            </PaginationItem>
+            <PaginationItem>
               <PaginationPrevious
                 href="#"
                 onClick={(e) => {
@@ -135,6 +160,28 @@ export function TablePagination({
                     : "cursor-pointer"
                 }
               />
+            </PaginationItem>
+            <PaginationItem>
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage < totalPages && !loading && onPageChange) {
+                    onPageChange(totalPages);
+                  }
+                }}
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "default" }),
+                  "gap-1 px-2.5",
+                  (currentPage === totalPages || loading)
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                )}
+                aria-label="Cuối trang"
+              >
+                <span className="hidden sm:block">Cuối</span>
+                <ChevronsRight className="h-4 w-4" />
+              </a>
             </PaginationItem>
           </PaginationContent>
         </Pagination>
