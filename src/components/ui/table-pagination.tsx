@@ -83,7 +83,7 @@ export function TablePagination({
         )}
       </div>
       {totalPages > 1 && (
-        <Pagination>
+        <Pagination className="mx-0 w-auto justify-end">
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
