@@ -3,11 +3,9 @@ import {
   PaginationContent,
   PaginationItem,
   PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
-import { ChevronsLeft, ChevronsRight } from "lucide-react";
+import { ChevronsLeft, ChevronsRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -107,22 +105,26 @@ export function TablePagination({
                 aria-label="Đầu trang"
               >
                 <ChevronsLeft className="h-4 w-4" />
-                <span className="hidden sm:block">Đầu</span>
               </a>
             </PaginationItem>
             <PaginationItem>
-              <PaginationPrevious
+              <a
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
                   if (currentPage > 1 && !loading) onPreviousPage();
                 }}
-                className={
-                  currentPage === 1 || loading
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "default" }),
+                  "gap-0 px-2.5",
+                  (currentPage === 1 || loading)
                     ? "pointer-events-none opacity-50"
                     : "cursor-pointer"
-                }
-              />
+                )}
+                aria-label="Trang trước"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </a>
             </PaginationItem>
             {renderPageNumbers().map((page, index) => (
               <PaginationItem key={index}>
@@ -148,18 +150,23 @@ export function TablePagination({
               </PaginationItem>
             ))}
             <PaginationItem>
-              <PaginationNext
+              <a
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
                   if (currentPage < totalPages && !loading) onNextPage();
                 }}
-                className={
-                  currentPage === totalPages || loading
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "default" }),
+                  "gap-0 px-2.5",
+                  (currentPage === totalPages || loading)
                     ? "pointer-events-none opacity-50"
                     : "cursor-pointer"
-                }
-              />
+                )}
+                aria-label="Trang sau"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </a>
             </PaginationItem>
             <PaginationItem>
               <a
@@ -179,7 +186,6 @@ export function TablePagination({
                 )}
                 aria-label="Cuối trang"
               >
-                <span className="hidden sm:block">Cuối</span>
                 <ChevronsRight className="h-4 w-4" />
               </a>
             </PaginationItem>
