@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Filter, RotateCcw, Plus } from "lucide-react";
-import type { SortValue } from "@/hooks/use-depot-table-state";
+import type { SortValue } from "../hooks/use-depot-table-state";
 
 interface FilterBarProps {
   search: string;

@@ -2,19 +2,18 @@ import React, { useState } from "react";
 import type { Depot } from "@/@types/car/depot";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import RowActions from "./row-actions";
 import { formatDate } from "@/lib/utils/formatDate";
-import { AIIcon } from "@/components/ui/ai-icon";
 import ForecastDialog from "./forecast-dialog";
 
 interface DepotTableProps {
   data: Depot[];
   onEdit: (item: Depot) => void;
   onDelete: (item: Depot) => void;
+  startIndex?: number;
 }
 
-const DepotTable: React.FC<DepotTableProps> = ({ data, onEdit, onDelete }) => {
+const DepotTable: React.FC<DepotTableProps> = ({ data, onEdit, onDelete, startIndex = 1 }) => {
   const [forecastDialog, setForecastDialog] = useState<{
     open: boolean;
     depotId: string;
@@ -70,7 +69,10 @@ const DepotTable: React.FC<DepotTableProps> = ({ data, onEdit, onDelete }) => {
       <Table>
         <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="whitespace-nowrap text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Tên trạm</TableHead>
+            <TableHead className="w-16 whitespace-nowrap text-[#065F46] text-center sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">
+              STT
+            </TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46] sticky left-16 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Tên trạm</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Tỉnh/Thành phố</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Quận/Huyện</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Phường/Xã</TableHead>
@@ -79,14 +81,18 @@ const DepotTable: React.FC<DepotTableProps> = ({ data, onEdit, onDelete }) => {
             <TableHead className="whitespace-nowrap text-[#065F46]">Giờ đóng cửa</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Trạng thái</TableHead>
-            <TableHead className="text-center whitespace-nowrap text-[#065F46]">Gợi ý AI</TableHead>
             <TableHead className="text-right whitespace-nowrap text-[#065F46] sticky right-0 bg-[#D1FAE5] shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((item) => (
+          {data.map((item, index) => (
             <TableRow key={item.id} className="hover:bg-muted/50 transition-colors group">
-              <TableCell className="font-medium whitespace-nowrap sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">{item.name}</TableCell>
+              <TableCell className="whitespace-nowrap text-center sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors w-16 text-muted-foreground">
+                {startIndex + index}
+              </TableCell>
+              <TableCell className="font-medium whitespace-nowrap sticky left-16 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
+                {item.name}
+              </TableCell>
               <TableCell className="whitespace-nowrap">{item.province}</TableCell>
               <TableCell className="whitespace-nowrap">{item.district}</TableCell>
               <TableCell className="whitespace-nowrap">{item.ward}</TableCell>
@@ -101,18 +107,8 @@ const DepotTable: React.FC<DepotTableProps> = ({ data, onEdit, onDelete }) => {
                   {!item.isDeleted ? "Hoạt động" : "Đã xóa"}
                 </Badge>
               </TableCell>
-              <TableCell className="text-center whitespace-nowrap">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => openForecast(item)}
-                  className="hover:bg-purple-50 dark:hover:bg-purple-950/20"
-                >
-                  <AIIcon size={20} />
-                </Button>
-              </TableCell>
               <TableCell className="text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-muted/50 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
-                <RowActions item={item} onEdit={onEdit} onDelete={onDelete} />
+                <RowActions item={item} onEdit={onEdit} onDelete={onDelete} onForecast={openForecast} />
               </TableCell>
             </TableRow>
           ))}

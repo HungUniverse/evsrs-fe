@@ -22,4 +22,3 @@ export function useAmenitiesTableState() {
   } as const;
 }
 
-

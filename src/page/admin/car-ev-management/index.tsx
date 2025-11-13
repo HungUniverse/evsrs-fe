@@ -1,7 +1,7 @@
-import { useCarEVsList } from "@/hooks/use-car-evs";
-import { useCarEVTableState } from "@/hooks/use-car-ev-table-state";
-import { useCarEVForm } from "@/hooks/use-car-ev-form";
-import { useCarEVDropdowns } from "@/hooks/use-car-ev-dropdowns";
+import { useCarEVsList } from "./hooks/use-car-evs";
+import { useCarEVTableState } from "./hooks/use-car-ev-table-state";
+import { useCarEVForm } from "./hooks/use-car-ev-form";
+import { useCarEVDropdowns } from "./hooks/use-car-ev-dropdowns";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { TablePagination } from "@/components/ui/table-pagination";
 import type { CarEV } from "@/@types/car/carEv";
@@ -73,6 +73,7 @@ export default function CarEVManagementPage() {
           data={pagination.paginatedData}
           onEdit={form.startEdit}
           onDelete={form.startDelete}
+          startIndex={pagination.startItem}
         />
 
         <CarEVFormDialog
@@ -100,6 +101,7 @@ export default function CarEVManagementPage() {
           totalItems={pagination.totalItems}
           onPreviousPage={pagination.handlePreviousPage}
           onNextPage={pagination.handleNextPage}
+          onPageChange={pagination.setPageNumber}
           loading={isLoading || isLoadingDropdowns}
         />
 

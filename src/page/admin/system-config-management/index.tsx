@@ -1,6 +1,6 @@
-import { useSystemConfigsList } from "@/hooks/use-system-configs";
-import { useSystemConfigTableState } from "@/hooks/use-system-config-table-state";
-import { useSystemConfigForm } from "@/hooks/use-system-config-form";
+import { useSystemConfigsList } from "./hooks/use-system-configs";
+import { useSystemConfigTableState } from "./hooks/use-system-config-table-state";
+import { useSystemConfigForm } from "./hooks/use-system-config-form";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { TablePagination } from "@/components/ui/table-pagination";
 import PageShell from "./components/page-shell";
@@ -45,6 +45,7 @@ export default function SystemConfigManagementPage() {
         <SystemConfigTable
           data={pagination.paginatedData}
           onEdit={form.startEdit}
+          startIndex={pagination.startItem}
         />
 
         <TablePagination
@@ -55,6 +56,7 @@ export default function SystemConfigManagementPage() {
           totalItems={pagination.totalItems}
           onPreviousPage={pagination.handlePreviousPage}
           onNextPage={pagination.handleNextPage}
+          onPageChange={pagination.setPageNumber}
           loading={isLoading}
         />
 

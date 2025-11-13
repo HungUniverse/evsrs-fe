@@ -1,6 +1,6 @@
-import { useCarManufacturesList } from "@/hooks/use-car-manufactures";
-import { useCarManufactureTableState } from "@/hooks/use-car-manufacture-table-state";
-import { useCarManufactureForm } from "@/hooks/use-car-manufacture-form";
+import { useCarManufacturesList } from "./hooks/use-car-manufactures";
+import { useCarManufactureTableState } from "./hooks/use-car-manufacture-table-state";
+import { useCarManufactureForm } from "./hooks/use-car-manufacture-form";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { TablePagination } from "@/components/ui/table-pagination";
 import PageShell from "./components/page-shell";
@@ -46,6 +46,7 @@ export default function CarManufactureManagementPage() {
           data={pagination.paginatedData}
           onEdit={form.startEdit}
           onDelete={form.startDelete}
+          startIndex={pagination.startItem}
         />
 
         <TablePagination
@@ -56,6 +57,7 @@ export default function CarManufactureManagementPage() {
           totalItems={pagination.totalItems}
           onPreviousPage={pagination.handlePreviousPage}
           onNextPage={pagination.handleNextPage}
+          onPageChange={pagination.setPageNumber}
           loading={isLoading}
         />
 

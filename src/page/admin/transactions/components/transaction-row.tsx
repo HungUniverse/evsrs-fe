@@ -14,6 +14,7 @@ interface TransactionTableRowProps {
   onViewOrder: (orderId: string) => void;
   user?: UserFull;
   order?: OrderBookingDetail;
+  index: number;
 }
 
 export function TransactionTableRow({
@@ -23,6 +24,7 @@ export function TransactionTableRow({
   onViewOrder,
   user,
   order,
+  index,
 }: TransactionTableRowProps) {
   const amount = parseFloat(transaction.tranferAmount || "0");
   const isIncoming = transaction.transferType === "in";
@@ -35,7 +37,10 @@ export function TransactionTableRow({
 
   return (
     <TableRow className="hover:bg-muted/50 transition-colors group">
-      <TableCell className="font-medium whitespace-nowrap sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
+      <TableCell className="whitespace-nowrap text-center sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors w-16 text-muted-foreground">
+        {index}
+      </TableCell>
+      <TableCell className="font-medium whitespace-nowrap sticky left-16 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
         {transaction.code ? (
           <button
             type="button"

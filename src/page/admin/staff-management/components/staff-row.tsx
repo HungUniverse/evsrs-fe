@@ -29,6 +29,7 @@ import { formatDate } from "@/lib/utils/formatDate";
 
 interface StaffTableRowProps {
   user: UserFull;
+  index: number;
   isSelected: boolean;
   onSelectChange: (value: boolean) => void;
   isExpanded: boolean;
@@ -41,6 +42,7 @@ interface StaffTableRowProps {
 
 export function StaffTableRow({
   user,
+  index,
   isSelected,
   onSelectChange,
   isExpanded,
@@ -65,7 +67,10 @@ export function StaffTableRow({
             onClick={(event) => event.stopPropagation()}
           />
         </TableCell>
-        <TableCell className="whitespace-nowrap sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
+        <TableCell className="whitespace-nowrap text-center sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors w-16 text-muted-foreground">
+          {index}
+        </TableCell>
+        <TableCell className="whitespace-nowrap sticky left-16 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
           <div className="flex items-center gap-3">
             <img
               src={
@@ -152,7 +157,7 @@ export function StaffTableRow({
 
       {isExpanded && (
         <TableRow>
-          <TableCell colSpan={7} className="p-0">
+          <TableCell colSpan={8} className="p-0">
             <div className="border-t bg-muted/20 p-6">
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <div className="space-y-4">

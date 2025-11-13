@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
-import { useUsersList } from "@/hooks/use-users-list";
-import { useUserMemberships } from "@/hooks/use-user-memberships";
-import { useUserOrderTotals } from "@/hooks/use-user-order-totals";
+import { useUsersList } from "../hooks/use-users-list";
+import { useUserMemberships } from "../hooks/use-user-memberships";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { TablePagination } from "@/components/ui/table-pagination";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -18,9 +17,8 @@ export default function UserMembershipList() {
   const { data: users, isLoading: isLoadingUsers } = useUsersList();
   const userIds = useMemo(() => (users || []).map((u) => u.id), [users]);
   const { data: memberships, isLoading: isLoadingMemberships } = useUserMemberships(userIds);
-  const { data: orderTotals, isLoading: isLoadingOrderTotals } = useUserOrderTotals(userIds);
 
-  const isLoading = isLoadingUsers || isLoadingMemberships || isLoadingOrderTotals;
+  const isLoading = isLoadingUsers || isLoadingMemberships;
   const pagination = useTablePagination({
     items: users || [],
     pageNumber,
@@ -39,6 +37,7 @@ export default function UserMembershipList() {
           <Table>
             <TableHeader className="bg-[#D1FAE5]">
               <TableRow>
+                <TableHead className="w-16 text-center text-[#065F46]">STT</TableHead>
                 <TableHead className="text-[#065F46]">Họ tên</TableHead>
                 <TableHead className="text-[#065F46]">Email</TableHead>
                 <TableHead className="text-[#065F46]">Số điện thoại</TableHead>
@@ -51,6 +50,9 @@ export default function UserMembershipList() {
             <TableBody>
               {[1, 2, 3, 4, 5].map((i) => (
                 <TableRow key={i}>
+                  <TableCell>
+                    <Skeleton className="h-4 w-6" />
+                  </TableCell>
                   <TableCell>
                     <Skeleton className="h-4 w-32" />
                   </TableCell>
@@ -110,7 +112,8 @@ export default function UserMembershipList() {
         <Table>
           <TableHeader className="bg-[#D1FAE5]">
             <TableRow>
-              <TableHead className="text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Họ tên</TableHead>
+              <TableHead className="w-16 text-center text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">STT</TableHead>
+              <TableHead className="text-[#065F46] sticky left-16 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Họ tên</TableHead>
               <TableHead className="text-[#065F46]">Email</TableHead>
               <TableHead className="text-[#065F46]">Số điện thoại</TableHead>
               <TableHead className="text-[#065F46]">Hạng thành viên</TableHead>
@@ -120,7 +123,7 @@ export default function UserMembershipList() {
             </TableRow>
           </TableHeader>
            <TableBody>
-             {pagination.paginatedData.map((user) => {
+             {pagination.paginatedData.map((user, index) => {
                const membership = memberships?.[user.id];
                // User không có hạng thì level = "None", null, hoặc membership = null
                const hasValidMembership = 
@@ -129,11 +132,16 @@ export default function UserMembershipList() {
                  membership.level.toUpperCase() !== "NONE" &&
                  membership.level.toUpperCase() !== "";
                const levelBadge = getLevelBadgeProps(membership?.level);
-               const totalOrderValue = orderTotals?.[user.id] ?? 0;
+               const totalOrderValue = memberships?.[user.id]?.totalOrderBill ?? 0;
 
                return (
                  <TableRow key={user.id} className="hover:bg-muted/50 transition-colors group">
-                   <TableCell className="font-medium whitespace-nowrap sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">{user.fullName || "Chưa có tên"}</TableCell>
+                   <TableCell className="whitespace-nowrap text-center sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors w-16 text-muted-foreground">
+                     {pagination.startItem + index}
+                   </TableCell>
+                   <TableCell className="font-medium whitespace-nowrap sticky left-16 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
+                     {user.fullName || "Chưa có tên"}
+                   </TableCell>
                    <TableCell className="whitespace-nowrap">{user.userEmail}</TableCell>
                    <TableCell className="whitespace-nowrap">{user.phoneNumber || "Chưa có"}</TableCell>
                    <TableCell className="whitespace-nowrap">
@@ -177,7 +185,7 @@ export default function UserMembershipList() {
              })}
             {pagination.paginatedData.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-8">
+                <TableCell colSpan={8} className="text-center text-sm text-muted-foreground py-8">
                   Không có dữ liệu
                 </TableCell>
               </TableRow>
@@ -194,6 +202,7 @@ export default function UserMembershipList() {
         totalItems={pagination.totalItems}
         onPreviousPage={pagination.handlePreviousPage}
         onNextPage={pagination.handleNextPage}
+        onPageChange={pagination.setPageNumber}
         loading={isLoading}
       />
     </div>

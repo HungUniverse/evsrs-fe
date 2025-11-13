@@ -18,6 +18,7 @@ interface RenterTableContentProps {
   onVerification: (user: UserFull) => void;
   onRequestDelete: (user: UserFull) => void;
   onImageClick: (state: ImageModalState) => void;
+  startIndex?: number;
 }
 
 export function RenterTableContent({
@@ -31,6 +32,7 @@ export function RenterTableContent({
   onVerification,
   onRequestDelete,
   onImageClick,
+  startIndex = 1,
 }: RenterTableContentProps) {
   const hasData = rows.length > 0;
 
@@ -40,7 +42,12 @@ export function RenterTableContent({
         <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
             <TableHead className="w-[40px] text-[#065F46]" />
-            <TableHead className="text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Người dùng</TableHead>
+            <TableHead className="w-16 text-center text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">
+              STT
+            </TableHead>
+            <TableHead className="text-[#065F46] sticky left-16 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">
+              Người dùng
+            </TableHead>
             <TableHead className="text-[#065F46]">Số điện thoại / Email</TableHead>
             <TableHead className="text-[#065F46]">Tài liệu</TableHead>
             <TableHead className="text-[#065F46]">Xác thực</TableHead>
@@ -51,7 +58,7 @@ export function RenterTableContent({
         </TableHeader>
         <TableBody>
           {hasData ? (
-            rows.map((user) => {
+            rows.map((user, index) => {
               const document = documents[user.id];
               const hasDocumentLoaded = documents[user.id] !== undefined;
 
@@ -59,6 +66,7 @@ export function RenterTableContent({
                 <React.Fragment key={user.id}>
                   <RenterTableRow
                     user={user}
+                    index={startIndex + index}
                     isSelected={Boolean(selected[user.id])}
                     onSelectChange={(value) => onToggleSelect(user.id, value)}
                     isExpanded={expandedRow === user.id}
@@ -71,7 +79,7 @@ export function RenterTableContent({
                   />
                   {expandedRow === user.id && (
                     <TableRow>
-                      <TableCell colSpan={8} className="p-0">
+                      <TableCell colSpan={9} className="p-0">
                         <ExpandedRowContent
                           user={user}
                           document={document}
@@ -86,7 +94,7 @@ export function RenterTableContent({
             })
           ) : (
             <TableRow>
-              <TableCell colSpan={8} className="py-12">
+              <TableCell colSpan={9} className="py-12">
                 <div className="flex flex-col items-center gap-3 text-center text-muted-foreground">
                   <Users className="size-8" />
                   <div>

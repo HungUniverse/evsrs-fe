@@ -1,8 +1,8 @@
-import { useModelsList } from "@/hooks/use-models";
-import { useModelTableState } from "@/hooks/use-model-table-state";
-import { useModelForm } from "@/hooks/use-model-form";
-import { useModelDropdowns } from "@/hooks/use-model-dropdowns";
-import { useDepotDropdowns } from "@/hooks/use-depot-dropdowns";
+import { useModelsList } from "./hooks/use-models";
+import { useModelTableState } from "./hooks/use-model-table-state";
+import { useModelForm } from "./hooks/use-model-form";
+import { useModelDropdowns } from "./hooks/use-model-dropdowns";
+import { useDepotDropdowns } from "./hooks/use-depot-dropdowns";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { TablePagination } from "@/components/ui/table-pagination";
 import PageShell from "./components/page-shell";
@@ -70,6 +70,7 @@ export default function ModelManagementPage() {
           onEdit={form.startEdit}
           onDelete={form.startDelete}
           depotId={tableState.depotId}
+          startIndex={pagination.startItem}
         />
 
         <TablePagination
@@ -80,6 +81,7 @@ export default function ModelManagementPage() {
           totalItems={pagination.totalItems}
           onPreviousPage={pagination.handlePreviousPage}
           onNextPage={pagination.handleNextPage}
+          onPageChange={pagination.setPageNumber}
           loading={isLoading || isLoadingDropdowns || isLoadingDepots}
         />
 

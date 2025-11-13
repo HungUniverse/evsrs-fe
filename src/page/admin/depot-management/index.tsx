@@ -1,6 +1,6 @@
-import { useDepotsList } from "@/hooks/use-depots";
-import { useDepotTableState } from "@/hooks/use-depot-table-state";
-import { useDepotForm } from "@/hooks/use-depot-form";
+import { useDepotsList } from "./hooks/use-depots";
+import { useDepotTableState } from "./hooks/use-depot-table-state";
+import { useDepotForm } from "./hooks/use-depot-form";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { TablePagination } from "@/components/ui/table-pagination";
 import type { Depot } from "@/@types/car/depot";
@@ -66,6 +66,7 @@ export default function DepotManagementPage() {
           data={pagination.paginatedData}
           onEdit={form.startEdit}
           onDelete={form.startDelete}
+          startIndex={pagination.startItem}
         />
 
         <DepotFormDialog
@@ -91,6 +92,7 @@ export default function DepotManagementPage() {
           totalItems={pagination.totalItems}
           onPreviousPage={pagination.handlePreviousPage}
           onNextPage={pagination.handleNextPage}
+          onPageChange={pagination.setPageNumber}
           loading={isLoading}
         />
 

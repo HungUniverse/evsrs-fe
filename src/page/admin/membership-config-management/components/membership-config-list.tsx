@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useMembershipConfigs } from "@/hooks/use-membership-configs";
-import { useMembershipConfigForm } from "@/hooks/use-membership-config-form";
+import { useMembershipConfigs } from "../hooks/use-membership-configs";
+import { useMembershipConfigForm } from "../hooks/use-membership-config-form";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { TablePagination } from "@/components/ui/table-pagination";
 import MembershipConfigTable from "./membership-config-table";
@@ -50,6 +50,7 @@ export default function MembershipConfigList() {
       <MembershipConfigTable
         data={pagination.paginatedData}
         onEdit={form.startEdit}
+        startIndex={pagination.startItem}
       />
 
       <TablePagination
@@ -60,6 +61,7 @@ export default function MembershipConfigList() {
         totalItems={pagination.totalItems}
         onPreviousPage={pagination.handlePreviousPage}
         onNextPage={pagination.handleNextPage}
+        onPageChange={pagination.setPageNumber}
         loading={isLoading}
       />
 

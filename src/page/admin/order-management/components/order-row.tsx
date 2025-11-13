@@ -11,10 +11,12 @@ import { Edit2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import { vnd } from "@/lib/utils/currency";
+import { formatDate } from "@/lib/utils/formatDate";
 import { getStatusVariant, getPaymentStatusVariant, getStatusLabel, getPaymentStatusLabel } from "../utils/utils";
 
 interface OrderTableRowProps {
   order: OrderBookingDetail;
+  index: number;
   onUpdateStatus: (order: OrderBookingDetail) => void;
   onRefund: (order: OrderBookingDetail) => void;
   onViewUser: (userId: string) => void;
@@ -22,6 +24,7 @@ interface OrderTableRowProps {
 
 export function OrderTableRow({
   order,
+  index,
   onUpdateStatus,
   onRefund,
   onViewUser,
@@ -37,7 +40,10 @@ export function OrderTableRow({
 
   return (
     <TableRow className="hover:bg-muted/50 transition-colors group">
-      <TableCell className="font-medium whitespace-nowrap sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
+      <TableCell className="whitespace-nowrap sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors w-16 text-center text-muted-foreground">
+        {index}
+      </TableCell>
+      <TableCell className="font-medium whitespace-nowrap sticky left-16 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
         {order.code ? (
           <button
             type="button"
@@ -51,6 +57,9 @@ export function OrderTableRow({
         )}
       </TableCell>
       <TableCell className="whitespace-nowrap">
+        <div className="text-sm">{formatDate(order.createdAt)}</div>
+      </TableCell>
+      <TableCell className="whitespace-nowrap">
         {order.carEvs?.model?.image ? (
           <img
             src={order.carEvs.model.image}
@@ -61,7 +70,7 @@ export function OrderTableRow({
           <span className="text-xs text-muted-foreground">N/A</span>
         )}
       </TableCell>
-      <TableCell className="font-medium whitespace-nowrap">{order.carEvs?.model?.modelName || "N/A"}</TableCell>
+      <TableCell className="font-normal whitespace-nowrap">{order.carEvs?.model?.modelName || "N/A"}</TableCell>
       <TableCell className="whitespace-nowrap">
         <div>
           <button
@@ -77,9 +86,9 @@ export function OrderTableRow({
         </div>
       </TableCell>
       <TableCell className="whitespace-nowrap">
-        <div className="font-medium">{order.depot?.name || "N/A"}</div>
+        <div className="font-normal">{order.depot?.name || "N/A"}</div>
       </TableCell>
-      <TableCell className="font-semibold whitespace-nowrap">{vnd(parseFloat(order.totalAmount))} VNĐ</TableCell>
+      <TableCell className="font-normal whitespace-nowrap">{vnd(parseFloat(order.totalAmount))} VNĐ</TableCell>
       <TableCell className="whitespace-nowrap">
         <Badge
           variant={(getStatusVariant(order.status) as "default" | "secondary" | "destructive" | "outline" | "soft-yellow" | "soft-blue" | "soft-purple" | "soft-indigo" | "soft-green" | "soft-orange" | "soft-red" | "soft-gray") || "default"}

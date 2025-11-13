@@ -1,6 +1,6 @@
-import { useAmenitiesList } from "@/hooks/use-amenities";
-import { useAmenitiesTableState } from "@/hooks/use-amenities-table-state";
-import { useAmenityForm } from "@/hooks/use-amenity-form";
+import { useAmenitiesList } from "./hooks/use-amenities";
+import { useAmenitiesTableState } from "./hooks/use-amenities-table-state";
+import { useAmenityForm } from "./hooks/use-amenity-form";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 import { TablePagination } from "@/components/ui/table-pagination";
 import PageShell from "./components/page-shell";
@@ -46,6 +46,7 @@ export default function AmenitiesManagementPage() {
           data={pagination.paginatedData}
           onEdit={form.startEdit}
           onDelete={form.startDelete}
+          startIndex={pagination.startItem}
         />
 
         <TablePagination
@@ -56,6 +57,7 @@ export default function AmenitiesManagementPage() {
           totalItems={pagination.totalItems}
           onPreviousPage={pagination.handlePreviousPage}
           onNextPage={pagination.handleNextPage}
+          onPageChange={pagination.setPageNumber}
           loading={isLoading}
         />
 

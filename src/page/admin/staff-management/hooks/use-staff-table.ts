@@ -33,6 +33,8 @@ export interface UseStaffTableResult {
   rows: UserFull[];
   query: string;
   setQuery: (value: string) => void;
+  selectedDepotId: string;
+  setSelectedDepotId: (value: string) => void;
   sortState: SortState;
   setSortState: (state: SortState) => void;
   hasActiveFilters: boolean;
@@ -74,6 +76,7 @@ export function useStaffTable(): UseStaffTableResult {
   const [loading, setLoading] = useState(false);
 
   const [query, setQuery] = useState("");
+  const [selectedDepotId, setSelectedDepotId] = useState("");
   const [sortState, setSortState] = useState<SortState>({ field: "fullName", direction: "asc" });
   const [selected, setSelected] = useState<SelectionMap>({});
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
@@ -171,6 +174,14 @@ export function useStaffTable(): UseStaffTableResult {
         return false;
       }
 
+      // Filter by depot if selected
+      if (selectedDepotId) {
+        const userDepotId = user.depotId || "";
+        if (userDepotId !== selectedDepotId) {
+          return false;
+        }
+      }
+
       return true;
     });
 
@@ -207,7 +218,7 @@ export function useStaffTable(): UseStaffTableResult {
     });
 
     return filtered;
-  }, [users, query, sortState, currentUser]);
+  }, [users, query, selectedDepotId, sortState, currentUser]);
 
   const selectedCount = useMemo(
     () => rows.reduce((count, user) => (selected[user.id] ? count + 1 : count), 0),
@@ -342,10 +353,11 @@ export function useStaffTable(): UseStaffTableResult {
     }
   };
 
-  const hasActiveFilters = Boolean(query);
+  const hasActiveFilters = Boolean(query || selectedDepotId);
 
   const clearFilters = () => {
     setQuery("");
+    setSelectedDepotId("");
     setSortState({ field: "fullName", direction: "asc" });
   };
 
@@ -363,6 +375,8 @@ export function useStaffTable(): UseStaffTableResult {
     rows,
     query,
     setQuery,
+    selectedDepotId,
+    setSelectedDepotId,
     sortState,
     setSortState,
     hasActiveFilters,

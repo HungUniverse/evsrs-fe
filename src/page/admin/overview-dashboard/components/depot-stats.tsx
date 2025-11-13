@@ -19,7 +19,7 @@ import { orderBookingAPI } from '@/apis/order-booking.api'
 import type { OrderBookingDetail } from '@/@types/order/order-booking'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { MapPin, TrendingUp } from 'lucide-react'
+import { MapPin } from 'lucide-react'
 
 export default function DepotStats() {
   // Get all orders
@@ -153,30 +153,6 @@ export default function DepotStats() {
                       <MapPin className="h-3 w-3" />
                       {depot.location}
                     </p>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="w-24">
-                    <div className="flex items-center gap-1 justify-end mb-1">
-                      <TrendingUp className="h-4 w-4 text-green-600" />
-                      <span className="text-xs font-semibold">
-                        {index === 0 ? '100%' : 
-                         index === 1 ? `${Math.round((depot.count / topDepots[0].count) * 100)}%` :
-                         `${Math.round((depot.count / topDepots[0].count) * 100)}%`}
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${
-                          index === 0 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' :
-                          index === 1 ? 'bg-gradient-to-r from-gray-300 to-gray-400' :
-                          'bg-gradient-to-r from-orange-400 to-orange-600'
-                        }`}
-                        style={{ 
-                          width: index === 0 ? '100%' : `${(depot.count / topDepots[0].count) * 100}%` 
-                        }}
-                      />
-                    </div>
                   </div>
                 </div>
               </div>

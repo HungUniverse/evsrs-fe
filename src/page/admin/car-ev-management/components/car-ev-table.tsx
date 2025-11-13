@@ -10,6 +10,7 @@ interface CarEVTableProps {
   data: CarEV[];
   onEdit: (item: CarEV) => void;
   onDelete: (item: CarEV) => void;
+  startIndex?: number;
 }
 
 const statusOptions: Array<{ value: CarEvStatus; label: string; color: string }> = [
@@ -20,7 +21,7 @@ const statusOptions: Array<{ value: CarEvStatus; label: string; color: string }>
   { value: "REPAIRING", label: "Đang sửa chữa", color: "bg-orange-100 text-orange-800" },
 ];
 
-const CarEVTable: React.FC<CarEVTableProps> = ({ data, onEdit, onDelete }) => {
+const CarEVTable: React.FC<CarEVTableProps> = ({ data, onEdit, onDelete, startIndex = 1 }) => {
   const getStatusBadge = (status: CarEvStatus) => {
     const statusOption = statusOptions.find(opt => opt.value === status);
     return (
@@ -35,7 +36,15 @@ const CarEVTable: React.FC<CarEVTableProps> = ({ data, onEdit, onDelete }) => {
       <Table>
         <TableHeader className="bg-[#D1FAE5]">
           <TableRow>
-            <TableHead className="w-[180px] whitespace-nowrap text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Hình ảnh</TableHead>
+            <TableHead className="w-16 whitespace-nowrap text-[#065F46] text-center sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">
+              STT
+            </TableHead>
+            <TableHead
+              className="w-[180px] whitespace-nowrap text-[#065F46] sticky bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10"
+              style={{ left: "64px" }}
+            >
+              Hình ảnh
+            </TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Biển số xe</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Model</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Trạm xe điện</TableHead>
@@ -47,9 +56,15 @@ const CarEVTable: React.FC<CarEVTableProps> = ({ data, onEdit, onDelete }) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((item) => (
+          {data.map((item, index) => (
             <TableRow key={item.id} className="hover:bg-muted/50 transition-colors group">
-              <TableCell className="sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
+              <TableCell className="whitespace-nowrap text-center sticky left-0 bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors w-16 text-muted-foreground">
+                {startIndex + index}
+              </TableCell>
+              <TableCell
+                className="sticky bg-white group-hover:bg-muted/50 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors"
+                style={{ left: "64px" }}
+              >
                 {item.model?.image ? (
                   <img
                     src={item.model.image}
@@ -80,7 +95,7 @@ const CarEVTable: React.FC<CarEVTableProps> = ({ data, onEdit, onDelete }) => {
           ))}
           {data.length === 0 && (
             <TableRow>
-              <TableCell colSpan={9} className="text-center text-sm text-muted-foreground py-8">
+              <TableCell colSpan={10} className="text-center text-sm text-muted-foreground py-8">
                 Không có dữ liệu
               </TableCell>
             </TableRow>

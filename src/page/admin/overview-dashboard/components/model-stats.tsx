@@ -21,7 +21,7 @@ import { orderBookingAPI } from '@/apis/order-booking.api'
 import type { OrderBookingDetail } from '@/@types/order/order-booking'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Car, TrendingUp, Battery, Zap } from 'lucide-react'
+import { Car, Battery, Zap } from 'lucide-react'
 import { vnd } from '@/lib/utils/currency'
 
 export default function ModelStats() {
@@ -191,30 +191,6 @@ export default function ModelStats() {
                         <Zap className="h-3 w-3" />
                         <span>{model.range} km</span>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="w-24">
-                    <div className="flex items-center gap-1 justify-end mb-1">
-                      <TrendingUp className="h-4 w-4 text-green-600" />
-                      <span className="text-xs font-semibold">
-                        {index === 0 ? '100%' : 
-                         index === 1 ? `${Math.round((model.count / topModels[0].count) * 100)}%` :
-                         `${Math.round((model.count / topModels[0].count) * 100)}%`}
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${
-                          index === 0 ? 'bg-gradient-to-r from-blue-500 to-blue-700' :
-                          index === 1 ? 'bg-gradient-to-r from-indigo-500 to-indigo-700' :
-                          'bg-gradient-to-r from-purple-500 to-purple-700'
-                        }`}
-                        style={{ 
-                          width: index === 0 ? '100%' : `${(model.count / topModels[0].count) * 100}%` 
-                        }}
-                      />
                     </div>
                   </div>
                 </div>

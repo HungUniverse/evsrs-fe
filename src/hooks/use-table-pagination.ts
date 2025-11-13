@@ -18,14 +18,11 @@ export interface UseTablePaginationResult<T> {
   hasPreviousPage: boolean;
   handlePreviousPage: () => void;
   handleNextPage: () => void;
+  setPageNumber: (page: number) => void;
   handleFilterChange: <V>(setter: (v: V) => void) => (v: V) => void;
 }
 
-/**
- * Hook chung cho pagination của table
- * @param options - Options cho pagination
- * @returns Pagination result với các helper functions
- */
+// Hook pagination cho table
 export function useTablePagination<T>({
   items,
   pageNumber,
@@ -71,6 +68,7 @@ export function useTablePagination<T>({
     hasPreviousPage,
     handlePreviousPage,
     handleNextPage,
+    setPageNumber,
     handleFilterChange,
   };
 }

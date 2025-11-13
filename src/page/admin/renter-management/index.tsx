@@ -108,6 +108,7 @@ export default function RenterManagementPage() {
             onVerification={handleDocumentVerification}
             onRequestDelete={openDeleteDialogForUser}
             onImageClick={setImageModal}
+            startIndex={pagination.startItem}
           />
 
           <TablePagination
@@ -118,6 +119,7 @@ export default function RenterManagementPage() {
             totalItems={pagination.totalItems}
             onPreviousPage={pagination.handlePreviousPage}
             onNextPage={pagination.handleNextPage}
+            onPageChange={pagination.setPageNumber}
             loading={loading}
           />
 
