@@ -28,6 +28,7 @@ export function OrderTable({
           <TableRow>
             <TableHead className="whitespace-nowrap text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 w-16 text-center">STT</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46] sticky left-16 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Mã đơn</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày đặt</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ảnh xe</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Model</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Người thuê</TableHead>
@@ -41,7 +42,7 @@ export function OrderTable({
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={10} className="text-center py-8">
+              <TableCell colSpan={11} className="text-center py-8">
                 <div className="flex items-center justify-center gap-2 text-muted-foreground">
                   <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
                   <span>Đang tải...</span>
@@ -50,7 +51,7 @@ export function OrderTable({
             </TableRow>
           ) : (!orders || orders.length === 0) ? (
             <TableRow>
-              <TableCell colSpan={10} className="text-center py-12">
+              <TableCell colSpan={11} className="text-center py-12">
                 <div className="flex flex-col items-center gap-3 text-muted-foreground">
                   <Package className="size-8" />
                   <div>

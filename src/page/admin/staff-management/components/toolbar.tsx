@@ -4,10 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import type { SortState } from "../hooks/use-staff-table";
+import type { Depot } from "@/@types/car/depot";
 
 interface StaffTableToolbarProps {
   query: string;
   onQueryChange: (value: string) => void;
+  selectedDepotId: string;
+  onSelectedDepotIdChange: (value: string) => void;
+  depotList: Depot[];
   sortState: SortState;
   onSortChange: (sort: SortState) => void;
   hasActiveFilters: boolean;
@@ -28,6 +32,9 @@ const SORT_OPTIONS: Array<{ label: string; value: SortState }> = [
 export function StaffTableToolbar({
   query,
   onQueryChange,
+  selectedDepotId,
+  onSelectedDepotIdChange,
+  depotList,
   sortState,
   onSortChange,
   hasActiveFilters,
@@ -61,6 +68,23 @@ export function StaffTableToolbar({
                   className="pl-8 h-9 bg-background text-sm"
                 />
               </div>
+            </div>
+
+            {/* Depot Filter */}
+            <div className="min-w-[140px] max-w-[180px]">
+              <Select value={selectedDepotId || "all"} onValueChange={(value) => onSelectedDepotIdChange(value === "all" ? "" : value)}>
+                <SelectTrigger className="h-9 bg-background text-sm">
+                  <SelectValue placeholder="Tất cả trạm" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả trạm</SelectItem>
+                  {depotList.map((depot) => (
+                    <SelectItem key={depot.id} value={depot.id}>
+                      {depot.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Sort Select and Delete Button Group */}

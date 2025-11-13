@@ -2,28 +2,50 @@
  * Order Statistics Component
  * 
  * Hiển thị thống kê tổng quan về đơn đặt xe:
- * - Tổng số đơn hàng
- * - Đơn hoàn tất (COMPLETED)
- * - Đơn đã hủy (CANCELLED)  
- * - Đơn đang xử lý (PENDING/CONFIRMED/IN_PROGRESS)
- * - Tổng doanh thu từ đơn hoàn tất
+ * - Tổng số đơn hàng (ALL status, ALL orders)
+ * - Đơn hoàn tất (COMPLETED - ALL orders)
+ * - Đơn đã hủy (CANCELLED - ALL orders)  
+ * - Đơn đang xử lý (PENDING/REFUND_PENDING - ALL orders)
+ * - Tổng doanh thu từ đơn hoàn tất (chỉ COMPLETED)
  */
 
 import { useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { orderBookingAPI } from '@/apis/order-booking.api'
 import type { OrderBookingDetail } from '@/@types/order/order-booking'
+import type { OrderBookingStatus } from '@/@types/enum'
 import { Card, CardContent } from '@/components/ui/card'
 import { Package, CheckCircle2, XCircle, Clock, Banknote } from 'lucide-react'
 import { vnd } from '@/lib/utils/currency'
 
-interface OrderStatsProps {
-  orders: OrderBookingDetail[]
-  loading?: boolean
-}
+export function OrderStats() {
+  // Get all orders (fetch multiple pages to get all data)
+  const { data: allOrdersData, isLoading } = useQuery({
+    queryKey: ['all-orders-for-stats'],
+    queryFn: async () => {
+      let allItems: OrderBookingDetail[] = []
+      let pageNumber = 1
+      let hasMore = true
+      
+      while (hasMore) {
+        const response = await orderBookingAPI.getAll({ 
+          pageNumber,
+          pageSize: 1000 
+        })
+        const items = response.data.data.items
+        allItems = [...allItems, ...items]
+        
+        hasMore = pageNumber < response.data.data.totalPages
+        pageNumber++
+      }
+      
+      return allItems
+    },
+  })
 
-export function OrderStats({ orders, loading }: OrderStatsProps) {
-  // Calculate statistics
+  // Calculate statistics from ALL orders
   const stats = useMemo(() => {
-    if (!orders || orders.length === 0) {
+    if (!allOrdersData || allOrdersData.length === 0) {
       return {
         total: 0,
         completed: 0,
@@ -33,25 +55,33 @@ export function OrderStats({ orders, loading }: OrderStatsProps) {
       }
     }
 
-    const completed = orders.filter((order) => order.status === 'COMPLETED')
-    const cancelled = orders.filter((order) => order.status === 'CANCELLED')
-    const processing = orders.filter((order) => 
-      ['PENDING', 'CONFIRMED', 'IN_PROGRESS'].includes(order.status)
+    // Count all orders by status (ALL statuses)
+    const completed = allOrdersData.filter((order) => order.status === 'COMPLETED')
+    const cancelled = allOrdersData.filter((order) => order.status === 'CANCELLED')
+    
+    // Đơn đang xử lý: chỉ PENDING và REFUND_PENDING
+    const processingStatuses: OrderBookingStatus[] = [
+      'PENDING',
+      'REFUND_PENDING'
+    ]
+    const processing = allOrdersData.filter((order) => 
+      processingStatuses.includes(order.status as OrderBookingStatus)
     )
 
+    // Calculate revenue only from COMPLETED orders
     const revenue = completed.reduce((sum, order) => {
       const amount = parseFloat(order.totalAmount) || 0
       return sum + amount
     }, 0)
 
     return {
-      total: orders.length,
+      total: allOrdersData.length, // All orders, all statuses
       completed: completed.length,
       cancelled: cancelled.length,
       processing: processing.length,
       revenue,
     }
-  }, [orders])
+  }, [allOrdersData])
 
   const statsConfig = [
     {
@@ -96,7 +126,7 @@ export function OrderStats({ orders, loading }: OrderStatsProps) {
     },
   ]
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         {[...Array(5)].map((_, i) => (

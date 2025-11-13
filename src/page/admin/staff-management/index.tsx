@@ -18,6 +18,8 @@ export default function StaffManagementPage() {
     rows,
     query,
     setQuery,
+    selectedDepotId,
+    setSelectedDepotId,
     sortState,
     setSortState,
     hasActiveFilters,
@@ -76,6 +78,12 @@ export default function StaffManagementPage() {
               setQuery(v);
               setPageNumber(1);
             }}
+            selectedDepotId={selectedDepotId}
+            onSelectedDepotIdChange={(v) => {
+              setSelectedDepotId(v);
+              setPageNumber(1);
+            }}
+            depotList={depotList}
             sortState={sortState}
             onSortChange={(v) => {
               setSortState(v);

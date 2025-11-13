@@ -78,8 +78,8 @@ export default function OrderManagementPage() {
         <OrderTableLoadingState />
       ) : (
         <div className="space-y-4">
-          {/* <OrderStats orders={orders} loading={loading} />
-          <OrderStatsDetail orders={orders} loading={loading} />
+          <OrderStats />
+          {/* <OrderStatsDetail orders={orders} loading={loading} />
           
           <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
             <OrderStatusDistribution orders={orders} loading={loading} />
