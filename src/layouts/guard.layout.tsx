@@ -19,11 +19,8 @@ export default function AuthGuard({
     return <Navigate to={fallbackPath} replace state={{ from: location }} />;
   }
 
-  // Chặn ADMIN nếu route không yêu cầu role ADMIN
-  if (requiredRole !== "ADMIN" && user && hasRole("ADMIN")) {
-    return <Navigate to={fallbackPath} replace />;
-  }
 
+  
   if (requiredRole && (!user || !hasRole(requiredRole))) {
     return <Navigate to={fallbackPath} replace />;
   }
