@@ -166,11 +166,12 @@ export function RegisterDialog({
                 type="text"
                 {...register("phoneNumber", {
                   required: "Vui lòng nhập số điện thoại",
-                  pattern: {
-                    value: /^[0-9]+$/,
-                    message: "Số điện thoại chỉ được chứa số",
+                  validate: {
+                    isNumeric: (value) =>
+                      /^[0-9]+$/.test(value) ||
+                      "Số điện thoại chỉ được chứa số",
+                    minLength: (value) => value.length >= 9 || "Tối thiểu 9 số",
                   },
-                  minLength: { value: 9, message: "Tối thiểu 9 số" },
                 })}
                 disabled={otpSent}
               />
