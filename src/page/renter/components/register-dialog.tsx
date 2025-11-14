@@ -51,6 +51,7 @@ export function RegisterDialog({
     formState: { errors },
   } = useForm<RegisterForm>({
     defaultValues: { email: "", phoneNumber: "", otp: "" },
+    mode: "onChange",
   });
 
   const email = watch("email");
@@ -58,11 +59,6 @@ export function RegisterDialog({
   const otp = watch("otp");
 
   const handleSendOtp = async () => {
-    if (!email || !phoneNumber) {
-      toast.error("Vui lòng nhập email và số điện thoại");
-      return;
-    }
-
     setSending(true);
     try {
       const resp = await authAPI.sendOtp({ email, phoneNumber });
@@ -93,10 +89,6 @@ export function RegisterDialog({
   };
 
   const handleVerifyOtp = async () => {
-    if (!otp) {
-      toast.error("Vui lòng nhập OTP");
-      return;
-    }
     try {
       const resp = await authAPI.verifyOtp({
         email,
@@ -150,7 +142,13 @@ export function RegisterDialog({
               <label className="block text-sm font-medium mb-1">Email</label>
               <Input
                 type="email"
-                {...register("email", { required: "Vui lòng nhập email" })}
+                {...register("email", {
+                  required: "Vui lòng nhập email",
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: "Email không hợp lệ",
+                  },
+                })}
                 disabled={otpSent}
               />
               {errors.email && (
@@ -168,6 +166,10 @@ export function RegisterDialog({
                 type="text"
                 {...register("phoneNumber", {
                   required: "Vui lòng nhập số điện thoại",
+                  pattern: {
+                    value: /^[0-9]+$/,
+                    message: "Số điện thoại chỉ được chứa số",
+                  },
                   minLength: { value: 9, message: "Tối thiểu 9 số" },
                 })}
                 disabled={otpSent}
@@ -190,11 +192,24 @@ export function RegisterDialog({
                 </Button>
               ) : (
                 <>
-                  <Input
-                    type="text"
-                    placeholder="Nhập mã OTP"
-                    {...register("otp", { required: "Vui lòng nhập OTP" })}
-                  />
+                  <div className="flex-1">
+                    <Input
+                      type="text"
+                      placeholder="Nhập mã OTP"
+                      {...register("otp", {
+                        required: "Vui lòng nhập OTP",
+                        pattern: {
+                          value: /^[0-9]+$/,
+                          message: "OTP chỉ được chứa số",
+                        },
+                      })}
+                    />
+                    {errors.otp && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors.otp.message as string}
+                      </p>
+                    )}
+                  </div>
                   <Button
                     type="button"
                     onClick={handleVerifyOtp}
