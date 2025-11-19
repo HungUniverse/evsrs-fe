@@ -7,6 +7,8 @@ import type { Depot } from "@/@types/car/depot";
 import type { Model } from "@/@types/car/model";
 import { OrderTableApi } from "../api/order-table.api";
 
+const FETCH_PAGE_SIZE = 200;
+
 export interface UseOrderTableResult {
   // Data
   orders: OrderBookingDetail[];
@@ -88,10 +90,6 @@ export function useOrderTable(): UseOrderTableResult {
   const [loading, setLoading] = useState(false);
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
-  const [hasNextPage, setHasNextPage] = useState(false);
-  const [hasPreviousPage, setHasPreviousPage] = useState(false);
 
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [updateStatusDialogOpen, setUpdateStatusDialogOpen] = useState(false);
@@ -119,19 +117,35 @@ export function useOrderTable(): UseOrderTableResult {
   const [depots, setDepots] = useState<Depot[]>([]);
   const [models, setModels] = useState<Model[]>([]);
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (options: { refundOnly?: boolean } = {}) => {
     try {
       setLoading(true);
-      const isRefundPending = statusFilter === "REFUND_PENDING";
-      const result = isRefundPending
-        ? await OrderTableApi.fetchRefundPendingOrders({ pageNumber, pageSize })
-        : await OrderTableApi.fetchOrders({ pageNumber, pageSize });
+      const isRefundPending = options.refundOnly ?? (statusFilter === "REFUND_PENDING");
+      const combinedOrders: OrderBookingDetail[] = [];
+      let currentPage = 1;
+      let shouldContinue = true;
 
-      setOrders(result.items);
-      setTotalPages(result.totalPages);
-      setTotalCount(result.totalCount);
-      setHasNextPage(result.hasNextPage);
-      setHasPreviousPage(result.hasPreviousPage);
+      while (shouldContinue) {
+        const result = isRefundPending
+          ? await OrderTableApi.fetchRefundPendingOrders({ pageNumber: currentPage, pageSize: FETCH_PAGE_SIZE })
+          : await OrderTableApi.fetchOrders({ pageNumber: currentPage, pageSize: FETCH_PAGE_SIZE });
+
+        const items = result.items || [];
+        combinedOrders.push(...items);
+
+        const totalPagesFromApi = result.totalPages ?? currentPage;
+        const hasMoreByTotalPages = totalPagesFromApi > 0 ? currentPage < totalPagesFromApi : false;
+        shouldContinue = result.hasNextPage || hasMoreByTotalPages;
+
+        // Avoid infinite loop if API keeps reporting more pages but returns no data
+        if (items.length === 0) {
+          shouldContinue = false;
+        }
+
+        currentPage += 1;
+      }
+
+      setOrders(combinedOrders);
     } catch (error) {
       console.error("Error fetching orders:", error);
       toast.error("Không thể tải danh sách đơn đặt xe");
@@ -187,27 +201,18 @@ export function useOrderTable(): UseOrderTableResult {
       
       if (exactMatchOrders.length > 0) {
         setOrders(exactMatchOrders);
-        setTotalPages(1);
-        setTotalCount(1);
-        setHasNextPage(false);
-        setHasPreviousPage(false);
+        setPageNumber(1);
         toast.success("Tìm thấy đơn đặt xe");
       } else {
         setOrders([]);
-        setTotalPages(0);
-        setTotalCount(0);
-        setHasNextPage(false);
-        setHasPreviousPage(false);
+        setPageNumber(1);
         toast.info("Không tìm thấy đơn đặt xe với mã này");
       }
     } catch (error) {
       console.error("Error searching order by code:", error);
       toast.error("Không tìm thấy đơn đặt xe với mã này");
       setOrders([]);
-      setTotalPages(0);
-      setTotalCount(0);
-      setHasNextPage(false);
-      setHasPreviousPage(false);
+      setPageNumber(1);
     } finally {
       setLoading(false);
     }
@@ -276,13 +281,11 @@ export function useOrderTable(): UseOrderTableResult {
   };
 
   const handleNextPage = () => {
-    const nextPage = pageNumber + 1;
-    setPageNumber(nextPage);
+    setPageNumber((prev) => Math.min(prev + 1, totalPages));
   };
 
   const handlePreviousPage = () => {
-    const prevPage = pageNumber - 1;
-    setPageNumber(prevPage);
+    setPageNumber((prev) => Math.max(prev - 1, 1));
   };
 
   const clearFilters = () => {
@@ -295,12 +298,15 @@ export function useOrderTable(): UseOrderTableResult {
     setStatusFilter("all");
     setPaymentStatusFilter("all");
     setPageNumber(1);
-    fetchOrders();
+    fetchOrders({ refundOnly: false });
   };
 
-  const displayedOrders = useMemo(() => {
+  const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
-      const matchStatus = statusFilter === "all" || order.status === (statusFilter as OrderBookingStatus);
+      const matchStatus =
+        statusFilter === "all" ||
+        statusFilter === "REFUND_PENDING" ||
+        order.status === (statusFilter as OrderBookingStatus);
       const matchPaymentStatus =
         paymentStatusFilter === "all" || order.paymentStatus === (paymentStatusFilter as PaymentStatus);
       const matchUser = !selectedUserId || order.user?.id === selectedUserId;
@@ -341,7 +347,31 @@ export function useOrderTable(): UseOrderTableResult {
 
       return matchStatus && matchPaymentStatus && matchUser && matchDepot && matchModel && matchStartDate && matchEndDate;
     });
-  }, [orders, statusFilter, paymentStatusFilter, selectedUserId, selectedDepotId, selectedModelId, startDateFilter, endDateFilter]);
+  }, [
+    orders,
+    statusFilter,
+    paymentStatusFilter,
+    selectedUserId,
+    selectedDepotId,
+    selectedModelId,
+    startDateFilter,
+    endDateFilter,
+  ]);
+
+  const totalCount = filteredOrders.length;
+  const totalPages = totalCount === 0 ? 1 : Math.ceil(totalCount / pageSize);
+
+  const displayedOrders = useMemo(() => {
+    if (totalCount === 0) {
+      return [];
+    }
+    const safePageNumber = Math.min(pageNumber, totalPages);
+    const startIndex = (safePageNumber - 1) * pageSize;
+    return filteredOrders.slice(startIndex, startIndex + pageSize);
+  }, [filteredOrders, pageNumber, pageSize, totalCount, totalPages]);
+
+  const hasNextPage = totalCount === 0 ? false : pageNumber < totalPages;
+  const hasPreviousPage = pageNumber > 1;
 
   useEffect(() => {
     fetchUsers();
@@ -349,39 +379,36 @@ export function useOrderTable(): UseOrderTableResult {
     fetchModels();
   }, []);
 
+  const isRefundPendingView = statusFilter === "REFUND_PENDING";
+
   useEffect(() => {
-    const loadOrders = async () => {
-      try {
-        setLoading(true);
-        const isRefundPending = statusFilter === "REFUND_PENDING";
-        const result = isRefundPending
-          ? await OrderTableApi.fetchRefundPendingOrders({ pageNumber, pageSize })
-          : await OrderTableApi.fetchOrders({ pageNumber, pageSize });
+    fetchOrders({ refundOnly: isRefundPendingView });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRefundPendingView]);
 
-        setOrders(result.items);
-        setTotalPages(result.totalPages);
-        setTotalCount(result.totalCount);
-        setHasNextPage(result.hasNextPage);
-        setHasPreviousPage(result.hasPreviousPage);
-      } catch (error) {
-        console.error("Error fetching orders:", error);
-        toast.error("Không thể tải danh sách đơn đặt xe");
-        setOrders([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadOrders();
-  }, [statusFilter, pageNumber, pageSize]);
-
-  // Reset to page 1 when status filter changes (but not on initial mount)
+  // Reset to page 1 when filters or pageSize change (but not on initial mount)
   useEffect(() => {
     if (pageNumber !== 1) {
       setPageNumber(1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter]);
+  }, [
+    statusFilter,
+    paymentStatusFilter,
+    selectedUserId,
+    selectedDepotId,
+    selectedModelId,
+    startDateFilter,
+    endDateFilter,
+    pageSize,
+  ]);
+
+  // Clamp page number when filtered data shrinks
+  useEffect(() => {
+    if (pageNumber > totalPages) {
+      setPageNumber(totalPages);
+    }
+  }, [pageNumber, totalPages]);
 
   return {
     orders,

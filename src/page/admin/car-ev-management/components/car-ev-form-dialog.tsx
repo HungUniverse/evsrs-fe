@@ -4,10 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { carEVAPI } from "@/apis/car-ev.api";
+import { toast } from "sonner";
 import type { CarEV, CarEVRequest } from "@/@types/car/carEv";
 import type { Depot } from "@/@types/car/depot";
 import type { Model } from "@/@types/car/model";
 import type { CarEvStatus } from "@/@types/enum";
+import type { PaginationResponse } from "@/@types/common/pagination";
 
 const statusOptions: Array<{ value: CarEvStatus; label: string }> = [
   { value: "AVAILABLE", label: "Có sẵn" },
@@ -40,6 +43,7 @@ const CarEVFormDialog: React.FC<CarEVFormDialogProps> = ({
   const [batteryHealthPercentage, setBatteryHealthPercentage] = useState("");
   const [status, setStatus] = useState<CarEvStatus>("AVAILABLE");
   const [submitting, setSubmitting] = useState(false);
+  const [licensePlateError, setLicensePlateError] = useState("");
 
   useEffect(() => {
     if (open) {
@@ -53,7 +57,9 @@ const CarEVFormDialog: React.FC<CarEVFormDialogProps> = ({
       setDepotId(depotIdValue);
       setLicensePlate(initialData?.licensePlate ?? "");
       setBatteryHealthPercentage(initialData?.batteryHealthPercentage ?? "");
-      setStatus(initialData?.status || "AVAILABLE");
+      // When creating new car, always set status to AVAILABLE; when editing, use initial status
+      setStatus(initialData?.id ? (initialData?.status || "AVAILABLE") : "AVAILABLE");
+      setLicensePlateError("");
     } else {
       // Reset form when dialog closes
       setModelId("");
@@ -61,28 +67,99 @@ const CarEVFormDialog: React.FC<CarEVFormDialogProps> = ({
       setLicensePlate("");
       setBatteryHealthPercentage("");
       setStatus("AVAILABLE");
+      setLicensePlateError("");
     }
   }, [initialData, open]);
+
+  const isEditMode = !!initialData?.id;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!modelId || !depotId || !licensePlate.trim() || !batteryHealthPercentage.trim()) return;
-    try {
-      setSubmitting(true);
-      await onSubmit({
-        modelId,
-        depotId,
-        licensePlate: licensePlate.trim(),
-        batteryHealthPercentage: batteryHealthPercentage.trim(),
-        status,
-      });
-      onOpenChange(false);
-    } finally {
-      setSubmitting(false);
+    
+    // Check for duplicate license plate when creating new car (not editing)
+    if (!isEditMode) {
+      try {
+        setSubmitting(true);
+        setLicensePlateError("");
+        
+        // Fetch all car EVs to check for duplicate license plate
+        const res = await carEVAPI.getAll({ pageNumber: 1, pageSize: 9999 });
+        const payload = res.data as PaginationResponse<CarEV>;
+        const allCarEVs = payload.items || [];
+        
+        const trimmedLicensePlate = licensePlate.trim();
+        const isDuplicate = allCarEVs.some(
+          (car) => car.licensePlate?.trim().toLowerCase() === trimmedLicensePlate.toLowerCase()
+        );
+        
+        if (isDuplicate) {
+          setLicensePlateError("Biển số xe này đã tồn tại trong hệ thống");
+          toast.error("Biển số xe này đã tồn tại trong hệ thống");
+          setSubmitting(false);
+          return;
+        }
+        
+        // No duplicate found, proceed with submission
+        await onSubmit({
+          modelId,
+          depotId,
+          licensePlate: trimmedLicensePlate,
+          batteryHealthPercentage: batteryHealthPercentage.trim(),
+          status,
+        });
+        onOpenChange(false);
+      } catch (error) {
+        console.error("Error checking license plate:", error);
+        toast.error("Có lỗi xảy ra khi kiểm tra biển số xe");
+      } finally {
+        setSubmitting(false);
+      }
+    } else {
+      // Edit mode - check for duplicate license plate (excluding current car)
+      try {
+        setSubmitting(true);
+        setLicensePlateError("");
+        
+        // Fetch all car EVs to check for duplicate license plate
+        const res = await carEVAPI.getAll({ pageNumber: 1, pageSize: 9999 });
+        const payload = res.data as PaginationResponse<CarEV>;
+        const allCarEVs = payload.items || [];
+        
+        const trimmedLicensePlate = licensePlate.trim();
+        const currentCarId = initialData?.id;
+        
+        // Check if license plate is duplicate with other cars (excluding current car)
+        const isDuplicate = allCarEVs.some(
+          (car) => 
+            car.id !== currentCarId && 
+            car.licensePlate?.trim().toLowerCase() === trimmedLicensePlate.toLowerCase()
+        );
+        
+        if (isDuplicate) {
+          setLicensePlateError("Biển số xe này đã tồn tại trong hệ thống");
+          toast.error("Biển số xe này đã tồn tại trong hệ thống");
+          setSubmitting(false);
+          return;
+        }
+        
+        // No duplicate found, proceed with submission
+        await onSubmit({
+          modelId,
+          depotId,
+          licensePlate: trimmedLicensePlate,
+          batteryHealthPercentage: batteryHealthPercentage.trim(),
+          status,
+        });
+        onOpenChange(false);
+      } catch (error) {
+        console.error("Error checking license plate:", error);
+        toast.error("Có lỗi xảy ra khi kiểm tra biển số xe");
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
-
-  const isEditMode = !!initialData?.id;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -144,10 +221,16 @@ const CarEVFormDialog: React.FC<CarEVFormDialogProps> = ({
                 id="licensePlate"
                 placeholder="Nhập biển số xe"
                 value={licensePlate}
-                onChange={(e) => setLicensePlate(e.target.value)}
-                disabled={isEditMode}
+                onChange={(e) => {
+                  setLicensePlate(e.target.value);
+                  setLicensePlateError("");
+                }}
                 required
+                className={licensePlateError ? "border-red-500" : ""}
               />
+              {licensePlateError && (
+                <p className="text-sm text-red-500">{licensePlateError}</p>
+              )}
             </div>
 
             {/* Battery Health */}
@@ -173,7 +256,7 @@ const CarEVFormDialog: React.FC<CarEVFormDialogProps> = ({
               <Label htmlFor="status">
                 Trạng thái <span className="text-red-500 ml-1">*</span>
               </Label>
-              <Select value={status} onValueChange={(v) => setStatus(v as CarEvStatus)} required>
+              <Select value={status} onValueChange={(v) => setStatus(v as CarEvStatus)} disabled={!isEditMode} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Chọn trạng thái" />
                 </SelectTrigger>
