@@ -57,7 +57,8 @@ const CarEVFormDialog: React.FC<CarEVFormDialogProps> = ({
       setDepotId(depotIdValue);
       setLicensePlate(initialData?.licensePlate ?? "");
       setBatteryHealthPercentage(initialData?.batteryHealthPercentage ?? "");
-      setStatus(initialData?.status || "AVAILABLE");
+      // When creating new car, always set status to AVAILABLE; when editing, use initial status
+      setStatus(initialData?.id ? (initialData?.status || "AVAILABLE") : "AVAILABLE");
       setLicensePlateError("");
     } else {
       // Reset form when dialog closes
@@ -115,17 +116,45 @@ const CarEVFormDialog: React.FC<CarEVFormDialogProps> = ({
         setSubmitting(false);
       }
     } else {
-      // Edit mode - no need to check for duplicate
+      // Edit mode - check for duplicate license plate (excluding current car)
       try {
         setSubmitting(true);
+        setLicensePlateError("");
+        
+        // Fetch all car EVs to check for duplicate license plate
+        const res = await carEVAPI.getAll({ pageNumber: 1, pageSize: 9999 });
+        const payload = res.data as PaginationResponse<CarEV>;
+        const allCarEVs = payload.items || [];
+        
+        const trimmedLicensePlate = licensePlate.trim();
+        const currentCarId = initialData?.id;
+        
+        // Check if license plate is duplicate with other cars (excluding current car)
+        const isDuplicate = allCarEVs.some(
+          (car) => 
+            car.id !== currentCarId && 
+            car.licensePlate?.trim().toLowerCase() === trimmedLicensePlate.toLowerCase()
+        );
+        
+        if (isDuplicate) {
+          setLicensePlateError("Biển số xe này đã tồn tại trong hệ thống");
+          toast.error("Biển số xe này đã tồn tại trong hệ thống");
+          setSubmitting(false);
+          return;
+        }
+        
+        // No duplicate found, proceed with submission
         await onSubmit({
           modelId,
           depotId,
-          licensePlate: licensePlate.trim(),
+          licensePlate: trimmedLicensePlate,
           batteryHealthPercentage: batteryHealthPercentage.trim(),
           status,
         });
         onOpenChange(false);
+      } catch (error) {
+        console.error("Error checking license plate:", error);
+        toast.error("Có lỗi xảy ra khi kiểm tra biển số xe");
       } finally {
         setSubmitting(false);
       }
@@ -196,7 +225,6 @@ const CarEVFormDialog: React.FC<CarEVFormDialogProps> = ({
                   setLicensePlate(e.target.value);
                   setLicensePlateError("");
                 }}
-                disabled={isEditMode}
                 required
                 className={licensePlateError ? "border-red-500" : ""}
               />
@@ -228,7 +256,7 @@ const CarEVFormDialog: React.FC<CarEVFormDialogProps> = ({
               <Label htmlFor="status">
                 Trạng thái <span className="text-red-500 ml-1">*</span>
               </Label>
-              <Select value={status} onValueChange={(v) => setStatus(v as CarEvStatus)} required>
+              <Select value={status} onValueChange={(v) => setStatus(v as CarEvStatus)} disabled={!isEditMode} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Chọn trạng thái" />
                 </SelectTrigger>
