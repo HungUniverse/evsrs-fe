@@ -28,7 +28,7 @@ export function OrderTable({
           <TableRow>
             <TableHead className="whitespace-nowrap text-[#065F46] sticky left-0 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 w-16 text-center">STT</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46] sticky left-16 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Mã đơn</TableHead>
-            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày đặt</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Thời gian nhận xe</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ảnh xe</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Model</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Người thuê</TableHead>

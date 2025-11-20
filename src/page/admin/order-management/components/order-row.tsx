@@ -57,7 +57,7 @@ export function OrderTableRow({
         )}
       </TableCell>
       <TableCell className="whitespace-nowrap">
-        <div className="text-sm">{formatDate(order.createdAt)}</div>
+        <div className="text-sm">{formatDate(order.startAt)}</div>
       </TableCell>
       <TableCell className="whitespace-nowrap">
         {order.carEvs?.model?.image ? (
