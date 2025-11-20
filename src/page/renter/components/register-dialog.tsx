@@ -58,6 +58,13 @@ export function RegisterDialog({
   const phoneNumber = watch("phoneNumber");
   const otp = watch("otp");
 
+  // Validation helpers
+  const isEmailValid =
+    email && /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email);
+  const isPhoneValid =
+    phoneNumber && /^[0-9]+$/.test(phoneNumber) && phoneNumber.length >= 9;
+  const isOtpValid = otp && /^[0-9]+$/.test(otp);
+
   const handleSendOtp = async () => {
     setSending(true);
     try {
@@ -187,7 +194,7 @@ export function RegisterDialog({
                 <Button
                   type="button"
                   onClick={handleSendOtp}
-                  disabled={sending}
+                  disabled={sending || !isEmailValid || !isPhoneValid}
                 >
                   Gửi OTP
                 </Button>
@@ -214,6 +221,7 @@ export function RegisterDialog({
                   <Button
                     type="button"
                     onClick={handleVerifyOtp}
+                    disabled={!isOtpValid}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white"
                   >
                     Xác nhận

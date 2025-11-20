@@ -75,8 +75,7 @@ function PoliciesPage() {
                 {/* Row 3 */}
                 <tr className="bg-white">
                   <td className="px-6 py-4 text-md text-gray-800">
-                    Sau giờ nhận xe đã thỏa thuận hoặc{" "}
-                    <strong>đã ký hợp đồng</strong>
+                    Sau giờ nhận xe đã thỏa thuận
                   </td>
                   <td className="px-6 py-4 text-md text-gray-800 flex items-center gap-2">
                     <X className="w-4 h-4 text-red-500" />
