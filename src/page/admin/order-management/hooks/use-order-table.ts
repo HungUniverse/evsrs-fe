@@ -50,12 +50,8 @@ export interface UseOrderTableResult {
   clearFilters: () => void;
 
   // Dialogs
-  detailDialogOpen: boolean;
-  setDetailDialogOpen: (open: boolean) => void;
   updateStatusDialogOpen: boolean;
   setUpdateStatusDialogOpen: (open: boolean) => void;
-  deleteDialogOpen: boolean;
-  setDeleteDialogOpen: (open: boolean) => void;
   refundDialogOpen: boolean;
   setRefundDialogOpen: (open: boolean) => void;
   userInfoUserId: string | null;
@@ -80,9 +76,7 @@ export interface UseOrderTableResult {
   fetchOrders: () => Promise<void>;
   handleSearchOrderByCode: () => Promise<void>;
   handleUpdateStatus: () => Promise<void>;
-  handleDelete: () => Promise<void>;
   handleConfirmRefund: () => Promise<void>;
-  viewOrderDetails: (order: OrderBookingDetail) => void;
 }
 
 export function useOrderTable(): UseOrderTableResult {
@@ -91,9 +85,7 @@ export function useOrderTable(): UseOrderTableResult {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [updateStatusDialogOpen, setUpdateStatusDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [refundDialogOpen, setRefundDialogOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<OrderBookingDetail | null>(null);
   const [userInfoUserId, setUserInfoUserId] = useState<string | null>(null);
@@ -232,26 +224,6 @@ export function useOrderTable(): UseOrderTableResult {
     }
   };
 
-  const handleDelete = async () => {
-    if (!selectedOrder) return;
-
-    if (selectedOrder.status !== "PENDING" && selectedOrder.status !== "CANCELLED") {
-      toast.error("Chỉ có thể xóa đơn đặt xe ở trạng thái 'Chờ xác nhận' hoặc 'Đã hủy'");
-      setDeleteDialogOpen(false);
-      return;
-    }
-
-    try {
-      await OrderTableApi.deleteOrder(selectedOrder.id);
-      toast.success("Xóa đơn đặt xe thành công");
-      setDeleteDialogOpen(false);
-      await fetchOrders();
-    } catch (error) {
-      console.error("Error deleting order:", error);
-      toast.error("Không thể xóa đơn đặt xe");
-    }
-  };
-
   const handleConfirmRefund = async () => {
     if (!selectedOrder) return;
     const amountNumber = Number(refundedAmount);
@@ -273,11 +245,6 @@ export function useOrderTable(): UseOrderTableResult {
     } finally {
       setSubmittingRefund(false);
     }
-  };
-
-  const viewOrderDetails = (order: OrderBookingDetail) => {
-    setSelectedOrder(order);
-    setDetailDialogOpen(true);
   };
 
   const handleNextPage = () => {
@@ -444,12 +411,8 @@ export function useOrderTable(): UseOrderTableResult {
     endDateFilter,
     setEndDateFilter,
     clearFilters,
-    detailDialogOpen,
-    setDetailDialogOpen,
     updateStatusDialogOpen,
     setUpdateStatusDialogOpen,
-    deleteDialogOpen,
-    setDeleteDialogOpen,
     refundDialogOpen,
     setRefundDialogOpen,
     userInfoUserId,
@@ -468,9 +431,7 @@ export function useOrderTable(): UseOrderTableResult {
     fetchOrders,
     handleSearchOrderByCode,
     handleUpdateStatus,
-    handleDelete,
     handleConfirmRefund,
-    viewOrderDetails,
   };
 }
 
