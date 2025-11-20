@@ -283,33 +283,20 @@ export function useOrderTable(): UseOrderTableResult {
       let matchStartDate = true;
       let matchEndDate = true;
 
-      if (startDateFilter && !endDateFilter) {
+      // Sử dụng range match cho tất cả trường hợp để nhất quán và hợp lý hơn
+      // - Start Date: lấy đơn có startAt >= ngày bắt đầu (từ ngày này trở đi)
+      // - End Date: lấy đơn có endAt <= ngày kết thúc (đến ngày này trở về)
+      if (startDateFilter) {
         const orderStart = new Date(order.startAt);
-        const startOnly = new Date(orderStart);
-        startOnly.setHours(0, 0, 0, 0);
         const selectedStart = new Date(startDateFilter);
         selectedStart.setHours(0, 0, 0, 0);
-        matchStartDate = startOnly.getTime() === selectedStart.getTime();
-      } else if (endDateFilter && !startDateFilter) {
+        matchStartDate = orderStart >= selectedStart;
+      }
+      if (endDateFilter) {
         const orderEnd = new Date(order.endAt);
-        const endOnly = new Date(orderEnd);
-        endOnly.setHours(0, 0, 0, 0);
         const selectedEnd = new Date(endDateFilter);
-        selectedEnd.setHours(0, 0, 0, 0);
-        matchEndDate = endOnly.getTime() === selectedEnd.getTime();
-      } else {
-        if (startDateFilter) {
-          const orderStart = new Date(order.startAt);
-          const selectedStart = new Date(startDateFilter);
-          selectedStart.setHours(0, 0, 0, 0);
-          matchStartDate = orderStart >= selectedStart;
-        }
-        if (endDateFilter) {
-          const orderEnd = new Date(order.endAt);
-          const selectedEnd = new Date(endDateFilter);
-          selectedEnd.setHours(23, 59, 59, 999);
-          matchEndDate = orderEnd <= selectedEnd;
-        }
+        selectedEnd.setHours(23, 59, 59, 999);
+        matchEndDate = orderEnd <= selectedEnd;
       }
 
       return matchStatus && matchPaymentStatus && matchUser && matchDepot && matchModel && matchStartDate && matchEndDate;

@@ -60,6 +60,9 @@ export function OrderTableRow({
         <div className="text-sm">{formatDate(order.startAt)}</div>
       </TableCell>
       <TableCell className="whitespace-nowrap">
+        <div className="text-sm">{formatDate(order.endAt)}</div>
+      </TableCell>
+      <TableCell className="whitespace-nowrap">
         {order.carEvs?.model?.image ? (
           <img
             src={order.carEvs.model.image}
