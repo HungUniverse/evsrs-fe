@@ -2,11 +2,22 @@ import type { ItemBaseResponse, ListBaseResponse } from "@/@types/response";
 import type { TransactionResponse } from "@/@types/payment/transaction";
 import { api } from "@/lib/axios/axios";
 
+export type TransactionQueryParams = {
+  page?: number;
+  pageSize?: number;
+};
+
 export const TransactionApi = {
-  // GET /api/Transaction - Lấy danh sách tất cả transactions
-  getAll: async (): Promise<ListBaseResponse<TransactionResponse>> => {
+  // GET /api/Transaction - Lấy danh sách tất cả transactions với pagination
+  getAll: async (params?: TransactionQueryParams): Promise<ListBaseResponse<TransactionResponse>> => {
     const res = await api.get<ListBaseResponse<TransactionResponse>>(
-      `/api/Transaction`
+      `/api/Transaction`,
+      {
+        params: {
+          page: params?.page ?? 1,
+          pageSize: params?.pageSize ?? 10,
+        },
+      }
     );
     return res.data;
   },

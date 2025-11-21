@@ -61,10 +61,6 @@ export default function Transactions() {
           <TransactionTableToolbar
             searchCode={searchCode}
             onSearchCodeChange={setSearchCode}
-            userNameSearch={userNameSearch}
-            onUserNameSearchChange={setUserNameSearch}
-            transferTypeFilter={transferTypeFilter}
-            onTransferTypeFilterChange={setTransferTypeFilter}
             startDateFilter={startDateFilter}
             onStartDateFilterChange={setStartDateFilter}
             endDateFilter={endDateFilter}
