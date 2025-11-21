@@ -15,8 +15,10 @@ type PaperStatus = "pending" | "approved" | "rejected";
 export default function UserPaper() {
   const { user, isAuthenticated } = useAuthStore();
   const [edit, setEdit] = useState(false);
-  const [status, setStatus] = useState<PaperStatus>("pending");
+  const [status, setStatus] = useState<PaperStatus>("rejected");
   const [isLoading, setIsLoading] = useState(false);
+  const [hasExistingDocument, setHasExistingDocument] = useState(false);
+  const [currentDocument, setCurrentDocument] = useState<IdentifyDocumentResponse | null>(null);
 
   const [form, setForm] = useState({
     licenseNumber: "",
@@ -176,6 +178,8 @@ export default function UserPaper() {
       // Làm mới dữ liệu sau khi lưu
       const refreshed = await fetchExistingDocument();
       if (refreshed) {
+        setHasExistingDocument(true);
+        setCurrentDocument(refreshed);
         setStatus(
           refreshed.status === "APPROVED"
             ? "approved"
@@ -214,6 +218,8 @@ export default function UserPaper() {
       try {
         const latest = await fetchExistingDocument();
         if (latest) {
+          setHasExistingDocument(true);
+          setCurrentDocument(latest);
           setStatus(
             latest.status === "APPROVED"
               ? "approved"
@@ -237,8 +243,10 @@ export default function UserPaper() {
             back: latest.backImage ?? null,
           });
         } else {
-          // Không có dữ liệu: đặt trống UI
-          setStatus("pending");
+          // Không có dữ liệu: đặt trống UI và status = rejected (Chưa xác thực)
+          setHasExistingDocument(false);
+          setCurrentDocument(null);
+          setStatus("rejected");
           setForm((s) => ({
             ...s,
             licenseNumber: "",
@@ -287,7 +295,7 @@ export default function UserPaper() {
               ) : (
                 <CheckCircle2 className="mr-2 h-4 w-4" />
               )}
-              {isLoading ? "Đang lưu..." : "Lưu"}
+              {isLoading ? "Đang lưu..." : hasExistingDocument ? "Cập nhật" : "Lưu"}
             </Button>
             <Button
               variant="outline"
@@ -311,6 +319,17 @@ export default function UserPaper() {
           tin theo GPLX/CCCD để tránh phát sinh vấn đề khi nhận xe.
         </p>
       </div>
+
+      {/* Hiển thị lý do khi status là rejected và có note */}
+      {status === "rejected" && currentDocument?.note && (
+        <div className="mx-6 mb-4 rounded-md bg-red-50 text-red-700 text-sm p-3 flex items-start gap-2 border border-red-100">
+          <CircleAlert className="h-4 w-4 mt-0.5 flex-shrink-0" />
+          <div className="flex-1">
+            <div className="font-medium mb-1">Lý do chưa xác thực:</div>
+            <p>{currentDocument.note}</p>
+          </div>
+        </div>
+      )}
 
       <div className="px-6 pb-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="space-y-4">
@@ -373,9 +392,9 @@ export default function UserPaper() {
 function StatusPill({ status }: { status: PaperStatus }) {
   const map = {
     pending: {
-      text: "Đang chờ duyệt",
+      text: "Đang chờ xác thực",
       cls: "bg-amber-100 text-amber-800",
-      icon: <Loader2 className="h-3.5 w-3.5 animate-spin" />,
+      icon: null,
     },
     approved: {
       text: "Đã xác thực",
@@ -383,7 +402,7 @@ function StatusPill({ status }: { status: PaperStatus }) {
       icon: <CheckCircle2 className="h-3.5 w-3.5" />,
     },
     rejected: {
-      text: "Đã từ chối",
+      text: "Chưa xác thực",
       cls: "bg-red-100 text-red-800",
       icon: <X className="h-3.5 w-3.5" />,
     },
@@ -391,7 +410,7 @@ function StatusPill({ status }: { status: PaperStatus }) {
   const it = map[status];
   return (
     <span
-      className={`text-xs px-2 py-1 rounded-md inline-flex items-center gap-1 ${it.cls}`}
+      className={`text-xs px-2 py-1 rounded-md inline-flex items-center ${it.icon ? "gap-1" : ""} ${it.cls}`}
     >
       {it.icon}
       {it.text}

@@ -47,7 +47,7 @@ export function ExpandedRowContent({ user, document, hasDocumentLoaded, onImageC
                 )}
               </div>
               <div>
-                <div className="text-xs text-muted-foreground mb-1">Trạng thái xác thực</div>
+                <div className="text-xs text-muted-foreground mb-1">Trạng thái tài khoản</div>
                 <Badge variant={user.isVerify ? "default" : "secondary"} className="text-sm px-3 py-1">
                   {user.isVerify ? "Đã xác thực" : "Chưa xác thực"}
                 </Badge>

@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import type { MembershipLevel, MembershipConfigRequest } from "@/@types/membership";
+import { getLevelDisplayName } from "../utils/level";
 
 interface MembershipConfigFormDialogProps {
   open: boolean;
@@ -88,38 +89,18 @@ const MembershipConfigFormDialog: React.FC<MembershipConfigFormDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>{isEditMode ? "Sửa hạng thành viên" : "Thêm hạng thành viên mới"}</DialogTitle>
+          <DialogTitle>Sửa hạng thành viên</DialogTitle>
           <DialogDescription>
-            {isEditMode
-              ? "Thay đổi thông tin hạng thành viên tại đây. Chỉ có thể chỉnh sửa mức giảm giá và số tiền yêu cầu."
-              : "Thêm mới một hạng thành viên vào hệ thống. Điền đầy đủ các trường bắt buộc."}
+            Thay đổi thông tin hạng thành viên tại đây. Chỉ có thể chỉnh sửa mức giảm giá và số tiền yêu cầu.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4">
-            {/* Level - nhập thủ công khi tạo mới, chỉ hiển thị khi tạo mới */}
             <div className="space-y-2">
-              <Label htmlFor="level">
-                Hạng <span className="text-red-500 ml-1">*</span>
-              </Label>
-              {isEditMode ? (
-                <Input id="level" value={level} disabled className="bg-muted" />
-              ) : (
-                <Input
-                  id="level"
-                  placeholder="Nhập mã hạng (ví dụ: PLATINUM)"
-                  value={level}
-                  onChange={(e) => setLevel(e.target.value.toUpperCase())}
-                  autoComplete="off"
-                  maxLength={50}
-                  required
-                />
-              )}
-              {!isEditMode && (
-                <p className="text-xs text-muted-foreground">
-                  Mã hạng nên viết hoa và là duy nhất (ví dụ: BRONZE, SILVER, PLATINUM...).
-                </p>
-              )}
+              <Label htmlFor="level">Hạng</Label>
+              <div className="px-3 py-2 bg-muted rounded-md text-sm font-medium">
+                {initialData?.levelName || (level ? getLevelDisplayName(level) : "-")}
+              </div>
             </div>
 
             {/* Discount Percent */}
@@ -168,7 +149,7 @@ const MembershipConfigFormDialog: React.FC<MembershipConfigFormDialogProps> = ({
               disabled={submitting}
               className="bg-emerald-200 text-emerald-900 hover:bg-emerald-300"
             >
-              {isEditMode ? "Cập nhật" : "Thêm mới"}
+              Cập nhật
             </Button>
           </DialogFooter>
         </form>

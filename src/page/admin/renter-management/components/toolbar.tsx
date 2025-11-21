@@ -71,7 +71,7 @@ export function RenterTableToolbar({
                 }}
               >
                 <SelectTrigger className="h-9 bg-background text-sm">
-                  <SelectValue placeholder="Tên A→Z" />
+                  <SelectValue placeholder="Ngày tạo (mới nhất)" />
                 </SelectTrigger>
                 <SelectContent>
                   {SORT_OPTIONS.map((option) => (

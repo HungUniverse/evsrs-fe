@@ -1,10 +1,8 @@
 import React from "react";
 import type { SystemConfigTypeResponse } from "@/@types/system-config";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import RowActions from "./row-actions";
 import { formatDate } from "@/lib/utils/formatDate";
-import { getConfigTypeBadgeVariant } from "../utils/config-type";
 
 interface SystemConfigTableProps {
   data: SystemConfigTypeResponse[];
@@ -26,8 +24,6 @@ const SystemConfigTable: React.FC<SystemConfigTableProps> = ({ data, onEdit, sta
               Key
             </TableHead>
             <TableHead className="w-[30%] whitespace-nowrap text-[#065F46]">Value</TableHead>
-            <TableHead className="w-[15%] whitespace-nowrap text-[#065F46]">Loại</TableHead>
-            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Cập nhật</TableHead>
             <TableHead className="text-right whitespace-nowrap text-[#065F46] sticky right-0 bg-[#D1FAE5] shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Thao tác</TableHead>
           </TableRow>
@@ -47,14 +43,6 @@ const SystemConfigTable: React.FC<SystemConfigTableProps> = ({ data, onEdit, sta
                 {item.value}
               </TableCell>
               <TableCell className="whitespace-nowrap">
-                <Badge variant={getConfigTypeBadgeVariant(item.configType)} className="whitespace-nowrap">
-                  {item.configType}
-                </Badge>
-              </TableCell>
-              <TableCell className="whitespace-nowrap">
-                {item.createAt ? formatDate(item.createAt) : "-"}
-              </TableCell>
-              <TableCell className="whitespace-nowrap">
                 {item.updatedAt ? formatDate(item.updatedAt) : "-"}
               </TableCell>
               <TableCell className="text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-muted/50 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
@@ -64,7 +52,7 @@ const SystemConfigTable: React.FC<SystemConfigTableProps> = ({ data, onEdit, sta
           ))}
           {data.length === 0 && (
             <TableRow>
-              <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-8">
+              <TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-8">
                 Không có dữ liệu
               </TableCell>
             </TableRow>

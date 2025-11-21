@@ -97,7 +97,7 @@ export function useRenterTable(): UseRenterTableResult {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const [query, setQuery] = useState("");
-  const [sortState, setSortState] = useState<SortState>({ field: "fullName", direction: "asc" });
+  const [sortState, setSortState] = useState<SortState>({ field: "createdAt", direction: "desc" });
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -321,7 +321,7 @@ export function useRenterTable(): UseRenterTableResult {
         [documentDialog.user!.id]: updatedDoc,
       }));
 
-      toast.success("Xác thực tài liệu thành công");
+      toast.success("Cập nhật trạng thái tài liệu thành công");
       setDocumentDialog({ user: null, document: null, action: "approve" });
       setVerificationNotes("");
     } catch (error) {
@@ -372,7 +372,7 @@ export function useRenterTable(): UseRenterTableResult {
 
   const clearFilters = () => {
     setQuery("");
-    setSortState({ field: "fullName", direction: "asc" });
+    setSortState({ field: "createdAt", direction: "desc" });
   };
 
   const showDocumentColumns = true;

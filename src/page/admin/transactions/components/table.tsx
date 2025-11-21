@@ -39,7 +39,7 @@ export function TransactionTable({
               Mã giao dịch
             </TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ngày giao dịch</TableHead>
-            <TableHead className="whitespace-nowrap text-[#065F46]">Người dùng</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Khách hàng</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Mã đơn hàng</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Trạng thái</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Số tiền</TableHead>

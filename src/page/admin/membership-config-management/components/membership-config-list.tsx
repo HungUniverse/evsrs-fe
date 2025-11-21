@@ -5,7 +5,6 @@ import { useTablePagination } from "@/hooks/use-table-pagination";
 import { TablePagination } from "@/components/ui/table-pagination";
 import MembershipConfigTable from "./membership-config-table";
 import MembershipConfigFormDialog from "./membership-config-form-dialog";
-import DeleteConfirmationDialog from "./delete-confirmation-dialog";
 import { Award } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -72,13 +71,7 @@ export default function MembershipConfigList() {
         onSubmit={form.submit}
       />
 
-      <DeleteConfirmationDialog
-        open={form.deleteDialogOpen}
-        onOpenChange={form.setDeleteDialogOpen}
-        item={form.itemToDelete}
-        onConfirm={form.confirmDelete}
-        isDeleting={form.isDeleting}
-      />
+
     </div>
   );
 }

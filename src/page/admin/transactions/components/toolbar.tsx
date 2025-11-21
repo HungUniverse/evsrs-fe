@@ -9,10 +9,6 @@ import { DateRangePicker } from "./date-range-picker";
 interface TransactionTableToolbarProps {
   searchCode: string;
   onSearchCodeChange: (value: string) => void;
-  userNameSearch: string;
-  onUserNameSearchChange: (value: string) => void;
-  transferTypeFilter: string;
-  onTransferTypeFilterChange: (value: string) => void;
   startDateFilter: string;
   onStartDateFilterChange: (value: string) => void;
   endDateFilter: string;
@@ -25,10 +21,6 @@ interface TransactionTableToolbarProps {
 export function TransactionTableToolbar({
   searchCode,
   onSearchCodeChange,
-  userNameSearch,
-  onUserNameSearchChange,
-  transferTypeFilter,
-  onTransferTypeFilterChange,
   startDateFilter,
   onStartDateFilterChange,
   endDateFilter,
@@ -59,30 +51,6 @@ export function TransactionTableToolbar({
                 className="pl-8 h-9 bg-background text-sm"
               />
             </div>
-          </div>
-
-          {/* User Name Search Input */}
-          <div className="flex-1 min-w-[150px] max-w-[220px]">
-            <Input
-              placeholder="Tên người dùng"
-              value={userNameSearch}
-              onChange={(e) => onUserNameSearchChange(e.target.value)}
-              className="h-9 bg-background text-sm"
-            />
-          </div>
-
-          {/* Transfer Type Filter */}
-          <div className="flex-1 min-w-[140px] max-w-[180px]">
-            <Select value={transferTypeFilter} onValueChange={onTransferTypeFilterChange}>
-              <SelectTrigger className="h-9 bg-background text-sm">
-                <SelectValue placeholder="Tất cả loại" />
-              </SelectTrigger>
-              <SelectContent className="z-[70]">
-                <SelectItem value="all">Tất cả loại</SelectItem>
-                <SelectItem value="in">Nhận vào</SelectItem>
-                <SelectItem value="out">Gửi đi</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
 
           {/* Date Range Picker */}

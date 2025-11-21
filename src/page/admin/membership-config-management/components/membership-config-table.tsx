@@ -30,7 +30,6 @@ const MembershipConfigTable: React.FC<MembershipConfigTableProps> = ({ data, onE
             <TableHead className="whitespace-nowrap text-[#065F46]">Tên hạng</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Mức giảm giá</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Số tiền yêu cầu</TableHead>
-            <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ngày cập nhật</TableHead>
             <TableHead className="text-right whitespace-nowrap text-[#065F46] sticky right-0 bg-[#D1FAE5] shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Thao tác</TableHead>
           </TableRow>
@@ -58,9 +57,6 @@ const MembershipConfigTable: React.FC<MembershipConfigTableProps> = ({ data, onE
                   <span className="font-medium">{vnd(item.requiredAmount)} VNĐ</span>
                 </TableCell>
                 <TableCell className="whitespace-nowrap">
-                  {item.createdAt ? formatDate(item.createdAt) : ""}
-                </TableCell>
-                <TableCell className="whitespace-nowrap">
                   {item.updatedAt ? formatDate(item.updatedAt) : ""}
                 </TableCell>
                 <TableCell className="text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-muted/50 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10 transition-colors">
@@ -71,7 +67,7 @@ const MembershipConfigTable: React.FC<MembershipConfigTableProps> = ({ data, onE
           })}
           {data.length === 0 && (
             <TableRow>
-              <TableCell colSpan={8} className="text-center text-sm text-muted-foreground py-8">
+              <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-8">
                 Không có dữ liệu
               </TableCell>
             </TableRow>
