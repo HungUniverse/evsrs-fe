@@ -76,7 +76,7 @@ export default function DepotStats() {
       .sort((a, b) => b.value - a.value)
   }, [allOrdersData])
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ value: number; payload: { name: string; value: number } }> }) => {
     if (active && payload && payload.length) {
       const data = payload[0]
       const total = chartData.reduce((sum, item) => sum + item.value, 0)
@@ -120,7 +120,7 @@ export default function DepotStats() {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
                 outerRadius={100}
                 fill="#8884d8"
                 dataKey="value"
