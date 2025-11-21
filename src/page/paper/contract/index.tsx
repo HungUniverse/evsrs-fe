@@ -107,26 +107,28 @@ const ContractPage: React.FC = () => {
   const isSigned = contract?.signStatus === "SIGNED";
 
   // Check if rental date has arrived (only compare date, not time)
+  // TEMPORARILY DISABLED FOR TESTING
   const isRentalDateValid = useMemo(() => {
-    if (!order?.startAt) return false;
-    const now = new Date();
-    const startDate = new Date(order.startAt);
+    // if (!order?.startAt) return false;
+    // const now = new Date();
+    // const startDate = new Date(order.startAt);
 
-    // Set both dates to start of day (00:00:00) for date-only comparison
-    const nowDateOnly = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate()
-    );
-    const startDateOnly = new Date(
-      startDate.getFullYear(),
-      startDate.getMonth(),
-      startDate.getDate()
-    );
+    // // Set both dates to start of day (00:00:00) for date-only comparison
+    // const nowDateOnly = new Date(
+    //   now.getFullYear(),
+    //   now.getMonth(),
+    //   now.getDate()
+    // );
+    // const startDateOnly = new Date(
+    //   startDate.getFullYear(),
+    //   startDate.getMonth(),
+    //   startDate.getDate()
+    // );
 
-    return nowDateOnly >= startDateOnly;
-  }, [order?.startAt]);
+    // return nowDateOnly >= startDateOnly;
 
+    return true; // Always allow signing for testing
+  }, []);
   async function handleSignatureSaved(dataUrl: string) {
     try {
       setSavingSignature(true);
