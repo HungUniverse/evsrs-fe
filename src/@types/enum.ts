@@ -6,7 +6,6 @@ export type OrderBookingStatus =
   | "IN_USE"
   | "RETURNED"
   | "COMPLETED"
-  | "REFUND_PENDING"
   | "CANCELLED";
 
 // -------------------- OrderType --------------------
@@ -25,7 +24,6 @@ export type PaymentStatus =
   | "PAID_DEPOSIT_COMPLETED"
   | "PAID_FULL"
   | "COMPLETED"
-  | "REFUNDED"
   | "FAILED";
 
 // -------------------- PaymentType --------------------

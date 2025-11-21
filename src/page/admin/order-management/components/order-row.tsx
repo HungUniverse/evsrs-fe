@@ -18,7 +18,6 @@ interface OrderTableRowProps {
   order: OrderBookingDetail;
   index: number;
   onUpdateStatus: (order: OrderBookingDetail) => void;
-  onRefund: (order: OrderBookingDetail) => void;
   onViewUser: (userId: string) => void;
 }
 
@@ -26,11 +25,9 @@ export function OrderTableRow({
   order,
   index,
   onUpdateStatus,
-  onRefund,
   onViewUser,
 }: OrderTableRowProps) {
   const navigate = useNavigate();
-  const canRefund = order.status === "REFUND_PENDING";
 
   const handleOrderCodeClick = () => {
     if (order.id) {
@@ -118,16 +115,6 @@ export function OrderTableRow({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onUpdateStatus(order)}>Cập nhật trạng thái</DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  if (canRefund) {
-                    onRefund(order);
-                  }
-                }}
-                disabled={!canRefund}
-              >
-                Tiến hành hoàn tiền
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

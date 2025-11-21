@@ -42,35 +42,6 @@ async function fetchOrders(query: OrderBookingQuery = {}): Promise<{
   };
 }
 
-async function fetchRefundPendingOrders(query: OrderBookingQuery = {}): Promise<{
-  items: OrderBookingDetail[];
-  totalPages: number;
-  totalCount: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-}> {
-  const response = await orderBookingAPI.getRefundPending(query);
-  const data = response.data?.data;
-  
-  if (!data) {
-    return {
-      items: [],
-      totalPages: 0,
-      totalCount: 0,
-      hasNextPage: false,
-      hasPreviousPage: false,
-    };
-  }
-
-  return {
-    items: data.items || [],
-    totalPages: data.totalPages || 0,
-    totalCount: data.totalCount || 0,
-    hasNextPage: data.hasNextPage || false,
-    hasPreviousPage: data.hasPreviousPage || false,
-  };
-}
-
 async function fetchOrderById(orderId: string): Promise<OrderBookingDetail | null> {
   try {
     const response = await orderBookingAPI.getById(orderId);
@@ -152,20 +123,8 @@ async function deleteOrder(orderId: string): Promise<void> {
   await orderBookingAPI.delete(orderId);
 }
 
-async function refundOrder(
-  orderId: string,
-  refundedAmount: number,
-  adminNote: string
-): Promise<OrderBookingDetail> {
-  return await orderBookingAPI.refundOrderBooking(orderId, {
-    refundedAmount,
-    adminNote,
-  });
-}
-
 export const OrderTableApi = {
   fetchOrders,
-  fetchRefundPendingOrders,
   fetchOrderById,
   fetchOrdersByCode,
   fetchUsers,
@@ -173,7 +132,6 @@ export const OrderTableApi = {
   fetchModels,
   updateOrderStatus,
   deleteOrder,
-  refundOrder,
 };
 
 export type OrderTableApiType = typeof OrderTableApi;

@@ -9,7 +9,6 @@ export const STATUS_OPTIONS: { value: OrderBookingStatus; label: string }[] = [
   { value: "RETURNED", label: "Đã trả xe" },
   { value: "COMPLETED", label: "Hoàn tất" },
   { value: "CANCELLED", label: "Đã hủy" },
-  { value: "REFUND_PENDING", label: "Chờ hoàn tiền" },
 ];
 
 export const PAYMENT_STATUS_OPTIONS: { value: PaymentStatus; label: string }[] = [
@@ -18,7 +17,6 @@ export const PAYMENT_STATUS_OPTIONS: { value: PaymentStatus; label: string }[] =
   { value: "PAID_DEPOSIT_COMPLETED", label: "Đã trả đủ tiền nhận xe" },
   { value: "PAID_FULL", label: "Đã thanh toán đầy đủ" },
   { value: "COMPLETED", label: "Hoàn thành" },
-  { value: "REFUNDED", label: "Đã hoàn tiền" },
   { value: "FAILED", label: "Thất bại" },
 ];
 
@@ -55,8 +53,6 @@ export function getPaymentStatusVariant(status: PaymentStatus): string {
     case "PAID_FULL":
     case "COMPLETED":
       return "soft-green";
-    case "REFUNDED":
-      return "soft-orange";
     case "FAILED":
       return "soft-red";
     default:

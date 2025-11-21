@@ -130,10 +130,6 @@ export function OrderDetailsFull({ booking }: OrderDetailsFullProps) {
             <Label className="text-xs font-medium text-muted-foreground">Tiền cọc</Label>
             <p className="text-sm font-medium mt-1">{vnd(parseFloat(booking.depositAmount))} VNĐ</p>
           </div>
-          <div>
-            <Label className="text-xs font-medium text-muted-foreground">Số tiền hoàn</Label>
-            <p className="text-sm mt-1">{vnd(parseFloat(booking.refundAmount || "0"))} VNĐ</p>
-          </div>
         </div>
       </div>
 
