@@ -20,6 +20,9 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import type { Model } from "@/@types/car/model";
 import { MembershipAPI } from "@/apis/membership.api";
+import { orderBookingAPI } from "@/apis/order-booking.api";
+import { useAuthStore } from "@/lib/zustand/use-auth-store";
+import type { OrderBookingDetail } from "@/@types/order/order-booking";
 
 type Props = {
   car: Model;
@@ -33,6 +36,47 @@ export default function BookingForm({ car, searchForm, onTimeChange }: Props) {
   const [notes, setNotes] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [membershipDiscount, setMembershipDiscount] = useState(0);
+  const [hasIncompleteOrder, setHasIncompleteOrder] = useState(false);
+  const [checkingOrders, setCheckingOrders] = useState(true);
+
+  const { user } = useAuthStore();
+
+  // Check for incomplete orders
+  useEffect(() => {
+    const checkIncompleteOrders = async () => {
+      if (!user?.userId) {
+        setCheckingOrders(false);
+        return;
+      }
+
+      try {
+        const response = await orderBookingAPI.getByUserId(user.userId);
+        const orders: OrderBookingDetail[] = response.data.data;
+
+        const incompleteStatuses = [
+          "PENDING",
+          "CONFIRMED",
+          "READY_FOR_CHECKOUT",
+          "CHECKED_OUT",
+          "IN_USE",
+          "RETURNED",
+        ];
+
+        const hasIncomplete = orders.some((order) =>
+          incompleteStatuses.includes(order.status)
+        );
+
+        setHasIncompleteOrder(hasIncomplete);
+      } catch (error) {
+        console.error("Failed to check orders:", error);
+        setHasIncompleteOrder(false);
+      } finally {
+        setCheckingOrders(false);
+      }
+    };
+
+    checkIncompleteOrders();
+  }, [user?.userId]);
 
   // Fetch membership discount
   useEffect(() => {
@@ -81,8 +125,12 @@ export default function BookingForm({ car, searchForm, onTimeChange }: Props) {
   }, [car.id, searchForm.location]);
 
   const canSubmit = useMemo(
-    () => !!selectedDepotId && !!paymentMethod && !isSubmitting,
-    [selectedDepotId, paymentMethod, isSubmitting]
+    () =>
+      !!selectedDepotId &&
+      !!paymentMethod &&
+      !isSubmitting &&
+      !hasIncompleteOrder,
+    [selectedDepotId, paymentMethod, isSubmitting, hasIncompleteOrder]
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -182,15 +230,21 @@ export default function BookingForm({ car, searchForm, onTimeChange }: Props) {
                   </Label>
                 </div>
               </div>
-
+              {hasIncompleteOrder && (
+                <p className="text-red-600 font-medium text-md text-center ">
+                  Bạn đang có đơn hàng chưa hoàn thành, không thể đặt đơn khác.
+                </p>
+              )}
               <Button
                 type="submit"
-                disabled={!canSubmit}
+                disabled={!canSubmit || checkingOrders}
                 className="w-full h-14 text-lg bg-blue-600 hover:bg-blue-700"
               >
-                {isSubmitting
-                  ? "Đang xử lý..."
-                  : `Thanh toán ${vnd(deposit)} VND`}
+                {checkingOrders
+                  ? "Đang kiểm tra..."
+                  : isSubmitting
+                    ? "Đang xử lý..."
+                    : `Thanh toán ${vnd(deposit)} VND`}
               </Button>
             </form>
           </div>

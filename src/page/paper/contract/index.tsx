@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { api } from "@/lib/axios/axios";
 import { handoverContractAPI } from "@/apis/handover-contract.api"; // API tạo contract (bạn đã có)
 import { contractAPI } from "@/apis/contract.api"; // API fetch contract theo orderId
+import { orderBookingAPI } from "@/apis/order-booking.api";
 import { uploadDataUrlToCloudinary } from "@/lib/utils/cloudinary";
 
 import type { ItemBaseResponse } from "@/@types/response";
@@ -47,6 +48,7 @@ const ContractPage: React.FC = () => {
 
   const [creating, setCreating] = useState(false);
   const [isPaid, setIsPaid] = useState(false);
+  const [updatingPayment, setUpdatingPayment] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -169,6 +171,30 @@ const ContractPage: React.FC = () => {
       toast.error("Tạo hợp đồng thất bại");
     } finally {
       setCreating(false);
+    }
+  }
+
+  async function handleCashPaymentConfirm() {
+    if (!orderId) return toast.error("Thiếu orderBookingId");
+
+    setUpdatingPayment(true);
+    try {
+      await orderBookingAPI.updateStatus(
+        orderId,
+        "READY_FOR_CHECKOUT",
+        "PAID_FULL"
+      );
+      toast.success("Đã xác nhận thanh toán tiền mặt");
+      setIsPaid(true);
+      // Refetch order to update UI
+      const res = await api.get<ItemBaseResponse<OrderBookingDetail>>(
+        `/api/OrderBooking/${orderId}`
+      );
+      setOrder(res.data.data);
+    } catch {
+      toast.error("Cập nhật trạng thái thanh toán thất bại");
+    } finally {
+      setUpdatingPayment(false);
     }
   }
 
@@ -298,7 +324,36 @@ const ContractPage: React.FC = () => {
           </div>
 
           {isSigned && orderId && !isPaid && order && (
-            <PaymentQR orderId={orderId} paymentType={order.paymentType} />
+            <>
+              {order.paymentMethod === "CASH" ? (
+                <div className="rounded-lg border p-6 bg-white">
+                  <div className="space-y-4">
+                    <div className="text-center">
+                      <p className="text-lg font-medium mb-2">
+                        Thanh toán bằng tiền mặt
+                      </p>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Vui lòng xác nhận sau khi đã nhận đủ tiền mặt từ khách
+                        hàng
+                      </p>
+                    </div>
+                    <div className="flex justify-center">
+                      <Button
+                        onClick={handleCashPaymentConfirm}
+                        disabled={updatingPayment}
+                        className="min-w-[200px]"
+                      >
+                        {updatingPayment
+                          ? "Đang xử lý..."
+                          : "Đã thanh toán tiền mặt"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <PaymentQR orderId={orderId} paymentType={order.paymentType} />
+              )}
+            </>
           )}
 
           {isSigned && isPaid && ""}
