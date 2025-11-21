@@ -304,7 +304,7 @@ export default function UserPaper() {
         )}
       </div>
 
-      <div className="mx-6 mb-4 rounded-md bg-rose-50 text-rose-700 text-sm p-3 flex items-start gap-2">
+      <div className="mx-6 mb-4 rounded-md bg-amber-50 text-amber-700 text-sm p-3 flex items-start gap-2 border border-amber-100">
         <CircleAlert className="h-4 w-4 mt-0.5" />
         <p>
           Lưu ý: người đặt xe phải là người nhận xe. Vui lòng nhập đúng thông
