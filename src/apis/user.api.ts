@@ -31,4 +31,10 @@ export const UserFullAPI = {
     );
     return res.data.data;
   },
+  updateProfilePicture: async (id: string, profilePicture: string): Promise<ItemBaseResponse<string>> => {
+    const response = await api.patch<ItemBaseResponse<string>>(`/api/User/${id}/profile-picture`, {
+      profilePicture,
+    });
+    return response.data;
+  }
 };

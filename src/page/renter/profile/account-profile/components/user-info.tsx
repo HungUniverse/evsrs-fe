@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { type ChangeEvent, useEffect, useRef, useState } from "react";
+import { uploadFileToCloudinary } from "@/lib/utils/cloudinary";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import { UserFullAPI } from "@/apis/user.api";
 import type { UserFull } from "@/@types/auth.type";
 import { MembershipAPI } from "@/apis/membership.api";
 import type { MyMembershipResponse } from "@/@types/membership";
-import { Crown, TrendingUp, User } from "lucide-react";
+import { Camera, Crown, Loader2, TrendingUp, User } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 const MEMBERSHIP_COLORS = {
   NONE: "bg-gray-100 text-gray-700 border-gray-300",
@@ -20,6 +23,8 @@ const MEMBERSHIP_LABELS = {
   GOLD: "Gold",
 };
 
+type AvatarDialogState = "idle" | "preview" | "uploading" | "success";
+
 export default function UserInfo() {
   const { isAuthenticated, user } = useAuthStore();
   const [userFull, setUserFull] = useState<UserFull | null>(null);
@@ -27,6 +32,12 @@ export default function UserInfo() {
   const [membership, setMembership] = useState<MyMembershipResponse | null>(
     null
   );
+  const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
+  const [dialogState, setDialogState] = useState<AvatarDialogState>("idle");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const fetchUserFull = async () => {
@@ -54,6 +65,85 @@ export default function UserInfo() {
 
     fetchUserFull();
   }, [user?.userId]);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  const resetAvatarDialog = () => {
+    setDialogState("idle");
+    setSelectedFile(null);
+    if (previewUrl?.startsWith("blob:")) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setPreviewUrl(null);
+    setErrorMessage(null);
+  };
+
+  const handleDialogChange = (open: boolean) => {
+    setIsAvatarDialogOpen(open);
+    if (!open) {
+      resetAvatarDialog();
+    } else {
+      setDialogState("idle");
+      setErrorMessage(null);
+    }
+  };
+
+  const handleChooseImage = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setErrorMessage("Vui lòng chọn tệp hình ảnh hợp lệ.");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage("Dung lượng tối đa 5MB. Vui lòng chọn ảnh khác.");
+      return;
+    }
+
+    const url = URL.createObjectURL(file);
+    setSelectedFile(file);
+    setPreviewUrl(url);
+    setDialogState("preview");
+    setErrorMessage(null);
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile || !user?.userId) return;
+
+    try {
+      setDialogState("uploading");
+      setErrorMessage(null);
+      const uploadedUrl = await uploadFileToCloudinary(selectedFile);
+      await UserFullAPI.updateProfilePicture(user.userId, uploadedUrl);
+      setUserFull((prev) =>
+        prev
+          ? {
+              ...prev,
+              profilePicture: uploadedUrl,
+            }
+          : prev
+      );
+      setDialogState("success");
+    } catch (err) {
+      console.error("Upload avatar failed:", err);
+      setErrorMessage(
+        "Không thể cập nhật ảnh đại diện. Vui lòng thử lại sau."
+      );
+      setDialogState("preview");
+    }
+  };
 
   if (!isAuthenticated || !user) {
     return (
@@ -90,17 +180,27 @@ export default function UserInfo() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
         <div className="flex flex-col items-center space-y-3">
-          {userFull?.profilePicture || user.avatar ? (
-            <img
-              src={userFull?.profilePicture || user.avatar}
-              alt="avatar"
-              className="h-24 w-24 rounded-full ring-1 ring-slate-200 object-cover"
-            />
-          ) : (
-            <div className="h-24 w-24 rounded-full ring-1 ring-slate-200 bg-slate-100 flex items-center justify-center">
-              <User className="w-12 h-12 text-slate-400" />
+          <button
+            type="button"
+            onClick={() => handleDialogChange(true)}
+            className="group relative h-24 w-24 rounded-full ring-1 ring-slate-200 overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+            aria-label="Cập nhật ảnh đại diện"
+          >
+            {userFull?.profilePicture || user.avatar ? (
+              <img
+                src={userFull?.profilePicture || user.avatar}
+                alt="avatar"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="h-full w-full bg-slate-100 flex items-center justify-center">
+                <User className="w-12 h-12 text-slate-400" />
+              </div>
+            )}
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition group-hover:opacity-100">
+              <Camera className="w-8 h-8 text-white" />
             </div>
-          )}
+          </button>
 
           {/* Membership Badge */}
           <MembershipBadge membership={membership} />
@@ -126,6 +226,91 @@ export default function UserInfo() {
           <MembershipProgress membership={membership} />
         </div>
       )}
+      <Dialog open={isAvatarDialogOpen} onOpenChange={handleDialogChange}>
+        <DialogContent className="max-w-md text-center" showCloseButton>
+          <DialogHeader>
+            <DialogTitle>Cập nhật ảnh đại diện</DialogTitle>
+          </DialogHeader>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+
+          {dialogState === "uploading" && (
+            <div className="py-8 flex flex-col items-center gap-3">
+              <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
+              <p className="text-slate-600 text-sm">
+                Đang cập nhật ảnh của bạn...
+              </p>
+            </div>
+          )}
+
+          {dialogState === "success" && (
+            <div className="py-6 flex flex-col items-center gap-4">
+              <p className="text-slate-700">
+                Cập nhật ảnh đại diện thành công.
+              </p>
+              <Button
+                className="w-full bg-emerald-500 hover:bg-emerald-500/90 text-white"
+                onClick={() => handleDialogChange(false)}
+              >
+                Hoàn tất
+              </Button>
+            </div>
+          )}
+
+          {dialogState === "preview" && previewUrl && (
+            <div className="flex flex-col gap-4">
+              <div className="mx-auto w-full max-w-xs rounded-2xl overflow-hidden border">
+                <img
+                  src={previewUrl}
+                  alt="Ảnh xem trước"
+                  className="h-64 w-full object-cover"
+                />
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={handleChooseImage}
+                >
+                  Chọn hình khác
+                </Button>
+                <Button
+                  className="flex-1 bg-emerald-500 hover:bg-emerald-500/90 text-white"
+                  onClick={handleUpload}
+                >
+                  Cập nhật
+                </Button>
+              </div>
+              {errorMessage && (
+                <p className="text-sm text-red-500">{errorMessage}</p>
+              )}
+            </div>
+          )}
+
+          {dialogState === "idle" && (
+            <div className="py-4 flex flex-col gap-3">
+              <Button
+                className="mx-auto bg-emerald-500 hover:bg-emerald-500/90 text-white"
+                onClick={handleChooseImage}
+              >
+                Chọn hình
+              </Button>
+              <p className="text-sm text-slate-500">
+                Hỗ trợ định dạng JPG, PNG, GIF với kích thước tối đa 5MB.
+              </p>
+              {errorMessage && (
+                <p className="text-sm text-red-500">{errorMessage}</p>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
