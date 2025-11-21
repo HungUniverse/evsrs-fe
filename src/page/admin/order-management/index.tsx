@@ -15,7 +15,6 @@ export default function OrderManagementPage() {
   const {
     orders,
     displayedOrders,
-    users,
     depots,
     models,
     loading,
@@ -29,8 +28,6 @@ export default function OrderManagementPage() {
     handlePreviousPage,
     searchOrderCode,
     setSearchOrderCode,
-    selectedUserId,
-    setSelectedUserId,
     selectedDepotId,
     setSelectedDepotId,
     selectedModelId,
@@ -84,8 +81,6 @@ export default function OrderManagementPage() {
             onSearch={handleSearchOrderByCode}
             pageSize={pageSize}
             onPageSizeChange={(size) => setPageSize(Number(size))}
-            selectedUserId={selectedUserId}
-            onSelectedUserIdChange={setSelectedUserId}
             selectedDepotId={selectedDepotId}
             onSelectedDepotIdChange={setSelectedDepotId}
             selectedModelId={selectedModelId}
@@ -99,7 +94,6 @@ export default function OrderManagementPage() {
             endDateFilter={endDateFilter}
             onEndDateFilterChange={setEndDateFilter}
             onClearFilters={clearFilters}
-            users={users}
             depots={depots}
             models={models}
           />
