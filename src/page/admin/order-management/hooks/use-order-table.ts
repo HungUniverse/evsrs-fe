@@ -50,12 +50,8 @@ export interface UseOrderTableResult {
   clearFilters: () => void;
 
   // Dialogs
-  detailDialogOpen: boolean;
-  setDetailDialogOpen: (open: boolean) => void;
   updateStatusDialogOpen: boolean;
   setUpdateStatusDialogOpen: (open: boolean) => void;
-  deleteDialogOpen: boolean;
-  setDeleteDialogOpen: (open: boolean) => void;
   refundDialogOpen: boolean;
   setRefundDialogOpen: (open: boolean) => void;
   userInfoUserId: string | null;
@@ -80,9 +76,7 @@ export interface UseOrderTableResult {
   fetchOrders: () => Promise<void>;
   handleSearchOrderByCode: () => Promise<void>;
   handleUpdateStatus: () => Promise<void>;
-  handleDelete: () => Promise<void>;
   handleConfirmRefund: () => Promise<void>;
-  viewOrderDetails: (order: OrderBookingDetail) => void;
 }
 
 export function useOrderTable(): UseOrderTableResult {
@@ -91,9 +85,7 @@ export function useOrderTable(): UseOrderTableResult {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [updateStatusDialogOpen, setUpdateStatusDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [refundDialogOpen, setRefundDialogOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<OrderBookingDetail | null>(null);
   const [userInfoUserId, setUserInfoUserId] = useState<string | null>(null);
@@ -232,26 +224,6 @@ export function useOrderTable(): UseOrderTableResult {
     }
   };
 
-  const handleDelete = async () => {
-    if (!selectedOrder) return;
-
-    if (selectedOrder.status !== "PENDING" && selectedOrder.status !== "CANCELLED") {
-      toast.error("Chỉ có thể xóa đơn đặt xe ở trạng thái 'Chờ xác nhận' hoặc 'Đã hủy'");
-      setDeleteDialogOpen(false);
-      return;
-    }
-
-    try {
-      await OrderTableApi.deleteOrder(selectedOrder.id);
-      toast.success("Xóa đơn đặt xe thành công");
-      setDeleteDialogOpen(false);
-      await fetchOrders();
-    } catch (error) {
-      console.error("Error deleting order:", error);
-      toast.error("Không thể xóa đơn đặt xe");
-    }
-  };
-
   const handleConfirmRefund = async () => {
     if (!selectedOrder) return;
     const amountNumber = Number(refundedAmount);
@@ -273,11 +245,6 @@ export function useOrderTable(): UseOrderTableResult {
     } finally {
       setSubmittingRefund(false);
     }
-  };
-
-  const viewOrderDetails = (order: OrderBookingDetail) => {
-    setSelectedOrder(order);
-    setDetailDialogOpen(true);
   };
 
   const handleNextPage = () => {
@@ -316,33 +283,20 @@ export function useOrderTable(): UseOrderTableResult {
       let matchStartDate = true;
       let matchEndDate = true;
 
-      if (startDateFilter && !endDateFilter) {
+      // Sử dụng range match cho tất cả trường hợp để nhất quán và hợp lý hơn
+      // - Start Date: lấy đơn có startAt >= ngày bắt đầu (từ ngày này trở đi)
+      // - End Date: lấy đơn có endAt <= ngày kết thúc (đến ngày này trở về)
+      if (startDateFilter) {
         const orderStart = new Date(order.startAt);
-        const startOnly = new Date(orderStart);
-        startOnly.setHours(0, 0, 0, 0);
         const selectedStart = new Date(startDateFilter);
         selectedStart.setHours(0, 0, 0, 0);
-        matchStartDate = startOnly.getTime() === selectedStart.getTime();
-      } else if (endDateFilter && !startDateFilter) {
+        matchStartDate = orderStart >= selectedStart;
+      }
+      if (endDateFilter) {
         const orderEnd = new Date(order.endAt);
-        const endOnly = new Date(orderEnd);
-        endOnly.setHours(0, 0, 0, 0);
         const selectedEnd = new Date(endDateFilter);
-        selectedEnd.setHours(0, 0, 0, 0);
-        matchEndDate = endOnly.getTime() === selectedEnd.getTime();
-      } else {
-        if (startDateFilter) {
-          const orderStart = new Date(order.startAt);
-          const selectedStart = new Date(startDateFilter);
-          selectedStart.setHours(0, 0, 0, 0);
-          matchStartDate = orderStart >= selectedStart;
-        }
-        if (endDateFilter) {
-          const orderEnd = new Date(order.endAt);
-          const selectedEnd = new Date(endDateFilter);
-          selectedEnd.setHours(23, 59, 59, 999);
-          matchEndDate = orderEnd <= selectedEnd;
-        }
+        selectedEnd.setHours(23, 59, 59, 999);
+        matchEndDate = orderEnd <= selectedEnd;
       }
 
       return matchStatus && matchPaymentStatus && matchUser && matchDepot && matchModel && matchStartDate && matchEndDate;
@@ -444,12 +398,8 @@ export function useOrderTable(): UseOrderTableResult {
     endDateFilter,
     setEndDateFilter,
     clearFilters,
-    detailDialogOpen,
-    setDetailDialogOpen,
     updateStatusDialogOpen,
     setUpdateStatusDialogOpen,
-    deleteDialogOpen,
-    setDeleteDialogOpen,
     refundDialogOpen,
     setRefundDialogOpen,
     userInfoUserId,
@@ -468,9 +418,7 @@ export function useOrderTable(): UseOrderTableResult {
     fetchOrders,
     handleSearchOrderByCode,
     handleUpdateStatus,
-    handleDelete,
     handleConfirmRefund,
-    viewOrderDetails,
   };
 }
 

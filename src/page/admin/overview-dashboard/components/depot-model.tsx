@@ -1,29 +1,62 @@
 /**
- * Component hiển thị model xe được thuê nhiều nhất tại từng trạm
+ * Component hiển thị phân bố mẫu xe được thuê tại một trạm bằng Pie Chart
  * 
  * Chức năng:
  * - Lấy toàn bộ đơn hàng từ API
- * - Đếm số lượt thuê theo từng cặp (trạm, model)
- * - Tìm model được thuê nhiều nhất tại mỗi trạm
- * - Hiển thị thông tin: tên trạm, địa điểm, model xe phổ biến nhất
- * - Hiển thị hình ảnh model xe
- * - Sắp xếp theo số lượt thuê giảm dần
- * - Mỗi card trạm có gradient màu sắc khác nhau
- * - Layout grid 2 cột responsive
+ * - Dropdown để chọn trạm
+ * - Đếm số lượt thuê theo từng mẫu xe tại trạm được chọn
+ * - Hiển thị phân bố bằng Pie Chart từ recharts
  * 
  * Props: Không có
- * Returns: JSX element hiển thị danh sách model phổ biến theo trạm
+ * Returns: JSX element hiển thị pie chart phân bố model tại trạm được chọn
  */
 
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { orderBookingAPI } from '@/apis/order-booking.api'
+import { depotAPI } from '@/apis/depot.api'
 import type { OrderBookingDetail } from '@/@types/order/order-booking'
+import type { Depot } from '@/@types/car/depot'
+import type { ListBaseResponse } from '@/@types/response'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { MapPin, Car } from 'lucide-react'
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
+
+const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#ef4444', '#06b6d4', '#f97316', '#6366f1', '#14b8a6']
 
 export default function DepotModel() {
+  const [selectedDepotId, setSelectedDepotId] = useState<string>('')
+
+  // Get all depots for dropdown
+  const { data: depotsData } = useQuery({
+    queryKey: ['depots-for-depot-model'],
+    queryFn: async () => {
+      const res = await depotAPI.getAll(1, 1000)
+      const payload = res.data as ListBaseResponse<Depot>
+      return payload.data.items || []
+    },
+  })
+
+  // Set default depot to "Tan Binh" when depots data is loaded
+  useEffect(() => {
+    if (depotsData && depotsData.length > 0 && !selectedDepotId) {
+      const tanBinhDepot = depotsData.find(depot => 
+        depot.name.toLowerCase().includes('tan binh') || 
+        depot.name.toLowerCase().includes('tân bình')
+      )
+      if (tanBinhDepot) {
+        setSelectedDepotId(tanBinhDepot.id)
+      }
+    }
+  }, [depotsData, selectedDepotId])
+
   // Get all orders
   const { data: allOrdersData } = useQuery({
     queryKey: ['all-orders-for-depot-model'],
@@ -48,164 +81,160 @@ export default function DepotModel() {
     },
   })
 
-  // Calculate most rented model per depot
-  const depotModels = useMemo(() => {
-    if (!allOrdersData) return []
+  // Calculate model distribution for selected depot
+  const chartData = useMemo(() => {
+    if (!allOrdersData || !selectedDepotId) return []
 
-    // Count rentals by depot and model
-    const depotModelCounts: Record<string, {
-      depotName: string
-      location: string
-      models: Record<string, { name: string; count: number; image: string }>
-    }> = {}
+    const selectedDepot = depotsData?.find(d => d.id === selectedDepotId)
+    if (!selectedDepot) return []
+
+    // Count rentals by model for selected depot
+    const modelCounts: Record<string, { name: string; count: number }> = {}
     
     allOrdersData.forEach((order) => {
-      // Only count completed orders
-      if (order.status !== 'COMPLETED') return
+      // Only count completed orders from selected depot
+      if (order.status !== 'COMPLETED' || order.depotId !== selectedDepotId) return
       
-      if (order.depot && order.carEvs?.model) {
-        const depotId = order.depotId
-        const depotName = order.depot.name
-        const location = `${order.depot.district}, ${order.depot.province}`
+      if (order.carEvs?.model) {
         const modelId = order.carEvs.model.id
         const modelName = order.carEvs.model.modelName
-        const modelImage = order.carEvs.model.image
         
-        if (!depotModelCounts[depotId]) {
-          depotModelCounts[depotId] = {
-            depotName,
-            location,
-            models: {}
-          }
-        }
-        
-        if (!depotModelCounts[depotId].models[modelId]) {
-          depotModelCounts[depotId].models[modelId] = {
+        if (!modelCounts[modelId]) {
+          modelCounts[modelId] = {
             name: modelName,
-            count: 0,
-            image: modelImage
+            count: 0
           }
         }
-        depotModelCounts[depotId].models[modelId].count++
+        modelCounts[modelId].count++
       }
     })
 
-    // Find top model for each depot, filter out depots with 0 rentals
-    return Object.entries(depotModelCounts)
-      .map(([depotId, data]) => {
-        const topModel = Object.entries(data.models)
-          .sort(([, a], [, b]) => b.count - a.count)[0]
-        
-        if (!topModel || topModel[1].count === 0) return null
-        
-        return {
-          depotId,
-          depotName: data.depotName,
-          location: data.location,
-          modelName: topModel[1].name,
-          modelImage: topModel[1].image,
-          count: topModel[1].count
-        }
-      })
-      .filter(item => item !== null && item.count > 0)
-      .sort((a, b) => (b?.count || 0) - (a?.count || 0))
-  }, [allOrdersData])
+    // Convert to array and sort by count
+    return Object.entries(modelCounts)
+      .map(([id, data]) => ({
+        id,
+        name: data.name,
+        value: data.count
+      }))
+      .filter(item => item.value > 0)
+      .sort((a, b) => b.value - a.value)
+  }, [allOrdersData, selectedDepotId, depotsData])
 
-  // Get gradient colors
-  const gradients = [
-    'from-blue-500 to-cyan-500',
-    'from-purple-500 to-pink-500',
-    'from-green-500 to-emerald-500',
-    'from-orange-500 to-red-500',
-    'from-indigo-500 to-purple-500',
-    'from-teal-500 to-blue-500',
-    'from-pink-500 to-rose-500',
-    'from-yellow-500 to-orange-500'
-  ]
+  const selectedDepot = depotsData?.find(d => d.id === selectedDepotId)
+
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ value: number; payload: { name: string; value: number } }> }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0]
+      const total = chartData.reduce((sum, item) => sum + item.value, 0)
+      const percentage = ((data.value / total) * 100).toFixed(1)
+      
+      return (
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-semibold">{data.payload.name}</p>
+          <p className="text-sm text-blue-600">
+            {data.value.toLocaleString()} lượt thuê ({percentage}%)
+          </p>
+        </div>
+      )
+    }
+    return null
+  }
 
   return (
     <Card className="border-2 hover:shadow-lg transition-shadow">
       <CardHeader className="pb-4">
-        <div className="flex items-center gap-2">
-          <div className="p-2 bg-orange-100 rounded-lg">
-            <Car className="h-5 w-5 text-orange-600" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-orange-100 rounded-lg">
+              <Car className="h-5 w-5 text-orange-600" />
+            </div>
+            <div>
+              <CardTitle className="text-xl">Phân bố mẫu xe tại trạm</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Phân bố mẫu xe được thuê tại trạm được chọn
+              </p>
+            </div>
           </div>
-          <CardTitle className="text-xl">Mẫu xe được thuê nhiều nhất tại mỗi trạm</CardTitle>
+          <Select value={selectedDepotId} onValueChange={setSelectedDepotId}>
+            <SelectTrigger className="w-[250px]">
+              <SelectValue placeholder="Chọn trạm" />
+            </SelectTrigger>
+            <SelectContent>
+              {depotsData?.map((depot) => (
+                <SelectItem key={depot.id} value={depot.id}>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <span>{depot.name}</span>
+                    {depot.district && depot.province && (
+                      <span className="text-xs text-muted-foreground">
+                        - {depot.district}, {depot.province}
+                      </span>
+                    )}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-        <p className="text-sm text-muted-foreground mt-1">
-          Mẫu xe được thuê nhiều nhất tại mỗi trạm
-        </p>
       </CardHeader>
       <CardContent>
-        {depotModels.length === 0 ? (
+        {!selectedDepotId ? (
           <div className="text-center py-8 text-muted-foreground">
-            <p>Chưa có dữ liệu</p>
+            <p>Vui lòng chọn trạm để xem phân bố mẫu xe</p>
+          </div>
+        ) : chartData.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            <p>Trạm {selectedDepot?.name} chưa có dữ liệu</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {depotModels.map((item, index) => {
-              if (!item) return null
-              
-              const gradient = gradients[index % gradients.length]
-              
-              return (
-                <div
-                  key={item.depotId}
-                  className="relative group overflow-hidden rounded-xl border-2 border-gray-200 hover:border-primary transition-all hover:shadow-xl"
-                >
-                  {/* Gradient Background */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-5 group-hover:opacity-10 transition-opacity`} />
-                  
-                  <div className="relative p-4">
-                    {/* Depot Info Header */}
-                    <div className="mb-3">
-                      <div className="flex items-start gap-2 mb-2">
-                        <div className={`p-1.5 bg-gradient-to-br ${gradient} rounded-lg`}>
-                          <MapPin className="h-4 w-4 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-bold text-base leading-tight">{item.depotName}</h3>
-                          <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />
-                            {item.location}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Model Info */}
-                    <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-lg p-2 border border-gray-200">
-                      {/* Model Image */}
-                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 shadow-md flex-shrink-0">
-                        <img 
-                          src={item.modelImage || '/placeholder-car.png'} 
-                          alt={item.modelName}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3Ctext x="50%%25" y="50%%25" text-anchor="middle" dy=".3em" fill="%23999"%3ECar%3C/text%3E%3C/svg%3E'
-                          }}
-                        />
-                      </div>
-
-                      {/* Model Details */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Car className="h-4 w-4 text-primary" />
-                          <p className="font-semibold text-sm truncate">{item.modelName}</p>
-                        </div>
-                        <Badge className="text-xs bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0">
-                          {item.count.toLocaleString()} lượt thuê
-                        </Badge>
-                      </div>
-                    </div>
-
-                    {/* Decorative Corner */}
-                    <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${gradient} opacity-5 rounded-bl-full`} />
-                  </div>
+          <>
+            {selectedDepot && (
+              <div className="mb-4 p-3 bg-muted rounded-lg">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  <span className="font-semibold">{selectedDepot.name}</span>
+                  {selectedDepot.district && selectedDepot.province && (
+                    <span className="text-sm text-muted-foreground">
+                      - {selectedDepot.district}, {selectedDepot.province}
+                    </span>
+                  )}
                 </div>
-              )
-            })}
-          </div>
+              </div>
+            )}
+            <ResponsiveContainer width="100%" height={400}>
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => {
+                    const p = percent || 0
+                    if (p < 0.05) return '' // Hide labels for small slices
+                    return `${name}: ${(p * 100).toFixed(0)}%`
+                  }}
+                  outerRadius={120}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${entry.id}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={72}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  formatter={(_value, entry: any) => (
+                    <span style={{ color: entry.color }}>
+                      {entry.payload?.name}: {entry.payload?.value?.toLocaleString()} lượt
+                    </span>
+                  )}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </>
         )}
       </CardContent>
     </Card>

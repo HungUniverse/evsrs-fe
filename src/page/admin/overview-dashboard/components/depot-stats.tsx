@@ -1,16 +1,13 @@
 /**
- * Component hiển thị Top 3 trạm được thuê nhiều nhất
+ * Component hiển thị phân bố trạm được thuê bằng Pie Chart
  * 
  * Chức năng:
  * - Lấy toàn bộ đơn hàng từ API
  * - Đếm số lượt thuê theo từng trạm (depot)
- * - Sắp xếp và hiển thị top 3 trạm có số lượt thuê cao nhất
- * - Hiển thị thông tin: tên trạm, địa điểm, số lượt thuê
- * - Thể hiện ranking với icon và màu sắc khác nhau (vàng, xám, cam)
- * - Hiển thị progress bar so sánh với trạm đứng đầu
+ * - Hiển thị phân bố bằng Pie Chart từ recharts
  * 
  * Props: Không có
- * Returns: JSX element hiển thị danh sách top 3 trạm
+ * Returns: JSX element hiển thị pie chart phân bố trạm
  */
 
 import { useMemo } from 'react'
@@ -18,8 +15,10 @@ import { useQuery } from '@tanstack/react-query'
 import { orderBookingAPI } from '@/apis/order-booking.api'
 import type { OrderBookingDetail } from '@/@types/order/order-booking'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { MapPin } from 'lucide-react'
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
+
+const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#ef4444', '#06b6d4', '#f97316']
 
 export default function DepotStats() {
   // Get all orders
@@ -46,12 +45,12 @@ export default function DepotStats() {
     },
   })
 
-  // Calculate top 3 depots by rental count
-  const topDepots = useMemo(() => {
+  // Calculate depot distribution for pie chart
+  const chartData = useMemo(() => {
     if (!allOrdersData) return []
 
     // Count rentals by depot (only completed orders)
-    const depotCounts: Record<string, { name: string; count: number; location: string }> = {}
+    const depotCounts: Record<string, { name: string; count: number }> = {}
     
     allOrdersData.forEach((order) => {
       // Only count completed orders
@@ -59,48 +58,40 @@ export default function DepotStats() {
       
       const depotId = order.depotId
       const depotName = order.depot?.name || 'Unknown'
-      const location = order.depot?.district && order.depot?.province 
-        ? `${order.depot.district}, ${order.depot.province}` 
-        : 'Unknown'
       
       if (!depotCounts[depotId]) {
-        depotCounts[depotId] = { name: depotName, count: 0, location }
+        depotCounts[depotId] = { name: depotName, count: 0 }
       }
       depotCounts[depotId].count++
     })
 
-    // Sort by count, filter out depots with 0 rentals, and get top 3
+    // Convert to array and sort by count
     return Object.entries(depotCounts)
-      .map(([id, data]) => ({ id, ...data }))
-      .filter((depot) => depot.count > 0)
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 3)
+      .map(([id, data]) => ({ 
+        id,
+        name: data.name, 
+        value: data.count 
+      }))
+      .filter((depot) => depot.value > 0)
+      .sort((a, b) => b.value - a.value)
   }, [allOrdersData])
 
-  const getRankIcon = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return '🥇'
-      case 2:
-        return '🥈'
-      case 3:
-        return '🥉'
-      default:
-        return '🏅'
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ value: number; payload: { name: string; value: number } }> }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0]
+      const total = chartData.reduce((sum, item) => sum + item.value, 0)
+      const percentage = ((data.value / total) * 100).toFixed(1)
+      
+      return (
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-semibold">{data.payload.name}</p>
+          <p className="text-sm text-blue-600">
+            {data.value.toLocaleString()} lượt thuê ({percentage}%)
+          </p>
+        </div>
+      )
     }
-  }
-
-  const getRankColor = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return 'bg-gradient-to-br from-yellow-400 to-orange-500 text-white'
-      case 2:
-        return 'bg-gradient-to-br from-gray-300 to-gray-400 text-white'
-      case 3:
-        return 'bg-gradient-to-br from-orange-400 to-orange-600 text-white'
-      default:
-        return 'bg-gray-200'
-    }
+    return null
   }
 
   return (
@@ -110,54 +101,47 @@ export default function DepotStats() {
           <div className="p-2 bg-blue-100 rounded-lg">
             <MapPin className="h-5 w-5 text-blue-600" />
           </div>
-          <CardTitle className="text-xl">Trạm được thuê nhiều nhất</CardTitle>
+          <CardTitle className="text-xl">Phân bố trạm được thuê</CardTitle>
         </div>
         <p className="text-sm text-muted-foreground mt-1">
-          Xếp hạng theo số lượt thuê
+          Phân bố số lượt thuê theo trạm
         </p>
       </CardHeader>
       <CardContent>
-        {topDepots.length === 0 ? (
+        {chartData.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <p>Chưa có dữ liệu</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {topDepots.map((depot, index) => (
-              <div
-                key={depot.id}
-                className="relative group"
+          <ResponsiveContainer width="100%" height={350}>
+            <PieChart>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
+                outerRadius={100}
+                fill="#8884d8"
+                dataKey="value"
               >
-                <div className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${
-                  index === 0 ? 'border-yellow-400 bg-gradient-to-r from-yellow-50 to-orange-50' :
-                  index === 1 ? 'border-gray-300 bg-gradient-to-r from-gray-50 to-gray-100' :
-                  'border-orange-400 bg-gradient-to-r from-orange-50 to-orange-100'
-                }`}>
-                  {/* Rank Icon */}
-                  <div className={`
-                    flex items-center justify-center w-16 h-16 rounded-full font-bold text-2xl shadow-lg
-                    ${getRankColor(index + 1)}
-                  `}>
-                    {getRankIcon(index + 1)}
-                  </div>
-
-                  {/* Depot Info */}
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-bold text-lg">{depot.name}</h3>
-                      <Badge variant="secondary" className="text-xs">
-                        {depot.count.toLocaleString()} lượt thuê
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      {depot.location}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${entry.id}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip />} />
+              <Legend 
+                verticalAlign="bottom" 
+                height={36}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                formatter={(_value, entry: any) => (
+                  <span style={{ color: entry.color }}>
+                    {entry.payload?.name}: {entry.payload?.value?.toLocaleString()} lượt
+                  </span>
+                )}
+              />
+            </PieChart>
+          </ResponsiveContainer>
         )}
       </CardContent>
     </Card>
