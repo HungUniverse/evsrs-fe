@@ -3,15 +3,13 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { SystemConfigTypeResponse } from "@/@types/system-config";
-import type { SystemConfigType } from "@/@types/enum";
 
 interface SystemConfigFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialData?: Partial<SystemConfigTypeResponse> | null;
-  onSubmit: (payload: { key: string; value: string; configType: SystemConfigType }) => Promise<void> | void;
+  onSubmit: (payload: { key: string; value: string }) => Promise<void> | void;
 }
 
 const SystemConfigFormDialog: React.FC<SystemConfigFormDialogProps> = ({ 
@@ -22,7 +20,6 @@ const SystemConfigFormDialog: React.FC<SystemConfigFormDialogProps> = ({
 }) => {
   const [key, setKey] = useState("");
   const [value, setValue] = useState<string>("");
-  const [configType, setConfigType] = useState<SystemConfigType>("General");
   const [submitting, setSubmitting] = useState(false);
   const [valueError, setValueError] = useState<string>("");
 
@@ -42,13 +39,11 @@ const SystemConfigFormDialog: React.FC<SystemConfigFormDialogProps> = ({
       } else {
         setValue("");
       }
-      setConfigType(initialData?.configType ?? "General");
       setValueError("");
     } else {
       // Reset form when dialog closes
       setKey("");
       setValue("");
-      setConfigType("General");
       setValueError("");
     }
   }, [initialData, open]);
@@ -179,8 +174,7 @@ const SystemConfigFormDialog: React.FC<SystemConfigFormDialogProps> = ({
       // Convert number to string for API
       await onSubmit({ 
         key: key.trim(), 
-        value: numValue.toString(), 
-        configType 
+        value: numValue.toString()
       });
       onOpenChange(false);
     } finally {
@@ -193,25 +187,15 @@ const SystemConfigFormDialog: React.FC<SystemConfigFormDialogProps> = ({
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>
-            {initialData?.id ? "Sửa cấu hình hệ thống" : "Thêm cấu hình hệ thống"}
+            Sửa cấu hình hệ thống
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-2">
-            <Label htmlFor="config-key">Key *</Label>
-            <Input
-              id="config-key"
-              value={key}
-              onChange={(e) => setKey(e.target.value)}
-              placeholder="Nhập key cấu hình"
-              required
-              disabled={!!initialData?.id}
-            />
-            {initialData?.id && (
-              <p className="text-xs text-muted-foreground">
-                Key không thể thay đổi sau khi tạo
-              </p>
-            )}
+            <Label htmlFor="config-key">Key</Label>
+            <div className="px-3 py-2 bg-muted rounded-md text-sm font-medium">
+              {key || "-"}
+            </div>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="config-value">Value *</Label>
@@ -229,23 +213,6 @@ const SystemConfigFormDialog: React.FC<SystemConfigFormDialogProps> = ({
               <p className="text-xs text-red-500">{valueError}</p>
             )}
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="config-type">Loại cấu hình *</Label>
-            <Select 
-              value={configType} 
-              onValueChange={(v) => setConfigType(v as SystemConfigType)}
-            >
-              <SelectTrigger id="config-type">
-                <SelectValue placeholder="Chọn loại cấu hình" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="General">General</SelectItem>
-                <SelectItem value="PaymentGateway">PaymentGateway</SelectItem>
-                <SelectItem value="Notification">Notification</SelectItem>
-                <SelectItem value="Security">Security</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
           <DialogFooter>
             <Button 
               type="button" 
@@ -260,7 +227,7 @@ const SystemConfigFormDialog: React.FC<SystemConfigFormDialogProps> = ({
               disabled={submitting}
               className="bg-emerald-200 text-emerald-900 hover:bg-emerald-300"
             >
-              {submitting ? "Đang xử lý..." : initialData?.id ? "Lưu thay đổi" : "Tạo mới"}
+              {submitting ? "Đang xử lý..." : "Lưu thay đổi"}
             </Button>
           </DialogFooter>
         </form>

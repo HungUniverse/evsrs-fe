@@ -1,6 +1,5 @@
 import { useState } from "react";
 import type { SystemConfigTypeResponse } from "@/@types/system-config";
-import type { SystemConfigType } from "@/@types/enum";
 import { useSystemConfigMutations } from "./use-system-configs";
 import { toast } from "sonner";
 
@@ -14,14 +13,21 @@ export function useSystemConfigForm() {
     setOpen(true);
   };
 
-  const submit = async (payload: { key: string; value: string; configType: SystemConfigType }) => {
+  const submit = async (payload: { key: string; value: string }) => {
     if (!editing?.id) {
       toast.error("Không thể cập nhật: thiếu ID");
       return;
     }
     
     try {
-      await update.mutateAsync({ id: editing.id, data: payload });
+      // Use configType from editing data since it's not in the form anymore
+      await update.mutateAsync({ 
+        id: editing.id, 
+        data: { 
+          ...payload, 
+          configType: editing.configType || "General" 
+        } 
+      });
       toast.success("Cập nhật cấu hình thành công");
       setOpen(false);
     } catch {
