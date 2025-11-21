@@ -6,7 +6,6 @@ export type OrderBookingStatus =
   | "IN_USE"
   | "RETURNED"
   | "COMPLETED"
-  | "REFUND_PENDING"
   | "CANCELLED";
 
 // -------------------- OrderType --------------------

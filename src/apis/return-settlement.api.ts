@@ -3,6 +3,7 @@ import type { ItemBaseResponse } from "@/@types/response";
 import type {
   ReturnSettlement,
   ReturnSettlementRequest,
+  CompleteOrderRequest,
 } from "@/@types/order/return-settlement";
 
 export const returnSettlementAPI = {
@@ -19,5 +20,9 @@ export const returnSettlementAPI = {
       `/api/Return/settlement/order/${orderId}`
     );
     return res.data.data;
+  },
+
+  complete: async (body: CompleteOrderRequest): Promise<void> => {
+    await api.post("/api/Return/complete", body);
   },
 };

@@ -5,6 +5,7 @@ import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import DetailInformation from "../../../renter/profile/account-trips/details/components/detail-information";
 import StaffDetailPaper from "./detail-paper";
 import DetailPrice from "../../../renter/profile/account-trips/details/components/detail-price";
+import FeedbackDisplay from "./feedback-display";
 import { TRIP_STATUS_LABEL } from "@/lib/constants/trip-status";
 import { Button } from "@/components/ui/button";
 import {
@@ -118,22 +119,24 @@ export default function StaffTripDetails() {
 
       <DetailPrice booking={booking} />
 
+      {/* Feedback Display */}
+      <FeedbackDisplay
+        orderBookingId={booking.id}
+        orderStatus={booking.status}
+      />
+
       {/* Cancel Booking Button */}
-      <div className="flex justify-end">
-        <Button
-          variant="destructive"
-          onClick={handleCancelClick}
-          disabled={!canCancelBooking}
-          className="hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          title={
-            !canCancelBooking
-              ? "Không thể hủy chuyến (Đã hoàn thành/Đã hủy/Đang hoàn tiền)"
-              : "Hủy chuyến"
-          }
-        >
-          Hủy chuyến
-        </Button>
-      </div>
+      {canCancelBooking && (
+        <div className="flex justify-end">
+          <Button
+            variant="destructive"
+            onClick={handleCancelClick}
+            className="hover:bg-red-600 transition-colors"
+          >
+            Hủy chuyến
+          </Button>
+        </div>
+      )}
 
       {/* Cancel Confirmation Dialog */}
       <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>

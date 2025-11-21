@@ -8,7 +8,6 @@ export const TRIP_STATUS_PILL: Record<OrderBookingStatus, string> = {
   IN_USE: "bg-blue-100 text-blue-700 border-blue-200",
   RETURNED: "bg-teal-100 text-teal-700 border-teal-200",
   COMPLETED: "bg-green-100 text-green-700 border-green-200",
-  REFUND_PENDING: "bg-yellow-100 text-yellow-700 border-yellow-200",
   CANCELLED: "bg-rose-100 text-rose-700 border-rose-200",
 };
 
@@ -20,6 +19,5 @@ export const TRIP_STATUS_LABEL: Record<OrderBookingStatus, string> = {
   IN_USE: "Đang sử dụng",
   RETURNED: "Đã trả xe",
   COMPLETED: "Hoàn tất",
-  REFUND_PENDING: "Chờ hoàn tiền",
   CANCELLED: "Đã hủy",
 };

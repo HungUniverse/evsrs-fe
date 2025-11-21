@@ -52,3 +52,9 @@ export interface ReturnSettlementResponse {
   statusCode: number;
   code: string;
 }
+
+export interface CompleteOrderRequest {
+  orderBookingId: string;
+  finalNotes: string;
+  completedByStaffId: string;
+}
