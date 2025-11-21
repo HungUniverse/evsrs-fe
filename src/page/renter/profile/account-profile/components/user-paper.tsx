@@ -372,13 +372,30 @@ export default function UserPaper() {
 
 function StatusPill({ status }: { status: PaperStatus }) {
   const map = {
-    pending: { text: "Đang chờ duyệt", cls: "bg-amber-100 text-amber-800" },
-    approved: { text: "Đã xác thực", cls: "bg-emerald-100 text-emerald-800" },
-    rejected: { text: "Đã từ chối", cls: "bg-red-100 text-red-800" },
+    pending: {
+      text: "Đang chờ duyệt",
+      cls: "bg-amber-100 text-amber-800",
+      icon: <Loader2 className="h-3.5 w-3.5 animate-spin" />,
+    },
+    approved: {
+      text: "Đã xác thực",
+      cls: "bg-emerald-100 text-emerald-800",
+      icon: <CheckCircle2 className="h-3.5 w-3.5" />,
+    },
+    rejected: {
+      text: "Đã từ chối",
+      cls: "bg-red-100 text-red-800",
+      icon: <X className="h-3.5 w-3.5" />,
+    },
   } as const;
   const it = map[status];
   return (
-    <span className={`text-xs px-2 py-1 rounded-md ${it.cls}`}>{it.text}</span>
+    <span
+      className={`text-xs px-2 py-1 rounded-md inline-flex items-center gap-1 ${it.cls}`}
+    >
+      {it.icon}
+      {it.text}
+    </span>
   );
 }
 
