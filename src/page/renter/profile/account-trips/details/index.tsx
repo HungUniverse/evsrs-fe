@@ -8,6 +8,7 @@ import DetailInformation from "./components/detail-information";
 import DetailPaper from "./components/detail-paper";
 import DetailPrice from "./components/detail-price";
 import AfterPaymentQR from "./components/AfterPaymentQR";
+import Feedback from "./components/feedback";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -136,26 +137,22 @@ export default function TripDetails() {
       <DetailPrice booking={booking} />
       {booking.status === "PENDING" && <AfterPaymentQR orderId={booking.id} />}
 
+      {/* Feedback Section */}
+      <Feedback orderBookingId={booking.id} orderStatus={booking.status} />
+
       {/* Cancel Booking Button */}
-      <div className="flex justify-end">
-        <Button
-          variant="destructive"
-          onClick={handleCancelClick}
-          disabled={!canCancelBooking || checkingContract}
-          className="hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          title={
-            checkingContract
-              ? "Đang kiểm tra..."
-              : !canCancelBooking
-                ? hasContract
-                  ? "Không thể hủy chuyến (đã có hợp đồng)"
-                  : "Không thể hủy chuyến (trạng thái không phù hợp)"
-                : "Hủy chuyến"
-          }
-        >
-          {checkingContract ? "Đang kiểm tra..." : "Hủy chuyến"}
-        </Button>
-      </div>
+      {(canCancelBooking || checkingContract) && (
+        <div className="flex justify-end">
+          <Button
+            variant="destructive"
+            onClick={handleCancelClick}
+            disabled={checkingContract}
+            className="hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {checkingContract ? "Đang kiểm tra..." : "Hủy chuyến"}
+          </Button>
+        </div>
+      )}
 
       {/* Cancel Confirmation Dialog */}
       <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>

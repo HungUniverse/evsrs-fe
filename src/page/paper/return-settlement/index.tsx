@@ -118,14 +118,18 @@ export default function ReturnSettlementPage() {
   // Auto-complete order if subtotal = 0
   useEffect(() => {
     const autoCompleteIfNoPayment = async () => {
-      if (!settlement || !order || !orderId) return;
+      if (!settlement || !order || !orderId || !user?.userId) return;
 
       const subtotal = Number(settlement.subtotal) || 0;
 
       // Nếu subtotal = 0 và đơn chưa hoàn thành
       if (subtotal === 0 && order.status !== "COMPLETED") {
         try {
-          await orderBookingAPI.patchStatus(orderId, "COMPLETED");
+          await returnSettlementAPI.complete({
+            orderBookingId: orderId,
+            finalNotes: "Không phát sinh chi phí thanh toán",
+            completedByStaffId: user.userId,
+          });
           toast.success("Đơn hàng đã hoàn thành (không phát sinh chi phí)");
           // Refresh order data
           await fetchOrder();
@@ -137,7 +141,7 @@ export default function ReturnSettlementPage() {
     };
 
     autoCompleteIfNoPayment();
-  }, [settlement, order, orderId, fetchOrder]);
+  }, [settlement, order, orderId, user?.userId, fetchOrder]);
 
   const batteryHealthPercentage =
     Number(order?.carEvs?.batteryHealthPercentage) / 100;

@@ -1,4 +1,3 @@
-import { Check, X } from "lucide-react";
 import Footer from "../../renter/components/layout/footer";
 import { SystemConfigUtils } from "@/hooks/use-system-config";
 
@@ -27,76 +26,44 @@ function PoliciesPage() {
       <div className="max-w-7xl mx-auto px-8 py-14">
         {/* Cancel Policy Section */}
         <section className="mb-8">
-          <h2 className="text-4xl font-semibold text-black mb-3 ">
-            Chính sách hủy chuyến
+          <h2 className="text-4xl font-semibold text-black mb-3">
+            1. Chính sách hủy chuyến
           </h2>
 
-          <p className="text-gray-800 text-lg mb-6 leading-relaxed">
-            Để đảm bảo quyền lợi của khách hàng và tối ưu vận hành tại các trạm
-            thuê, EcoRent áp dụng chính sách hủy chuyến như sau:
-          </p>
+          <div className="space-y-4 text-gray-800 text-lg leading-relaxed">
+            <p>
+              Để đảm bảo quyền lợi của khách hàng và tối ưu vận hành tại các
+              trạm thuê, EcoRent áp dụng chính sách hủy chuyến như sau:
+            </p>
 
-          <div className="max-w-7xl mx-auto">
-            <table className="w-full border border-gray-300 rounded-lg overflow-hidden shadow-md">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="w-1/2 px-6 py-3 text-left text-md font-semibold text-gray-800 text-lg border-b border-gray-300">
-                    Thời Điểm Hủy Chuyến
-                  </th>
-                  <th className="w-1/2 px-6 py-3 text-left text-md font-semibold text-gray-800 text-lg border-b border-gray-300">
-                    Phí Hủy Chuyến
-                  </th>
-                </tr>
-              </thead>
+            <p>
+              • Khách hàng có thể hủy chuyến bất kỳ lúc nào{" "}
+              <strong>trước thời điểm nhận xe</strong> đã thỏa thuận.
+            </p>
 
-              <tbody>
-                {/* Row 1 */}
-                <tr className="bg-white">
-                  <td className="px-6 py-4 text-md text-gray-800 border-b border-gray-200">
-                    Trong vòng <strong>24 giờ</strong> sau khi đặt cọc
-                  </td>
-                  <td className="px-6 py-4 text-md text-gray-800 border-b border-gray-200 flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-500" />
-                    Miễn phí
-                  </td>
-                </tr>
+            <p>
+              • Khi hủy chuyến, khách hàng sẽ{" "}
+              <strong>mất toàn bộ tiền cọc</strong> ({systemDepositPercent}% giá
+              trị đơn hàng).
+            </p>
 
-                {/* Row 2 */}
-                <tr className="bg-white">
-                  <td className="px-6 py-4 text-md text-gray-800 border-b border-gray-200">
-                    Sau 24 giờ nhưng <strong>trước thời gian nhận xe</strong>
-                  </td>
-                  <td className="px-6 py-4 text-md text-gray-800 border-b border-gray-200 flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-500" />
-                    Phí 50% tiền cọc
-                  </td>
-                </tr>
+            <p>
+              • Nếu khách hàng không đến nhận xe trong vòng{" "}
+              <strong>1 giờ sau giờ hẹn</strong>, đơn hàng sẽ tự động hủy và mất
+              toàn bộ tiền cọc.
+            </p>
 
-                {/* Row 3 */}
-                <tr className="bg-white">
-                  <td className="px-6 py-4 text-md text-gray-800">
-                    Sau giờ nhận xe đã thỏa thuận
-                  </td>
-                  <td className="px-6 py-4 text-md text-gray-800 flex items-center gap-2">
-                    <X className="w-4 h-4 text-red-500" />
-                    Giữ toàn bộ tiền cọc ({systemDepositPercent}% đơn hàng)
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <p className="italic text-gray-600">
+              <strong>Lưu ý:</strong> Sau khi hợp đồng có hiệu lực (đã nhận xe),
+              mọi yêu cầu hủy đơn đều không được chấp nhận.
+            </p>
           </div>
-
-          <p className="mt-6 text-md text-gray-800 text-lg">
-            <strong>Lưu ý:</strong> Việc hủy chuyến phải được thực hiện trên ứng
-            dụng/website trước thời điểm nhận xe. Sau khi hợp đồng có hiệu lực,
-            mọi yêu cầu hủy đều không được chấp nhận.
-          </p>
         </section>
 
         {/* Pickup Policy */}
         <section className="mb-8">
           <h2 className="text-4xl font-semibold text-black mb-3 ">
-            1. Chính sách nhận xe
+            2. Chính sách nhận xe
           </h2>
 
           <div className="space-y-4">
@@ -127,7 +94,7 @@ function PoliciesPage() {
         {/* Return Policy */}
         <section className="mb-8">
           <h2 className="text-4xl font-semibold text-black mb-3">
-            2. Chính sách trả xe
+            3. Chính sách trả xe
           </h2>
 
           <div className="space-y-4">
@@ -168,7 +135,7 @@ function PoliciesPage() {
         {/* Responsibility Policy */}
         <section className="mb-8">
           <h2 className="text-4xl font-semibold text-black mb-3">
-            3. Chính sách trách nhiệm & vi phạm
+            4. Chính sách trách nhiệm & vi phạm
           </h2>
 
           <div className="space-y-4">
@@ -199,7 +166,7 @@ function PoliciesPage() {
         {/* Pricing Policy */}
         <section className="mb-8">
           <h2 className="text-4xl font-semibold text-black mb-6">
-            4. Giá thuê xe & Phí dịch vụ
+            5. Giá thuê xe & Phí dịch vụ
           </h2>
 
           <div className="space-y-5 text-gray-800 text-lg leading-relaxed">
