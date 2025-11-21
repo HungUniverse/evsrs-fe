@@ -64,7 +64,7 @@ export default function AdminOrderDetails() {
             <OrderDetailsFull booking={booking} />
           </div>
           <div>
-            <AdminDetailPaper orderId={booking.id} />
+            <AdminDetailPaper orderId={booking.id} user={booking.user} />
           </div>
         </div>
       </section>
