@@ -8,7 +8,6 @@ interface OrderTableProps {
   orders: OrderBookingDetail[];
   loading: boolean;
   onUpdateStatus: (order: OrderBookingDetail) => void;
-  onRefund: (order: OrderBookingDetail) => void;
   onViewUser: (userId: string) => void;
   startIndex?: number;
 }
@@ -17,7 +16,6 @@ export function OrderTable({
   orders,
   loading,
   onUpdateStatus,
-  onRefund,
   onViewUser,
   startIndex = 1,
 }: OrderTableProps) {
@@ -69,7 +67,6 @@ export function OrderTable({
                 order={order}
                 index={startIndex + index}
                 onUpdateStatus={onUpdateStatus}
-                onRefund={onRefund}
                 onViewUser={onViewUser}
               />
             ))

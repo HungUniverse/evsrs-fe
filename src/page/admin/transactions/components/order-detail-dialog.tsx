@@ -192,10 +192,6 @@ export function OrderDetailDialog({ isOpen, onClose, order, loading = false, ord
                 <Label className="text-xs font-medium text-muted-foreground">Tiền cọc</Label>
                 <p className="text-sm font-medium mt-1">{vnd(parseFloat(order.depositAmount))} VNĐ</p>
               </div>
-              <div>
-                <Label className="text-xs font-medium text-muted-foreground">Số tiền hoàn</Label>
-                <p className="text-sm mt-1">{vnd(parseFloat(order.refundAmount || "0"))} VNĐ</p>
-              </div>
             </div>
           </div>
 

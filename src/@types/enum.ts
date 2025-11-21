@@ -24,7 +24,6 @@ export type PaymentStatus =
   | "PAID_DEPOSIT_COMPLETED"
   | "PAID_FULL"
   | "COMPLETED"
-  | "REFUNDED"
   | "FAILED";
 
 // -------------------- PaymentType --------------------

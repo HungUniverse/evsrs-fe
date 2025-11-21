@@ -5,7 +5,7 @@
  * - Tổng số đơn hàng (ALL status, ALL orders)
  * - Đơn hoàn tất (COMPLETED - ALL orders)
  * - Đơn đã hủy (CANCELLED - ALL orders)  
- * - Đơn đang xử lý (PENDING/REFUND_PENDING - ALL orders)
+ * - Đơn đang xử lý (PENDING - ALL orders)
  * - Tổng doanh thu từ đơn hoàn tất (chỉ COMPLETED)
  */
 
@@ -59,11 +59,8 @@ export function OrderStats() {
     const completed = allOrdersData.filter((order) => order.status === 'COMPLETED')
     const cancelled = allOrdersData.filter((order) => order.status === 'CANCELLED')
     
-    // Đơn đang xử lý: chỉ PENDING và REFUND_PENDING
-    const processingStatuses: OrderBookingStatus[] = [
-      'PENDING',
-      'REFUND_PENDING'
-    ]
+    // Đơn đang xử lý: chỉ PENDING
+    const processingStatuses: OrderBookingStatus[] = ['PENDING']
     const processing = allOrdersData.filter((order) => 
       processingStatuses.includes(order.status as OrderBookingStatus)
     )

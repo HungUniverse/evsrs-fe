@@ -4,7 +4,6 @@ import { OrderTableToolbar } from "./components/toolbar";
 import { OrderTable } from "./components/table";
 import { OrderTableLoadingState } from "./components/loading-state";
 import { UpdateStatusDialog } from "./components/update-status-dialog";
-import { RefundDialog } from "./components/refund-dialog";
 import UserInfoModal from "@/page/staff/trip-management/components/user-info-modal";
 import { OrderStats } from "./components/order-stats";
 
@@ -43,8 +42,6 @@ export default function OrderManagementPage() {
     clearFilters,
     updateStatusDialogOpen,
     setUpdateStatusDialogOpen,
-    refundDialogOpen,
-    setRefundDialogOpen,
     userInfoUserId,
     setUserInfoUserId,
     setSelectedOrder,
@@ -52,14 +49,8 @@ export default function OrderManagementPage() {
     setStatus,
     paymentStatus,
     setPaymentStatus,
-    refundedAmount,
-    setRefundedAmount,
-    adminRefundNote,
-    setAdminRefundNote,
-    submittingRefund,
     handleSearchOrderByCode,
     handleUpdateStatus,
-    handleConfirmRefund,
   } = controller;
 
   return (
@@ -108,12 +99,6 @@ export default function OrderManagementPage() {
               setPaymentStatus(order.paymentStatus);
               setUpdateStatusDialogOpen(true);
             }}
-            onRefund={(order) => {
-              setSelectedOrder(order);
-              setRefundedAmount(order.refundAmount || "0");
-              setAdminRefundNote("");
-              setRefundDialogOpen(true);
-            }}
             onViewUser={setUserInfoUserId}
           />
 
@@ -137,21 +122,6 @@ export default function OrderManagementPage() {
             onStatusChange={setStatus}
             onPaymentStatusChange={setPaymentStatus}
             onConfirm={handleUpdateStatus}
-          />
-
-          <RefundDialog
-            isOpen={refundDialogOpen}
-            onClose={() => {
-              setRefundDialogOpen(false);
-              setRefundedAmount("");
-              setAdminRefundNote("");
-            }}
-            refundedAmount={refundedAmount}
-            onRefundedAmountChange={setRefundedAmount}
-            adminRefundNote={adminRefundNote}
-            onAdminRefundNoteChange={setAdminRefundNote}
-            submitting={submittingRefund}
-            onConfirm={handleConfirmRefund}
           />
 
           <UserInfoModal

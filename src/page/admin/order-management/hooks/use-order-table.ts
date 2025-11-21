@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import type { OrderBookingStatus, PaymentStatus } from "@/@types/enum";
@@ -52,8 +52,6 @@ export interface UseOrderTableResult {
   // Dialogs
   updateStatusDialogOpen: boolean;
   setUpdateStatusDialogOpen: (open: boolean) => void;
-  refundDialogOpen: boolean;
-  setRefundDialogOpen: (open: boolean) => void;
   userInfoUserId: string | null;
   setUserInfoUserId: (userId: string | null) => void;
 
@@ -66,17 +64,10 @@ export interface UseOrderTableResult {
   setStatus: (status: OrderBookingStatus) => void;
   paymentStatus: PaymentStatus;
   setPaymentStatus: (status: PaymentStatus) => void;
-  refundedAmount: string;
-  setRefundedAmount: (amount: string) => void;
-  adminRefundNote: string;
-  setAdminRefundNote: (note: string) => void;
-  submittingRefund: boolean;
-
   // Actions
   fetchOrders: () => Promise<void>;
   handleSearchOrderByCode: () => Promise<void>;
   handleUpdateStatus: () => Promise<void>;
-  handleConfirmRefund: () => Promise<void>;
 }
 
 export function useOrderTable(): UseOrderTableResult {
@@ -86,7 +77,6 @@ export function useOrderTable(): UseOrderTableResult {
   const [pageSize, setPageSize] = useState(10);
 
   const [updateStatusDialogOpen, setUpdateStatusDialogOpen] = useState(false);
-  const [refundDialogOpen, setRefundDialogOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<OrderBookingDetail | null>(null);
   const [userInfoUserId, setUserInfoUserId] = useState<string | null>(null);
 
@@ -101,27 +91,19 @@ export function useOrderTable(): UseOrderTableResult {
   const [startDateFilter, setStartDateFilter] = useState<string>("");
   const [endDateFilter, setEndDateFilter] = useState<string>("");
 
-  const [refundedAmount, setRefundedAmount] = useState<string>("");
-  const [adminRefundNote, setAdminRefundNote] = useState<string>("");
-  const [submittingRefund, setSubmittingRefund] = useState(false);
-
   const [users, setUsers] = useState<UserFull[]>([]);
   const [depots, setDepots] = useState<Depot[]>([]);
   const [models, setModels] = useState<Model[]>([]);
 
-  const fetchOrders = async (options: { refundOnly?: boolean } = {}) => {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
-      const isRefundPending = options.refundOnly ?? (statusFilter === "REFUND_PENDING");
       const combinedOrders: OrderBookingDetail[] = [];
       let currentPage = 1;
       let shouldContinue = true;
 
       while (shouldContinue) {
-        const result = isRefundPending
-          ? await OrderTableApi.fetchRefundPendingOrders({ pageNumber: currentPage, pageSize: FETCH_PAGE_SIZE })
-          : await OrderTableApi.fetchOrders({ pageNumber: currentPage, pageSize: FETCH_PAGE_SIZE });
-
+        const result = await OrderTableApi.fetchOrders({ pageNumber: currentPage, pageSize: FETCH_PAGE_SIZE });
         const items = result.items || [];
         combinedOrders.push(...items);
 
@@ -129,7 +111,6 @@ export function useOrderTable(): UseOrderTableResult {
         const hasMoreByTotalPages = totalPagesFromApi > 0 ? currentPage < totalPagesFromApi : false;
         shouldContinue = result.hasNextPage || hasMoreByTotalPages;
 
-        // Avoid infinite loop if API keeps reporting more pages but returns no data
         if (items.length === 0) {
           shouldContinue = false;
         }
@@ -145,7 +126,7 @@ export function useOrderTable(): UseOrderTableResult {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const fetchUsers = async () => {
     try {
@@ -224,29 +205,6 @@ export function useOrderTable(): UseOrderTableResult {
     }
   };
 
-  const handleConfirmRefund = async () => {
-    if (!selectedOrder) return;
-    const amountNumber = Number(refundedAmount);
-    if (Number.isNaN(amountNumber) || amountNumber < 0) {
-      toast.error("Vui lòng nhập số tiền hoàn hợp lệ");
-      return;
-    }
-    try {
-      setSubmittingRefund(true);
-      await OrderTableApi.refundOrder(selectedOrder.id, amountNumber, adminRefundNote || "");
-      toast.success("Xác nhận hoàn tiền thành công");
-      setRefundDialogOpen(false);
-      setRefundedAmount("");
-      setAdminRefundNote("");
-      await fetchOrders();
-    } catch (error) {
-      console.error("Error confirming refund:", error);
-      toast.error("Không thể xác nhận hoàn tiền");
-    } finally {
-      setSubmittingRefund(false);
-    }
-  };
-
   const handleNextPage = () => {
     setPageNumber((prev) => Math.min(prev + 1, totalPages));
   };
@@ -265,15 +223,13 @@ export function useOrderTable(): UseOrderTableResult {
     setStatusFilter("all");
     setPaymentStatusFilter("all");
     setPageNumber(1);
-    fetchOrders({ refundOnly: false });
+    fetchOrders();
   };
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
       const matchStatus =
-        statusFilter === "all" ||
-        statusFilter === "REFUND_PENDING" ||
-        order.status === (statusFilter as OrderBookingStatus);
+        statusFilter === "all" || order.status === (statusFilter as OrderBookingStatus);
       const matchPaymentStatus =
         paymentStatusFilter === "all" || order.paymentStatus === (paymentStatusFilter as PaymentStatus);
       const matchUser = !selectedUserId || order.user?.id === selectedUserId;
@@ -333,19 +289,13 @@ export function useOrderTable(): UseOrderTableResult {
     fetchModels();
   }, []);
 
-  const isRefundPendingView = statusFilter === "REFUND_PENDING";
-
   useEffect(() => {
-    fetchOrders({ refundOnly: isRefundPendingView });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRefundPendingView]);
+    fetchOrders();
+  }, [fetchOrders]);
 
   // Reset to page 1 when filters or pageSize change (but not on initial mount)
   useEffect(() => {
-    if (pageNumber !== 1) {
-      setPageNumber(1);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setPageNumber(1);
   }, [
     statusFilter,
     paymentStatusFilter,
@@ -400,8 +350,6 @@ export function useOrderTable(): UseOrderTableResult {
     clearFilters,
     updateStatusDialogOpen,
     setUpdateStatusDialogOpen,
-    refundDialogOpen,
-    setRefundDialogOpen,
     userInfoUserId,
     setUserInfoUserId,
     selectedOrder,
@@ -410,15 +358,9 @@ export function useOrderTable(): UseOrderTableResult {
     setStatus,
     paymentStatus,
     setPaymentStatus,
-    refundedAmount,
-    setRefundedAmount,
-    adminRefundNote,
-    setAdminRefundNote,
-    submittingRefund,
     fetchOrders,
     handleSearchOrderByCode,
     handleUpdateStatus,
-    handleConfirmRefund,
   };
 }
 
