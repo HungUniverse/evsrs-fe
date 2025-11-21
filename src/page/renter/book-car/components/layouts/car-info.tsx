@@ -180,13 +180,6 @@ export default function CarInfo() {
           >
             Đặt xe
           </Button>
-          <Button
-            variant="outline"
-            className="w-full border-gray-300 text-gray-700 hover:bg-gray-50"
-            size="lg"
-          >
-            Nhận thông tin tư vấn
-          </Button>
         </div>
 
         {amenities.length > 0 && (
@@ -205,7 +198,6 @@ export default function CarInfo() {
         )}
       </div>
 
-      {/* License Verification Dialog */}
       <Dialog open={showLicenseDialog} onOpenChange={setShowLicenseDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

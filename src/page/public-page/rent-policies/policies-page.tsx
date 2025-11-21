@@ -178,7 +178,7 @@ function PoliciesPage() {
             <p>
               • Hệ thống chia 2 <strong>ca thuê trong ngày</strong>:{" "}
               <strong>Ca sáng</strong> từ 06:00 – 12:00 (40% giá ngày) và{" "}
-              <strong>Ca chiều</strong> từ 12:01 – 22:00 (60% giá ngày). Nếu
+              <strong>Ca chiều</strong> từ 12:30 – 22:00 (60% giá ngày). Nếu
               khách thuê ca sáng và trả xe trong ca chiều cùng ngày thì được
               tính giá trọn ngày.
             </p>
