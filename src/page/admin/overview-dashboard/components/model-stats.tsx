@@ -1,18 +1,13 @@
 /**
- * Component hiển thị Top 3 loại xe (model) được thuê nhiều nhất
+ * Component hiển thị phân bố mẫu xe được thuê bằng Pie Chart
  * 
  * Chức năng:
  * - Lấy toàn bộ đơn hàng từ API
  * - Đếm số lượt thuê theo từng model xe
- * - Tính tổng doanh thu từ mỗi model
- * - Sắp xếp và hiển thị top 3 model có số lượt thuê cao nhất
- * - Hiển thị thông tin: hình ảnh xe, tên model, số lượt thuê, tổng doanh thu
- * - Hiển thị thông số kỹ thuật: dung lượng pin (kWh), phạm vi hoạt động (km)
- * - Thể hiện ranking với icon và màu sắc khác nhau (xanh, indigo, tím)
- * - Hiển thị progress bar so sánh với model đứng đầu
+ * - Hiển thị phân bố bằng Pie Chart từ recharts
  * 
  * Props: Không có
- * Returns: JSX element hiển thị danh sách top 3 model xe
+ * Returns: JSX element hiển thị pie chart phân bố model xe
  */
 
 import { useMemo } from 'react'
@@ -20,9 +15,11 @@ import { useQuery } from '@tanstack/react-query'
 import { orderBookingAPI } from '@/apis/order-booking.api'
 import type { OrderBookingDetail } from '@/@types/order/order-booking'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Car, Battery, Zap } from 'lucide-react'
+import { Car } from 'lucide-react'
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
 import { vnd } from '@/lib/utils/currency'
+
+const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#ef4444', '#06b6d4', '#f97316']
 
 export default function ModelStats() {
   // Get all orders
@@ -49,8 +46,8 @@ export default function ModelStats() {
     },
   })
 
-  // Calculate top 3 car models by rental count
-  const topModels = useMemo(() => {
+  // Calculate model distribution for pie chart
+  const chartData = useMemo(() => {
     if (!allOrdersData) return []
 
     // Count rentals by model
@@ -58,9 +55,6 @@ export default function ModelStats() {
       name: string
       count: number
       revenue: number
-      battery: string
-      range: string
-      image: string
     }> = {}
     
     allOrdersData.forEach((order) => {
@@ -72,10 +66,7 @@ export default function ModelStats() {
           modelCounts[modelId] = { 
             name: model.modelName,
             count: 0,
-            revenue: 0,
-            battery: model.batteryCapacityKwh,
-            range: model.rangeKm,
-            image: model.image
+            revenue: 0
           }
         }
         // Only count and calculate revenue for completed orders
@@ -86,38 +77,37 @@ export default function ModelStats() {
       }
     })
 
-    // Sort by count, filter out models with 0 rentals or 0 revenue, and get top 3
+    // Convert to array, filter out models with 0 rentals, and sort by count
     return Object.entries(modelCounts)
-      .map(([id, data]) => ({ id, ...data }))
-      .filter((model) => model.count > 0 && model.revenue > 0)
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 3)
+      .map(([id, data]) => ({ 
+        id,
+        name: data.name, 
+        value: data.count,
+        revenue: data.revenue
+      }))
+      .filter((model) => model.value > 0)
+      .sort((a, b) => b.value - a.value)
   }, [allOrdersData])
 
-  const getRankIcon = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return '🏆'
-      case 2:
-        return '🥈'
-      case 3:
-        return '🥉'
-      default:
-        return '🏅'
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ value: number; payload: { name: string; revenue: number } }> }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0]
+      const total = chartData.reduce((sum, item) => sum + item.value, 0)
+      const percentage = ((data.value / total) * 100).toFixed(1)
+      
+      return (
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-semibold">{data.payload.name}</p>
+          <p className="text-sm text-blue-600">
+            {data.value.toLocaleString()} lượt thuê ({percentage}%)
+          </p>
+          <p className="text-sm text-green-600">
+            Doanh thu: {vnd(data.payload.revenue)}
+          </p>
+        </div>
+      )
     }
-  }
-
-  const getRankColor = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return 'bg-gradient-to-br from-blue-500 to-blue-700 text-white'
-      case 2:
-        return 'bg-gradient-to-br from-indigo-500 to-indigo-700 text-white'
-      case 3:
-        return 'bg-gradient-to-br from-purple-500 to-purple-700 text-white'
-      default:
-        return 'bg-gray-200'
-    }
+    return null
   }
 
   return (
@@ -127,76 +117,47 @@ export default function ModelStats() {
           <div className="p-2 bg-indigo-100 rounded-lg">
             <Car className="h-5 w-5 text-indigo-600" />
           </div>
-          <CardTitle className="text-xl">Mẫu xe được thuê nhiều nhất</CardTitle>
+          <CardTitle className="text-xl">Phân bố mẫu xe được thuê</CardTitle>
         </div>
         <p className="text-sm text-muted-foreground mt-1">
-          Xếp hạng theo số lượt thuê và doanh thu
+          Phân bố số lượt thuê theo mẫu xe
         </p>
       </CardHeader>
       <CardContent>
-        {topModels.length === 0 ? (
+        {chartData.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <p>Chưa có dữ liệu</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {topModels.map((model, index) => (
-              <div
-                key={model.id}
-                className="relative group"
+          <ResponsiveContainer width="100%" height={350}>
+            <PieChart>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
+                outerRadius={100}
+                fill="#8884d8"
+                dataKey="value"
               >
-                <div className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${
-                  index === 0 ? 'border-blue-400 bg-gradient-to-r from-blue-50 to-blue-100' :
-                  index === 1 ? 'border-indigo-400 bg-gradient-to-r from-indigo-50 to-indigo-100' :
-                  'border-purple-400 bg-gradient-to-r from-purple-50 to-purple-100'
-                }`}>
-                  {/* Rank Badge */}
-                  <div className={`
-                    flex flex-col items-center justify-center w-20 h-20 rounded-full font-bold shadow-lg
-                    ${getRankColor(index + 1)}
-                  `}>
-                    <span className="text-3xl">{getRankIcon(index + 1)}</span>
-                    <span className="text-xs mt-0.5">#{index + 1}</span>
-                  </div>
-
-                  {/* Model Image */}
-                  <div className="w-24 h-20 rounded-lg overflow-hidden bg-gray-100 shadow-md">
-                    <img 
-                      src={model.image || '/placeholder-car.png'} 
-                      alt={model.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3Ctext x="50%%25" y="50%%25" text-anchor="middle" dy=".3em" fill="%23999"%3ECar%3C/text%3E%3C/svg%3E'
-                      }}
-                    />
-                  </div>
-
-                  {/* Model Info */}
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg mb-2">{model.name}</h3>
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      <Badge variant="secondary" className="text-xs">
-                        {model.count.toLocaleString()} lượt thuê
-                      </Badge>
-                      <Badge variant="outline" className="text-xs text-green-600">
-                        {vnd(model.revenue)}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Battery className="h-3 w-3" />
-                        <span>{model.battery} kWh</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Zap className="h-3 w-3" />
-                        <span>{model.range} km</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${entry.id}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip />} />
+              <Legend 
+                verticalAlign="bottom" 
+                height={36}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                formatter={(_value, entry: any) => (
+                  <span style={{ color: entry.color }}>
+                    {entry.payload?.name}: {entry.payload?.value?.toLocaleString()} lượt
+                  </span>
+                )}
+              />
+            </PieChart>
+          </ResponsiveContainer>
         )}
       </CardContent>
     </Card>
