@@ -4,10 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import type { UserFull } from "@/@types/auth.type";
 import type { Depot } from "@/@types/car/depot";
 import type { Model } from "@/@types/car/model";
 import { STATUS_OPTIONS, PAYMENT_STATUS_OPTIONS } from "../utils/utils";
+import { DateRangePicker } from "./date-range-picker";
 
 interface OrderTableToolbarProps {
   searchOrderCode: string;
@@ -15,8 +15,6 @@ interface OrderTableToolbarProps {
   onSearch: () => void;
   pageSize: number;
   onPageSizeChange: (size: string) => void;
-  selectedUserId: string;
-  onSelectedUserIdChange: (value: string) => void;
   selectedDepotId: string;
   onSelectedDepotIdChange: (value: string) => void;
   selectedModelId: string;
@@ -30,7 +28,6 @@ interface OrderTableToolbarProps {
   endDateFilter: string;
   onEndDateFilterChange: (value: string) => void;
   onClearFilters: () => void;
-  users: UserFull[];
   depots: Depot[];
   models: Model[];
 }
@@ -41,8 +38,6 @@ export function OrderTableToolbar({
   onSearch,
   pageSize,
   onPageSizeChange,
-  selectedUserId,
-  onSelectedUserIdChange,
   selectedDepotId,
   onSelectedDepotIdChange,
   selectedModelId,
@@ -56,7 +51,6 @@ export function OrderTableToolbar({
   endDateFilter,
   onEndDateFilterChange,
   onClearFilters,
-  users,
   depots,
   models,
 }: OrderTableToolbarProps) {
@@ -89,30 +83,13 @@ export function OrderTableToolbar({
             </div>
           </div>
 
-          {/* User Filter */}
-          <div className="flex-1 min-w-[140px] max-w-[180px]">
-            <Select value={selectedUserId || "all"} onValueChange={(value) => onSelectedUserIdChange(value === "all" ? "" : value)}>
-              <SelectTrigger className="h-9 bg-background text-sm">
-                <SelectValue placeholder="Tất cả khách hàng" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả khách hàng</SelectItem>
-                {users.map((user) => (
-                  <SelectItem key={user.id} value={user.id}>
-                    {user.fullName || user.userName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           {/* Depot Filter */}
           <div className="flex-1 min-w-[140px] max-w-[180px]">
             <Select value={selectedDepotId || "all"} onValueChange={(value) => onSelectedDepotIdChange(value === "all" ? "" : value)}>
               <SelectTrigger className="h-9 bg-background text-sm">
                 <SelectValue placeholder="Tất cả trạm" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[70]">
                 <SelectItem value="all">Tất cả trạm</SelectItem>
                 {depots.map((depot) => (
                   <SelectItem key={depot.id} value={depot.id}>
@@ -129,7 +106,7 @@ export function OrderTableToolbar({
               <SelectTrigger className="h-9 bg-background text-sm">
                 <SelectValue placeholder="Tất cả model" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[70]">
                 <SelectItem value="all">Tất cả model</SelectItem>
                 {models.map((model) => (
                   <SelectItem key={model.id} value={model.id}>
@@ -146,7 +123,7 @@ export function OrderTableToolbar({
               <SelectTrigger className="h-9 bg-background text-sm">
                 <SelectValue placeholder="Tất cả trạng thái" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[70]">
                 <SelectItem value="all">Tất cả trạng thái</SelectItem>
                 {STATUS_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
@@ -163,7 +140,7 @@ export function OrderTableToolbar({
               <SelectTrigger className="h-9 bg-background text-sm">
                 <SelectValue placeholder="Tất cả thanh toán" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[70]">
                 <SelectItem value="all">Tất cả</SelectItem>
                 {PAYMENT_STATUS_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
@@ -174,23 +151,13 @@ export function OrderTableToolbar({
             </Select>
           </div>
 
-          {/* Start Date Picker */}
-          <div className="flex-1 min-w-[130px] max-w-[160px]">
-            <Input
-              type="date"
-              value={startDateFilter}
-              onChange={(e) => onStartDateFilterChange(e.target.value)}
-              className="h-9 bg-background text-sm"
-            />
-          </div>
-
-          {/* End Date Picker */}
-          <div className="flex-1 min-w-[130px] max-w-[160px]">
-            <Input
-              type="date"
-              value={endDateFilter}
-              onChange={(e) => onEndDateFilterChange(e.target.value)}
-              className="h-9 bg-background text-sm"
+          {/* Date Range Picker */}
+          <div className="flex-1 min-w-[240px] max-w-[300px]">
+            <DateRangePicker
+              startDate={startDateFilter}
+              endDate={endDateFilter}
+              onStartDateChange={onStartDateFilterChange}
+              onEndDateChange={onEndDateFilterChange}
             />
           </div>
 
@@ -203,7 +170,7 @@ export function OrderTableToolbar({
               <SelectTrigger id="page-size" className="w-[70px] h-9 bg-background text-sm">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[70]">
                 <SelectItem value="5">5</SelectItem>
                 <SelectItem value="10">10</SelectItem>
                 <SelectItem value="20">20</SelectItem>
@@ -217,7 +184,7 @@ export function OrderTableToolbar({
             onClick={onClearFilters}
             variant="outline"
             size="sm"
-            className="h-9 px-3 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground shrink-0 text-sm"
+            className="h-9 px-3 text-destructive border-destructive hover:bg-destructive/10 hover:border-destructive/80 hover:text-destructive shrink-0 text-sm transition-colors"
           >
             <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
             Đặt lại

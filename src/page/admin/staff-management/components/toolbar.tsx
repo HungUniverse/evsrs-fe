@@ -134,7 +134,7 @@ export function StaffTableToolbar({
                 onClick={onClearFilters}
                 variant="outline"
                 size="sm"
-                className="h-9 px-3 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground shrink-0 text-sm"
+                className="h-9 px-3 text-destructive border-destructive hover:bg-destructive/10 hover:border-destructive/80 hover:text-destructive shrink-0 text-sm transition-colors"
               >
                 <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
                 Đặt lại

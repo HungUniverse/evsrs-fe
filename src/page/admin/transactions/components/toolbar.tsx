@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
+import { DateRangePicker } from "./date-range-picker";
 
 interface TransactionTableToolbarProps {
   searchCode: string;
@@ -76,7 +77,7 @@ export function TransactionTableToolbar({
               <SelectTrigger className="h-9 bg-background text-sm">
                 <SelectValue placeholder="Tất cả loại" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[70]">
                 <SelectItem value="all">Tất cả loại</SelectItem>
                 <SelectItem value="in">Nhận vào</SelectItem>
                 <SelectItem value="out">Gửi đi</SelectItem>
@@ -84,23 +85,13 @@ export function TransactionTableToolbar({
             </Select>
           </div>
 
-          {/* Start Date Picker */}
-          <div className="flex-1 min-w-[130px] max-w-[160px]">
-            <Input
-              type="date"
-              value={startDateFilter}
-              onChange={(e) => onStartDateFilterChange(e.target.value)}
-              className="h-9 bg-background text-sm"
-            />
-          </div>
-
-          {/* End Date Picker */}
-          <div className="flex-1 min-w-[130px] max-w-[160px]">
-            <Input
-              type="date"
-              value={endDateFilter}
-              onChange={(e) => onEndDateFilterChange(e.target.value)}
-              className="h-9 bg-background text-sm"
+          {/* Date Range Picker */}
+          <div className="flex-1 min-w-[240px] max-w-[300px]">
+            <DateRangePicker
+              startDate={startDateFilter}
+              endDate={endDateFilter}
+              onStartDateChange={onStartDateFilterChange}
+              onEndDateChange={onEndDateFilterChange}
             />
           </div>
 
@@ -113,7 +104,7 @@ export function TransactionTableToolbar({
               <SelectTrigger id="page-size" className="w-[70px] h-9 bg-background text-sm">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[70]">
                 <SelectItem value="5">5</SelectItem>
                 <SelectItem value="10">10</SelectItem>
                 <SelectItem value="20">20</SelectItem>
@@ -127,7 +118,7 @@ export function TransactionTableToolbar({
             onClick={onClearFilters}
             variant="outline"
             size="sm"
-            className="h-9 px-3 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground shrink-0 text-sm"
+            className="h-9 px-3 text-destructive border-destructive hover:bg-destructive/10 hover:border-destructive/80 hover:text-destructive shrink-0 text-sm transition-colors"
           >
             <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
             Đặt lại
