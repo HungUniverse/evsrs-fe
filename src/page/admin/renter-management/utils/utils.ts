@@ -24,8 +24,8 @@ export function getDocStatus(
 export function getStatusLabel(status: string): string {
   const statusMap: Record<string, string> = {
     PENDING: "Đang chờ",
-    APPROVED: "Đã duyệt",
-    REJECTED: "Đã từ chối",
+    APPROVED: "Đã xác thực",
+    REJECTED: "Chưa xác thực",
   };
   return statusMap[status] || status;
 }

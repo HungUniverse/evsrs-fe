@@ -1,15 +1,19 @@
 import * as React from "react";
 import {
   Dialog,
-  DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogPortal,
+  DialogOverlay,
+  DialogClose,
 } from "@/components/ui/dialog";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, Users, AlertTriangle } from "lucide-react";
+import { Trash2, Users, AlertTriangle, XIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { UserFull } from "@/@types/auth.type";
 
 interface DeleteConfirmationDialogProps {
@@ -60,8 +64,18 @@ export function DeleteConfirmationDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => (open ? null : onClose())}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
+      <DialogPortal>
+        <DialogOverlay className="z-[100]" />
+        <DialogPrimitive.Content
+          className={cn(
+            "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-[100] grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg"
+          )}
+        >
+          <DialogClose className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
+            <XIcon />
+            <span className="sr-only">Close</span>
+          </DialogClose>
+          <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-100 dark:bg-red-950">
               <content.Icon className="size-5 text-red-600 dark:text-red-400" />
@@ -132,7 +146,8 @@ export function DeleteConfirmationDialog({
             )}
           </Button>
         </DialogFooter>
-      </DialogContent>
+        </DialogPrimitive.Content>
+      </DialogPortal>
     </Dialog>
   );
 }
