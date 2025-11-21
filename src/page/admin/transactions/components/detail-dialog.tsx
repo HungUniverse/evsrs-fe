@@ -88,20 +88,18 @@ export function TransactionDetailDialog({
                 </p>
               </div>
               <div>
-                <Label className="text-xs font-medium text-muted-foreground">Số dư tích lũy</Label>
-                <p className="text-sm font-medium mt-1">{vnd(parseFloat(transaction.accumulated || "0"))} VNĐ</p>
-              </div>
-              <div>
                 <Label className="text-xs font-medium text-muted-foreground">Cổng thanh toán</Label>
                 <p className="text-sm mt-1">{transaction.gateway || "N/A"}</p>
               </div>
-              <div>
-                <Label className="text-xs font-medium text-muted-foreground">Số tài khoản</Label>
-                <p className="text-sm mt-1">{transaction.accountNumber || "N/A"}</p>
-              </div>
-              <div className="col-span-2">
-                <Label className="text-xs font-medium text-muted-foreground">Mã tham chiếu</Label>
-                <p className="text-sm mt-1">{transaction.referenceCode || "N/A"}</p>
+              <div className="col-span-2 flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-8">
+                <div className="flex-1">
+                  <Label className="text-xs font-medium text-muted-foreground">Số tài khoản</Label>
+                  <p className="text-sm mt-1">{transaction.accountNumber || "N/A"}</p>
+                </div>
+                <div className="flex-1">
+                  <Label className="text-xs font-medium text-muted-foreground">Mã tham chiếu</Label>
+                  <p className="text-sm mt-1 break-all">{transaction.referenceCode || "N/A"}</p>
+                </div>
               </div>
               <div className="col-span-2">
                 <Label className="text-xs font-medium text-muted-foreground">Nội dung</Label>
@@ -234,14 +232,6 @@ export function TransactionDetailDialog({
               <div>
                 <Label className="text-xs font-medium text-muted-foreground">Ngày cập nhật</Label>
                 <p className="text-sm mt-1">{formatDate(transaction.updatedAt)}</p>
-              </div>
-              <div>
-                <Label className="text-xs font-medium text-muted-foreground">Sepay ID</Label>
-                <p className="text-sm mt-1">{transaction.sepayId || "N/A"}</p>
-              </div>
-              <div>
-                <Label className="text-xs font-medium text-muted-foreground">Tài khoản con</Label>
-                <p className="text-sm mt-1">{transaction.subAccount || "N/A"}</p>
               </div>
             </div>
           </div>
