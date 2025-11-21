@@ -9,7 +9,8 @@ const DEFAULT_BADGE_PROPS: LevelBadgeProps = {
 };
 
 const LEVEL_BADGE_CLASSNAMES: Record<string, string> = {
-  BRONZE: "border-none bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 text-white shadow-sm",
+  BRONZE:
+    "border-none text-white shadow-sm bg-[linear-gradient(90deg,#6f3b05,#b87333,#f5c57d)]",
   SILVER: "border-none bg-gradient-to-r from-slate-400 via-gray-500 to-slate-600 text-white shadow-sm",
   GOLD: "border-none bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 text-white shadow-sm",
   DEFAULT: "border-none bg-gradient-to-r from-primary/80 via-primary to-primary/90 text-primary-foreground shadow-sm",
