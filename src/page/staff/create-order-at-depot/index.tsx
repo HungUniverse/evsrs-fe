@@ -174,7 +174,7 @@ function CreateOrderAtDepot() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
+    <div className="max-w-6xl mx-auto">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">
           Tạo đơn hàng thuê xe tại trạm
@@ -184,7 +184,7 @@ function CreateOrderAtDepot() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-8 pb-8">
         {/* Customer Information */}
         <CustomerInfo customer={customer} />
 
