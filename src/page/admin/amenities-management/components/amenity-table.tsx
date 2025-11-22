@@ -22,7 +22,7 @@ const AmenityTable: React.FC<AmenityTableProps> = ({ data, onEdit, onDelete, sta
               STT
             </TableHead>
             <TableHead className="w-[40%] whitespace-nowrap text-[#065F46] sticky left-16 bg-[#D1FAE5] shadow-[4px_0_6px_-2px_rgba(0,0,0,0.1)] z-10">Tên tiện nghi</TableHead>
-            <TableHead className="whitespace-nowrap text-[#065F46]">Biểu tượng (URL/Tên)</TableHead>
+            <TableHead className="whitespace-nowrap text-[#065F46]">Biểu tượng</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Ngày tạo</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Cập nhật</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Trạng thái</TableHead>
