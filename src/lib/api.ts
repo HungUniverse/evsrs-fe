@@ -12,7 +12,6 @@ export async function api<T>(
   return res.json() as Promise<T>;
 }
 
-// Tự gắn Authorization nếu có token
 export function apiAuth<T>(
   path: string,
   token: string,
