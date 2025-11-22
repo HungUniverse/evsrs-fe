@@ -24,7 +24,6 @@ let pendingQueue: Array<(token: string) => void> = [];
 async function doRefreshToken(
   refreshToken: string
 ): Promise<RefreshTokenResponse> {
-  // Import authAPI dynamically to avoid circular dependency
   const { authAPI } = await import("@/apis/auth.api");
   const res = await authAPI.refreshToken(refreshToken);
   return res.data?.data ?? res.data;
