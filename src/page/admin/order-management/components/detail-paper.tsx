@@ -1,70 +1,71 @@
-import { useEffect, useMemo, useState } from "react";
-import type { AxiosError } from "axios";
+// import { useEffect, useMemo, useState } from "react";
+// import type { AxiosError } from "axios";
 import { Link } from "react-router-dom";
-import { Paperclip, Star } from "lucide-react";
+import { Paperclip } from "lucide-react";
+// import { Star } from "lucide-react";
 
-import type { FeedBack } from "@/@types/order/feedback";
+// import type { FeedBack } from "@/@types/order/feedback";
 import type { UserFull } from "@/@types/auth.type";
-import { feedbackAPI } from "@/apis/feedback.api";
-import { formatDate } from "@/lib/utils/formatDate";
+// import { feedbackAPI } from "@/apis/feedback.api";
+// import { formatDate } from "@/lib/utils/formatDate";
 
 interface AdminDetailPaperProps {
   orderId: string;
   user?: UserFull;
 }
 
-export default function AdminDetailPaper({ orderId, user }: AdminDetailPaperProps) {
-  const [feedback, setFeedback] = useState<FeedBack | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export default function AdminDetailPaper({ orderId }: AdminDetailPaperProps) {
+  // const [feedback, setFeedback] = useState<FeedBack | null>(null);
+  // const [loading, setLoading] = useState(false);
+  // const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let mounted = true;
-    if (!orderId) return;
-    setFeedback(null);
-    setLoading(true);
-    setError(null);
-    feedbackAPI
-      .getByOrderId(orderId)
-      .then((res) => {
-        if (!mounted) return;
-        setFeedback(res);
-      })
-      .catch((err) => {
-        if (!mounted) return;
-        const axiosErr = err as AxiosError;
-        if (axiosErr.response?.status === 404) {
-          setFeedback(null);
-          return;
-        }
-        setError("Không tải được đánh giá");
-      })
-      .finally(() => {
-        if (!mounted) return;
-        setLoading(false);
-      });
+  // useEffect(() => {
+  //   let mounted = true;
+  //   if (!orderId) return;
+  //   setFeedback(null);
+  //   setLoading(true);
+  //   setError(null);
+  //   feedbackAPI
+  //     .getByOrderId(orderId)
+  //     .then((res) => {
+  //       if (!mounted) return;
+  //       setFeedback(res);
+  //     })
+  //     .catch((err) => {
+  //       if (!mounted) return;
+  //       const axiosErr = err as AxiosError;
+  //       if (axiosErr.response?.status === 404) {
+  //         setFeedback(null);
+  //         return;
+  //       }
+  //       setError("Không tải được đánh giá");
+  //     })
+  //     .finally(() => {
+  //       if (!mounted) return;
+  //       setLoading(false);
+  //     });
 
-    return () => {
-      mounted = false;
-    };
-  }, [orderId]);
+  //   return () => {
+  //     mounted = false;
+  //   };
+  // }, [orderId]);
 
-  const rating = Number(feedback?.rated || 0);
-  const roundedRating = Number.isNaN(rating) ? 0 : Math.min(Math.max(rating, 0), 5);
-  const starArray = useMemo(() => Array.from({ length: 5 }), []);
+  // const rating = Number(feedback?.rated || 0);
+  // const roundedRating = Number.isNaN(rating) ? 0 : Math.min(Math.max(rating, 0), 5);
+  // const starArray = useMemo(() => Array.from({ length: 5 }), []);
   const base = `/admin/order/${orderId}`;
 
-  const displayName = user?.fullName || user?.userName || "Khách hàng";
-  const initials =
-    displayName
-      .split(" ")
-      .filter(Boolean)
-      .map((part) => part[0])
-      .join("")
-      .slice(0, 2)
-      .toUpperCase() ||
-    displayName.slice(0, 2).toUpperCase() ||
-    "KH";
+  // const displayName = user?.fullName || user?.userName || "Khách hàng";
+  // const initials =
+  //   displayName
+  //     .split(" ")
+  //     .filter(Boolean)
+  //     .map((part) => part[0])
+  //     .join("")
+  //     .slice(0, 2)
+  //     .toUpperCase() ||
+  //   displayName.slice(0, 2).toUpperCase() ||
+  //   "KH";
 
   return (
     <aside className="space-y-5">
@@ -112,7 +113,7 @@ export default function AdminDetailPaper({ orderId, user }: AdminDetailPaperProp
         </ul>
       </section>
 
-      <section className="rounded-2xl border bg-gradient-to-br from-slate-50 to-white p-5 shadow-sm">
+      {/* <section className="rounded-2xl border bg-gradient-to-br from-slate-50 to-white p-5 shadow-sm">
         <div className="text-sm font-semibold text-slate-800 mb-4">Đánh giá của khách hàng</div>
 
         {loading && (
@@ -174,7 +175,7 @@ export default function AdminDetailPaper({ orderId, user }: AdminDetailPaperProp
             <p className="text-sm text-slate-700 whitespace-pre-wrap">{feedback.description}</p>
           </div>
         )}
-      </section>
+      </section> */}
     </aside>
   );
 }
