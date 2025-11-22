@@ -1,11 +1,9 @@
-import { Badge } from "@/components/ui/badge";
 import { TableCell, TableRow } from "@/components/ui/table";
 import type { TransactionResponse } from "@/@types/payment/transaction";
 import type { UserFull } from "@/@types/auth.type";
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
 import { formatDate } from "@/lib/utils/formatDate";
 import { vnd } from "@/lib/utils/currency";
-import { getStatusVariant, getStatusLabel } from "@/page/admin/order-management/utils/utils";
 
 interface TransactionTableRowProps {
   transaction: TransactionResponse;
@@ -82,23 +80,6 @@ export function TransactionTableRow({
           </button>
         ) : (
           <span className="text-green-600">N/A</span>
-        )}
-      </TableCell>
-      <TableCell className="whitespace-nowrap">
-        {order ? (
-          <Badge
-            variant={(getStatusVariant(order.status) as "default" | "secondary" | "destructive" | "outline" | "soft-yellow" | "soft-blue" | "soft-purple" | "soft-indigo" | "soft-green" | "soft-orange" | "soft-red" | "soft-gray") || "default"}
-            className="whitespace-nowrap"
-          >
-            {getStatusLabel(order.status)}
-          </Badge>
-        ) : (
-          <Badge
-            variant={isIncoming ? "default" : "secondary"}
-            className={`whitespace-nowrap ${isIncoming ? "bg-green-100 text-green-800 hover:bg-green-100" : "bg-red-100 text-red-800 hover:bg-red-100"}`}
-          >
-            {isIncoming ? "Nhận vào" : "Gửi đi"}
-          </Badge>
         )}
       </TableCell>
       <TableCell className={`font-semibold whitespace-nowrap ${isIncoming ? "text-green-600" : "text-red-600"}`}>
