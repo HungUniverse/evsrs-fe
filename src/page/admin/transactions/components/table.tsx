@@ -41,7 +41,6 @@ export function TransactionTable({
             <TableHead className="whitespace-nowrap text-[#065F46]">Ngày giao dịch</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Khách hàng</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Mã đơn hàng</TableHead>
-            <TableHead className="whitespace-nowrap text-[#065F46]">Trạng thái</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Số tiền</TableHead>
             <TableHead className="whitespace-nowrap text-[#065F46]">Mã tham chiếu</TableHead>
           </TableRow>
@@ -49,7 +48,7 @@ export function TransactionTable({
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={8} className="text-center py-8">
+              <TableCell colSpan={7} className="text-center py-8">
                 <div className="flex items-center justify-center gap-2 text-muted-foreground">
                   <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
                   <span>Đang tải...</span>
@@ -58,7 +57,7 @@ export function TransactionTable({
             </TableRow>
           ) : transactions.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="text-center py-12">
+              <TableCell colSpan={7} className="text-center py-12">
                 <div className="flex flex-col items-center gap-3 text-muted-foreground">
                   <CreditCard className="size-8" />
                   <div>
