@@ -4,7 +4,13 @@ import { toast } from "sonner";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import type { StaffRequest, UserFull } from "@/@types/auth.type";
 import type { Depot } from "@/@types/car/depot";
-import { StaffTableApi } from "../api/staff-table.api";
+import { UserFullAPI } from "@/apis/user.api";
+import { depotAPI } from "@/apis/depot.api";
+
+const DEFAULT_PAGINATION = {
+  page: 1,
+  limit: 100,
+};
 
 export type SortDirection = "asc" | "desc";
 export type SortField = "fullName" | "createdAt" | "role";
@@ -101,10 +107,15 @@ export function useStaffTable(): UseStaffTableResult {
       setLoading(true);
 
       try {
-        const [usersData, depotListData] = await Promise.all([
-          StaffTableApi.fetchStaffUsers(),
-          StaffTableApi.fetchDepotList(),
-        ]);
+        // Fetch staff users
+        const usersResponse = await UserFullAPI.getAll(DEFAULT_PAGINATION.page, DEFAULT_PAGINATION.limit);
+        const usersItems = usersResponse?.data?.data?.items;
+        const usersData = Array.isArray(usersItems) ? usersItems : [];
+
+        // Fetch depot list
+        const depotResponse = await depotAPI.getAll(DEFAULT_PAGINATION.page, DEFAULT_PAGINATION.limit);
+        const depotItems = depotResponse?.data?.data?.items;
+        const depotListData = Array.isArray(depotItems) ? depotItems : [];
 
         setUsers(usersData);
         setDepotList(depotListData);
@@ -113,8 +124,32 @@ export function useStaffTable(): UseStaffTableResult {
           .filter((user: UserFull) => user.role === "STAFF" && user.depotId)
           .map((user: UserFull) => user.depotId as string);
 
-        const depotDetails = await StaffTableApi.fetchDepotMapByIds(depotIds);
-        setDepotMap(depotDetails);
+        // Fetch depot map by IDs
+        if (depotIds.length) {
+          const uniqueIds = Array.from(new Set(depotIds));
+          const results = await Promise.all(
+            uniqueIds.map(async (depotId) => {
+              try {
+                const response = await depotAPI.getById(depotId);
+                return response ?? null;
+              } catch (error) {
+                console.error(`Failed to fetch depot ${depotId}`, error);
+                return null;
+              }
+            })
+          );
+
+          const depotDetails = results.reduce<Record<string, Depot>>((accumulator, depot, index) => {
+            if (depot) {
+              const id = uniqueIds[index];
+              accumulator[id] = depot;
+            }
+            return accumulator;
+          }, {});
+          setDepotMap(depotDetails);
+        } else {
+          setDepotMap({});
+        }
       } catch (error) {
         console.error("Failed to load staff data", error);
         toast.error("Không thể tải dữ liệu nhân viên. Vui lòng thử lại.");
@@ -262,7 +297,7 @@ export function useStaffTable(): UseStaffTableResult {
 
     try {
       const ids = deleteDialog.users.map((user) => user.id);
-      await StaffTableApi.deleteStaffUsers(ids);
+      await Promise.all(ids.map((id) => UserFullAPI.delete(id)));
 
       setUsers((prev) => prev.filter((user) => !ids.includes(user.id)));
       setSelected({});
@@ -302,7 +337,7 @@ export function useStaffTable(): UseStaffTableResult {
     setChangeDepotDialog((prev) => ({ ...prev, isSubmitting: true }));
 
     try {
-      await StaffTableApi.updateStaffDepot(changeDepotDialog.user.id, changeDepotDialog.selectedDepotId);
+      await UserFullAPI.updateDepot(changeDepotDialog.user.id, changeDepotDialog.selectedDepotId);
 
       setUsers((prev) =>
         prev.map((user) =>
@@ -340,7 +375,7 @@ export function useStaffTable(): UseStaffTableResult {
     setIsCreating(true);
 
     try {
-      const newStaff = await StaffTableApi.createStaffUser(data);
+      const newStaff = await UserFullAPI.createStaff(data);
       setUsers((prev) => [...prev, newStaff]);
       toast.success("Tạo nhân viên thành công");
       setCreateDialogOpen(false);
