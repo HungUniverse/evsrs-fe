@@ -1,4 +1,4 @@
-import HttpStatusCode from "@/lib/utils/httpStatusCode.enum";
+import type HttpStatusCode from "@/lib/utils/httpStatusCode.enum";
 
 export interface ItemBaseResponse<T> {
   data: T;
