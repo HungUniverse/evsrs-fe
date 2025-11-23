@@ -5,9 +5,10 @@ import type { OrderBookingStatus, PaymentStatus } from "@/@types/enum";
 import type { UserFull } from "@/@types/auth.type";
 import type { Depot } from "@/@types/car/depot";
 import type { Model } from "@/@types/car/model";
-import { OrderTableApi } from "../api/order-table.api";
-
-const FETCH_PAGE_SIZE = 200;
+import { orderBookingAPI } from "@/apis/order-booking.api";
+import { UserFullAPI } from "@/apis/user.api";
+import { depotAPI } from "@/apis/depot.api";
+import { modelAPI } from "@/apis/model-ev.api";
 
 export interface UseOrderTableResult {
   // Data
@@ -33,8 +34,6 @@ export interface UseOrderTableResult {
   // Filters
   searchOrderCode: string;
   setSearchOrderCode: (value: string) => void;
-  selectedUserId: string;
-  setSelectedUserId: (value: string) => void;
   selectedDepotId: string;
   setSelectedDepotId: (value: string) => void;
   selectedModelId: string;
@@ -71,7 +70,7 @@ export interface UseOrderTableResult {
 }
 
 export function useOrderTable(): UseOrderTableResult {
-  const [orders, setOrders] = useState<OrderBookingDetail[]>([]);
+  const [allOrders, setAllOrders] = useState<OrderBookingDetail[]>([]);
   const [loading, setLoading] = useState(false);
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -82,7 +81,6 @@ export function useOrderTable(): UseOrderTableResult {
 
   const [status, setStatus] = useState<OrderBookingStatus>("PENDING");
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("PENDING");
-  const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [searchOrderCode, setSearchOrderCode] = useState<string>("");
   const [selectedDepotId, setSelectedDepotId] = useState<string>("");
   const [selectedModelId, setSelectedModelId] = useState<string>("");
@@ -102,14 +100,19 @@ export function useOrderTable(): UseOrderTableResult {
       let currentPage = 1;
       let shouldContinue = true;
 
+      // Fetch all pages using only pageNumber and pageSize (no filters)
       while (shouldContinue) {
-        const result = await OrderTableApi.fetchOrders({ pageNumber: currentPage, pageSize: FETCH_PAGE_SIZE });
-        const items = result.items || [];
+        const response = await orderBookingAPI.getAll({ 
+          pageNumber: currentPage, 
+          pageSize: 10 
+        });
+        const data = response.data?.data;
+        const items = data?.items || [];
         combinedOrders.push(...items);
 
-        const totalPagesFromApi = result.totalPages ?? currentPage;
+        const totalPagesFromApi = data?.totalPages ?? currentPage;
         const hasMoreByTotalPages = totalPagesFromApi > 0 ? currentPage < totalPagesFromApi : false;
-        shouldContinue = result.hasNextPage || hasMoreByTotalPages;
+        shouldContinue = data?.hasNextPage || hasMoreByTotalPages;
 
         if (items.length === 0) {
           shouldContinue = false;
@@ -118,11 +121,11 @@ export function useOrderTable(): UseOrderTableResult {
         currentPage += 1;
       }
 
-      setOrders(combinedOrders);
+      setAllOrders(combinedOrders);
     } catch (error) {
       console.error("Error fetching orders:", error);
       toast.error("Không thể tải danh sách đơn đặt xe");
-      setOrders([]);
+      setAllOrders([]);
     } finally {
       setLoading(false);
     }
@@ -130,31 +133,42 @@ export function useOrderTable(): UseOrderTableResult {
 
   const fetchUsers = async () => {
     try {
-      const userList = await OrderTableApi.fetchUsers();
-      setUsers(userList);
+      const response = await UserFullAPI.getAll(1, 100);
+      const items = response?.data?.data?.items;
+      if (!Array.isArray(items)) {
+        setUsers([]);
+        return;
+      }
+      const filteredUsers = items.filter((user) => user.role === "USER");
+      setUsers(filteredUsers);
     } catch (error) {
       console.error("Error fetching users:", error);
       toast.error("Không thể tải danh sách người dùng");
+      setUsers([]);
     }
   };
 
   const fetchDepots = async () => {
     try {
-      const depotList = await OrderTableApi.fetchDepots();
-      setDepots(depotList);
+      const response = await depotAPI.getAll(1, 100);
+      const items = response?.data?.data?.items;
+      setDepots(Array.isArray(items) ? items : []);
     } catch (error) {
       console.error("Error fetching depots:", error);
       toast.error("Không thể tải danh sách trạm xe điện");
+      setDepots([]);
     }
   };
 
   const fetchModels = async () => {
     try {
-      const modelList = await OrderTableApi.fetchModels();
-      setModels(modelList);
+      const response = await modelAPI.getAll(1, 100);
+      const items = response?.data?.data?.items;
+      setModels(Array.isArray(items) ? items : []);
     } catch (error) {
       console.error("Error fetching models:", error);
       toast.error("Không thể tải danh sách model");
+      setModels([]);
     }
   };
 
@@ -163,39 +177,15 @@ export function useOrderTable(): UseOrderTableResult {
       toast.error("Vui lòng nhập mã đơn hàng");
       return;
     }
-    try {
-      setLoading(true);
-      const trimmedCode = searchOrderCode.trim();
-      const result = await OrderTableApi.fetchOrdersByCode(trimmedCode, { pageNumber: 1, pageSize: 100 });
-      
-      // Filter để chỉ lấy đơn hàng có code chính xác (exact match)
-      // Vì code là unique nên chỉ nên có tối đa 1 đơn hàng
-      const exactMatchOrders = result?.items?.filter((order) => order.code === trimmedCode) || [];
-      
-      if (exactMatchOrders.length > 0) {
-        setOrders(exactMatchOrders);
-        setPageNumber(1);
-        toast.success("Tìm thấy đơn đặt xe");
-      } else {
-        setOrders([]);
-        setPageNumber(1);
-        toast.info("Không tìm thấy đơn đặt xe với mã này");
-      }
-    } catch (error) {
-      console.error("Error searching order by code:", error);
-      toast.error("Không tìm thấy đơn đặt xe với mã này");
-      setOrders([]);
-      setPageNumber(1);
-    } finally {
-      setLoading(false);
-    }
+    // Reset to page 1, filtering is done on client side
+    setPageNumber(1);
   };
 
   const handleUpdateStatus = async () => {
     if (!selectedOrder) return;
 
     try {
-      await OrderTableApi.updateOrderStatus(selectedOrder.id, status, paymentStatus);
+      await orderBookingAPI.updateStatus(selectedOrder.id, status, paymentStatus);
       toast.success("Cập nhật trạng thái thành công");
       setUpdateStatusDialogOpen(false);
       await fetchOrders();
@@ -205,43 +195,26 @@ export function useOrderTable(): UseOrderTableResult {
     }
   };
 
-  const handleNextPage = () => {
-    setPageNumber((prev) => Math.min(prev + 1, totalPages));
-  };
-
-  const handlePreviousPage = () => {
-    setPageNumber((prev) => Math.max(prev - 1, 1));
-  };
-
-  const clearFilters = () => {
-    setSelectedUserId("");
-    setSelectedDepotId("");
-    setSelectedModelId("");
-    setSearchOrderCode("");
-    setStartDateFilter("");
-    setEndDateFilter("");
-    setStatusFilter("all");
-    setPaymentStatusFilter("all");
-    setPageNumber(1);
-    fetchOrders();
-  };
-
+  // Filter orders on client side (API doesn't support filters)
   const filteredOrders = useMemo(() => {
-    return orders.filter((order) => {
+    return allOrders.filter((order) => {
+      // Status filter
       const matchStatus =
         statusFilter === "all" || order.status === (statusFilter as OrderBookingStatus);
+      
+      // Payment status filter
       const matchPaymentStatus =
         paymentStatusFilter === "all" || order.paymentStatus === (paymentStatusFilter as PaymentStatus);
-      const matchUser = !selectedUserId || order.user?.id === selectedUserId;
+      
+      // Depot filter
       const matchDepot = !selectedDepotId || order.depot?.id === selectedDepotId;
+      
+      // Model filter
       const matchModel = !selectedModelId || order.carEvs?.model?.id === selectedModelId;
 
+      // Date filters
       let matchStartDate = true;
       let matchEndDate = true;
-
-      // Sử dụng range match cho tất cả trường hợp để nhất quán và hợp lý hơn
-      // - Start Date: lấy đơn có startAt >= ngày bắt đầu (từ ngày này trở đi)
-      // - End Date: lấy đơn có endAt <= ngày kết thúc (đến ngày này trở về)
       if (startDateFilter) {
         const orderStart = new Date(order.startAt);
         const selectedStart = new Date(startDateFilter);
@@ -255,22 +228,27 @@ export function useOrderTable(): UseOrderTableResult {
         matchEndDate = orderEnd <= selectedEnd;
       }
 
-      return matchStatus && matchPaymentStatus && matchUser && matchDepot && matchModel && matchStartDate && matchEndDate;
+      // Search filter (exact match on order code)
+      const matchSearch = !searchOrderCode.trim() || order.code === searchOrderCode.trim();
+
+      return matchStatus && matchPaymentStatus && matchDepot && matchModel && matchStartDate && matchEndDate && matchSearch;
     });
   }, [
-    orders,
+    allOrders,
     statusFilter,
     paymentStatusFilter,
-    selectedUserId,
     selectedDepotId,
     selectedModelId,
     startDateFilter,
     endDateFilter,
+    searchOrderCode,
   ]);
 
+  // Calculate pagination from filtered orders
   const totalCount = filteredOrders.length;
   const totalPages = totalCount === 0 ? 1 : Math.ceil(totalCount / pageSize);
 
+  // Paginate filtered orders on client side
   const displayedOrders = useMemo(() => {
     if (totalCount === 0) {
       return [];
@@ -279,6 +257,25 @@ export function useOrderTable(): UseOrderTableResult {
     const startIndex = (safePageNumber - 1) * pageSize;
     return filteredOrders.slice(startIndex, startIndex + pageSize);
   }, [filteredOrders, pageNumber, pageSize, totalCount, totalPages]);
+
+  const handleNextPage = () => {
+    setPageNumber((prev) => Math.min(prev + 1, totalPages));
+  };
+
+  const handlePreviousPage = () => {
+    setPageNumber((prev) => Math.max(prev - 1, 1));
+  };
+
+  const clearFilters = () => {
+    setSelectedDepotId("");
+    setSelectedModelId("");
+    setSearchOrderCode("");
+    setStartDateFilter("");
+    setEndDateFilter("");
+    setStatusFilter("all");
+    setPaymentStatusFilter("all");
+    setPageNumber(1);
+  };
 
   const hasNextPage = totalCount === 0 ? false : pageNumber < totalPages;
   const hasPreviousPage = pageNumber > 1;
@@ -293,29 +290,29 @@ export function useOrderTable(): UseOrderTableResult {
     fetchOrders();
   }, [fetchOrders]);
 
-  // Reset to page 1 when filters or pageSize change (but not on initial mount)
+  // Reset to page 1 when filters or pageSize change
   useEffect(() => {
     setPageNumber(1);
   }, [
     statusFilter,
     paymentStatusFilter,
-    selectedUserId,
     selectedDepotId,
     selectedModelId,
     startDateFilter,
     endDateFilter,
+    searchOrderCode,
     pageSize,
   ]);
 
-  // Clamp page number when filtered data shrinks
+  // Clamp page number when totalPages changes
   useEffect(() => {
-    if (pageNumber > totalPages) {
+    if (pageNumber > totalPages && totalPages > 0) {
       setPageNumber(totalPages);
     }
   }, [pageNumber, totalPages]);
 
   return {
-    orders,
+    orders: allOrders,
     displayedOrders,
     users,
     depots,
@@ -333,8 +330,6 @@ export function useOrderTable(): UseOrderTableResult {
     handlePreviousPage,
     searchOrderCode,
     setSearchOrderCode,
-    selectedUserId,
-    setSelectedUserId,
     selectedDepotId,
     setSelectedDepotId,
     selectedModelId,

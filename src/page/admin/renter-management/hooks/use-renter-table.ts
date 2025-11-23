@@ -4,7 +4,8 @@ import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import type { UserFull } from "@/@types/auth.type";
 import type { IdentifyDocumentResponse } from "@/@types/identify-document";
 import type { IdentifyDocumentStatus } from "@/@types/enum";
-import { RenterTableApi } from "../api/renter-table.api";
+import { UserFullAPI } from "@/apis/user.api";
+import { identifyDocumentAPI } from "@/apis/identify-document.api";
 
 export type SortDirection = "asc" | "desc";
 export type SortField = "fullName" | "createdAt" | "role";
@@ -103,7 +104,9 @@ export function useRenterTable(): UseRenterTableResult {
     const loadUsers = async () => {
       setLoading(true);
       try {
-        const usersData = await RenterTableApi.fetchRenterUsers();
+        const response = await UserFullAPI.getAll(1, 100);
+        const items = response?.data?.data?.items;
+        const usersData = Array.isArray(items) ? items : [];
         setUsers(usersData);
       } catch (error) {
         console.error("Failed to load users:", error);
@@ -126,7 +129,25 @@ export function useRenterTable(): UseRenterTableResult {
 
       if (userIds.length === 0) return;
 
-      const docs = await RenterTableApi.fetchAllUserDocuments(userIds);
+      const results = await Promise.all(
+        userIds.map(async (userId) => {
+          try {
+            const response = await identifyDocumentAPI.getUserDocuments(userId);
+            return { userId, doc: response.data };
+          } catch {
+            return { userId, doc: null };
+          }
+        })
+      );
+
+      const docs = results.reduce<Record<string, IdentifyDocumentResponse | null>>(
+        (acc, { userId, doc }) => {
+          acc[userId] = doc;
+          return acc;
+        },
+        {}
+      );
+
       setDocuments((prev) => {
         const updated = { ...prev };
         userIds.forEach((userId) => {
@@ -139,7 +160,7 @@ export function useRenterTable(): UseRenterTableResult {
     if (users.length > 0) {
       loadAllUserDocuments();
     }
-  }, [users]);
+  }, [users, documents]);
 
   useEffect(() => {
     if (!users.length) {
@@ -161,11 +182,18 @@ export function useRenterTable(): UseRenterTableResult {
   const loadUserDocument = async (userId: string) => {
     if (documents[userId] !== undefined) return;
 
-    const doc = await RenterTableApi.fetchUserDocument(userId);
-    setDocuments((prev) => ({
-      ...prev,
-      [userId]: doc,
-    }));
+    try {
+      const response = await identifyDocumentAPI.getUserDocuments(userId);
+      setDocuments((prev) => ({
+        ...prev,
+        [userId]: response.data,
+      }));
+    } catch {
+      setDocuments((prev) => ({
+        ...prev,
+        [userId]: null,
+      }));
+    }
   };
 
   const rows = useMemo(() => {
@@ -285,11 +313,14 @@ export function useRenterTable(): UseRenterTableResult {
     if (!statusChangeDialog || !statusChangeDialog.document || !statusChangeDialog.user) return;
 
     try {
-      const updatedDoc = await RenterTableApi.updateDocumentStatus(
+      const response = await identifyDocumentAPI.updateStatus(
         statusChangeDialog.document.id,
-        statusChangeDialog.newStatus,
-        verificationNotes || undefined
+        {
+          status: statusChangeDialog.newStatus,
+          note: verificationNotes || undefined,
+        }
       );
+      const updatedDoc = response.data;
 
       setDocuments((prev) => ({
         ...prev,
@@ -310,11 +341,14 @@ export function useRenterTable(): UseRenterTableResult {
 
     try {
       const newStatus = documentDialog.action === "approve" ? "APPROVED" : "REJECTED";
-      const updatedDoc = await RenterTableApi.updateDocumentStatus(
+      const response = await identifyDocumentAPI.updateStatus(
         documentDialog.document.id,
-        newStatus,
-        verificationNotes || undefined
+        {
+          status: newStatus,
+          note: verificationNotes || undefined,
+        }
       );
+      const updatedDoc = response.data;
 
       setDocuments((prev) => ({
         ...prev,
@@ -354,7 +388,7 @@ export function useRenterTable(): UseRenterTableResult {
     setIsDeleting(true);
     try {
       const ids = deleteDialog.users.map((user) => user.id);
-      await RenterTableApi.deleteRenterUsers(ids);
+      await Promise.all(ids.map((id) => UserFullAPI.delete(id)));
 
       setUsers((prev) => prev.filter((user) => !ids.includes(user.id)));
       setSelected({});

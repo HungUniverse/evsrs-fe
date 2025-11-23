@@ -28,9 +28,6 @@ export type OrderBookingQuery = {
   to?: DateString;
   search?: string;
 };
-//These params query are for declaration, they can not work on real api, 
-// only pageNumber and pageSize are supported, if you want to filter, 
-// fetch all data and filter client-side
 
 export const orderBookingAPI = {
   create: (body: OrderBookingRequest) =>
