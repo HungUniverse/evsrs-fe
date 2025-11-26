@@ -61,14 +61,10 @@ export interface UseTransactionTableResult {
 }
 
 export function useTransactionTable(): UseTransactionTableResult {
-  const [transactions, setTransactions] = useState<TransactionResponse[]>([]);
+  const [allTransactions, setAllTransactions] = useState<TransactionResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalCount, setTotalCount] = useState(0);
-  const [hasNextPage, setHasNextPage] = useState(false);
-  const [hasPreviousPage, setHasPreviousPage] = useState(false);
   const [usersMap, setUsersMap] = useState<Map<string, UserFull>>(new Map());
   const [ordersMap, setOrdersMap] = useState<Map<string, OrderBookingDetail>>(new Map());
 
@@ -84,80 +80,47 @@ export function useTransactionTable(): UseTransactionTableResult {
   const [transferTypeFilter, setTransferTypeFilter] = useState<string>("all");
   const [startDateFilter, setStartDateFilter] = useState<string>("");
   const [endDateFilter, setEndDateFilter] = useState<string>("");
-  const [isInitialMount, setIsInitialMount] = useState(true);
-  const [apiPageNumber, setApiPageNumber] = useState<number | null>(null);
 
-  // Helper: Convert UI page number to API page number (inverted)
-  // UI page 1 = API page totalPages (newest)
-  // UI page 2 = API page totalPages - 1
-  // UI page N = API page totalPages - (N - 1)
-  const uiPageToApiPage = useCallback((uiPage: number, totalPages: number): number => {
-    if (totalPages === 0) return 1;
-    return totalPages - (uiPage - 1);
-  }, []);
-
+  // Fetch all transactions at once
   const fetchTransactions = useCallback(async () => {
     try {
       setLoading(true);
-      
-      // Determine API page number to fetch
-      // On initial mount, fetch totalPages (newest data)
-      // Otherwise, use the calculated API page from UI page
-      let currentApiPage: number;
-      if (isInitialMount && totalPages === 0) {
-        // First fetch: get page 1 to determine totalPages
-        currentApiPage = 1;
-      } else if (isInitialMount && totalPages > 0) {
-        // Initial mount after getting totalPages: fetch newest page
-        currentApiPage = totalPages;
-        setApiPageNumber(totalPages);
-      } else {
-        // Normal navigation: convert UI page to API page
-        currentApiPage = uiPageToApiPage(pageNumber, totalPages || 1);
-        setApiPageNumber(currentApiPage);
-      }
-      
-      const response = await TransactionApi.getAll({
-        page: currentApiPage,
-        pageSize: pageSize,
-      });
-      
-      const responseData = response.data;
-      const items = responseData?.items || [];
+      const combinedTransactions: TransactionResponse[] = [];
+      let currentPage = 1;
+      let shouldContinue = true;
 
-      // Update pagination metadata from API response
-      if (responseData) {
-        const newTotalPages = responseData.totalPages || 0;
-        setTotalPages(newTotalPages);
-        setTotalCount(responseData.totalCount || 0);
+      // Fetch all pages from API
+      while (shouldContinue) {
+        const response = await TransactionApi.getAll({
+          page: currentPage,
+          pageSize: 10,
+        });
         
-        // Use the actual API page number that was fetched
-        const actualApiPage = apiPageNumber !== null ? apiPageNumber : currentApiPage;
-        
-        // For inverted pagination:
-        // - UI page 1 = API page totalPages (newest)
-        // - hasNextPage means we can go to UI page + 1 (older data) = API page - 1
-        // - hasPreviousPage means we can go to UI page - 1 (newer data) = API page + 1
-        // Check if there are older pages (lower API page numbers)
-        setHasNextPage(actualApiPage > 1);
-        // Check if there are newer pages (higher API page numbers)
-        setHasPreviousPage(actualApiPage < newTotalPages);
-        
-        // On initial mount after getting totalPages, set UI page to 1
-        if (isInitialMount && newTotalPages > 0 && pageNumber !== 1) {
-          setIsInitialMount(false);
-          // UI page 1 represents the newest data (API page totalPages)
-          setPageNumber(1);
+        const responseData = response.data;
+        const items = responseData?.items || [];
+        combinedTransactions.push(...items);
+
+        const totalPagesFromApi = responseData?.totalPages ?? currentPage;
+        const hasMoreByTotalPages = totalPagesFromApi > 0 ? currentPage < totalPagesFromApi : false;
+        shouldContinue = responseData?.hasNextPage || hasMoreByTotalPages;
+
+        if (items.length === 0) {
+          shouldContinue = false;
         }
+
+        currentPage += 1;
       }
 
-      setTransactions(items);
+      // Reverse the array since API returns oldest first (page 1 = oldest)
+      // We want newest first for display
+      const reversedTransactions = combinedTransactions.reverse();
+      setAllTransactions(reversedTransactions);
 
-      // Fetch users and orders for display
+      // Fetch users and orders for all transactions
       const userIds = new Set<string>();
       const orderIds = new Set<string>();
       
-      items.forEach((t) => {
+      reversedTransactions.forEach((t) => {
         if (t.userId) userIds.add(t.userId);
         if (t.orderBookingId) orderIds.add(t.orderBookingId);
       });
@@ -209,15 +172,11 @@ export function useTransactionTable(): UseTransactionTableResult {
     } catch (error) {
       console.error("Error fetching transactions:", error);
       toast.error("Không thể tải danh sách giao dịch");
-      setTransactions([]);
-      setTotalPages(0);
-      setTotalCount(0);
-      setHasNextPage(false);
-      setHasPreviousPage(false);
+      setAllTransactions([]);
     } finally {
       setLoading(false);
     }
-  }, [pageNumber, pageSize, totalPages, isInitialMount, uiPageToApiPage, apiPageNumber]);
+  }, []);
 
   const fetchOrderDetail = async (orderId: string) => {
     try {
@@ -236,23 +195,8 @@ export function useTransactionTable(): UseTransactionTableResult {
   const viewTransactionDetails = (transaction: TransactionResponse) => {
     setSelectedTransaction(transaction);
     setDetailDialogOpen(true);
-    // Don't automatically fetch order detail - only fetch when user clicks "Xem chi tiết" button
     setOrderDetailOrderId(null);
     setOrderDetail(null);
-  };
-
-  const handleNextPage = () => {
-    if (hasNextPage && pageNumber < totalPages) {
-      const nextPage = pageNumber + 1;
-      setPageNumber(nextPage);
-    }
-  };
-
-  const handlePreviousPage = () => {
-    if (hasPreviousPage && pageNumber > 1) {
-      const prevPage = pageNumber - 1;
-      setPageNumber(prevPage);
-    }
   };
 
   const clearFilters = () => {
@@ -264,9 +208,9 @@ export function useTransactionTable(): UseTransactionTableResult {
     setPageNumber(1);
   };
 
-  // Apply client-side filtering on the current page's transactions
-  const displayedTransactions = useMemo(() => {
-    let filtered = [...transactions];
+  // Apply client-side filtering on all transactions
+  const filteredTransactions = useMemo(() => {
+    let filtered = [...allTransactions];
 
     // Filter by code
     if (searchCode.trim()) {
@@ -312,22 +256,59 @@ export function useTransactionTable(): UseTransactionTableResult {
     }
 
     return filtered;
-  }, [transactions, searchCode, userNameSearch, transferTypeFilter, startDateFilter, endDateFilter, usersMap]);
+  }, [allTransactions, searchCode, userNameSearch, transferTypeFilter, startDateFilter, endDateFilter, usersMap]);
 
-  // Fetch transactions when pageNumber or pageSize changes
+  // Calculate pagination from filtered transactions
+  const totalCount = filteredTransactions.length;
+  const totalPages = totalCount === 0 ? 1 : Math.ceil(totalCount / pageSize);
+
+  // Paginate filtered transactions on client side
+  const displayedTransactions = useMemo(() => {
+    if (totalCount === 0) {
+      return [];
+    }
+    const safePageNumber = Math.min(pageNumber, totalPages);
+    const startIndex = (safePageNumber - 1) * pageSize;
+    return filteredTransactions.slice(startIndex, startIndex + pageSize);
+  }, [filteredTransactions, pageNumber, pageSize, totalCount, totalPages]);
+
+  const handleNextPage = () => {
+    setPageNumber((prev) => Math.min(prev + 1, totalPages));
+  };
+
+  const handlePreviousPage = () => {
+    setPageNumber((prev) => Math.max(prev - 1, 1));
+  };
+
+  const hasNextPage = totalCount === 0 ? false : pageNumber < totalPages;
+  const hasPreviousPage = pageNumber > 1;
+
+  // Fetch transactions on mount
   useEffect(() => {
     fetchTransactions();
   }, [fetchTransactions]);
 
-  // Reset to page 1 (newest data) when filters change
+  // Reset to page 1 when filters or pageSize change
   useEffect(() => {
     setPageNumber(1);
-    setApiPageNumber(null);
-    // Don't reset isInitialMount here - we only want auto-navigate on true initial mount
-  }, [searchCode, userNameSearch, transferTypeFilter, startDateFilter, endDateFilter]);
+  }, [
+    searchCode,
+    userNameSearch,
+    transferTypeFilter,
+    startDateFilter,
+    endDateFilter,
+    pageSize,
+  ]);
+
+  // Clamp page number when totalPages changes
+  useEffect(() => {
+    if (pageNumber > totalPages && totalPages > 0) {
+      setPageNumber(totalPages);
+    }
+  }, [pageNumber, totalPages]);
 
   return {
-    transactions,
+    transactions: allTransactions,
     displayedTransactions,
     loading,
     usersMap,
