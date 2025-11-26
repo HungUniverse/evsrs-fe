@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useAuthStore } from "@/lib/zustand/use-auth-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,6 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Pencil, X, CheckCircle2, CircleAlert, Upload, Eye, X as XIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { identifyDocumentAPI } from "@/apis/identify-document.api";
-import { useEffect } from "react";
 import type { IdentifyDocumentRequest, IdentifyDocumentResponse } from "@/@types/identify-document";
 import { uploadFileToCloudinary } from "@/lib/utils/cloudinary";
 type PaperStatus = "pending" | "approved" | "rejected";
@@ -17,6 +16,7 @@ export default function UserPaper() {
   const [edit, setEdit] = useState(false);
   const [status, setStatus] = useState<PaperStatus>("rejected");
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [hasExistingDocument, setHasExistingDocument] = useState(false);
   const [currentDocument, setCurrentDocument] = useState<IdentifyDocumentResponse | null>(null);
 
@@ -24,8 +24,8 @@ export default function UserPaper() {
     licenseNumber: "",
     fullName: user?.name ?? "",
     expiryDate: "",
-    licenseClass: "B1", // Mặc định B1
-    countryCode: "VN", // Mặc định Việt Nam
+    licenseClass: "",
+    countryCode: "",
     frontImage: null as File | null, // ảnh mặt trước
     backImage: null as File | null, // ảnh mặt sau
   });
@@ -73,6 +73,9 @@ export default function UserPaper() {
       return;
     }
 
+    // Prevent double submission
+    if (isLoading) return;
+
     setIsLoading(true);
 
     // Validation
@@ -86,8 +89,27 @@ export default function UserPaper() {
       setIsLoading(false);
       return;
     }
+    if (!form.licenseClass.trim()) {
+      toast.error("Vui lòng nhập hạng GPLX");
+      setIsLoading(false);
+      return;
+    }
+    if (!form.countryCode.trim()) {
+      toast.error("Vui lòng nhập mã quốc gia");
+      setIsLoading(false);
+      return;
+    }
     if (!form.expiryDate) {
       toast.error("Vui lòng nhập ngày hết hạn");
+      setIsLoading(false);
+      return;
+    }
+    // Validate expiry date is in the future
+    const expiryDate = new Date(form.expiryDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to compare only dates
+    if (expiryDate <= today) {
+      toast.error("Ngày hết hạn phải sau ngày hôm nay");
       setIsLoading(false);
       return;
     }
@@ -187,11 +209,16 @@ export default function UserPaper() {
               ? "pending"
               : "rejected"
         );
+        // Parse fullName from note field
+        const fullNameMatch = refreshed.note?.match(/Họ tên:\s*(.+)/);
+        const savedFullName = fullNameMatch ? fullNameMatch[1].trim() : user?.name ?? "";
+        
         setForm((s) => ({
           ...s,
           licenseNumber: refreshed.numberMasked || "",
           licenseClass: refreshed.licenseClass || s.licenseClass,
           countryCode: refreshed.countryCode || s.countryCode,
+          fullName: savedFullName,
           expiryDate: refreshed.expireAt
             ? new Date(refreshed.expireAt).toISOString().slice(0, 10)
             : s.expiryDate,
@@ -214,7 +241,11 @@ export default function UserPaper() {
 
   useEffect(() => {
     const load = async () => {
-      if (!user?.userId) return;
+      if (!user?.userId) {
+        setIsInitialLoading(false);
+        return;
+      }
+      setIsInitialLoading(true);
       try {
         const latest = await fetchExistingDocument();
         if (latest) {
@@ -227,11 +258,16 @@ export default function UserPaper() {
                 ? "pending"
                 : "rejected"
           );
+          // Parse fullName from note field
+          const fullNameMatch = latest.note?.match(/Họ tên:\s*(.+)/);
+          const savedFullName = fullNameMatch ? fullNameMatch[1].trim() : user?.name ?? "";
+          
           setForm((s) => ({
             ...s,
             licenseNumber: latest.numberMasked || "",
             licenseClass: latest.licenseClass || s.licenseClass,
             countryCode: latest.countryCode || s.countryCode,
+            fullName: savedFullName,
             expiryDate: latest.expireAt
               ? new Date(latest.expireAt).toISOString().slice(0, 10)
               : s.expiryDate,
@@ -260,12 +296,40 @@ export default function UserPaper() {
         // Lỗi khác ngoài not found
         console.error(e);
         toast.error("Không thể tải giấy tờ. Vui lòng thử lại sau");
+      } finally {
+        setIsInitialLoading(false);
       }
     };
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.userId, fetchExistingDocument]);
 
   if (!isAuthenticated) return null;
+
+  if (isInitialLoading) {
+    return (
+      <section className="rounded-xl border bg-white">
+        <div className="px-6 py-4">
+          <div className="h-6 w-48 bg-gray-200 rounded animate-pulse" />
+        </div>
+        <div className="px-6 pb-6 space-y-4">
+          <div className="h-4 w-full bg-gray-100 rounded animate-pulse" />
+          <div className="h-4 w-3/4 bg-gray-100 rounded animate-pulse" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+            <div className="space-y-4">
+              <div className="h-40 bg-gray-100 rounded animate-pulse" />
+              <div className="h-40 bg-gray-100 rounded animate-pulse" />
+            </div>
+            <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-20 bg-gray-100 rounded animate-pulse" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="rounded-xl border bg-white">
@@ -280,8 +344,8 @@ export default function UserPaper() {
             variant="outline"
             size="sm"
             onClick={() => {
-              setSavedForm(form);
-              setSavedImages(initialImages);
+              setSavedForm({ ...form });
+              setSavedImages({ ...initialImages });
               setEdit(true);
             }}
           >
@@ -301,8 +365,12 @@ export default function UserPaper() {
               variant="outline"
               size="sm"
               onClick={() => {
-                if (savedForm) setForm(savedForm);
-                if (savedImages) setInitialImages(savedImages);
+                if (savedForm) {
+                  setForm({ ...savedForm });
+                }
+                if (savedImages) {
+                  setInitialImages({ ...savedImages });
+                }
                 setEdit(false);
               }}
             >
@@ -320,8 +388,8 @@ export default function UserPaper() {
         </p>
       </div>
 
-      {/* Hiển thị lý do khi status là rejected và có note */}
-      {status === "rejected" && currentDocument?.note && (
+      {/* Hiển thị lý do khi status là rejected và có note không phải là fullName */}
+      {status === "rejected" && currentDocument?.note && !currentDocument.note.startsWith("Họ tên:") && (
         <div className="mx-6 mb-4 rounded-md bg-red-50 text-red-700 text-sm p-3 flex items-start gap-2 border border-red-100">
           <CircleAlert className="h-4 w-4 mt-0.5 flex-shrink-0" />
           <div className="flex-1">
@@ -365,7 +433,7 @@ export default function UserPaper() {
             disabled={!edit}
           />
           <Field
-            label="Quốc gia"
+            label="Mã quốc gia"
             value={form.countryCode}
             onChange={(v) => onChange("countryCode", v)}
             disabled={!edit}
@@ -436,6 +504,15 @@ function ImageUpload({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Cleanup preview URL on unmount to prevent memory leak
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -611,6 +688,11 @@ function Field({
   disabled?: boolean;
   type?: "text" | "date";
 }) {
+  // Set min date to tomorrow for expiry date field
+  const minDate = type === "date" && label === "Ngày hết hạn" 
+    ? new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]
+    : undefined;
+
   return (
     <div>
       <Label className="text-xs text-slate-500">{label}</Label>
@@ -620,6 +702,7 @@ function Field({
         onChange={(e) => onChange?.(e.target.value)}
         disabled={disabled}
         type={type}
+        min={minDate}
         placeholder={`Nhập ${label.toLowerCase()}`}
       />
     </div>
