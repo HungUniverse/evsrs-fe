@@ -58,9 +58,8 @@ export function useAutoFees(p: AutoFeeParams) {
 
     const overKmFee = Math.max(0, exceededKm) * (ratePerKm ?? 0);
 
-    // Phí pin: batteryCapacity × batteryHealth% × pinChenhLech × giá điện
     const capacity = toNum(batteryCapacityKwh);
-    const healthPercent = toNum(batteryHealthPercentage) / 100; // Convert % to decimal
+    const healthPercent = toNum(batteryHealthPercentage) / 100;
     const elecFee = toNum(electricityFee);
     const batteryFee = capacity * healthPercent * Math.abs(batDiff) * elecFee;
 

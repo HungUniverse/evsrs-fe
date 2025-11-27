@@ -20,6 +20,16 @@ function toNum(v: string | number | null | undefined) {
   return Number.isFinite(n) ? n : 0;
 }
 
+function loadReturnLateFee(orderId: string): number {
+  try {
+    const saved = sessionStorage.getItem(`returnLateFee_${orderId}`);
+    return saved ? Number(saved) : 0;
+  } catch (e) {
+    console.error("Failed to load returnLateFee:", e);
+    return 0;
+  }
+}
+
 type Props = {
   staffDisplay: string;
   limitDailyKm?: number | string | null;
@@ -53,6 +63,7 @@ export default function SettlementForm({
   const [notes, setNotes] = useState("");
   const [items, setItems] = useState<Item[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+  const [returnLateFee, setReturnLateFee] = useState<number>(0);
 
   useEffect(() => {
     (async () => {
@@ -63,14 +74,13 @@ export default function SettlementForm({
           handoverInspectionAPI.getByOrderId(orderId),
           returnInspectionAPI.getByOrderId(orderId),
         ]);
-        const hand = Array.isArray(h)
-          ? h.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))[0]
-          : h;
-        setHandover(hand ?? null);
+        setHandover(h ?? null);
         if (r) {
           setOdoReturn(r.odometer || "");
           setBatReturn(r.batteryPercent || "");
         }
+        const lateFee = loadReturnLateFee(orderId);
+        setReturnLateFee(lateFee);
       } catch {
         toast.error("Không tải được dữ liệu kiểm tra xe");
       } finally {
@@ -97,7 +107,7 @@ export default function SettlementForm({
     () => items.reduce((s, it) => s + toNum(it.amount), 0),
     [items]
   );
-  const subtotal = auto.autoFeesTotal + itemsTotal;
+  const subtotal = auto.autoFeesTotal + itemsTotal + returnLateFee;
 
   async function handleSubmit() {
     const payload: ReturnSettlementRequest = {
@@ -157,6 +167,7 @@ export default function SettlementForm({
           ratePerKm={auto.ratePerKm}
           batteryFee={auto.batteryFee}
           batDiff={auto.batDiff}
+          returnLateFee={returnLateFee}
           subtotal={subtotal}
         />
       </div>

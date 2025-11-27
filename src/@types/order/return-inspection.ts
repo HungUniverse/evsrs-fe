@@ -29,6 +29,7 @@ export interface ReturnInspectionResponse {
   odometer: string;
   images: string;
   notes: string;
+  returnLateFee: number;
   staffId: string;
   createdAt: string;
   updatedAt: string;

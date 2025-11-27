@@ -111,8 +111,7 @@ function PoliciesPage() {
             </p>
             <p className="text-gray-800 text-lg leading-relaxed">
               • Nếu trả muộn hơn thời gian thỏa thuận, nhân viên quản lý trạm sẽ
-              tính <strong>phí vượt giờ</strong> theo quy định (1.5 lần giá
-              gốc).
+              tính <strong>phí vượt giờ</strong> theo quy định.
             </p>
 
             <p className="text-gray-800 text-lg leading-relaxed">

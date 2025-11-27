@@ -100,7 +100,7 @@ export default function ExtraItems({ items, onAdd, onRemove }: Props) {
                 {it.image && (
                   <Dialog>
                     <DialogTrigger asChild>
-                      <div className="flex-shrink-0 cursor-pointer">
+                      <div className="shrink-0 cursor-pointer">
                         <img
                           src={it.image}
                           alt={it.description}

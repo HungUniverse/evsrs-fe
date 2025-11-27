@@ -26,7 +26,6 @@ export default function SettlementView({ data }: { data: ReturnSettlement }) {
         Biên bản thanh toán khi trả xe
       </div>
 
-      {/* PHẦN PHÁT SINH - FULL WIDTH */}
       <div className="rounded-md border p-4">
         <div className="font-medium text-base mb-3">Các khoản phát sinh</div>
         {data.settlementItems?.length ? (

@@ -6,6 +6,7 @@ type Props = {
   ratePerKm?: number;
   batteryFee: number;
   batDiff: number;
+  returnLateFee?: number;
   subtotal: number;
 };
 
@@ -18,6 +19,7 @@ export default function FeesSummary(p: Props) {
     ratePerKm,
     batteryFee,
     batDiff,
+    returnLateFee = 0,
     subtotal,
   } = p;
 
@@ -47,6 +49,9 @@ export default function FeesSummary(p: Props) {
             ({batDiff.toFixed(2)}% chênh lệch)
           </span>
         )}
+      </div>
+      <div className="text-sm">
+        Phí trả trễ: <b>{returnLateFee.toLocaleString("vi-VN")}</b>
       </div>
 
       <div className="text-sm">
