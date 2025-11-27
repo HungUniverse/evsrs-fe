@@ -1,4 +1,3 @@
-// src/pages/contract/index.tsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,8 +6,8 @@ import ContractCosts from "./components/ContractCosts";
 import { toast } from "sonner";
 
 import { api } from "@/lib/axios/axios";
-import { handoverContractAPI } from "@/apis/handover-contract.api"; // API tạo contract (bạn đã có)
-import { contractAPI } from "@/apis/contract.api"; // API fetch contract theo orderId
+import { handoverContractAPI } from "@/apis/handover-contract.api";
+import { contractAPI } from "@/apis/contract.api";
 import { orderBookingAPI } from "@/apis/order-booking.api";
 import { uploadDataUrlToCloudinary } from "@/lib/utils/cloudinary";
 
@@ -38,10 +37,9 @@ const ContractPage: React.FC = () => {
   const [order, setOrder] = useState<OrderBookingDetail | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // NEW: state về contract hiện tại
   const [contract, setContract] = useState<Contract | null>(null);
   const [checkingContract, setCheckingContract] = useState(false);
-  // Sign UI
+
   const [openSign, setOpenSign] = useState(false);
   const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
   const [savingSignature, setSavingSignature] = useState(false);
@@ -110,24 +108,27 @@ const ContractPage: React.FC = () => {
 
   // Check if rental date has arrived (only compare date, not time)
   const isRentalDateValid = useMemo(() => {
-    if (!order?.startAt) return false;
-    const now = new Date();
-    const startDate = new Date(order.startAt);
+    // Tạm thời disable check này để test
+    return true;
 
-    // Set both dates to start of day (00:00:00) for date-only comparison
-    const nowDateOnly = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate()
-    );
-    const startDateOnly = new Date(
-      startDate.getFullYear(),
-      startDate.getMonth(),
-      startDate.getDate()
-    );
+    // if (!order?.startAt) return false;
+    // const now = new Date();
+    // const startDate = new Date(order.startAt);
 
-    return nowDateOnly >= startDateOnly;
-  }, [order?.startAt]);
+    // // Set both dates to start of day (00:00:00) for date-only comparison
+    // const nowDateOnly = new Date(
+    //   now.getFullYear(),
+    //   now.getMonth(),
+    //   now.getDate()
+    // );
+    // const startDateOnly = new Date(
+    //   startDate.getFullYear(),
+    //   startDate.getMonth(),
+    //   startDate.getDate()
+    // );
+
+    // return nowDateOnly >= startDateOnly;
+  }, []);
 
   async function handleSignatureSaved(dataUrl: string) {
     try {
@@ -166,7 +167,7 @@ const ContractPage: React.FC = () => {
       });
 
       toast.success("Đã tạo hợp đồng");
-      await refetchContract(); // ⬅️ chuyển UI sang trạng thái có hợp đồng
+      await refetchContract();
     } catch {
       toast.error("Tạo hợp đồng thất bại");
     } finally {

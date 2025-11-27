@@ -34,7 +34,6 @@ export default function SettlementView({ data }: { data: ReturnSettlement }) {
               const images = splitUrls(it.image);
               return (
                 <div key={it.id} className="rounded border p-3 bg-slate-50/50">
-                  {/* Nội dung ở trên */}
                   <div className="space-y-3">
                     <div className="font-semibold text-base">
                       {it.description || "—"}
@@ -67,7 +66,6 @@ export default function SettlementView({ data }: { data: ReturnSettlement }) {
                       </div>
                     )}
 
-                    {/* Ảnh ở dưới */}
                     {images.length > 0 && (
                       <div className="pt-3 border-t">
                         <div className="text-xs text-slate-500 mb-2">

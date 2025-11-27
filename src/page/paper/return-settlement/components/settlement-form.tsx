@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -18,16 +18,6 @@ import ExtraItems from "./form-compos/extra-item";
 function toNum(v: string | number | null | undefined) {
   const n = Number(String(v ?? "0").replace(/[^\d.-]/g, ""));
   return Number.isFinite(n) ? n : 0;
-}
-
-function loadReturnLateFee(orderId: string): number {
-  try {
-    const saved = sessionStorage.getItem(`returnLateFee_${orderId}`);
-    return saved ? Number(saved) : 0;
-  } catch (e) {
-    console.error("Failed to load returnLateFee:", e);
-    return 0;
-  }
 }
 
 type Props = {
@@ -64,10 +54,14 @@ export default function SettlementForm({
   const [items, setItems] = useState<Item[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [returnLateFee, setReturnLateFee] = useState<number>(0);
+  const hasFetched = useRef(false);
 
   useEffect(() => {
+    if (hasFetched.current) return; //Block repeat
+
     (async () => {
       if (!orderId) return;
+      hasFetched.current = true;
       setLoadingData(true);
       try {
         const [h, r] = await Promise.all([
@@ -78,9 +72,8 @@ export default function SettlementForm({
         if (r) {
           setOdoReturn(r.odometer || "");
           setBatReturn(r.batteryPercent || "");
+          setReturnLateFee(toNum(r.returnLateFee));
         }
-        const lateFee = loadReturnLateFee(orderId);
-        setReturnLateFee(lateFee);
       } catch {
         toast.error("Không tải được dữ liệu kiểm tra xe");
       } finally {
