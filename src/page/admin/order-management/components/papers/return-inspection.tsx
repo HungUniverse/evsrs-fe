@@ -41,18 +41,25 @@ function fmtDateTime(s?: string) {
 function ReturnViewReadOnly({
   inspection,
   baseline,
+  returnLateFee = 0,
 }: {
   inspection: ReturnInspectionResponse;
   baseline?: HandoverInspection | null;
+  returnLateFee?: number;
 }) {
   const urls = splitUrls(inspection.images);
   return (
     <section className="rounded-lg border p-4 space-y-4">
       <div className="font-semibold">Biên bản trả xe</div>
 
-      <div className="text-sm text-slate-500">
-        Thời điểm lập: {fmtDateTime(inspection.createdAt)} • Nhân viên:{" "}
-        {inspection.createdBy || "—"}
+      <div className="space-y-1">
+        <div className="text-sm text-slate-500">
+          Thời điểm lập: {fmtDateTime(inspection.createdAt)} • Nhân viên:{" "}
+          {inspection.createdBy || "—"}
+        </div>
+        <div className="text-sm font-semibold text-grey-600">
+          Phí trả trễ: {returnLateFee.toLocaleString("vi-VN")} VNĐ
+        </div>
       </div>
 
       <div className="rounded-md border">
@@ -121,6 +128,7 @@ export default function AdminReturnInspectionPage() {
 
   const title = useMemo(() => "BIÊN BẢN TRẢ XE Ô TÔ", []);
   const hasReturn = !!ret;
+  const returnLateFee = useMemo(() => ret?.returnLateFee ?? 0, [ret]);
 
   useEffect(() => {
     (async () => {
@@ -204,6 +212,7 @@ export default function AdminReturnInspectionPage() {
           <ReturnViewReadOnly
             inspection={ret!}
             baseline={handover}
+            returnLateFee={returnLateFee}
           />
         ) : (
           <div className="text-center text-slate-500 py-8">
