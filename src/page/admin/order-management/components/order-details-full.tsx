@@ -1,19 +1,26 @@
 import type { OrderBookingDetail } from "@/@types/order/order-booking";
+import type { PaymentMethod, PaymentType } from "@/@types/enum";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { formatDate } from "@/lib/utils/formatDate";
 import { vnd } from "@/lib/utils/currency";
 import { getStatusVariant, getPaymentStatusVariant, getStatusLabel, getPaymentStatusLabel } from "../utils/utils";
 
-const PAYMENT_METHOD_OPTIONS = [
-  { value: "BANKING", label: "Chuyển khoản ngân hàng" },
-  { value: "CASH", label: "Tiền mặt" },
-];
+const getPaymentMethodLabel = (method: PaymentMethod): string => {
+  const labels: Record<PaymentMethod, string> = {
+    BANKING: "Chuyển khoản ngân hàng",
+    CASH: "Tiền mặt",
+  };
+  return labels[method] || method;
+};
 
-const PAYMENT_TYPE_OPTIONS = [
-  { value: "DEPOSIT", label: "Đặt cọc" },
-  { value: "FULL", label: "Thanh toán đầy đủ" },
-];
+const getPaymentTypeLabel = (type: PaymentType): string => {
+  const labels: Record<PaymentType, string> = {
+    DEPOSIT: "Đặt cọc",
+    FULL: "Thanh toán đầy đủ",
+  };
+  return labels[type] || type;
+};
 
 interface OrderDetailsFullProps {
   booking: OrderBookingDetail;
@@ -48,6 +55,33 @@ export function OrderDetailsFull({ booking }: OrderDetailsFullProps) {
         </div>
       )}
 
+      {/* Car Information Section */}
+      <div>
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
+          Thông tin xe
+        </h3>
+        <div className="grid grid-cols-2 gap-4 bg-purple-50 p-4 rounded-lg border border-purple-100 dark:bg-purple-950 dark:border-purple-800">
+          <div>
+            <Label className="text-xs font-medium text-muted-foreground">Xe</Label>
+            <p className="text-sm font-medium mt-1">{booking.carEvs?.model?.modelName || "N/A"}</p>
+          </div>
+          <div>
+            <Label className="text-xs font-medium text-muted-foreground">Biển số xe</Label>
+            <p className="text-sm font-medium mt-1">{booking.carEvs?.licensePlate || "N/A"}</p>
+          </div>
+          <div className="col-span-2 flex flex-row gap-4">
+            <div className="flex-1">
+              <Label className="text-xs font-medium text-muted-foreground">Trạm xe điện</Label>
+              <p className="text-sm font-medium mt-1">{booking.depot?.name || "N/A"}</p>
+            </div>
+            <div className="flex-1">
+              <Label className="text-xs font-medium text-muted-foreground">Địa chỉ</Label>
+              <p className="text-sm mt-1">{formatDepotAddress()}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Customer Information Section */}
       <div>
         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
@@ -65,6 +99,47 @@ export function OrderDetailsFull({ booking }: OrderDetailsFullProps) {
           <div className="col-span-2">
             <Label className="text-xs font-medium text-muted-foreground">Điện thoại</Label>
             <p className="text-sm mt-1">{booking.user?.phoneNumber || "N/A"}</p>
+          </div>
+        </div>
+      </div>
+
+      
+
+      {/* Payment Information Section */}
+      <div>
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
+          Thông tin thanh toán
+        </h3>
+        <div className="grid grid-cols-2 gap-4 bg-green-50 p-4 rounded-lg border border-green-100 dark:bg-green-950 dark:border-green-800">
+          <div className="col-span-2">
+            <Label className="text-xs font-medium text-muted-foreground">Tình trạng thanh toán</Label>
+            <div className="mt-1">
+              <Badge variant={(getPaymentStatusVariant(booking.paymentStatus) as "default" | "secondary" | "destructive" | "outline" | "soft-yellow" | "soft-blue" | "soft-purple" | "soft-indigo" | "soft-green" | "soft-orange" | "soft-red" | "soft-gray") || "default"}>
+                {getPaymentStatusLabel(booking.paymentStatus)}
+              </Badge>
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs font-medium text-muted-foreground">Phương thức thanh toán</Label>
+            <p className="text-sm mt-1">
+              {getPaymentMethodLabel(booking.paymentMethod)}
+            </p>
+          </div>
+          <div>
+            <Label className="text-xs font-medium text-muted-foreground">Loại thanh toán</Label>
+            <p className="text-sm mt-1">
+              {getPaymentTypeLabel(booking.paymentType)}
+            </p>
+          </div>
+          <div>
+            <Label className="text-xs font-medium text-muted-foreground">Tổng tiền</Label>
+            <p className="text-base font-bold text-green-700 dark:text-green-400 mt-1">
+              {vnd(parseFloat(booking.totalAmount))} VNĐ
+            </p>
+          </div>
+          <div>
+            <Label className="text-xs font-medium text-muted-foreground">Tiền cọc</Label>
+            <p className="text-sm font-medium mt-1">{vnd(parseFloat(booking.depositAmount))} VNĐ</p>
           </div>
         </div>
       </div>
@@ -89,72 +164,6 @@ export function OrderDetailsFull({ booking }: OrderDetailsFullProps) {
               <Badge variant={(getStatusVariant(booking.status) as "default" | "secondary" | "destructive" | "outline" | "soft-yellow" | "soft-blue" | "soft-purple" | "soft-indigo" | "soft-green" | "soft-orange" | "soft-red" | "soft-gray") || "default"}>
                 {getStatusLabel(booking.status)}
               </Badge>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Payment Information Section */}
-      <div>
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
-          Thông tin thanh toán
-        </h3>
-        <div className="grid grid-cols-2 gap-4 bg-green-50 p-4 rounded-lg border border-green-100 dark:bg-green-950 dark:border-green-800">
-          <div className="col-span-2">
-            <Label className="text-xs font-medium text-muted-foreground">Tình trạng thanh toán</Label>
-            <div className="mt-1">
-              <Badge variant={(getPaymentStatusVariant(booking.paymentStatus) as "default" | "secondary" | "destructive" | "outline" | "soft-yellow" | "soft-blue" | "soft-purple" | "soft-indigo" | "soft-green" | "soft-orange" | "soft-red" | "soft-gray") || "default"}>
-                {getPaymentStatusLabel(booking.paymentStatus)}
-              </Badge>
-            </div>
-          </div>
-          <div>
-            <Label className="text-xs font-medium text-muted-foreground">Phương thức thanh toán</Label>
-            <p className="text-sm mt-1">
-              {PAYMENT_METHOD_OPTIONS.find((m) => m.value === booking.paymentMethod)?.label || booking.paymentMethod}
-            </p>
-          </div>
-          <div>
-            <Label className="text-xs font-medium text-muted-foreground">Loại thanh toán</Label>
-            <p className="text-sm mt-1">
-              {PAYMENT_TYPE_OPTIONS.find((t) => t.value === booking.paymentType)?.label || booking.paymentType}
-            </p>
-          </div>
-          <div>
-            <Label className="text-xs font-medium text-muted-foreground">Tổng tiền</Label>
-            <p className="text-base font-bold text-green-700 dark:text-green-400 mt-1">
-              {vnd(parseFloat(booking.totalAmount))} VNĐ
-            </p>
-          </div>
-          <div>
-            <Label className="text-xs font-medium text-muted-foreground">Tiền cọc</Label>
-            <p className="text-sm font-medium mt-1">{vnd(parseFloat(booking.depositAmount))} VNĐ</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Car Information Section */}
-      <div>
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">
-          Thông tin xe
-        </h3>
-        <div className="grid grid-cols-2 gap-4 bg-purple-50 p-4 rounded-lg border border-purple-100 dark:bg-purple-950 dark:border-purple-800">
-          <div>
-            <Label className="text-xs font-medium text-muted-foreground">Xe</Label>
-            <p className="text-sm font-medium mt-1">{booking.carEvs?.model?.modelName || "N/A"}</p>
-          </div>
-          <div>
-            <Label className="text-xs font-medium text-muted-foreground">Biển số xe</Label>
-            <p className="text-sm font-medium mt-1">{booking.carEvs?.licensePlate || "N/A"}</p>
-          </div>
-          <div className="col-span-2 flex flex-row gap-4">
-            <div className="flex-1">
-              <Label className="text-xs font-medium text-muted-foreground">Trạm xe điện</Label>
-              <p className="text-sm font-medium mt-1">{booking.depot?.name || "N/A"}</p>
-            </div>
-            <div className="flex-1">
-              <Label className="text-xs font-medium text-muted-foreground">Địa chỉ</Label>
-              <p className="text-sm mt-1">{formatDepotAddress()}</p>
             </div>
           </div>
         </div>
