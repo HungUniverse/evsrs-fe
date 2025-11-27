@@ -34,18 +34,15 @@ export default function ReturnSettlementPage() {
   const [errorOrder, setErrorOrder] = useState<string | null>(null);
   const [errorSettlement, setErrorSettlement] = useState<string | null>(null);
 
-  // ---- MEMO
   const title = useMemo(() => "BIÊN BẢN THANH TOÁN KHI TRẢ XE", []);
   const loading = loadingOrder || loadingSettlement;
 
-  // ---- FETCHERS (tách riêng)
   const fetchOrder = useCallback(async () => {
     if (!orderId) return;
     try {
       setLoadingOrder(true);
       setErrorOrder(null);
       const res = await orderBookingAPI.getById(orderId);
-      // Tùy backend, lấy đúng path data
       const data: OrderBookingDetail =
         (res?.data?.data as OrderBookingDetail) ?? res?.data;
       setOrder(data);
@@ -115,14 +112,12 @@ export default function ReturnSettlementPage() {
     [createSettlement]
   );
 
-  // Auto-complete order if subtotal = 0
   useEffect(() => {
     const autoCompleteIfNoPayment = async () => {
       if (!settlement || !order || !orderId || !user?.userId) return;
 
       const subtotal = Number(settlement.subtotal) || 0;
 
-      // Nếu subtotal = 0 và đơn chưa hoàn thành
       if (subtotal === 0 && order.status !== "COMPLETED") {
         try {
           await returnSettlementAPI.complete({

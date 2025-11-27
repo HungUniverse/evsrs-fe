@@ -15,8 +15,8 @@ export interface User {
 }
 
 export interface UserFull {
-  id: string; // từ API
-  userId: string; // alias = id (để UI cũ vẫn dùng được)
+  id: string;
+  userId: string;
   userName: string;
   userEmail: string;
   phoneNumber: string | null;

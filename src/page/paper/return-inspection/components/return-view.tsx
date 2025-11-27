@@ -32,12 +32,14 @@ function fmtDateTime(s?: string) {
 export default function ReturnView({
   inspection,
   baseline,
+  returnLateFee = 0,
   canConfirmReturn = false,
   confirming = false,
   onConfirmReturn,
 }: {
   inspection: ReturnInspectionResponse;
   baseline?: HandoverInspection | null;
+  returnLateFee?: number;
   canConfirmReturn?: boolean;
   confirming?: boolean;
   onConfirmReturn?: () => void;
@@ -47,9 +49,14 @@ export default function ReturnView({
     <section className="rounded-lg border p-4 space-y-4">
       <div className="font-semibold">Biên bản trả xe</div>
 
-      <div className="text-sm text-slate-500">
-        Thời điểm lập: {fmtDateTime(inspection.createdAt)} • Nhân viên:{" "}
-        {inspection.createdBy || "—"}
+      <div className="space-y-1">
+        <div className="text-sm text-slate-500">
+          Thời điểm lập: {fmtDateTime(inspection.createdAt)} • Nhân viên:{" "}
+          {inspection.createdBy || "—"}
+        </div>
+        <div className="text-sm font-semibold text-grey-600">
+          Phí trả trễ: {returnLateFee.toLocaleString("vi-VN")} VNĐ
+        </div>
       </div>
 
       <div className="rounded-md border">
@@ -58,6 +65,7 @@ export default function ReturnView({
           <div>Thời điểm nhận (Handover)</div>
           <div>Thời điểm trả (Return)</div>
         </div>
+
         <div className="px-3">
           <Row
             label="Odometer (km)"

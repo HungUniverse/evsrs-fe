@@ -30,6 +30,28 @@ function isStaffRole(r?: string | number | null) {
   return s === "STAFF";
 }
 
+function getStorageKey(orderId: string) {
+  return `returnLateFee_${orderId}`;
+}
+
+function saveReturnLateFee(orderId: string, fee: number) {
+  try {
+    sessionStorage.setItem(getStorageKey(orderId), String(fee));
+  } catch (e) {
+    console.error("Failed to save returnLateFee:", e);
+  }
+}
+
+function loadReturnLateFee(orderId: string): number {
+  try {
+    const saved = sessionStorage.getItem(getStorageKey(orderId));
+    return saved ? Number(saved) : 0;
+  } catch (e) {
+    console.error("Failed to load returnLateFee:", e);
+    return 0;
+  }
+}
+
 export default function ReturnInspectionPage() {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
@@ -38,6 +60,9 @@ export default function ReturnInspectionPage() {
   const [order, setOrder] = useState<OrderBookingDetail | null>(null);
   const [handover, setHandover] = useState<HandoverInspection | null>(null);
   const [ret, setRet] = useState<ReturnInspectionResponse | null>(null);
+  const [returnLateFee, setReturnLateFee] = useState<number>(() =>
+    orderId ? loadReturnLateFee(orderId) : 0
+  );
 
   const [initLoading, setInitLoading] = useState(true);
   const [confirmingReturn, setConfirmingReturn] = useState(false);
@@ -124,12 +149,16 @@ export default function ReturnInspectionPage() {
       ...v,
     };
     try {
-      await returnInspectionAPI.create(body);
-      const latest = (await returnInspectionAPI.getByOrderId(
-        orderId
-      )) as ReturnInspectionResponse;
-      setRet(latest);
-      toast.success("Đã lập biên bản trả xe");
+      const result = await returnInspectionAPI.create(body);
+      setRet(result);
+      setReturnLateFee(result.returnLateFee);
+      console.log("Created return inspection:", result.returnLateFee);
+      if (orderId) {
+        saveReturnLateFee(orderId, result.returnLateFee);
+      }
+      toast.success(
+        `Đã lập biên bản trả xe${result.returnLateFee > 0 ? `. Phí trễ giờ: ${result.returnLateFee.toLocaleString("vi-VN")} VNĐ` : ""}`
+      );
     } catch {
       toast.error("Lập biên bản trả thất bại");
     }
@@ -140,7 +169,6 @@ export default function ReturnInspectionPage() {
     try {
       setConfirmingReturn(true);
       await orderBookingAPI.return(orderId);
-      // refetch để đồng bộ ngay status & biên bản
       await Promise.all([refetchOrder(), refetchReturn()]);
       toast.success("Đã xác nhận trả xe");
     } catch (e: any) {
@@ -152,7 +180,6 @@ export default function ReturnInspectionPage() {
     }
   }
 
-  /** Điều hướng sang trang quyết toán */
   function handleGoToSettlement() {
     if (!orderId) return;
     navigate(`/staff/trip/${orderId}/return/settlement`);
@@ -209,6 +236,7 @@ export default function ReturnInspectionPage() {
             <ReturnView
               inspection={ret!}
               baseline={handover}
+              returnLateFee={returnLateFee}
               canConfirmReturn={canConfirmReturn}
               confirming={confirmingReturn}
               onConfirmReturn={handleConfirmReturn}

@@ -1,14 +1,15 @@
 import { api } from "@/lib/axios/axios";
 import type { ItemBaseResponse } from "@/@types/response";
 import type {
-  ReturnInspection,
   ReturnInspectionRequest,
   ReturnInspectionResponse,
 } from "@/@types/order/return-inspection";
 
 export const returnInspectionAPI = {
-  create: async (data: ReturnInspectionRequest): Promise<ReturnInspection> => {
-    const res = await api.post<ItemBaseResponse<ReturnInspection>>(
+  create: async (
+    data: ReturnInspectionRequest
+  ): Promise<ReturnInspectionResponse> => {
+    const res = await api.post<ItemBaseResponse<ReturnInspectionResponse>>(
       "/api/Return/inspection",
       data
     );
@@ -17,7 +18,7 @@ export const returnInspectionAPI = {
 
   getByOrderId: async (
     orderId: string
-  ): Promise<ReturnInspectionRequest | null> => {
+  ): Promise<ReturnInspectionResponse | null> => {
     const res = await api.get<ItemBaseResponse<ReturnInspectionResponse>>(
       `/api/Return/inspection/order/${orderId}`
     );

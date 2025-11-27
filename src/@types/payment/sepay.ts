@@ -6,9 +6,9 @@ export interface SepayStatusResponse {
     transactionId?: string;
     paidAt?: string;
   };
-  message: string; // e.g., "PAID_DEPOSIT_COMPLETED", "PENDING", "FAILED"
+  message: string;
   statusCode: number;
-  code: string; // e.g., "SUCCESS", "ERROR"
+  code: string;
 }
 
 export const SepayOrderStatus = {
